@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Bot,
   BookOpen,
   CircleDollarSign,
@@ -16,6 +17,7 @@ export const navItems = [
   { label: 'Mission', href: '#mission' },
   { label: 'Langar', href: '#langar' },
   { label: 'AI Sevadars', href: '#ai' },
+  { label: 'Intelligence', href: '#intelligence' },
   { label: 'Treasury', href: '#treasury' },
   { label: 'Join', href: '#join' },
 ];
@@ -45,9 +47,22 @@ export const ecosystemSections = [
     icon: Bot,
     stat: 'Agent ready',
   },
+  {
+    id: 'intelligence',
+    kicker: 'Satnam Intelligence',
+    title: 'Institutional-grade BTC, LTC, XLM, policy, and Morpho intelligence.',
+    body: 'A source-linked daily report will track ETF flows, sovereign and corporate holdings, Wall Street and bank activity, network developments, regulation, and cbBTC/cbLTC lending-market risk.',
+    icon: BarChart3,
+    stat: 'Daily research',
+  },
 ];
 
 export const platformModules = [
+  {
+    title: 'Satnam Intelligence',
+    text: 'Verified daily BTC, LTC, XLM, ETF, treasury, sovereign, regulatory, and Morpho reporting with provenance and confidence grades.',
+    icon: BarChart3,
+  },
   {
     title: 'Transparent Treasury',
     text: 'Public BTC and LTC reserve views with donation history, purpose tags, and operating transparency.',
@@ -71,19 +86,19 @@ export const platformModules = [
 ];
 
 export const treasuryArchitecture = [
-  { label: 'BTC reserve', value: 'Address pending', tone: 'gold' },
-  { label: 'LTC reserve', value: 'Address pending', tone: 'silver' },
+  { label: 'BTC reserve', value: 'bc1q3qxt…xz8rx', tone: 'gold' },
+  { label: 'LTC reserve', value: 'ltc1q7888…c63j', tone: 'silver' },
   { label: 'Lightning', value: 'Invoice layer planned', tone: 'blue' },
   { label: 'Allocation', value: 'Food, education, tools', tone: 'saffron' },
 ];
 
 export const roadmap = [
-  'Publish premium movement website on Vercel',
-  'Confirm BTC and LTC treasury addresses',
+  'Launch the verified Satnam Intelligence daily report',
+  'Build BTC, LTC, XLM, sovereign, ETF, and Morpho data agents',
   'Open volunteer and food donor intake',
   'Integrate Lightning donation flow',
   'Launch Bitcoin education series',
-  'Release AI sevadar coordination layer',
+  'Release paid subscriptions and x402 agent API after sandbox and compliance review',
 ];
 
 export const communityActions = [
