@@ -1,0 +1,165 @@
+{
+  "version": "0.1.0",
+  "updatedAt": "2026-06-15T00:00:00-04:00",
+  "policy": {
+    "defaultAccess": "deny",
+    "requireProvenance": true,
+    "respectRobotsAndTerms": true,
+    "bypassAccessControls": false,
+    "storeRawContent": "only when permitted",
+    "materialChangeCorroboration": "preferred"
+  },
+  "sources": [
+    {
+      "id": "bitcoinlaws",
+      "name": "Bitcoin Laws",
+      "url": "https://www.bitcoinlaws.io/",
+      "type": "legislation-aggregator",
+      "accessMode": "public-web",
+      "cadence": "daily",
+      "sectors": ["sovereign", "regulation", "state-legislation"],
+      "assets": ["BTC", "digital-assets"],
+      "confidenceDefault": "B",
+      "verification": "link material claims to the underlying bill, order, or government source"
+    },
+    {
+      "id": "bitbo-treasury-changes",
+      "name": "Bitbo Treasury Latest Changes",
+      "url": "https://bitbo.io/treasuries/latest-changes/",
+      "type": "treasury-aggregator",
+      "accessMode": "public-web",
+      "cadence": "daily",
+      "sectors": ["corporate-treasury", "funds", "sovereign"],
+      "assets": ["BTC"],
+      "confidenceDefault": "B",
+      "verification": "corroborate material changes with filings, issuer releases, or transaction evidence"
+    },
+    {
+      "id": "mnav",
+      "name": "mNAV Bitcoin Treasury Terminal",
+      "url": "https://www.mnav.com/",
+      "type": "treasury-analytics",
+      "accessMode": "public-web-or-licensed-api",
+      "cadence": "daily",
+      "sectors": ["public-companies", "mnav", "capital-markets"],
+      "assets": ["BTC"],
+      "confidenceDefault": "B",
+      "verification": "preserve methodology; corroborate holdings and financing with company filings"
+    },
+    {
+      "id": "litecoin-register",
+      "name": "Litecoin Register",
+      "url": "https://litecoinregister.com/",
+      "type": "treasury-aggregator",
+      "accessMode": "public-web",
+      "cadence": "daily",
+      "sectors": ["corporate-treasury", "funds", "etp"],
+      "assets": ["LTC"],
+      "confidenceDefault": "B",
+      "requiredFields": ["date", "entity", "category", "ltc_balance", "rank", "change_24h", "change_7d", "change_30d"],
+      "verification": "corroborate significant balances and changes with issuer disclosures"
+    },
+    {
+      "id": "morpho-api",
+      "name": "Morpho GraphQL API",
+      "url": "https://api.morpho.org/graphql",
+      "documentation": "https://docs.morpho.org/tools/offchain/api/get-started/",
+      "type": "official-api",
+      "accessMode": "public-api",
+      "cadence": "hourly",
+      "sectors": ["defi", "lending", "vaults", "risk"],
+      "assets": ["cbBTC", "cbLTC", "USDC"],
+      "confidenceDefault": "A",
+      "controls": ["cache responses", "respect rate limits", "store retrieval time", "monitor extensions.warnings", "mark stale data"],
+      "notes": "Official documentation states the API is provided without an SLA."
+    },
+    {
+      "id": "coinbase-agentkit-docs",
+      "name": "Coinbase AgentKit Documentation",
+      "url": "https://docs.cdp.coinbase.com/agent-kit/",
+      "type": "official-documentation",
+      "accessMode": "public-web",
+      "cadence": "weekly",
+      "sectors": ["agents", "wallets", "onchain-actions"],
+      "assets": ["Base", "EVM"],
+      "confidenceDefault": "A"
+    },
+    {
+      "id": "coinbase-x402-docs",
+      "name": "Coinbase x402 Documentation",
+      "url": "https://docs.cdp.coinbase.com/x402/",
+      "type": "official-documentation",
+      "accessMode": "public-web",
+      "cadence": "weekly",
+      "sectors": ["agent-commerce", "payments", "paid-api"],
+      "assets": ["USDC", "Base"],
+      "confidenceDefault": "A"
+    },
+    {
+      "id": "congress-clarity",
+      "name": "Congress.gov — Digital Asset Market Clarity Act",
+      "url": "https://www.congress.gov/bill/119th-congress/house-bill/3633",
+      "type": "primary-government-source",
+      "accessMode": "public-web",
+      "cadence": "daily",
+      "sectors": ["federal-legislation", "market-structure"],
+      "assets": ["digital-assets"],
+      "confidenceDefault": "A"
+    },
+    {
+      "id": "sec",
+      "name": "U.S. Securities and Exchange Commission",
+      "url": "https://www.sec.gov/",
+      "type": "primary-regulator-source",
+      "accessMode": "public-web-and-filings",
+      "cadence": "daily",
+      "sectors": ["regulation", "filings", "etf", "public-companies"],
+      "assets": ["BTC", "LTC", "XLM", "digital-assets"],
+      "confidenceDefault": "A"
+    },
+    {
+      "id": "cftc",
+      "name": "U.S. Commodity Futures Trading Commission",
+      "url": "https://www.cftc.gov/",
+      "type": "primary-regulator-source",
+      "accessMode": "public-web",
+      "cadence": "daily",
+      "sectors": ["regulation", "derivatives", "market-structure"],
+      "assets": ["BTC", "LTC", "digital-assets"],
+      "confidenceDefault": "A"
+    },
+    {
+      "id": "bitcoin-core-github",
+      "name": "Bitcoin Core GitHub",
+      "url": "https://github.com/bitcoin/bitcoin",
+      "type": "official-repository",
+      "accessMode": "public-api-or-web",
+      "cadence": "daily",
+      "sectors": ["network", "software", "security"],
+      "assets": ["BTC"],
+      "confidenceDefault": "A"
+    },
+    {
+      "id": "litecoin-core-github",
+      "name": "Litecoin Core GitHub",
+      "url": "https://github.com/litecoin-project/litecoin",
+      "type": "official-repository",
+      "accessMode": "public-api-or-web",
+      "cadence": "daily",
+      "sectors": ["network", "software", "security"],
+      "assets": ["LTC"],
+      "confidenceDefault": "A"
+    },
+    {
+      "id": "stellar-developers",
+      "name": "Stellar Developer Documentation",
+      "url": "https://developers.stellar.org/",
+      "type": "official-documentation",
+      "accessMode": "public-web",
+      "cadence": "daily",
+      "sectors": ["network", "soroban", "tokenization", "payments"],
+      "assets": ["XLM"],
+      "confidenceDefault": "A"
+    }
+  ]
+}
