@@ -1,0 +1,619 @@
+openapi: 3.1.0
+info:
+  title: SSCOS Public MVP API
+  version: 0.1.0-draft
+  summary: Read-only public contracts for Treasury Intelligence, Lunch Time Conversations, and Satoshi Langar.
+  description: >-
+    Planning specification only. This contract authorizes no implementation, deployment,
+    public API, production data, account, payment, wallet, custody, trading, or transaction
+    capability. All public operations are GET or HEAD. Administrative and editorial mutation
+    contracts are intentionally excluded from the public specification.
+  x-document-control:
+    version-number: 0.1
+    revision-date: 2026-08-05
+    status: Working Draft
+    owner: API Lead
+    related-volume: Engineering Program
+    related-chapter: M3 Data Foundation
+    dependencies:
+      - ADR-0003
+      - ADR-0004
+      - Database and API Design v0.1
+      - MVP Fixture Catalog v0.1
+    approval-status: Pending Human Founder and API Review
+servers:
+  - url: https://example.invalid/api/v1
+    description: Non-operational placeholder; no environment is authorized.
+tags:
+  - name: System
+  - name: Treasury Intelligence
+  - name: Lunch Time Conversations
+  - name: Satoshi Langar
+  - name: Sources
+security: []
+paths:
+  /health:
+    get:
+      tags: [System]
+      operationId: getHealth
+      summary: Return bounded public service health.
+      responses:
+        '200':
+          description: Health status without vendor, dependency, or privileged details.
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/RequestId'
+            Cache-Control:
+              schema: { type: string }
+              example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: operational
+                api_version: v1
+                generated_at: '2026-08-05T14:00:00Z'
+    head:
+      tags: [System]
+      operationId: headHealth
+      summary: Return health headers only.
+      responses:
+        '200':
+          description: Service is responding.
+          headers:
+            X-Request-Id:
+              $ref: '#/components/headers/RequestId'
+  /treasury/entities:
+    get:
+      tags: [Treasury Intelligence]
+      operationId: listTreasuryEntities
+      summary: List verified public treasury entities.
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - name: asset
+          in: query
+          schema:
+            type: string
+            enum: [BTC, LTC, XLM]
+        - name: entity_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/EntityType'
+      responses:
+        '200':
+          description: Deterministically ordered entity summaries.
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+            X-Request-Id:
+              $ref: '#/components/headers/RequestId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreasuryEntityCollection'
+              examples:
+                verified:
+                  $ref: '#/components/examples/TreasuryCollectionVerified'
+                stale:
+                  $ref: '#/components/examples/TreasuryCollectionStale'
+                empty:
+                  value:
+                    data: []
+                    page: { next_cursor: null, has_more: false }
+                    meta:
+                      generated_at: '2026-08-05T14:00:00Z'
+                      data_state: current
+                      data_freshness:
+                        as_of: '2026-08-05T13:55:00Z'
+                        status: current
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /treasury/entities/{id}:
+    get:
+      tags: [Treasury Intelligence]
+      operationId: getTreasuryEntity
+      summary: Return one public entity profile and verified holding history.
+      parameters:
+        - $ref: '#/components/parameters/EntityId'
+      responses:
+        '200':
+          description: Entity profile with provenance and correction state.
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreasuryEntityResponse'
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /treasury/changes:
+    get:
+      tags: [Treasury Intelligence]
+      operationId: listTreasuryChanges
+      summary: List recent verified treasury changes.
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - name: since
+          in: query
+          schema: { type: string, format: date-time }
+        - name: asset
+          in: query
+          schema: { type: string, enum: [BTC, LTC, XLM] }
+      responses:
+        '200':
+          description: Verified changes only; quarantined candidates are never public.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreasuryChangeCollection'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /conversations:
+    get:
+      tags: [Lunch Time Conversations]
+      operationId: listConversations
+      summary: List approved public conversation records.
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Approved conversation summaries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationCollection'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /conversations/{slug}:
+    get:
+      tags: [Lunch Time Conversations]
+      operationId: getConversation
+      summary: Return one approved conversation and availability state.
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200':
+          description: Approved public revision only.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationResponse'
+        '404': { $ref: '#/components/responses/NotFound' }
+        '410':
+          description: Content is unavailable under an approved takedown or rights decision.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /langar/editions:
+    get:
+      tags: [Satoshi Langar]
+      operationId: listLangarEditions
+      summary: List approved Satoshi Langar editions.
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Edition summaries with correction and freshness state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LangarEditionCollection'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /langar/editions/{date}:
+    get:
+      tags: [Satoshi Langar]
+      operationId: getLangarEdition
+      summary: Return one approved daily edition.
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Approved edition with claims, sources, confidence, freshness, and corrections.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LangarEditionResponse'
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+  /sources/{id}:
+    get:
+      tags: [Sources]
+      operationId: getPublicSource
+      summary: Return approved public source methodology metadata.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, pattern: '^SRC-[A-Z0-9-]+$' }
+      responses:
+        '200':
+          description: Public source description; credentials and private controls are excluded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicSourceResponse'
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '500': { $ref: '#/components/responses/InternalError' }
+components:
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string, maxLength: 512 }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    EntityId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, pattern: '^ent_[a-z0-9]{12,32}$' }
+    Slug:
+      name: slug
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', maxLength: 120 }
+  headers:
+    RequestId:
+      schema: { type: string, pattern: '^req_[a-zA-Z0-9_-]{12,64}$' }
+    ETag:
+      schema: { type: string }
+    RetryAfter:
+      schema: { type: integer, minimum: 1 }
+  responses:
+    BadRequest:
+      description: Invalid or unsupported public request.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://satnam.x/problems/invalid-request
+            title: Invalid request
+            status: 400
+            detail: One or more public request parameters are invalid.
+            request_id: req_example000001
+    NotFound:
+      description: No approved public resource exists for the identifier.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    RateLimited:
+      description: Public request limit exceeded.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+        X-Request-Id: { $ref: '#/components/headers/RequestId' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://satnam.x/problems/rate-limited
+            title: Request limit exceeded
+            status: 429
+            detail: Retry after the interval in the Retry-After header.
+            request_id: req_example000002
+    InternalError:
+      description: Safe public error with no stack, query, secret, prompt, or privileged metadata.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example:
+            type: https://satnam.x/problems/internal-error
+            title: The request could not be completed
+            status: 500
+            request_id: req_example000003
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status, api_version, generated_at]
+      properties:
+        status: { type: string, enum: [operational, degraded] }
+        api_version: { type: string, const: v1 }
+        generated_at: { type: string, format: date-time }
+    EntityType:
+      type: string
+      enum: [public_company, private_company, fund, trust, bank, custodian, government, sovereign_entity, pension, insurer, miner, infrastructure_company, other]
+    Confidence:
+      type: string
+      enum: [A, B, C, D]
+      description: Quarantined Q records are never returned publicly.
+    DataFreshness:
+      type: object
+      additionalProperties: false
+      required: [as_of, status]
+      properties:
+        as_of: { type: string, format: date-time }
+        status: { type: string, enum: [current, stale, source_unavailable] }
+        stale_after: { type: [string, 'null'], format: date-time }
+        message: { type: [string, 'null'], maxLength: 280 }
+    ResponseMeta:
+      type: object
+      additionalProperties: false
+      required: [generated_at, data_state, data_freshness]
+      properties:
+        generated_at: { type: string, format: date-time }
+        data_state: { type: string, enum: [current, stale, corrected, source_unavailable] }
+        data_freshness: { $ref: '#/components/schemas/DataFreshness' }
+    Page:
+      type: object
+      additionalProperties: false
+      required: [next_cursor, has_more]
+      properties:
+        next_cursor: { type: [string, 'null'] }
+        has_more: { type: boolean }
+    SourceLink:
+      type: object
+      additionalProperties: false
+      required: [source_id, title, url, authority_class, retrieved_at]
+      properties:
+        source_id: { type: string }
+        title: { type: string, maxLength: 240 }
+        url: { type: string, format: uri }
+        authority_class: { type: string, enum: [P0, P1, S1, S2] }
+        published_at: { type: [string, 'null'], format: date-time }
+        retrieved_at: { type: string, format: date-time }
+    CorrectionSummary:
+      type: object
+      additionalProperties: false
+      required: [correction_id, published_at, summary]
+      properties:
+        correction_id: { type: string }
+        published_at: { type: string, format: date-time }
+        summary: { type: string, maxLength: 500 }
+        url: { type: string, format: uri-reference }
+    AssetAmount:
+      type: object
+      additionalProperties: false
+      required: [asset, amount]
+      properties:
+        asset: { type: string, enum: [BTC, LTC, XLM] }
+        amount:
+          type: string
+          pattern: '^-?[0-9]+(?:\.[0-9]{1,18})?$'
+          description: Decimal string; never binary floating point.
+    TreasurySnapshot:
+      type: object
+      additionalProperties: false
+      required: [snapshot_id, classification, balance, observed_at, confidence, verification_status, sources]
+      properties:
+        snapshot_id: { type: string }
+        classification: { type: string, enum: [beneficial_holding, custody, seized, strategic_reserve, estimate] }
+        balance: { $ref: '#/components/schemas/AssetAmount' }
+        observed_at: { type: string, format: date-time }
+        confidence: { $ref: '#/components/schemas/Confidence' }
+        verification_status: { type: string, enum: [verified, provisional, estimated] }
+        sources:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/SourceLink' }
+    TreasuryEntitySummary:
+      type: object
+      additionalProperties: false
+      required: [id, slug, name, entity_type, jurisdiction, latest_snapshots]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        name: { type: string, maxLength: 240 }
+        entity_type: { $ref: '#/components/schemas/EntityType' }
+        jurisdiction: { type: string, maxLength: 120 }
+        latest_snapshots:
+          type: array
+          items: { $ref: '#/components/schemas/TreasurySnapshot' }
+    TreasuryEntityCollection:
+      type: object
+      additionalProperties: false
+      required: [data, page, meta]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/TreasuryEntitySummary' } }
+        page: { $ref: '#/components/schemas/Page' }
+        meta: { $ref: '#/components/schemas/ResponseMeta' }
+    TreasuryEntityResponse:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/TreasuryEntitySummary'
+            - type: object
+              properties:
+                history: { type: array, items: { $ref: '#/components/schemas/TreasurySnapshot' } }
+                corrections: { type: array, items: { $ref: '#/components/schemas/CorrectionSummary' } }
+        meta: { $ref: '#/components/schemas/ResponseMeta' }
+    TreasuryChange:
+      type: object
+      additionalProperties: false
+      required: [change_id, entity_id, change_type, asset, amount_delta, effective_at, confidence, sources]
+      properties:
+        change_id: { type: string }
+        entity_id: { type: string }
+        change_type: { type: string, enum: [acquisition, disposition, restatement, corporate_action, reclassification] }
+        asset: { type: string, enum: [BTC, LTC, XLM] }
+        amount_delta: { type: string, pattern: '^-?[0-9]+(?:\.[0-9]{1,18})?$' }
+        effective_at: { type: string, format: date-time }
+        confidence: { $ref: '#/components/schemas/Confidence' }
+        sources: { type: array, minItems: 1, items: { $ref: '#/components/schemas/SourceLink' } }
+    TreasuryChangeCollection:
+      type: object
+      additionalProperties: false
+      required: [data, page, meta]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/TreasuryChange' } }
+        page: { $ref: '#/components/schemas/Page' }
+        meta: { $ref: '#/components/schemas/ResponseMeta' }
+    ConversationSummary:
+      type: object
+      additionalProperties: false
+      required: [id, slug, title, published_at, participants, transcript_status, availability]
+      properties:
+        id: { type: string }
+        slug: { type: string }
+        title: { type: string, maxLength: 240 }
+        published_at: { type: string, format: date-time }
+        participants: { type: array, items: { type: string, maxLength: 160 } }
+        transcript_status: { type: string, enum: [available, pending, unavailable] }
+        availability: { type: string, enum: [public, corrected, withdrawn] }
+    ConversationCollection:
+      type: object
+      additionalProperties: false
+      required: [data, page, meta]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/ConversationSummary' } }
+        page: { $ref: '#/components/schemas/Page' }
+        meta: { $ref: '#/components/schemas/ResponseMeta' }
+    ConversationResponse:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/ConversationSummary'
+            - type: object
+              properties:
+                summary: { type: string }
+                transcript: { type: [string, 'null'] }
+                media_url: { type: [string, 'null'], format: uri }
+                corrections: { type: array, items: { $ref: '#/components/schemas/CorrectionSummary' } }
+        meta: { $ref: '#/components/schemas/ResponseMeta' }
+    Claim:
+      type: object
+      additionalProperties: false
+      required: [claim_id, text, category, as_of, confidence, sources]
+      properties:
+        claim_id: { type: string }
+        text: { type: string }
+        category: { type: string, enum: [fact, estimate, interpretation] }
+        as_of: { type: string, format: date-time }
+        confidence: { $ref: '#/components/schemas/Confidence' }
+        sources: { type: array, minItems: 1, items: { $ref: '#/components/schemas/SourceLink' } }
+    LangarEditionSummary:
+      type: object
+      additionalProperties: false
+      required: [id, edition_date, title, published_at, correction_state]
+      properties:
+        id: { type: string }
+        edition_date: { type: string, format: date }
+        title: { type: string, maxLength: 240 }
+        published_at: { type: string, format: date-time }
+        correction_state: { type: string, enum: [none, corrected] }
+    LangarEditionCollection:
+      type: object
+      additionalProperties: false
+      required: [data, page, meta]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/LangarEditionSummary' } }
+        page: { $ref: '#/components/schemas/Page' }
+        meta: { $ref: '#/components/schemas/ResponseMeta' }
+    LangarSection:
+      type: object
+      additionalProperties: false
+      required: [section_id, title, claims]
+      properties:
+        section_id: { type: string }
+        title: { type: string }
+        claims: { type: array, items: { $ref: '#/components/schemas/Claim' } }
+    LangarEditionResponse:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
+        data:
+          allOf:
+            - $ref: '#/components/schemas/LangarEditionSummary'
+            - type: object
+              properties:
+                sections: { type: array, items: { $ref: '#/components/schemas/LangarSection' } }
+                corrections: { type: array, items: { $ref: '#/components/schemas/CorrectionSummary' } }
+        meta: { $ref: '#/components/schemas/ResponseMeta' }
+    PublicSourceResponse:
+      type: object
+      additionalProperties: false
+      required: [data, meta]
+      properties:
+        data:
+          type: object
+          additionalProperties: false
+          required: [source_id, title, owner, authority_class, canonical_url, status, allowable_claims, last_reviewed_at]
+          properties:
+            source_id: { type: string }
+            title: { type: string }
+            owner: { type: string }
+            authority_class: { type: string, enum: [P0, P1, S1, S2] }
+            canonical_url: { type: string, format: uri }
+            status: { type: string, enum: [active, degraded, retired] }
+            allowable_claims: { type: array, items: { type: string } }
+            last_reviewed_at: { type: string, format: date-time }
+        meta: { $ref: '#/components/schemas/ResponseMeta' }
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, request_id]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string, maxLength: 160 }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        detail: { type: string, maxLength: 500 }
+        request_id: { type: string }
+  examples:
+    TreasuryCollectionVerified:
+      value:
+        data:
+          - id: ent_example000001
+            slug: example-public-entity
+            name: Example Public Entity
+            entity_type: public_company
+            jurisdiction: US
+            latest_snapshots:
+              - snapshot_id: snap_example0001
+                classification: beneficial_holding
+                balance: { asset: BTC, amount: '1000.00000000' }
+                observed_at: '2026-08-04T20:00:00Z'
+                confidence: A
+                verification_status: verified
+                sources:
+                  - source_id: SRC-SEC-EDGAR
+                    title: Example regulated filing
+                    url: https://www.sec.gov/example
+                    authority_class: P0
+                    published_at: '2026-08-05T12:00:00Z'
+                    retrieved_at: '2026-08-05T12:05:00Z'
+        page: { next_cursor: null, has_more: false }
+        meta:
+          generated_at: '2026-08-05T14:00:00Z'
+          data_state: current
+          data_freshness:
+            as_of: '2026-08-05T12:05:00Z'
+            status: current
+    TreasuryCollectionStale:
+      value:
+        data: []
+        page: { next_cursor: null, has_more: false }
+        meta:
+          generated_at: '2026-08-05T14:00:00Z'
+          data_state: stale
+          data_freshness:
+            as_of: '2026-08-04T12:00:00Z'
+            status: stale
+            stale_after: '2026-08-05T12:00:00Z'
+            message: The latest verified source data is older than the approved freshness window.
