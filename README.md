@@ -1,107 +1,64 @@
-# Satnam Satoshi Intelligence
+# Satnam Satoshi Intelligence / SSCOS Documentation Baseline
 
 **Truth. Seva. Sovereignty.**
 
-Satnam Satoshi Intelligence is a public-interest digital-asset research platform focused on Bitcoin (BTC), Litecoin (LTC), Stellar (XLM), institutional adoption, sovereign policy, ETF flows, corporate treasuries, and collateral markets.
+## Institutional status
 
-The first commercial product is a daily, source-linked institutional intelligence report. The platform is designed so humans retain custody, consent, editorial authority, and mission control while specialized agents perform collection, normalization, reconciliation, analysis, verification, drafting, and distribution.
+This repository hosts the Satoshi Langar product materials and a proposed documentation baseline for the Satnam Satoshi Community Operating System (SSCOS). SSCOS Blueprint v0.1 remains the foundational constitutional draft. The proposed v0.2 baseline evolves it through controlled governance; it does not redesign the system from scratch.
 
-## Launch scope
+All constitutional and governance files added by this baseline are **working drafts pending approval by Amardeep Baba G Malhotra, Human Founder and final approver**. Their presence in GitHub does not authorize implementation, deployment, publication, custody, transactions, treasury activity, or production access.
 
-Phase 1 is a research and publishing system. It does **not** custody customer assets, execute trades, manage portfolios, guarantee returns, or provide personalized investment advice.
+## Institutional documents
 
-The initial product covers:
+- [`docs/constitution/SSCOS-CONSTITUTIONAL-BASELINE-v0.2.md`](docs/constitution/SSCOS-CONSTITUTIONAL-BASELINE-v0.2.md)
+- [`docs/governance/GOVERNANCE-METADATA-STANDARD-v0.1.md`](docs/governance/GOVERNANCE-METADATA-STANDARD-v0.1.md)
+- [`docs/governance/adr/ADR-TEMPLATE.md`](docs/governance/adr/ADR-TEMPLATE.md)
+- [`docs/architecture/SUBSYSTEM-CHARTER-TEMPLATE.md`](docs/architecture/SUBSYSTEM-CHARTER-TEMPLATE.md)
+- [`docs/agents/AGENT-CHARTER-TEMPLATE.md`](docs/agents/AGENT-CHARTER-TEMPLATE.md)
+- [`docs/registers/REPOSITORY-REGISTER-v0.1.md`](docs/registers/REPOSITORY-REGISTER-v0.1.md)
 
-- BTC, LTC, and XLM market and network intelligence
-- ETF inflows, outflows, AUM, holdings, and issuer changes
-- public-company, bank, fund, government, and sovereign holdings
-- country and U.S. state digital-asset legislation
-- Bitcoin treasury changes and mNAV analytics
-- Litecoin treasury and institutional adoption
-- Stellar payments, tokenization, stablecoin, and RWA activity
-- CLARITY Act and related U.S. regulatory developments
-- Morpho cbBTC and cbLTC market metrics, liquidity, utilization, APYs, collateral parameters, and risk observations
-- source provenance, confidence scoring, discrepancies, and corrections
+## Governance rules
 
-## Product model
+- SSCOS is the permanent system of record; conflicting constitutions and parallel governance are prohibited.
+- Controlled documents carry version, revision date, status, owner, related volume, related chapter, dependencies, and approval status.
+- Material architecture decisions use ADRs.
+- Every subsystem and AI agent requires an approved charter.
+- Architecture approval precedes implementation.
+- Humans retain custody, consent, editorial authority, emergency control, and final institutional approval.
 
-### Free daily brief
+## Existing product scope
 
-A concise public summary with headline changes, selected metrics, and links to primary sources.
+Satnam Satoshi Intelligence is a proposed public-interest digital-asset research platform covering BTC, LTC, XLM, institutional adoption, sovereign policy, ETF flows, corporate treasuries, collateral markets, and source-linked institutional reporting. Existing product specifications are retained as subordinate references:
 
-### Satnam Intelligence Pro
+- [`docs/AGENT-ARCHITECTURE.md`](docs/AGENT-ARCHITECTURE.md)
+- [`docs/REPORT-SPEC.md`](docs/REPORT-SPEC.md)
 
-A detailed daily report with:
+Those documents must be reconciled into approved subsystem and agent charters before implementation. Phase 1 remains non-custodial and does not authorize trading, portfolio management, personalized financial advice, or autonomous treasury control.
 
-- executive summary
-- ETF flow dashboard
-- sovereign and legislative tracker
-- Wall Street and treasury leaderboard
-- BTC, LTC, and XLM network intelligence
-- Morpho market dashboard
-- institutional filings and banking activity
-- methodology notes, source links, confidence scores, and corrections
+## Review workflow
 
-### Institutional and agent API
+1. Draft documentation on a dedicated documentation branch.
+2. Confirm metadata, dependencies, security, privacy, and constitutional consistency.
+3. Record material decisions with ADRs.
+4. Obtain explicit approval from Amardeep Baba G Malhotra.
+5. Merge only after separate human authorization.
+6. Authorize implementation only through a distinct written decision after architecture approval.
 
-Structured JSON, CSV, and report endpoints for analysts, communities, businesses, and autonomous agents. Paid machine-to-machine access will use x402 on Base after sandbox testing and compliance review.
+## Canonical records
 
-## Agent system
+- GitHub repository: `Satnam-Satoshi/Satoshi-Langar`
+- SSCOS Google Drive root: `1vOsG6oilBHObJuXxOLdSDLLaqeqWQZLt`
+- Repository register: [`docs/registers/REPOSITORY-REGISTER-v0.1.md`](docs/registers/REPOSITORY-REGISTER-v0.1.md)
 
-1. **Source Scout** — discovers and retrieves approved public data.
-2. **ETF Flow Agent** — reconciles issuer, exchange, and aggregator flow data.
-3. **Treasury Ledger Agent** — tracks corporate, fund, bank, sovereign, and government holdings.
-4. **Policy Agent** — monitors Bitcoin Laws, Congress, regulators, and state legislation.
-5. **Network Intelligence Agent** — covers Bitcoin, Litecoin, and Stellar protocol and ecosystem changes.
-6. **Morpho Risk Agent** — monitors markets, vaults, liquidity, utilization, APYs, LLTV, oracles, and rewards.
-7. **Verification Agent** — checks freshness, provenance, arithmetic, duplicates, conflicts, and confidence.
-8. **Editor Agent** — produces the institutional report, executive brief, charts, and correction log.
-9. **Commerce Agent** — manages subscriptions and paid API access without controlling treasury funds.
+## Document control
 
-See [`docs/AGENT-ARCHITECTURE.md`](docs/AGENT-ARCHITECTURE.md) and [`docs/REPORT-SPEC.md`](docs/REPORT-SPEC.md).
-
-## Safety and governance
-
-- Humans control all signing keys and treasury wallets.
-- Collection agents are read-only.
-- Publishing requires source citations and confidence metadata.
-- No source is treated as authoritative merely because it is popular.
-- Material holdings changes require independent corroboration when feasible.
-- Estimates must be labeled and never mixed with confirmed figures.
-- Personalized buy, sell, leverage, liquidation, or portfolio instructions are out of scope for Phase 1.
-- Any future transaction-capable agent must use separate wallets, explicit spending limits, allowlists, simulation, human approval, and immutable audit logs.
-
-## Technology
-
-- Next.js and TypeScript
-- Vercel deployment
-- server-side scheduled jobs
-- Postgres/Supabase planned for normalized observations and report history
-- Morpho GraphQL API
-- public and licensed institutional data sources
-- Coinbase AgentKit for future controlled onchain capabilities
-- x402 for future paid API endpoints
-
-## Environment
-
-Copy `.env.example` to `.env.local` and configure only the services being used.
-
-```bash
-npm install
-npm run dev
-```
-
-## Repository status
-
-The repository is being upgraded from a landing-page prototype into the Satnam Satoshi Intelligence MVP. The immediate objective is a reproducible daily report with a source registry, normalized data model, provenance ledger, editorial controls, and paid distribution path.
-
-## Public treasury addresses
-
-Public addresses may be displayed for transparency, but this application never requests or stores seed phrases or private keys.
-
-- BTC: `bc1q3qxtztzjp6wllmszv9fryp4rln8wt0er2xz8rx`
-- LTC: `ltc1q78882zg99eedjnscxlv43we2r4exxua4e5c63j`
-
-## Disclaimer
-
-Satnam Satoshi Intelligence publishes general, impersonal research and factual market information. It is not individualized investment, legal, tax, accounting, or fiduciary advice. Digital assets and lending markets involve substantial risk, including loss of principal and liquidation.
+| Field | Value |
+|---|---|
+| Version Number | 0.2 |
+| Revision Date | 2026-08-05 |
+| Status | Working Draft — Repository Overview |
+| Owner | Amardeep Baba G Malhotra, Human Founder |
+| Related Volume | Volume I — Constitution, Mission & Foundational Doctrine |
+| Related Chapter | Chapter 5 — System of Record and Document Hierarchy |
+| Dependencies | SSCOS Blueprint v0.1; SSCOS Constitutional Baseline v0.2; existing repository documentation |
+| Approval Status | Pending Human Founder Approval |
