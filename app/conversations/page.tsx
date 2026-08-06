@@ -1,0 +1,8 @@
+import { BookOpen, Newspaper, Search, Video } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { PageIntro } from "../components/PageIntro";
+
+export default function ConversationsPage() {
+  const formats=[[Newspaper,"Daily newspaper","A concise public edition connecting institutional developments to everyday understanding."],[BookOpen,"Editorial","Human-reviewed explanations, arguments, and institutional perspectives."],[Video,"Conversations","Recorded discussion designed for learning rather than promotion."],[Search,"Research archive","Source-linked packages, charts, methods, and correction records."]] as const;
+  return <main><PageIntro eyebrow="Lunch Time Conversations" title="Make the important understandable." description="A daily public-interest publication about Bitcoin, institutions, public policy, technology, and the communities affected by them."/><section className="mx-auto max-w-7xl px-5 py-20 lg:px-8"><div className="grid gap-4 md:grid-cols-2">{formats.map(([Icon,title,body])=><Card key={title} className="p-7"><Icon className="size-5 text-primary"/><h2 className="mt-12 text-2xl font-medium">{title}</h2><p className="mt-3 leading-7 text-muted-foreground">{body}</p></Card>)}</div><Card className="mt-4 p-7"><p className="text-sm text-primary">Founding edition · In editorial review</p><h2 className="mt-4 max-w-3xl text-3xl font-medium tracking-tight">Why public intelligence needs sources, classifications, and a visible correction record.</h2><p className="mt-5 max-w-2xl leading-7 text-muted-foreground">The first edition introduces how Satnam Satoshi separates verified observations from estimates and how AI-assisted research remains accountable to human editors.</p></Card></section></main>;
+}
