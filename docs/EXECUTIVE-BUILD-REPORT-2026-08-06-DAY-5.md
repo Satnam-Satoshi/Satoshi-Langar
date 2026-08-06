@@ -31,11 +31,18 @@ Lunch Time Conversations was rebuilt as a source-led public-interest publication
 - Desktop browser verification passed at 1280 px with no horizontal overflow, framework error overlay, or console warnings.
 - Mobile browser verification passed at 390 px with no horizontal overflow; primary navigation collapses correctly.
 - Page metadata, semantic landmarks, heading hierarchy, disabled pre-publication control, and accessible labels are present.
-- Lighthouse measurement will be recorded against the immutable Vercel preview; it is not inferred from local browser checks.
+- A fresh Lighthouse score is not claimed: the local audit runner could not locate a compatible Chrome installation. The previous benchmark remains Treasury Intelligence at 99 performance and 100 accessibility; the publication has independent build and browser verification only.
 
 ## Progress
 
 Version 1 completion is estimated at 66%. Homepage, Treasury Intelligence, and Lunch Time Conversations now meet the current design benchmark. Satoshi Langar, Community, Open Source, and About remain to be elevated to the same standard.
+
+## Preview
+
+- Protected Vercel Preview: https://https-github-com-satnam-satoshi-satoshi-langar-fx82ii19b.vercel.app/conversations
+- Deployment state: READY.
+- Verification: health endpoint returned the local preview commit `e56dd37`; publication route returned HTTP 200.
+- No production deployment, domain promotion, or public release performed.
 
 ## Risks and gates
 
