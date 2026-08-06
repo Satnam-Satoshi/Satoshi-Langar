@@ -43,6 +43,12 @@ Lighthouse result for the redesigned Treasury Intelligence page:
 
 Version 1 completion is estimated at 56%. Treasury Intelligence now establishes the design and trust standard that will be applied to Lunch Time Conversations, Satoshi Langar, Open Source, Community, and About.
 
+## Preview
+
+- Founder-review preview: https://https-github-com-satnam-satoshi-satoshi-langar-cmumnmipr.vercel.app/treasury
+- Status: ready and verified through the authenticated Vercel health endpoint.
+- Environment: preview; no production deployment or domain promotion performed.
+
 ## Risks and gates
 
 - Live data remains intentionally withheld until ingestion, reconciliation, freshness, and correction controls are verified.
