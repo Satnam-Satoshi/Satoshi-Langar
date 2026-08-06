@@ -12,9 +12,9 @@ export default function Home() {
         <div className="hero-grid-pattern absolute inset-0 opacity-40" aria-hidden="true" />
         <div className="relative mx-auto grid min-h-[calc(100svh-4.5rem)] max-w-7xl items-center gap-16 px-5 py-20 md:py-28 lg:grid-cols-[1.08fr_.92fr] lg:px-8 lg:py-28">
           <div>
-            <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-primary">Open-source humanitarian infrastructure</p>
+            <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-primary">AI + humans · public-interest infrastructure</p>
             <h1 className="max-w-5xl text-balance text-6xl font-medium leading-[.95] tracking-[-0.055em] sm:text-7xl lg:text-[5.8rem]">Build trust.<br />Serve humanity.</h1>
-            <p className="mt-8 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">Satnam Satoshi is a public institution for service, education, and transparent collaboration—grounded in Bitcoin’s discipline, the practice of seva, and the belief that technology should make responsibility easier to see.</p>
+            <p className="mt-8 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">AI and humans working together to build trust and serve humanity. Satnam Satoshi turns research, open-source coordination, and seva into public work people can inspect and join.</p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Button asChild><Link href="#participate">Participate today <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
               <Button asChild variant="secondary"><Link href="/about">How we are governed</Link></Button>

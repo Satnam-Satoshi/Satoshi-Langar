@@ -37,6 +37,7 @@
 * { border-color: var(--border); }
 html { background: var(--background); color: var(--foreground); scroll-behavior: smooth; }
 body { min-height: 100vh; background: var(--background); color: var(--foreground); font-family: Geist, "SF Pro Text", "Segoe UI", sans-serif; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+.editorial-serif { font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif; font-weight: 400; }
 ::selection { background: color-mix(in oklab, var(--primary) 28%, transparent); }
 a, button { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
