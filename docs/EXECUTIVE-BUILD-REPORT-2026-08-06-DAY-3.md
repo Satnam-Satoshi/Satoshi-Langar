@@ -40,6 +40,13 @@ Lighthouse was run against the local production build:
 - Total Blocking Time: 10 ms.
 - Production build and TypeScript validation passed.
 
+## Preview
+
+- Founder-review preview: https://https-github-com-satnam-satoshi-satoshi-langar-a4n9npmq6.vercel.app
+- Status: ready and verified through the authenticated Vercel health endpoint.
+- Environment: preview; no production deployment or domain promotion performed.
+- Scheduled automation was disabled only in the uploaded preview package because the Hobby plan does not support the repository's twice-daily cron expression. The tracked production configuration was preserved.
+
 ## Progress
 
 Version 1 completion is estimated at 49%. The experience foundation is approaching Founder Review quality; the remaining work is concentrated in the Treasury Intelligence product, publication archive, contribution workflows, source-backed content, and preview deployment verification.
