@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Clock3, GitBranch, HandHeart, Sparkles, Users } from "lucide-react";
+import { ArrowRight, CheckCircle2, GitBranch, HandHeart, Sparkles, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Reveal } from "./components/Reveal";
@@ -10,7 +10,7 @@ export default function Home() {
     <main>
       <section className="relative overflow-hidden border-b border-border">
         <div className="hero-grid-pattern absolute inset-0 opacity-40" aria-hidden="true" />
-        <div className="relative mx-auto grid max-w-7xl gap-16 px-5 py-24 md:py-32 lg:grid-cols-[1.25fr_.75fr] lg:px-8 lg:py-40">
+        <div className="relative mx-auto grid min-h-[calc(100svh-4.5rem)] max-w-7xl items-center gap-16 px-5 py-20 md:py-28 lg:grid-cols-[1.08fr_.92fr] lg:px-8 lg:py-28">
           <div>
             <p className="mb-6 text-xs font-medium uppercase tracking-[0.18em] text-primary">Open-source humanitarian infrastructure</p>
             <h1 className="max-w-5xl text-balance text-6xl font-medium leading-[.95] tracking-[-0.055em] sm:text-7xl lg:text-[5.8rem]">Build trust.<br />Serve humanity.</h1>
@@ -20,27 +20,17 @@ export default function Home() {
               <Button asChild variant="secondary"><Link href="/about">How we are governed</Link></Button>
             </div>
           </div>
-          <Card className="self-end overflow-hidden bg-card/80 p-1 backdrop-blur">
-            <div className="border-b border-border p-5">
-              <div className="flex items-center justify-between gap-4"><span className="text-xs font-medium uppercase tracking-[.14em] text-muted-foreground">Institution status</span><span className="inline-flex items-center gap-2 text-xs text-primary"><span className="size-1.5 rounded-full bg-primary" />Building in public</span></div>
-            </div>
-            <div className="space-y-6 p-6">
-              <div><span className="text-sm text-muted-foreground">Current expedition</span><p className="mt-2 text-xl font-medium">Satnam.x Version 1</p></div>
-              <div className="grid gap-3 text-sm">
-                <div className="flex items-center gap-3"><CheckCircle2 className="size-4 text-primary" aria-hidden="true" /><span>Constitutional foundation established</span></div>
-                <div className="flex items-center gap-3"><CheckCircle2 className="size-4 text-primary" aria-hidden="true" /><span>Public trust architecture prepared</span></div>
-                <div className="flex items-center gap-3 text-muted-foreground"><Clock3 className="size-4" aria-hidden="true" /><span>Founder-reviewed public beta in progress</span></div>
-              </div>
-              <Link href="/open-source" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">View the public roadmap <ArrowRight className="size-4" aria-hidden="true" /></Link>
-            </div>
-          </Card>
+          <div className="self-center" aria-label="A shared public record shaped by many contributions">
+            <div className="hero-orbit" aria-hidden="true"><span className="orbit-point" /><span className="orbit-point" /><span className="orbit-point" /><span className="orbit-point" /><div className="orbit-core"><strong>Service becomes shared knowledge.</strong><span>Need · consent · evidence</span></div></div>
+            <div className="editorial-rule mt-8 text-[.68rem] uppercase tracking-[.17em]"><span>Building in public · Version 1</span></div>
+          </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28" aria-labelledby="why-title">
         <Reveal className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
           <div><p className="section-kicker">Why we exist</p><h2 id="why-title" className="section-title">Technology should deepen human responsibility.</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">Public systems are difficult to trust when their evidence, ownership, and incentives are hidden. Satnam Satoshi exists to make those relationships legible.</p></div>
-          <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2">
+          <div className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border shadow-[0_24px_80px_rgba(0,0,0,.14)] sm:grid-cols-2">
             {pillars.map(({ title, body, icon: Icon }) => <div key={title} className="bg-card p-7"><Icon className="mb-8 size-5 text-primary" aria-hidden="true" /><h3 className="font-medium">{title}</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">{body}</p></div>)}
           </div>
         </Reveal>
@@ -50,7 +40,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
           <Reveal className="grid gap-12 lg:grid-cols-[.72fr_1.28fr]">
             <div><HandHeart className="mb-7 size-7 text-primary" aria-hidden="true" /><p className="section-kicker">Proof of Seva</p><h2 id="seva-title" className="section-title">Service made visible. Human worth left unscored.</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">Proof of Seva is a method for documenting useful contribution and learning—not a token, wage, reputation market, or ranking of people.</p></div>
-            <ol className="divide-y divide-border border-y border-border">
+            <ol className="divide-y divide-border border-y border-border" aria-label="How Proof of Seva works">
               {sevaSteps.map(({ number, title, body }) => <li key={number} className="grid gap-3 py-6 sm:grid-cols-[48px_170px_1fr] sm:items-start"><span className="font-mono text-xs text-primary">{number}</span><strong className="font-medium">{title}</strong><span className="text-sm leading-6 text-muted-foreground">{body}</span></li>)}
             </ol>
           </Reveal>
