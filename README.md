@@ -1,40 +1,73 @@
-# Satnam.x Version 1
+# Satnam Satoshi — Satnam.x Public Alpha
 
-Satnam.x is the public website of the Satnam Satoshi Foundation: an open-source humanitarian institution focused on service, education, evidence-led Treasury Intelligence, and responsible human–AI collaboration.
+**One humanity. One truth. One future.**
 
-## Version 1 surfaces
+Satnam Satoshi is an open-source, Bitcoin-standard Human + AI community operating system built to help people learn, build, serve, and coordinate transparently.
 
-- Home — mission, public products, latest-report state, and participation
-- Treasury Intelligence — read-only evidence and classification model
-- Lunch Time Conversations — newspaper, editorial, video, and research archive
-- Satoshi Langar — mission, Proof of Seva, pilot, volunteering, and roadmap
-- Community — contribution pathways for developers, designers, researchers, writers, and volunteers
-- Open Source — architecture, roadmap, issues, and contributor model
-- About — mission, Founder, Constitution, governance, and transparency
+This is not a token launch, trading platform, or investment product. It is a public institution under construction.
+
+## Start here
+
+- **Mission / Living White Paper** — why the project exists, what it believes, and how humans remain in authority.
+- **Projects** — Satoshi Langar, Lunch Time Conversations, Treasury Intelligence, Proof of Seva, Agent Sangat, Kalakar.x, Crypto Kitty research, and future Seva tools.
+- **Open Source** — architecture, roadmap, issues, ADRs, contribution paths, and governance.
+- **Community** — researchers research, developers build, designers design, writers write, artists create, volunteers serve, and governed AI agents assist.
+- **Transparency** — current build status, limitations, open decisions, governance principles, and correction policy.
+
+## Public Alpha doctrine
+
+**Ship the institution in public. Build the products in public. Improve continuously.**
+
+Every unfinished system is labeled honestly as `LIVE`, `BUILDING`, `RESEARCH`, or `FUTURE`.
+
+## Human authority
+
+Amardeep “Baba G” Malhotra is the Human Founder, Mission Authority, Publisher, Account Owner, Treasury Approver, and Final Decision Maker.
+
+Humans retain custody, consent, governance, mission, ethical authority, and treasury control.
+
+AI may research, draft, analyze, coordinate, document, test, and recommend. AI does not own assets, hold private keys, independently execute financial transactions, override human approval, or bypass governance.
+
+## Bitcoin Standard
+
+Bitcoin is the reserve and reference monetary standard of the institution. Litecoin may serve as a complementary Proof-of-Work ecosystem asset and payment rail. Stellar may support settlement and tokenization experiments where appropriate. Operating stable-value assets may be researched for bounded operational budgets. None of these integrations authorize autonomous custody or trading.
+
+## Contribute
+
+### JOIN THE MISSION
+
+Open an issue, improve documentation, review a source, propose a design, test accessibility, translate content, or help a local Seva project.
+
+### BUILD WITH US
+
+Public Alpha contributors should begin with a small, reviewable change. No token, payment, or private chat access is required.
+
+### AI AGENTS WELCOME UNDER GOVERNANCE
+
+Agents may contribute when they have a documented mission, knowledge sources, permissions, escalation rules, memory scope, audit trail, Human Owner, and emergency stop.
+
+## Repository
+
+This repository currently hosts the Satnam.x Public Alpha and Satoshi Langar work while the wider SSCOS repository architecture evolves through versioned ADRs.
+
+Primary review branch: `agent/satnam-x-v1-build`
+
+Production merge, production-domain publication, treasury execution, wallet access, financial accounts, contracts, token issuance, and Bitcoin inscriptions require explicit Founder approval.
 
 ## Technology
 
-- Next.js 16 App Router
-- React 19 and TypeScript
-- Tailwind CSS 4
-- shadcn/ui-owned component primitives backed by Radix
-- Framer Motion available for restrained, reduced-motion-safe interaction
-- Vercel Preview deployment target
-- Supabase/PostgreSQL architecture prepared but not connected in this increment
+- Next.js App Router
+- React + TypeScript
+- Tailwind CSS
+- Vercel Preview deployments
+- GitHub as the public code and architecture record
+- Google Drive as the institutional document system of record
+- Canva as the visual-design workspace
 
-## Local verification
+## Verify the work
 
-```bash
-pnpm install
-pnpm typecheck
-pnpm build
-pnpm dev
-```
+Read the source, inspect pull requests, review deployment previews, compare architecture decisions, and follow correction/version history. Trust should be inspectable.
 
-The build uses Next.js webpack mode for compatibility with constrained local and CI environments. All public content routes are statically generated; existing API routes remain server-rendered.
+## License
 
-## Release boundary
-
-This repository may create Vercel Preview deployments from review branches. Production merge, production-domain publication, financial integration, wallets, custody, and transactions require explicit Founder approval from Amardeep Baba G Malhotra.
-
-Treasury Intelligence is research-only and read-only. It does not custody assets, execute trades, or provide individualized financial, legal, tax, accounting, or fiduciary advice.
+Apache-2.0. See `LICENSE`.
