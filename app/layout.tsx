@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: "Satnam Satoshi", description: "Build trust. Serve humanity.", images: ["/og.png"] },
 };
 
-export const viewport: Viewport = { colorScheme: "dark", themeColor: "#101713" };
+export const viewport: Viewport = { colorScheme: "light", themeColor: "#f7f3e8" };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return <html lang="en" className="dark"><body><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">Skip to content</a><SiteHeader /><div id="main-content">{children}</div><SiteFooter /></body></html>;
+  return <html lang="en"><body><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">Skip to content</a><SiteHeader /><div id="main-content">{children}</div><SiteFooter /></body></html>;
 }
