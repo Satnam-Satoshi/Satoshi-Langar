@@ -4,8 +4,10 @@ import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
 import "./globals.css";
 
+const publicWebOrigin = "https://https-github-com-satnam-satoshi-sat.vercel.app";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://satnam.x"),
+  metadataBase: new URL(publicWebOrigin),
   title: { default: "Satnam Satoshi — Build trust. Serve humanity.", template: "%s · Satnam Satoshi" },
   description: "Open-source humanitarian infrastructure for service, education, transparent research, and responsible human–AI collaboration.",
   applicationName: "Satnam Satoshi",
