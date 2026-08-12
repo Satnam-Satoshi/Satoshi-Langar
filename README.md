@@ -1,107 +1,73 @@
-# Satnam Satoshi Intelligence
+# Satnam Satoshi — Satnam.x Public Alpha
 
-**Truth. Seva. Sovereignty.**
+**One humanity. One truth. One future.**
 
-Satnam Satoshi Intelligence is a public-interest digital-asset research platform focused on Bitcoin (BTC), Litecoin (LTC), Stellar (XLM), institutional adoption, sovereign policy, ETF flows, corporate treasuries, and collateral markets.
+Satnam Satoshi is an open-source, Bitcoin-standard Human + AI community project built to help people learn, build, serve, and coordinate transparently.
 
-The first commercial product is a daily, source-linked institutional intelligence report. The platform is designed so humans retain custody, consent, editorial authority, and mission control while specialized agents perform collection, normalization, reconciliation, analysis, verification, drafting, and distribution.
+This is not a token launch, trading platform, investment product, registered charity, foundation, trust, church, or 501(c)(3) organization. Legal formation is being researched and will be documented before any status is claimed.
 
-## Launch scope
+## Start here
 
-Phase 1 is a research and publishing system. It does **not** custody customer assets, execute trades, manage portfolios, guarantee returns, or provide personalized investment advice.
+- **Mission / Living White Paper** — why the project exists, what it believes, and how humans remain in authority.
+- **Projects** — Satoshi Langar, Lunch Time Conversations, Treasury Intelligence, Proof of Seva, Agent Sangat, Kalakar.x, Crypto Kitty research, and future Seva tools.
+- **Open Source** — architecture, roadmap, issues, ADRs, contribution paths, and governance.
+- **Community** — researchers research, developers build, designers design, writers write, artists create, volunteers serve, and governed AI agents assist.
+- **Transparency** — current build status, limitations, open decisions, governance principles, correction policy, and legal-formation status.
 
-The initial product covers:
+## Public Alpha doctrine
 
-- BTC, LTC, and XLM market and network intelligence
-- ETF inflows, outflows, AUM, holdings, and issuer changes
-- public-company, bank, fund, government, and sovereign holdings
-- country and U.S. state digital-asset legislation
-- Bitcoin treasury changes and mNAV analytics
-- Litecoin treasury and institutional adoption
-- Stellar payments, tokenization, stablecoin, and RWA activity
-- CLARITY Act and related U.S. regulatory developments
-- Morpho cbBTC and cbLTC market metrics, liquidity, utilization, APYs, collateral parameters, and risk observations
-- source provenance, confidence scoring, discrepancies, and corrections
+**Ship the institution in public. Build the products in public. Improve continuously.**
 
-## Product model
+Every unfinished system is labeled honestly as `LIVE`, `BUILDING`, `RESEARCH`, or `FUTURE`.
 
-### Free daily brief
+## Human authority
 
-A concise public summary with headline changes, selected metrics, and links to primary sources.
+Amardeep “Baba G” Malhotra is the Human Founder, Mission Authority, Publisher, Account Owner, Treasury Approver, and Final Decision Maker.
 
-### Satnam Intelligence Pro
+Humans retain custody, consent, governance, mission, ethical authority, legal authority, and treasury control.
 
-A detailed daily report with:
+AI may research, draft, analyze, coordinate, document, test, and recommend. AI does not own assets, hold private keys, independently execute financial transactions, override human approval, bypass governance, serve as a director/trustee/signatory, or claim legal authority.
 
-- executive summary
-- ETF flow dashboard
-- sovereign and legislative tracker
-- Wall Street and treasury leaderboard
-- BTC, LTC, and XLM network intelligence
-- Morpho market dashboard
-- institutional filings and banking activity
-- methodology notes, source links, confidence scores, and corrections
+## Bitcoin Standard
 
-### Institutional and agent API
+Bitcoin is the reserve and reference monetary standard of the project architecture. Litecoin may serve as a complementary Proof-of-Work ecosystem asset and payment rail. Stellar may support settlement and tokenization experiments where appropriate. Operating stable-value assets may be researched for bounded operational budgets. None of these integrations authorize autonomous custody or trading.
 
-Structured JSON, CSV, and report endpoints for analysts, communities, businesses, and autonomous agents. Paid machine-to-machine access will use x402 on Base after sandbox testing and compliance review.
+## Contribute
 
-## Agent system
+### JOIN THE MISSION
 
-1. **Source Scout** — discovers and retrieves approved public data.
-2. **ETF Flow Agent** — reconciles issuer, exchange, and aggregator flow data.
-3. **Treasury Ledger Agent** — tracks corporate, fund, bank, sovereign, and government holdings.
-4. **Policy Agent** — monitors Bitcoin Laws, Congress, regulators, and state legislation.
-5. **Network Intelligence Agent** — covers Bitcoin, Litecoin, and Stellar protocol and ecosystem changes.
-6. **Morpho Risk Agent** — monitors markets, vaults, liquidity, utilization, APYs, LLTV, oracles, and rewards.
-7. **Verification Agent** — checks freshness, provenance, arithmetic, duplicates, conflicts, and confidence.
-8. **Editor Agent** — produces the institutional report, executive brief, charts, and correction log.
-9. **Commerce Agent** — manages subscriptions and paid API access without controlling treasury funds.
+Open an issue, improve documentation, review a source, propose a design, test accessibility, translate content, or help a local Seva project.
 
-See [`docs/AGENT-ARCHITECTURE.md`](docs/AGENT-ARCHITECTURE.md) and [`docs/REPORT-SPEC.md`](docs/REPORT-SPEC.md).
+### BUILD WITH US
 
-## Safety and governance
+Public Alpha contributors should begin with a small, reviewable change. No token, payment, or private chat access is required.
 
-- Humans control all signing keys and treasury wallets.
-- Collection agents are read-only.
-- Publishing requires source citations and confidence metadata.
-- No source is treated as authoritative merely because it is popular.
-- Material holdings changes require independent corroboration when feasible.
-- Estimates must be labeled and never mixed with confirmed figures.
-- Personalized buy, sell, leverage, liquidation, or portfolio instructions are out of scope for Phase 1.
-- Any future transaction-capable agent must use separate wallets, explicit spending limits, allowlists, simulation, human approval, and immutable audit logs.
+### AI AGENTS WELCOME UNDER GOVERNANCE
+
+Agents may contribute when they have a documented mission, knowledge sources, permissions, escalation rules, memory scope, audit trail, Human Owner, and emergency stop.
+
+## Repository
+
+This repository currently hosts the Satnam.x Public Alpha and Satoshi Langar work while the wider SSCOS repository architecture evolves through versioned ADRs.
+
+Primary review branch: `agent/satnam-x-v1-build`
+
+Production merge, production-domain publication, treasury execution, wallet access, financial accounts, contracts, legal filings, entity formation, token issuance, and Bitcoin inscriptions require explicit Founder approval.
 
 ## Technology
 
-- Next.js and TypeScript
-- Vercel deployment
-- server-side scheduled jobs
-- Postgres/Supabase planned for normalized observations and report history
-- Morpho GraphQL API
-- public and licensed institutional data sources
-- Coinbase AgentKit for future controlled onchain capabilities
-- x402 for future paid API endpoints
+- Next.js App Router
+- React + TypeScript
+- Tailwind CSS
+- Vercel Preview deployments
+- GitHub as the public code and architecture record
+- Google Drive as the institutional document system of record
+- Canva as the visual-design workspace
 
-## Environment
+## Verify the work
 
-Copy `.env.example` to `.env.local` and configure only the services being used.
+Read the source, inspect pull requests, review deployment previews, compare architecture decisions, and follow correction/version history. Trust should be inspectable.
 
-```bash
-npm install
-npm run dev
-```
+## License
 
-## Repository status
-
-The repository is being upgraded from a landing-page prototype into the Satnam Satoshi Intelligence MVP. The immediate objective is a reproducible daily report with a source registry, normalized data model, provenance ledger, editorial controls, and paid distribution path.
-
-## Public treasury addresses
-
-Public addresses may be displayed for transparency, but this application never requests or stores seed phrases or private keys.
-
-- BTC: `bc1q3qxtztzjp6wllmszv9fryp4rln8wt0er2xz8rx`
-- LTC: `ltc1q78882zg99eedjnscxlv43we2r4exxua4e5c63j`
-
-## Disclaimer
-
-Satnam Satoshi Intelligence publishes general, impersonal research and factual market information. It is not individualized investment, legal, tax, accounting, or fiduciary advice. Digital assets and lending markets involve substantial risk, including loss of principal and liquidation.
+Apache-2.0. See `LICENSE`.
