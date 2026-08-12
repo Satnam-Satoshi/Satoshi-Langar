@@ -1,0 +1,30 @@
+{
+  "edition_id": "LTC-2026-08-12-001",
+  "utc_cutoff": "2026-08-12T13:43:21Z",
+  "manifest_status": "WORKING_DRAFT",
+  "sources": [
+    {"id":"S01","class":"primary_project","publisher":"Bitcoin Core","title":"Bitcoin Core 31.0 released","url":"https://bitcoincore.org/en/2026/04/19/release-31.0/","effective_date":"2026-04-19","confidence":"HIGH","used_for":["bitcoin","open_source"]},
+    {"id":"S02","class":"primary_project","publisher":"litecoin-project","title":"Litecoin releases","url":"https://github.com/litecoin-project/litecoin/releases","retrieved_date":"2026-08-12","confidence":"HIGH","used_for":["litecoin","mweb","open_source"],"note":"Indexed canonical page exposed v0.21.5.5; community claims of v0.21.5.6 remain unverified by this manifest."},
+    {"id":"S03","class":"primary_institution","publisher":"DTCC","title":"DTC Tokenization Service to Connect with Stellar Public Blockchain","url":"https://www.dtcc.com/news/2026/may/27/tokenization-service-to-connect-with-stellar-public-blockchain-as-dtc-advances-its-multi-chain-strategy","effective_date":"2026-05-27","confidence":"HIGH","used_for":["stellar","dtcc"]},
+    {"id":"S04","class":"primary_institution","publisher":"DTCC","title":"DTCC Press Room — July 2026 tokenization milestone","url":"https://www.dtcc.com/en/press-room","retrieved_date":"2026-08-12","confidence":"HIGH","used_for":["dtcc","tokenization"]},
+    {"id":"S05","class":"primary_protocol","publisher":"Morpho","title":"cbBTC Lending Markets Deployed on Morpho","url":"https://morpho.org/blog/cbbtc-lending-markets-deployed-on-morpho/","effective_date":"2024-09-12","confidence":"HIGH","used_for":["morpho","cbbtc","risk"]},
+    {"id":"S06","class":"secondary_financial_press","publisher":"Wall Street Journal","title":"Strategy Sells $109 Million of Bitcoin","effective_date":"2026-08-10","confidence":"HIGH","used_for":["bitcoin","treasuries","strategy"]},
+    {"id":"S07","class":"secondary_financial_press","publisher":"MarketWatch","title":"Bitcoin takes a hit after Strategy sells for a 4th straight week","effective_date":"2026-08-11","confidence":"MEDIUM_HIGH","used_for":["bitcoin","treasuries","strategy"]},
+    {"id":"S08","class":"secondary_financial_press","publisher":"Investors Business Daily","title":"Clarity Act Hopes Dive As Senate Delays Vote Until After Summer Recess","effective_date":"2026-08-08","confidence":"MEDIUM_HIGH","used_for":["policy","clarity_act"]},
+    {"id":"S09","class":"academic_preprint","publisher":"arXiv","title":"Open Bitcoin Metrics: Verifiable Full-Node-Derived Bitcoin Time Series for Economic Research","effective_date":"2026-07-03","confidence":"MEDIUM","used_for":["bitcoin","network_data_methodology"]},
+    {"id":"S10","class":"academic_preprint","publisher":"arXiv","title":"MPFlow: Learning Budgeted Max-Flow Optimization on the Lightning Network with Deep Graph Reinforcement Learning","effective_date":"2026-07-09","confidence":"MEDIUM","used_for":["lightning","network_infrastructure"]},
+    {"id":"S11","class":"internal_system_of_record","publisher":"Satnam Satoshi","title":"CURRENT — Satoshi AI Ma CTO Directive","retrieved_date":"2026-08-12","confidence":"HIGH","used_for":["satnam_satoshi","public_alpha"]},
+    {"id":"S12","class":"internal_system_of_record","publisher":"Satnam Satoshi","title":"2026-08-12 — Satnam Satoshi Founder Brief","retrieved_date":"2026-08-12","confidence":"HIGH","used_for":["satnam_satoshi","public_alpha"]}
+  ],
+  "withheld_daily_data": [
+    "spot market prices",
+    "ETF/ETP daily flows",
+    "aggregate treasury holdings",
+    "state Bitcoin reserve counts",
+    "merged-mining daily shares",
+    "Lightning daily network metrics",
+    "Morpho daily APY/utilization/liquidation metrics",
+    "cbLTC market rates"
+  ],
+  "withheld_reason": "No complete primary, timestamped and reconciled snapshot captured before edition cutoff; figures must not be invented or silently carried forward."
+}
