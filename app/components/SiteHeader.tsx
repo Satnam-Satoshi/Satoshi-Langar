@@ -20,11 +20,15 @@ export function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/92 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/94 backdrop-blur-xl">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 lg:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="Satnam Satoshi home">
-          <span className="grid size-9 place-items-center rounded-full border border-primary/35 bg-primary/10 text-sm font-semibold text-primary" aria-hidden="true">ਸ</span>
-          <span className="leading-tight"><strong className="block font-semibold tracking-tight">Satnam Satoshi</strong><span className="hidden text-[11px] text-muted-foreground sm:block">Digital Darbar for Humanity</span></span>
+        <Link href="/" className="group flex items-center gap-3" aria-label="Satnam.x home">
+          <span className="text-[1.05rem] font-semibold tracking-[-0.035em] text-foreground">
+            SATNAM<span className="text-primary">.X</span>
+          </span>
+          <span className="hidden border-l border-border pl-3 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground sm:block">
+            Humanity · AI · Bitcoin · Seva
+          </span>
         </Link>
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
           {navigation.map(([label, href]) => (
@@ -34,7 +38,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="hidden lg:block">
-          <Link href="/community" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">Join the mission</Link>
+          <Link href="/community" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">Enter the Digital Darbar</Link>
         </div>
         <button type="button" className="grid size-11 place-items-center rounded-full border border-border lg:hidden" aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} onClick={() => setOpen((value) => !value)}>
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -46,7 +50,7 @@ export function SiteHeader() {
             {navigation.map(([label, href]) => (
               <Link key={href} href={href} onClick={() => setOpen(false)} className={cn("rounded-xl px-4 py-3 text-muted-foreground", pathname === href && "bg-accent text-foreground")}>{label}</Link>
             ))}
-            <Link href="/community" onClick={() => setOpen(false)} className="mt-2 rounded-xl bg-primary px-4 py-3 text-center font-semibold text-primary-foreground">Join the mission</Link>
+            <Link href="/community" onClick={() => setOpen(false)} className="mt-2 rounded-xl bg-primary px-4 py-3 text-center font-semibold text-primary-foreground">Enter the Digital Darbar</Link>
           </div>
         </nav>
       )}

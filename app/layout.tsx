@@ -8,11 +8,11 @@ const publicWebOrigin = "https://https-github-com-satnam-satoshi-sat.vercel.app"
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicWebOrigin),
-  title: { default: "Satnam Satoshi — Build trust. Serve humanity.", template: "%s · Satnam Satoshi" },
-  description: "Open-source humanitarian infrastructure for service, education, transparent research, and responsible human–AI collaboration.",
-  applicationName: "Satnam Satoshi",
-  openGraph: { type: "website", siteName: "Satnam Satoshi", title: "Satnam Satoshi — Build trust. Serve humanity.", description: "Open-source humanitarian infrastructure for service, education, transparent research, and responsible human–AI collaboration.", images: [{ url: "/og.png", width: 1200, height: 630, alt: "Satnam Satoshi — Build trust. Serve humanity." }] },
-  twitter: { card: "summary_large_image", title: "Satnam Satoshi", description: "Build trust. Serve humanity.", images: ["/og.png"] },
+  title: { default: "Satnam.x — A global community building on the Bitcoin Standard", template: "%s · Satnam.x" },
+  description: "Satnam Satoshi is an open-source Human + AI community organized around the Bitcoin Standard, Proof of Seva, education, humanitarian service, transparent research, and human sovereignty.",
+  applicationName: "Satnam.x",
+  openGraph: { type: "website", siteName: "Satnam.x", title: "Satnam.x — One Humanity. One Truth. One Future.", description: "A global Human + AI community building public-interest infrastructure on the Bitcoin Standard.", images: [{ url: "/og.png", width: 1200, height: 630, alt: "Satnam.x — One Humanity. One Truth. One Future." }] },
+  twitter: { card: "summary_large_image", title: "Satnam.x", description: "A global Human + AI community building public-interest infrastructure on the Bitcoin Standard.", images: ["/og.png"] },
 };
 
 export const viewport: Viewport = { colorScheme: "light", themeColor: "#f7f3e8" };
