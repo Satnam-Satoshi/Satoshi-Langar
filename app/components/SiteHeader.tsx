@@ -44,7 +44,7 @@ export function SiteHeader() {
           <a href={githubUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
             GitHub <ExternalLink className="size-3.5" aria-hidden="true" />
           </a>
-          <Link href="/community" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">Join / contribute</Link>
+          <Link href="/join" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">Join / contribute</Link>
         </div>
         <button type="button" className="grid size-11 place-items-center rounded-full border border-border lg:hidden" aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} onClick={() => setOpen((value) => !value)}>
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -61,7 +61,7 @@ export function SiteHeader() {
               <Link key={href} href={href} onClick={() => setOpen(false)} className={cn("rounded-xl px-4 py-3 text-sm text-muted-foreground", pathname === href && "bg-accent text-foreground")}>{label}</Link>
             ))}
             <a href={githubUrl} target="_blank" rel="noreferrer" onClick={() => setOpen(false)} className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-3 text-sm text-muted-foreground">GitHub <ExternalLink className="size-4" aria-hidden="true" /></a>
-            <Link href="/community" onClick={() => setOpen(false)} className="mt-1 rounded-xl bg-primary px-4 py-3 text-center font-semibold text-primary-foreground">Join / contribute</Link>
+            <Link href="/join" onClick={() => setOpen(false)} className="mt-1 rounded-xl bg-primary px-4 py-3 text-center font-semibold text-primary-foreground">Join / contribute</Link>
           </div>
         </nav>
       )}
