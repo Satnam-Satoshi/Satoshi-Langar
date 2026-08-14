@@ -14,6 +14,7 @@ const primaryNavigation = [
 ] as const;
 
 const secondaryNavigation = [
+  ["Support", "/support"],
   ["LTC", "/conversations"],
   ["Langar", "/langar"],
   ["Transparency", "/transparency"],
