@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+const githubUrl = "https://github.com/Satnam-Satoshi/Satoshi-Langar";
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-border">
@@ -11,8 +13,9 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground sm:grid-cols-3">
           <Link href="/mission" className="hover:text-foreground">Mission</Link>
           <Link href="/projects" className="hover:text-foreground">Projects</Link>
-          <Link href="/open-source" className="hover:text-foreground">GitHub</Link>
-          <Link href="/community" className="hover:text-foreground">Contribute</Link>
+          <Link href="/community" className="hover:text-foreground">Community / Join</Link>
+          <Link href="/open-source" className="hover:text-foreground">Open Source</Link>
+          <a href={githubUrl} target="_blank" rel="noreferrer" className="hover:text-foreground">GitHub ↗</a>
           <Link href="/transparency" className="hover:text-foreground">Transparency</Link>
           <Link href="/conversations" className="hover:text-foreground">LTC</Link>
         </div>
