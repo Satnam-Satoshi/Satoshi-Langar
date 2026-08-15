@@ -26,9 +26,9 @@ export default function JoinPage() {
       <section className="mx-auto grid max-w-7xl gap-6 px-5 py-16 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
         <Card className="p-7 lg:p-9">
           <p className="text-xs font-medium uppercase tracking-[.16em] text-primary">Participation profile</p>
-          <h2 className="mt-4 text-2xl font-medium tracking-tight">Lightweight join form architecture</h2>
+          <h2 className="mt-4 text-2xl font-medium tracking-tight">Tell us how you would like to contribute</h2>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">
-            This Public Alpha form is intentionally frontend-only. It does not submit, transmit, or store information yet. The fields define the minimum future member-intake structure while privacy review and a human-governed submission path are completed.
+            This Public Alpha intake is intentionally limited while the privacy-reviewed submission path is completed. You can explore the contribution fields below, but this preview does not submit, transmit, or store information yet.
           </p>
 
           <form className="mt-8 space-y-6" aria-describedby="join-form-note">
@@ -75,7 +75,7 @@ export default function JoinPage() {
 
             <div className="flex flex-wrap items-center gap-3">
               <button className="rounded-md bg-muted px-4 py-2 text-sm font-medium text-muted-foreground" type="button" disabled aria-disabled="true">
-                Submission activates after privacy review
+                Join submissions open after privacy review
               </button>
               <a className="inline-flex items-center gap-2 text-sm font-medium text-primary" href={githubUrl} target="_blank" rel="noreferrer">
                 Technical contributors: open GitHub <ArrowUpRight className="size-4" />
