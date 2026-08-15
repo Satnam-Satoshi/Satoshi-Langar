@@ -13,7 +13,9 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground sm:grid-cols-3">
           <Link href="/mission" className="hover:text-foreground">Mission</Link>
           <Link href="/projects" className="hover:text-foreground">Projects</Link>
-          <Link href="/community" className="hover:text-foreground">Community / Join</Link>
+          <Link href="/community" className="hover:text-foreground">Community</Link>
+          <Link href="/join" className="hover:text-foreground">Join / contribute</Link>
+          <Link href="/support" className="hover:text-foreground">Support</Link>
           <Link href="/open-source" className="hover:text-foreground">Open Source</Link>
           <a href={githubUrl} target="_blank" rel="noreferrer" className="hover:text-foreground">GitHub ↗</a>
           <Link href="/transparency" className="hover:text-foreground">Transparency</Link>
