@@ -21,6 +21,12 @@ const secondaryNavigation = [
   ["Transparency", "/transparency"],
 ] as const;
 
+const desktopUtilityNavigation = [
+  ["Treasury", "/treasury"],
+  ["LTC", "/conversations"],
+  ["Transparency", "/transparency"],
+] as const;
+
 const githubUrl = "https://github.com/Satnam-Satoshi/Satoshi-Langar";
 const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
@@ -45,8 +51,15 @@ export function SiteHeader() {
             );
           })}
         </nav>
-        <div className="hidden items-center gap-2 lg:flex">
-          <Link href="/treasury" aria-current={pathname === "/treasury" ? "page" : undefined} className={cn("rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground", focusRing, pathname === "/treasury" && "bg-accent text-foreground")}>Treasury</Link>
+        <div className="hidden items-center gap-1 lg:flex">
+          <nav className="flex items-center gap-1" aria-label="Secondary navigation">
+            {desktopUtilityNavigation.map(([label, href]) => {
+              const active = pathname === href;
+              return (
+                <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("rounded-full px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground", focusRing, active && "bg-accent text-foreground")}>{label}</Link>
+              );
+            })}
+          </nav>
           <a href={githubUrl} target="_blank" rel="noreferrer" aria-label="Satnam Satoshi on GitHub (opens in a new tab)" className={cn("inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground", focusRing)}>
             GitHub <ExternalLink className="size-3.5" aria-hidden="true" />
           </a>
