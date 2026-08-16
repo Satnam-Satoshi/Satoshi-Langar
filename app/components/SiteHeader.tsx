@@ -15,6 +15,7 @@ const primaryNavigation = [
 
 const secondaryNavigation = [
   ["Support", "/support"],
+  ["Treasury Intelligence", "/treasury"],
   ["LTC", "/conversations"],
   ["Langar", "/langar"],
   ["Transparency", "/transparency"],
@@ -45,6 +46,7 @@ export function SiteHeader() {
           })}
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
+          <Link href="/treasury" aria-current={pathname === "/treasury" ? "page" : undefined} className={cn("rounded-full px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground", focusRing, pathname === "/treasury" && "bg-accent text-foreground")}>Treasury</Link>
           <a href={githubUrl} target="_blank" rel="noreferrer" aria-label="Satnam Satoshi on GitHub (opens in a new tab)" className={cn("inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground", focusRing)}>
             GitHub <ExternalLink className="size-3.5" aria-hidden="true" />
           </a>
