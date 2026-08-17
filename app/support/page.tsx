@@ -39,8 +39,8 @@ export default function SupportPage() {
         <div className="mt-10 grid gap-5 md:grid-cols-2">
           <Card className="p-7">
             <h2 className="text-xl font-medium">Ready to contribute?</h2>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">Choose a skill or time contribution path on the Community page. GitHub is available for engineering work but is not required for membership.</p>
-            <Link href="/community" className="mt-5 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Go to Community / Join</Link>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">Choose a skill or time contribution path in the Public Alpha Join experience. GitHub remains available for engineering work but is not required for membership.</p>
+            <Link href="/join" className="mt-5 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Join / contribute</Link>
           </Card>
           <Card className="p-7">
             <WalletCards className="size-5 text-muted-foreground" aria-hidden="true" />
