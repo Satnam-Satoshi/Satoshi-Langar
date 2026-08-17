@@ -25,6 +25,7 @@ const desktopUtilityNavigation = [
   ["Support", "/support"],
   ["Treasury", "/treasury"],
   ["LTC", "/conversations"],
+  ["Langar", "/langar"],
   ["Transparency", "/transparency"],
 ] as const;
 
