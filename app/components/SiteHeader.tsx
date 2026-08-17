@@ -22,6 +22,7 @@ const secondaryNavigation = [
 ] as const;
 
 const desktopUtilityNavigation = [
+  ["Support", "/support"],
   ["Treasury", "/treasury"],
   ["LTC", "/conversations"],
   ["Transparency", "/transparency"],
