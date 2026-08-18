@@ -5,6 +5,7 @@ import { ExternalLink, Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { SatnamMark } from "@/app/components/SatnamMark";
 
 const primaryNavigation = [
   ["Mission", "/mission"],
@@ -40,7 +41,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/92 backdrop-blur-xl">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link href="/" className={cn("flex items-center gap-3 rounded-lg", focusRing)} aria-label="Satnam Satoshi home">
-          <span className="grid size-9 place-items-center rounded-full border border-primary/35 bg-primary/10 text-sm font-semibold text-primary" aria-hidden="true">ਸ</span>
+          <span className="grid size-10 place-items-center rounded-full bg-[#0D0F14] p-1.5 shadow-sm" aria-hidden="true"><SatnamMark className="size-full" title="" /></span>
           <span className="leading-tight"><strong className="block font-semibold tracking-tight">Satnam Satoshi</strong><span className="hidden text-[11px] text-muted-foreground sm:block">Digital Darbar for Humanity</span></span>
         </Link>
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
