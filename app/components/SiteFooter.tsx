@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SatnamMark } from "@/app/components/SatnamMark";
 
 const githubUrl = "https://github.com/Satnam-Satoshi/Satoshi-Langar";
 const footerLink = "rounded-sm hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
@@ -8,7 +9,7 @@ export function SiteFooter() {
     <footer className="border-t border-border">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-[1.2fr_1fr] lg:px-8">
         <div>
-          <div className="mb-4 flex items-center gap-3"><span className="grid size-8 place-items-center rounded-full border border-primary/40 text-xs text-primary" aria-hidden="true">ਸ</span><strong className="font-medium">Satnam Satoshi</strong></div>
+          <div className="mb-4 flex items-center gap-3"><span className="grid size-9 place-items-center rounded-full bg-[#0D0F14] p-1.5 shadow-sm" aria-hidden="true"><SatnamMark className="size-full" title="" /></span><strong className="font-medium">Satnam Satoshi</strong></div>
           <p className="max-w-md text-sm leading-6 text-muted-foreground">An open-source Human + AI community project for service, education, evidence-led research, and transparent collaboration.</p>
         </div>
         <nav aria-label="Footer navigation" className="grid grid-cols-2 gap-4 text-sm text-muted-foreground sm:grid-cols-3">
