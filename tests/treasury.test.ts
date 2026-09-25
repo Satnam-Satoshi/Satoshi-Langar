@@ -1,0 +1,53 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { decodeFunctionData, encodeFunctionData } from 'viem';
+import { parseAmount, ceilDiv, collateralValue, debtFromShares, accrueInterest, borrowingRoom, ltvBps, validateAction, WAD } from '../lib/treasury/risk';
+import { CHAIN_ID, EXECUTION_ENABLED, MARKETS, morphoAbi, MORPHO, USDC, findMarket } from '../lib/treasury/config';
+import { assertExecutionEnabled } from '../lib/treasury/transactions';
+
+const now=1800000000000;
+// 1 BTC at 100,000 USDC. Eight collateral decimals and six debt decimals.
+const price=1000n*10n**36n;
+const valid={action:'borrow' as const,amount:1000n*10n**6n,collateral:10n**8n,debt:0n,price,balance:10n**12n,liquidity:10n**12n,chainId:8453,expectedChainId:8453,fetchedAt:now,blockTime:now,now,lltv:860000000000000000n};
+test('collateral oracle precision: 1 BTC at 100,000 USDC',()=>assert.equal(collateralValue(10n**8n,price),100000n*10n**6n));
+test('20% borrowing room includes existing debt',()=>assert.equal(borrowingRoom(10n**8n,5000n*10n**6n,price,10n**12n),15000n*10n**6n));
+test('borrowing room is capped by available liquidity',()=>assert.equal(borrowingRoom(10n**8n,0n,price,7n),7n));
+test('over-limit debt yields zero borrowing room',()=>assert.equal(borrowingRoom(10n**8n,30000n*10n**6n,price,10n**12n),0n));
+test('integer division rounds debt upward',()=>assert.equal(ceilDiv(7n,3n),3n));
+test('shares include virtual assets and virtual shares',()=>assert.equal(debtFromShares(1000000n,99n,1000000n),50n));
+test('zero borrow shares has zero debt',()=>assert.equal(debtFromShares(0n,1n,0n),0n));
+test('zero elapsed time accrues nothing',()=>assert.equal(accrueInterest(100000000n,123n,0n),0n));
+test('Taylor accrual includes second and third-order terms',()=>assert.equal(accrueInterest(WAD,WAD,1n),WAD+WAD/2n+WAD/6n));
+test('negative elapsed time is rejected',()=>assert.throws(()=>accrueInterest(1n,1n,-1n)));
+test('tiny debt with no collateral is not zero LTV',()=>assert.equal(ltvBps(0n,1n,price),null));
+test('20% boundary passes, one extra debt unit fails',()=>{
+ assert.equal(validateAction({...valid,amount:20000n*10n**6n}).ltv,2000n);
+ assert.throws(()=>validateAction({...valid,amount:20000n*10n**6n+1n}),/20%/);
+});
+test('existing debt is included in new borrowing',()=>assert.throws(()=>validateAction({...valid,debt:20000n*10n**6n}),/20%/));
+test('wrong network is rejected',()=>assert.throws(()=>validateAction({...valid,chainId:1}),/Base/));
+test('stale retrieval is rejected',()=>assert.throws(()=>validateAction({...valid,fetchedAt:now-60001}),/stale/));
+test('stale block is rejected even after a fresh fetch',()=>assert.throws(()=>validateAction({...valid,blockTime:now-60001}),/stale/));
+test('future retrieval is rejected',()=>assert.throws(()=>validateAction({...valid,fetchedAt:now+1}),/stale/));
+test('far-future block is rejected',()=>assert.throws(()=>validateAction({...valid,blockTime:now+16000}),/stale/));
+test('zero oracle fails closed',()=>assert.throws(()=>validateAction({...valid,price:0n}),/oracle/));
+test('insufficient liquidity rejected',()=>assert.throws(()=>validateAction({...valid,liquidity:1n}),/liquidity/));
+test('deposit needs an actual token balance',()=>assert.throws(()=>validateAction({...valid,action:'supply',balance:0n}),/balance/));
+test('repay above estimate is rejected',()=>assert.throws(()=>validateAction({...valid,action:'repay'}),/exceeds/));
+test('repay is permitted above personal LTV ceiling',()=>assert.equal(validateAction({...valid,action:'repay',debt:30000n*10n**6n}).debt,29000n*10n**6n));
+test('collateral addition permitted for distressed position',()=>assert.doesNotThrow(()=>validateAction({...valid,action:'supply',debt:30000n*10n**6n})));
+test('withdrawal cannot bypass personal LTV limit',()=>assert.throws(()=>validateAction({...valid,action:'withdraw',amount:50000001n,debt:10000n*10n**6n}),/20%/));
+test('withdrawal cannot exceed actual collateral',()=>assert.throws(()=>validateAction({...valid,action:'withdraw',amount:10n**8n+1n}),/exceeds/));
+test('debt-free collateral withdrawal is permitted',()=>assert.equal(validateAction({...valid,action:'withdraw',amount:10n**8n}).collateral,0n));
+test('protocol threshold applies below personal limit',()=>assert.throws(()=>validateAction({...valid,lltv:10n**16n}),/liquidation/));
+test('parsing preserves a satoshi',()=>assert.equal(parseAmount('0.00000001',8),1n));
+test('parsing rejects precision loss and ambiguous strings',()=>{for(const s of ['0.000000001','1e4','-1','1,000','NaN','Infinity','0',' 1','1.','01','0x10'])assert.throws(()=>parseAmount(s,8),s);});
+test('unknown market cannot enter transaction path',()=>assert.throws(()=>findMarket('cirbtc')));
+test('signing remains inaccessible',()=>{assert.equal(EXECUTION_ENABLED,false);assert.throws(assertExecutionEnabled,/locked/);});
+test('borrow encoding fixes wallet as owner and recipient',()=>{
+ const wallet='0x0000000000000000000000000000000000000001' as const;
+ const p={loanToken:USDC,collateralToken:MARKETS[0].token,oracle:wallet,irm:MORPHO,lltv:MARKETS[0].expectedLltv};
+ const data=encodeFunctionData({abi:morphoAbi,functionName:'borrow',args:[p,100n,0n,wallet,wallet]});
+ const result=decodeFunctionData({abi:morphoAbi,data});
+ assert.equal(result.functionName,'borrow');assert.equal(result.args[3],wallet);assert.equal(result.args[4],wallet);assert.equal(CHAIN_ID,8453);
+});
