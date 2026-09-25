@@ -15,3 +15,7 @@ Include affected component, reproduction conditions, potential impact, and any s
 
 ## Response principles
 Preserve evidence, minimize blast radius, rotate compromised credentials, document decisions, communicate material impact accurately, and publish a post-incident record when safe.
+
+## Treasury control review route
+
+`/treasury/control` is a separate phase-1 review implementation with live public-chain reads and unsigned action preparation. Transaction submission remains disabled in source. Its outstanding security and signing gates are recorded in [the phase-1 report](docs/treasury/PHASE-1.md). Do not use downloaded transaction data with funds before completing those gates.
