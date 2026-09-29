@@ -4,15 +4,14 @@ import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
 import "./globals.css";
 
-const publicWebOrigin = "https://https-github-com-satnam-satoshi-sat.vercel.app";
+
 
 export const metadata: Metadata = {
-  metadataBase: new URL(publicWebOrigin),
-  title: { default: "Satnam Satoshi — Build trust. Serve humanity.", template: "%s · Satnam Satoshi" },
-  description: "Open-source humanitarian infrastructure for service, education, transparent research, and responsible human–AI collaboration.",
+  title: { default: "Satnam Satoshi — Many hands. One humanity.", template: "%s · Satnam Satoshi" },
+  description: "People and AI building together through Satoshi Langar, Kalakar.x and community research. Rooted in seva. Inspired by Bitcoin.",
   applicationName: "Satnam Satoshi",
-  openGraph: { type: "website", siteName: "Satnam Satoshi", title: "Satnam Satoshi — Build trust. Serve humanity.", description: "Open-source humanitarian infrastructure for service, education, transparent research, and responsible human–AI collaboration.", images: [{ url: "/og.png", width: 1200, height: 630, alt: "Satnam Satoshi — Build trust. Serve humanity." }] },
-  twitter: { card: "summary_large_image", title: "Satnam Satoshi", description: "Build trust. Serve humanity.", images: ["/og.png"] },
+  openGraph: { type: "website", siteName: "Satnam Satoshi", title: "Satnam Satoshi — Many hands. One humanity.", description: "People and AI building together through Satoshi Langar, Kalakar.x and community research. Rooted in seva. Inspired by Bitcoin." },
+  twitter: { card: "summary", title: "Satnam Satoshi", description: "Many hands. One humanity." },
 };
 
 export const viewport: Viewport = { colorScheme: "light", themeColor: "#f7f3e8" };

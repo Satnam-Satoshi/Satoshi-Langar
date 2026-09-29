@@ -1,6 +1,6 @@
 # Mission / Living White Paper
 
-**Version:** 0.1 Public Alpha  
+**Version:** 0.3 Soft-launch revision
 **Status:** Living document  
 **Owner:** Human Founder  
 **Related SSCOS Volume:** I  
@@ -14,7 +14,9 @@ Satnam Satoshi exists to explore a different model: a community where technology
 
 ## The mission
 
-Build a Bitcoin-standard, open-source Human + AI Community Operating System that helps people coordinate knowledge, education, humanitarian service, research, and transparent institutions while preserving human sovereignty.
+Bring people and responsibly governed AI together to learn, build and serve humanity through open tools, shared knowledge and practical acts of seva—grounded in human dignity, Bitcoin’s verifiable rules, and Guru Nanak’s wisdom of equality, honest work and sharing.
+
+The September 2026 soft launch connects Satoshi Langar, Kalakar.x and Crypto Kitty research. The founder authorized continuation and public soft-launch preparation in chat. This mission revision does not itself form an entity, approve a fund, or supersede separate constitutional governance.
 
 ## What we believe
 
