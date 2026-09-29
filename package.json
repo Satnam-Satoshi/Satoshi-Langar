@@ -3,7 +3,7 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack && node scripts/portable-export.mjs",
     "start": "next start",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "check": "pnpm typecheck && pnpm build && node scripts/check-export.mjs"
   },
   "dependencies": {
