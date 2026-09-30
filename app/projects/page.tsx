@@ -7,8 +7,8 @@ const projects = [
   { name: "Treasury Intelligence", status: "BUILDING", body: "Read-only, evidence-led research on public treasury holdings, custody, beneficial ownership, and policy.", href: "/treasury" },
   { name: "Proof of Seva", status: "RESEARCH", body: "A privacy-aware framework for documenting useful service without commodifying human worth.", href: "/mission" },
   { name: "Agent Sangat", status: "RESEARCH", body: "Governed Human + AI collaboration with explicit permissions, human ownership, audit trails, and emergency stops.", href: "/open-source" },
-  { name: "Kalakar.x", status: "RESEARCH", body: "Creator and cultural contribution infrastructure focused on attribution, dignity, licensing, and community patronage.", href: "/community" },
-  { name: "Crypto Kitty", status: "RESEARCH", body: "Legal and institutional research into cooperative, mutual-aid, and community savings-circle models.", href: "/transparency" },
+  { name: "Kalakar.x", status: "RESEARCH", body: "Creator and cultural contribution infrastructure focused on attribution, dignity, licensing, and community patronage.", href: "/kalakar/" },
+  { name: "Crypto Kitty", status: "RESEARCH", body: "Research into community savings circles and mutual support. No deposits, loans or payouts are active.", href: "/crypto-kitty/" },
   { name: "Sikka / Seva tools", status: "FUTURE", body: "Future community tools subject to architecture, security, privacy, governance, and legal review.", href: "/transparency" },
 ];
 

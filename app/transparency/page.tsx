@@ -2,10 +2,11 @@ import Link from "next/link";
 import { PageIntro } from "../components/PageIntro";
 
 const status = [
-  ["Satnam.x Public Alpha", "BUILDING", "Public pages are under active review on a non-production branch and Vercel preview."],
+  ["Satnam Satoshi website", "SOFT LAUNCH", "The story and contribution paths are available here. Program services and the satnam.x domain connection are separate milestones."],
   ["Lunch Time Conversations", "BUILDING", "Publication surface exists; canonical Markdown + source-manifest pipeline is being formalized."],
   ["Treasury Intelligence", "BUILDING", "Read-only research interface. No custody, trading, or autonomous execution."],
   ["Satoshi Langar", "BUILDING", "Mission and workflow are public; field pilots and operating controls are not yet live."],
+  ["Kalakar.x", "RESEARCH", "Creative ideas and contributions are welcome; no marketplace or paid commissions are active."],
   ["Agent Sangat", "RESEARCH", "Agent permissions, audit, memory, human ownership, and emergency-stop standards are being documented."],
   ["Crypto Kitty", "RESEARCH", "No pooled investment system is live. Legal and cooperative structures require review before any pilot."],
 ];

@@ -50,7 +50,7 @@ Agents may contribute when they have a documented mission, knowledge sources, pe
 
 This repository currently hosts the Satnam.x Public Alpha and Satoshi Langar work while the wider SSCOS repository architecture evolves through versioned ADRs.
 
-Primary review branch: `agent/satnam-x-v1-build`
+Soft-launch review branch: `agent/satnam-soft-launch`
 
 Production merge, production-domain publication, treasury execution, wallet access, financial accounts, contracts, legal filings, entity formation, token issuance, and Bitcoin inscriptions require explicit Founder approval.
 
@@ -71,3 +71,11 @@ Read the source, inspect pull requests, review deployment previews, compare arch
 ## License
 
 Apache-2.0. See `LICENSE`.
+
+## September 2026 soft launch
+
+The public website tells the connected story of Satoshi Langar, Kalakar.x and Crypto Kitty research. It accepts no funds and requires no wallet. Contribution links open draft public GitHub issues for the visitor to review and submit.
+
+Use Node 22.23.2 and pnpm 11.19.0: `pnpm install --frozen-lockfile`, then `pnpm check`. Deploy **dist/**, the portable static release. Native navigation works without JavaScript. The experimental API handlers are archived as text in `docs/archived-api/` and no cron is deployed.
+
+See `docs/SOFT-LAUNCH.md` for publication, verification, rollback and satnam.x setup. Do not run a Next.js production server for this static release.
