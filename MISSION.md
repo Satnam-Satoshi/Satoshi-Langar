@@ -1,73 +1,45 @@
-# Mission / Living White Paper
+# Our mission
 
-**Version:** 0.1 Public Alpha  
-**Status:** Living document  
-**Owner:** Human Founder  
-**Related SSCOS Volume:** I  
-**Approval:** Public Alpha draft
+**Bring people and responsibly governed AI together to learn, build and serve humanity through open tools, shared knowledge and practical acts of seva—grounded in human dignity, Bitcoin's verifiable rules, and Guru Nanak's wisdom of equality, honest work and sharing.**
 
-## The problem
+Public community narrative · revised September 30, 2026. This develops the existing Satnam Satoshi Community Operating System (SSCOS) work. It does not adopt a new constitution, appoint legal officers or establish a legal entity. [Existing governance](GOVERNANCE.md) remains the authority record.
 
-Communities increasingly depend on institutions and software they cannot inspect, financial systems they do not control, information they cannot verify, and AI systems whose authority is poorly defined.
+## Why we exist
 
-Satnam Satoshi exists to explore a different model: a community where technology increases human capability without replacing human responsibility.
+A community should be able to understand the tools it depends on, contribute without buying permission, and keep working when a service provider changes. AI should expand what people can do while leaving responsibility with people.
 
-## The mission
+We want a person with an hour, a useful skill or a desire to learn to find a meaningful place to begin. A clear translation, an accessible page, a well-sourced explanation and a carefully organized meal can all be valuable contributions.
 
-Build a Bitcoin-standard, open-source Human + AI Community Operating System that helps people coordinate knowledge, education, humanitarian service, research, and transparent institutions while preserving human sovereignty.
+## Our roots
 
-## What we believe
+**Seva and shared dignity.** We draw inspiration from Guru Nanak and Sikh traditions of service, equality and sharing. This is our community's application of that inspiration; we do not speak for every Sikh or make religious belief a condition of participation. The Sikh Coalition's [Guru Nanak service initiative](https://www.sikhcoalition.org/blog/2019/national-partners-join-guru-nanak-550th-celebration/) provides context for the connection to service. Detailed teachings and translations deserve knowledgeable human review.
 
-### Truth before narrative
-Claims should point to evidence. Corrections should remain visible.
+**Bitcoin and verification.** Satoshi Nakamoto's [Bitcoin whitepaper](https://bitcoin.org/bitcoin.pdf) describes peer-to-peer electronic payments using a distributed network and cryptographic proof. We take inspiration from open verification and the ability to participate without a single controlling intermediary. The whitepaper is a technical foundation, not an endorsement of this community or a charter for all our activities.
 
-### Humans before AI
-AI can assist with research, coordination, software, documentation, translation, and analysis. Humans retain moral authority, consent, governance, custody, and treasury control.
+Our Bitcoin standard means using bitcoin and sats as a long-term monetary reference and designing for transparent accounting and self-custody. It does not require a wallet to join. Any future accounting must distinguish assets, debt, fees and restrictions; borrowed money is not profit. Financial research is separately scoped from community participation.
 
-### Bitcoin Standard
-Bitcoin provides the monetary reference point: neutral rules, verifiable scarcity, self-custody, Proof of Work, and long-term discipline. SSCOS does not require every activity to use Bitcoin, but its treasury philosophy begins with Bitcoin as reserve.
+## Principles in practice
 
-### Proof of Work
-Useful systems require real expenditure of effort, verification, and responsibility. Proof of Work is both a technical principle in Bitcoin and an institutional reminder that durable outcomes must be earned and verified.
+| Principle | What contributors should see |
+|---|---|
+| Service | A real need, a useful outcome and a person accountable for the work |
+| Truth | Sources, dates, uncertainty and visible corrections |
+| Sovereignty | Consent, minimal data collection, export and meaningful choices |
+| Open work | Reusable source, clear decisions and reviewable changes |
+| Human accountability | Named stewards, explicit agent permissions and working stop mechanisms |
+| Belonging | Participation across faiths, languages, backgrounds, abilities and technical experience |
+| Continuity | More than one capable maintainer, recovery instructions and tested independent copies |
 
-### Proof of Seva
-Seva means selfless service. Proof of Seva is SSCOS's framework for documenting useful service without reducing human worth to a score. It is not a token, wage, investment contract, or ranking market.
+## Begin small; build for reuse
 
-### Open source before lock-in
-Public architecture should be inspectable, forkable where licensing permits, documented, and understandable without access to private conversations.
+The first focus is a clear public home and useful contributions. The proposed first service program is Satoshi Langar, beginning with a small pilot plan and a real human organizer. Kalakar.x offers a path for creative work. Agent Sangat explores how AI can assist with bounded tasks. Research and publication work support learning. Crypto Kitty remains a study of possible community savings and mutual-aid models, not an operating fund.
 
-## Human sovereignty
+The [project map](docs/PROJECTS.md) explains each area. The [roadmap](ROADMAP.md) sets evidence required to move forward; it is not a promise of delivery dates, funding or adoption.
 
-Humans always retain custody, consent, governance, mission, ethical authority, and treasury control. AI never owns assets, holds private keys, independently executes financial transactions, overrides human approval, or bypasses governance.
+## What success looks like
 
-## AI stewardship
+A newcomer can explain the mission, find a task, understand what becomes public and complete a contribution that another person can use. Human reviewers can check the evidence. Communities can reuse the work and recover it without one indispensable provider. Local service protects the dignity of participants.
 
-Every future SSCOS agent must have a mission, responsibilities, knowledge sources, permissions, escalation rules, memory scope, audit trail, Human Owner, and emergency stop.
+We will measure completed useful work, contribution friction, corrections resolved, reviewed accessibility, and recovery results. We will not measure human worth through wealth, token balances, public service scores or agent activity volume.
 
-## Community architecture
-
-Satnam Satoshi is designed as a network of contributors rather than a closed company. Researchers can research. Developers can build. Designers can design. Writers can write. Artists can contribute through Kalakar.x. Volunteers can participate in Langar. Governed AI agents can assist within documented permissions.
-
-## Treasury philosophy
-
-BTC is reserve. LTC is a strategic Proof-of-Work ecosystem asset. Stable-value operating assets may be used only where lawful and appropriately governed. Treasury Intelligence is a research function and is separate from custody or execution.
-
-Community funds must never be represented as investments or pooled funds without an appropriate legal structure.
-
-## Public projects
-
-- **Satoshi Langar — BUILDING:** Humanitarian coordination using AI and open infrastructure to help communities feed people with dignity.
-- **Lunch Time Conversations — BUILDING/LIVE publication:** Institutional research and editorial archive.
-- **Treasury Intelligence — BUILDING:** Read-only evidence-based research on public Bitcoin, Litecoin, Stellar, ETF, corporate, and sovereign holdings.
-- **Agent Sangat — RESEARCH:** Governed human-supervised AI collaboration.
-- **Kalakar.x — RESEARCH:** Creator and cultural contribution ecosystem.
-- **Crypto Kitty — RESEARCH:** Lawful cooperative and mutual-aid models inspired by community savings circles.
-- **Sikka / Seva tools — FUTURE:** Community tools subject to architecture, security, and legal review.
-
-## Long-term vision
-
-The goal is not to create another crypto project. The goal is to create a durable institutional operating system future communities can study, improve, and reuse.
-
-Success means a stranger can understand what exists, what is unfinished, how decisions are made, how to verify the work, and how to contribute.
-
-**Ship the institution in public. Build the products in public. Improve continuously.**
+**Many hands. One humanity.**

@@ -1,5 +1,7 @@
 # Satnam Intelligence Commercial Model
 
+> **Historical design/reference.** Preserved from earlier project work. This document does not establish current deployment, active services or permissions. See [current status](STATUS.md) and [the roadmap](../ROADMAP.md) before using it.
+
 ## Objective
 
 Create recurring revenue from high-integrity digital-asset intelligence while preserving a meaningful free public-service layer.

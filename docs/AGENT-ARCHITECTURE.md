@@ -1,5 +1,7 @@
 # Satnam Satoshi Intelligence Agent Architecture
 
+> **Historical design/reference.** Preserved from earlier project work. This document does not establish current deployment, active services or permissions. See [current status](STATUS.md) and [the roadmap](../ROADMAP.md) before using it.
+
 ## 1. Mission
 
 Build a transparent, auditable agent system that converts public and licensed digital-asset data into a daily institutional intelligence product covering BTC, LTC, XLM, sovereign adoption, ETF flows, treasuries, banking activity, U.S. regulation, and Morpho markets.
