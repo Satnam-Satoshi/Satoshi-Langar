@@ -1,35 +1,35 @@
-# Architecture
+# Architecture and independence
 
-Satnam.x Public Alpha is intentionally small. It is the public doorway into SSCOS, not the complete operating system.
+Satnam Satoshi begins with a portable public home and a reviewable contribution process. The long-term community operating system grows from that foundation; the entire proposed platform is not implemented today.
 
-## Current stack
-- Next.js App Router
-- React + TypeScript
-- Tailwind CSS
-- Vercel Preview deployments
-- GitHub for code, public architecture, ADRs, issues, and version history
-- Google Drive for institutional documents and records
-- Canva for visual design and publication assets
+## Current layers
 
-## Public Alpha surfaces
-- Home
-- Mission / Living White Paper
-- Projects
-- Satoshi Langar
-- Lunch Time Conversations
-- Treasury Intelligence
-- Open Source
-- Community
-- Transparency
+| Layer | What exists | Limits / next evidence |
+|---|---|---|
+| Public community site | Next.js-authored content exported as static HTML/CSS in PR #46; HTTPS and an IPFS review copy | Main still has earlier app code; static release merge and founder acceptance remain separate |
+| Source and public decisions | This GitHub repository, issues, PRs and Markdown | Need independent source and issue export/restore |
+| Contribution intake | GitHub issue templates and review process | Requires a GitHub account to post; non-GitHub intake and backup stewardship remain open |
+| Agent participation | Human-governed task rules and a contribution brief | No public registry API or autonomous production executor |
+| Private records | Separately access-controlled project records | Never required to understand a public starter task; complete remote restore remains to be verified |
+| Research prototypes | Separate Treasury and editorial work | Not community identity, custody or financial execution |
 
-## Deferred systems
-Supabase, advanced agent orchestration, treasury execution, production wallets, payment rails, full publication automation, and community-account systems must not block Alpha launch.
+The public static site does not require a database, model provider, wallet connection or payment to read. This repository's older application source and historical deployment plans should not be confused with the current static review artifact. [Status and source evidence](docs/STATUS.md) · [Developer setup](docs/DEVELOPMENT.md)
 
-## Subsystem standard
-Every SSCOS subsystem will eventually document Mission, Scope, Responsibilities, Inputs, Outputs, Interfaces, Dependencies, Security, Privacy, Governance, and Success Metrics.
+## No irreplaceable provider
 
-## Release architecture
-Feature work occurs on non-production branches. Preview deployments are review surfaces. Protected production merge, public-domain release, treasury connections, and irreversible external actions require human approval.
+This is an engineering goal with acceptance evidence, not a claim of zero dependencies.
 
-## Data and trust
-Primary sources take precedence. Reports carry confidence and provenance where applicable. Address changes alone must not be treated as proof of beneficial ownership. Custody and beneficial ownership are distinct concepts.
+- Publish source and content in standard, reusable formats.
+- Preserve issue, decision and attribution records beyond a Git clone.
+- Maintain public release copies independently; IPFS persistence needs maintained availability.
+- Restore a release on another host and document the result.
+- Give human stewards recovery instructions and revocable access.
+- Test a manual contribution path when an AI or hosting service is unavailable.
+
+GitHub, Vercel, gateways, storage and account owners remain current dependencies. Public federation, portable identity and optional Bitcoin/Lightning tools are future evaluations with privacy, moderation, custody and recovery tradeoffs. Do not add a protocol solely to call the project decentralized.
+
+## Boundaries between systems
+
+Service-recipient records must not go into Git, public issues or immutable public storage. Research data must carry source, retrieval time and limits. Financial prototypes stay separate from learning, joining and volunteering. A typed wallet address is not identity authentication or permission to act.
+
+Any future subsystem should document its purpose, human owner, inputs, outputs, interfaces, dependencies, permissions, data retention, stop mechanism and evidence of success. Record material choices with the [ADR template](docs/ADR-TEMPLATE.md), and link the accepted decision from the [public log](docs/DECISIONS.md).

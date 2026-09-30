@@ -1,5 +1,7 @@
 # Satnam.x Public Alpha Release Candidate
 
+> **Historical design/reference.** Preserved from earlier project work. This document does not establish current deployment, active services or permissions. See [current status](STATUS.md) and [the roadmap](../ROADMAP.md) before using it.
+
 Status: Release Candidate verification in progress
 
 Priority: Public Alpha

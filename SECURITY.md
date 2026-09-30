@@ -9,7 +9,9 @@ Security is a constitutional requirement, not a feature added later.
 - Production publication and domain changes require Founder approval.
 
 ## Reporting a vulnerability
-Do not publish exploit details in a public issue if doing so would materially increase risk. Use the repository's private security-reporting channel when enabled, or contact the Human Founder through the project's verified public contact path.
+Do not publish exploit details in a public issue if doing so would materially increase risk. If GitHub shows a **Report a vulnerability** button on this repository's Security page, use that private reporting flow. Availability of that feature and a separate confidential contact have not yet been verified for this project.
+
+If no private reporting option is available, open an issue containing only a request for a private reporting channel, without exploit details, secrets or affected people's identities. Wait for the human maintainer to provide and verify a confidential route before sending sensitive material. No response-time commitment is currently established.
 
 Include affected component, reproduction conditions, potential impact, and any safe mitigation you have identified. Do not access data that is not yours, move funds, degrade service, or test against real users without authorization.
 

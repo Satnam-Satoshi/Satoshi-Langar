@@ -1,5 +1,7 @@
 # Satnam Satoshi Daily Institutional Intelligence Report
 
+> **Historical design/reference.** Preserved from earlier project work. This document does not establish current deployment, active services or permissions. See [current status](STATUS.md) and [the roadmap](../ROADMAP.md) before using it.
+
 ## Purpose
 
 Produce a reproducible daily publication that separates confirmed facts, estimates, interpretation, and opinion. The report serves institutions, analysts, builders, communities, and autonomous agents while remaining general and impersonal.

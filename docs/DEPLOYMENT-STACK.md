@@ -1,5 +1,7 @@
 # Satnam Satoshi Production Stack
 
+> **Historical design/reference.** Preserved from earlier project work. This document does not establish current deployment, active services or permissions. See [current status](STATUS.md) and [the roadmap](../ROADMAP.md) before using it.
+
 ## Operating principle
 
 The hosted system performs scheduled research, collection, verification, report generation, delivery, and paid data access. Humans retain control of credentials, production approvals, treasury wallets, billing accounts, and any future transaction permissions.

@@ -1,21 +1,16 @@
-# Good First Issues
+# Find your first contribution
 
-New contributors should be able to help without private context.
+Choose one small task. You do not need to be a developer or own bitcoin. Suggested time boxes describe a first pass, not promised completion times.
 
-## 1. Accessibility QA for Satnam.x Public Alpha
-Test keyboard navigation, focus states, heading order, reduced motion, mobile overflow, and contrast. Report reproducible findings with route and device/browser details.
+| Task | Useful skills | First pass | Open issue |
+|---|---|---|---|
+| Explain where the newcomer journey is confusing | Reading, writing, fresh perspective | 20–30 minutes | [#47](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/47) |
+| Review keyboard use and readability on three pages | Browser use, accessibility, design | 45–60 minutes | [#48](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/48) |
+| Draft two English–Punjabi glossary entries | Language knowledge, careful research | 20–30 minutes | [#49](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/49) |
+| Improve a future Langar pilot checklist | Organizing, service experience, document review | 30–45 minutes | [#50](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/50) |
 
-## 2. Living White Paper source map
-Review MISSION.md and propose primary-source references for Bitcoin, Proof of Work, self-custody, open-source governance, and public-interest AI claims. Do not add promotional or unsupported claims.
+Each issue includes scope and completion criteria. Comment with the part you want to help with so a maintainer can coordinate. A finding in an issue is welcome; a code pull request is not required. Use [CONTRIBUTING.md](../CONTRIBUTING.md) for the full process.
 
-## 3. LTC publication provenance schema
-Propose a minimal Markdown front matter or JSON schema that preserves edition ID, publication timestamp, content hash, source-manifest hash, PDF hash, canonical Git commit, and correction history.
+Experienced builders can review [development setup](DEVELOPMENT.md), [deployment lineage #39](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/39), or [the roadmap](../ROADMAP.md). Governance and financial issues need their named human decisions; they are not beginner tasks simply because they are open.
 
-## 4. Translation readiness
-Review public Alpha copy for phrases that may be difficult to translate accurately. Propose plain-language alternatives without changing constitutional meaning.
-
-## 5. Project maturity badges
-Audit public pages to ensure every unfinished project is consistently labeled LIVE, BUILDING, RESEARCH, or FUTURE.
-
-## 6. Design-system token audit
-Document the current light palette, typography, spacing, border, and focus tokens and identify places where pages still assume the former dark-first system.
+If none of these fit, [propose one small improvement](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/new?template=feature_request.md). State who it helps and what would count as done. No payment, automatic reward or role is promised by claiming an issue.

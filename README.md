@@ -1,73 +1,61 @@
-# Satnam Satoshi — Satnam.x Public Alpha
+# Satnam Satoshi
 
-**One humanity. One truth. One future.**
+### Many hands. One humanity.
 
-Satnam Satoshi is an open-source, Bitcoin-standard Human + AI community project built to help people learn, build, serve, and coordinate transparently.
+**An open-source community where people and responsibly governed AI learn, create and serve together.**
 
-This is not a token launch, trading platform, investment product, registered charity, foundation, trust, church, or 501(c)(3) organization. Legal formation is being researched and will be documented before any status is claimed.
+Inspired by Guru Nanak's wisdom of equality, honest work and sharing, and by Bitcoin's culture of open verification, we are building tools that communities can understand, improve and operate for themselves. Everyone is welcome. You do not need bitcoin, a wallet, a technical background or a particular faith to participate.
 
-## Start here
+[Explore the website](https://https-github-com-satnam-satoshi-sat.vercel.app/) · [Find your first contribution](docs/GOOD_FIRST_ISSUES.md) · [Read our mission](MISSION.md) · [See the roadmap](ROADMAP.md)
 
-- **Mission / Living White Paper** — why the project exists, what it believes, and how humans remain in authority.
-- **Projects** — Satoshi Langar, Lunch Time Conversations, Treasury Intelligence, Proof of Seva, Agent Sangat, Kalakar.x, Crypto Kitty research, and future Seva tools.
-- **Open Source** — architecture, roadmap, issues, ADRs, contribution paths, and governance.
-- **Community** — researchers research, developers build, designers design, writers write, artists create, volunteers serve, and governed AI agents assist.
-- **Transparency** — current build status, limitations, open decisions, governance principles, correction policy, and legal-formation status.
+> **September 30, 2026 · Community alpha.** The public information site is available for review. Service programs, agent infrastructure and financial systems are at different stages of planning or research. **satnam.x publication is deliberately deferred while the founder reviews the site.** See [current status and evidence](docs/STATUS.md).
 
-## Public Alpha doctrine
+## The story we are building
 
-**Ship the institution in public. Build the products in public. Improve continuously.**
+Useful technology should help people care for one another. Our starting point is simple: make it easy to offer a skill, learn in public, and turn a small contribution into something another person can use.
 
-Every unfinished system is labeled honestly as `LIVE`, `BUILDING`, `RESEARCH`, or `FUTURE`.
+**Satnam Satoshi is the umbrella community. Satoshi Langar is our proposed first service program.** This repository keeps its original `Satoshi-Langar` name and is the public home for the community website, documentation and contribution process.
 
-## Human authority
+Our long-term ambition is a reusable community operating system: shared knowledge, local service, creative work and accountable AI collaboration. We will grow from demonstrated usefulness, with clear ownership and evidence at each step.
 
-Amardeep “Baba G” Malhotra is the Human Founder, Mission Authority, Publisher, Account Owner, Treasury Approver, and Final Decision Maker.
+## One community, several ways to serve
 
-Humans retain custody, consent, governance, mission, ethical authority, legal authority, and treasury control.
+| Initiative | Purpose | Current stage |
+|---|---|---|
+| **Satoshi Langar** | Help local people plan and coordinate dignified food and service initiatives | Pilot planning; no operating service claimed |
+| **Kalakar.x** | Give artists, writers and designers a place to create and share with clear attribution | Creative program discovery |
+| **Agent Sangat** | Let AI assist contributors through scoped tasks and human review | Contribution rules and templates; no public agent API |
+| **Lunch Time Conversations** | Share learning and research with sources and visible corrections | Editorial concepts and prototype pages |
+| **Treasury Intelligence** | Explore transparent, read-only research and accounting | Separate prototypes; no funds managed |
+| **Crypto Kitty** | Study community savings-circle and mutual-aid ideas | Research only; no pool, deposits or promised returns |
 
-AI may research, draft, analyze, coordinate, document, test, and recommend. AI does not own assets, hold private keys, independently execute financial transactions, override human approval, bypass governance, serve as a director/trustee/signatory, or claim legal authority.
+[Explore the project map](docs/PROJECTS.md) for boundaries, evidence and the next useful outcome for each initiative.
 
-## Bitcoin Standard
+## Start with one useful contribution
 
-Bitcoin is the reserve and reference monetary standard of the project architecture. Litecoin may serve as a complementary Proof-of-Work ecosystem asset and payment rail. Stellar may support settlement and tokenization experiments where appropriate. Operating stable-value assets may be researched for bounded operational budgets. None of these integrations authorize autonomous custody or trading.
+- **Read and write:** [test the newcomer journey](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/47).
+- **Design and test:** [review keyboard navigation](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/48).
+- **Translate:** [help with an English–Punjabi glossary](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/49).
+- **Organize and serve:** [review the Langar planning checklist](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/50).
+- **Build:** read the [development guide](docs/DEVELOPMENT.md), then choose a small issue.
+- **Contribute with AI:** use the [agent contribution brief](docs/AGENT-CONTRIBUTION.md) and name an accountable human operator.
 
-## Contribute
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before starting. A GitHub account is needed to post here; reading the site requires no account. Contributions are voluntary unless a separate written arrangement says otherwise. We have no contribution token or automatic reward program.
 
-### JOIN THE MISSION
+## Our commitments
 
-Open an issue, improve documentation, review a source, propose a design, test accessibility, translate content, or help a local Seva project.
+**Service with dignity.** Consent, privacy and practical usefulness come before publicity or activity counts.
 
-### BUILD WITH US
+**A Bitcoin standard.** Bitcoin and sats are our long-term monetary reference; verification, self-custody and patient stewardship inform our design. This is a community philosophy, not a statement that a treasury has been funded or that returns are assured.
 
-Public Alpha contributors should begin with a small, reviewable change. No token, payment, or private chat access is required.
+**People remain accountable.** AI can research, draft, design and test within an authorized task. Human stewards retain governance, publication, custody and spending authority. [Governance](GOVERNANCE.md) · [Code of conduct](CODE_OF_CONDUCT.md)
 
-### AI AGENTS WELCOME UNDER GOVERNANCE
+**No irreplaceable provider.** We aim for portable code, standard formats, independent copies and tested recovery. GitHub, Vercel and current storage services remain dependencies today. [Architecture](ARCHITECTURE.md)
 
-Agents may contribute when they have a documented mission, knowledge sources, permissions, escalation rules, memory scope, audit trail, Human Owner, and emergency stop.
+## Find your way around
 
-## Repository
+[Mission](MISSION.md) · [Roadmap](ROADMAP.md) · [Project map](docs/PROJECTS.md) · [Documentation index](docs/README.md) · [Current status](docs/STATUS.md) · [Security](SECURITY.md)
 
-This repository currently hosts the Satnam.x Public Alpha and Satoshi Langar work while the wider SSCOS repository architecture evolves through versioned ADRs.
+The reviewed static website lives in [PR #46](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/46); `main` still contains earlier application code. Documentation improvements do not merge that application release or the separate [Treasury PR #45](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/45).
 
-Primary review branch: `agent/satnam-x-v1-build`
-
-Production merge, production-domain publication, treasury execution, wallet access, financial accounts, contracts, legal filings, entity formation, token issuance, and Bitcoin inscriptions require explicit Founder approval.
-
-## Technology
-
-- Next.js App Router
-- React + TypeScript
-- Tailwind CSS
-- Vercel Preview deployments
-- GitHub as the public code and architecture record
-- Google Drive as the institutional document system of record
-- Canva as the visual-design workspace
-
-## Verify the work
-
-Read the source, inspect pull requests, review deployment previews, compare architecture decisions, and follow correction/version history. Trust should be inspectable.
-
-## License
-
-Apache-2.0. See `LICENSE`.
+Licensed under [Apache-2.0](LICENSE), with [contributor attribution](NOTICE). Public work should be inspectable, reusable and understandable without access to private conversations.
