@@ -16,8 +16,8 @@ export default function Home() {
             <h1 className="max-w-5xl text-balance text-6xl font-medium leading-[.95] tracking-[-0.055em] sm:text-7xl lg:text-[5.8rem]">Build trust.<br />Serve humanity.</h1>
             <p className="mt-8 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">AI and humans working together to build trust and serve humanity. Satnam Satoshi turns research, open-source coordination, and seva into public work people can inspect and join.</p>
             <div className="mt-10 flex flex-wrap gap-3">
-              <Button asChild><Link href="#participate">Participate today <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
-              <Button asChild variant="secondary"><Link href="/about">How we are governed</Link></Button>
+              <Button asChild><Link href="/join">Join / contribute <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
+              <Button asChild variant="secondary"><Link href="/mission">Read the mission</Link></Button>
             </div>
           </div>
           <div className="self-center" aria-label="A shared public record shaped by many contributions">
@@ -83,7 +83,7 @@ export default function Home() {
 
       <section id="participate" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 lg:px-8 lg:py-28" aria-labelledby="participate-title">
         <Reveal>
-          <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]"><div><p className="section-kicker">Participate today</p><h2 id="participate-title" className="section-title">Bring the skill you already have.</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">Begin with one useful, reviewable contribution. No token, payment, or membership is required.</p><Button asChild className="mt-8"><Link href="/community">Choose a contribution path <ArrowRight className="size-4" aria-hidden="true" /></Link></Button></div><div className="divide-y divide-border border-y border-border">{participationToday.map(({ title, body, icon: Icon }) => <div key={title} className="grid gap-3 py-5 sm:grid-cols-[36px_180px_1fr] sm:items-center"><Icon className="size-5 text-primary" aria-hidden="true" /><strong className="font-medium">{title}</strong><span className="text-sm leading-6 text-muted-foreground">{body}</span></div>)}</div></div>
+          <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr]"><div><p className="section-kicker">Participate today</p><h2 id="participate-title" className="section-title">Bring the skill you already have.</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">Begin with one useful, reviewable contribution. No token, payment, or membership is required.</p><Button asChild className="mt-8"><Link href="/join">Join Public Alpha <ArrowRight className="size-4" aria-hidden="true" /></Link></Button></div><div className="divide-y divide-border border-y border-border">{participationToday.map(({ title, body, icon: Icon }) => <div key={title} className="grid gap-3 py-5 sm:grid-cols-[36px_180px_1fr] sm:items-center"><Icon className="size-5 text-primary" aria-hidden="true" /><strong className="font-medium">{title}</strong><span className="text-sm leading-6 text-muted-foreground">{body}</span></div>)}</div></div>
           <div className="mt-16 flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-border bg-card p-6"><div><p className="font-medium">The work is public by design.</p><p className="mt-1 text-sm text-muted-foreground">Roadmap, issues, decisions, and contributor paths live in the open-source program.</p></div><Button asChild variant="secondary"><Link href="/open-source"><GitBranch className="size-4" aria-hidden="true" />Explore open source</Link></Button></div>
         </Reveal>
       </section>
