@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "publication": "Lunch Time Conversations",
+  "generatedAt": "2026-09-30T06:17:00.467Z",
+  "timezone": "America/New_York",
+  "scheduleStatus": "not-scheduled",
+  "editorialStatus": "automated-source-check",
+  "coverage": "IBIT holdings and Bitcoin Core release parser; other sources are reference availability checks. No ETF flow or mNAV calculation.",
+  "sourceCount": 6,
+  "failureCount": 2,
+  "sources": [
+    {
+      "id": "ibit-holdings",
+      "title": "iShares Bitcoin Trust ETF · holdings",
+      "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
+      "kind": "primary",
+      "parserVersion": "ibit-csv-v1",
+      "checkedAt": "2026-09-30T06:17:00.467Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-09-28",
+      "sourceSha256": "64d5cf599ac67d5e14b6796f7aa8bfed8ac9f142448559ade85f3e934c4cd7d3",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "fund_btc_quantity",
+          "label": "IBIT reported BTC holdings",
+          "value": "800535.28920",
+          "unit": "BTC",
+          "effectiveAt": "2026-09-28",
+          "timePrecision": "date",
+          "classification": "issuer-reported"
+        },
+        {
+          "metric": "fund_shares_outstanding",
+          "label": "IBIT shares outstanding",
+          "value": "1412720000.00",
+          "unit": "shares",
+          "effectiveAt": "2026-09-28",
+          "timePrecision": "date",
+          "classification": "issuer-reported"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "bitcoin-core",
+      "title": "Bitcoin Core · software releases",
+      "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
+      "kind": "primary",
+      "parserVersion": "github-release-v1",
+      "checkedAt": "2026-09-30T06:17:00.467Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-07-08T09:14:15Z",
+      "sourceSha256": "3ddf30b77a66db3f446f61892dc00f7a167412658a19a87196b81af5d111d222",
+      "freshness": "dated-event",
+      "observations": [
+        {
+          "metric": "software_release",
+          "label": "Bitcoin Core latest returned release",
+          "value": "v31.1",
+          "unit": "version",
+          "effectiveAt": "2026-07-08T09:14:15Z",
+          "timePrecision": "second",
+          "classification": "upstream-release"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "strategy-notes",
+      "title": "Strategy · mNAV definitions",
+      "url": "https://www.strategy.com/notes",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-09-30T06:17:00.467Z",
+      "status": "unavailable",
+      "httpStatus": 403,
+      "sourceAsOf": null,
+      "sourceSha256": null,
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": "http_failure"
+    },
+    {
+      "id": "coinshares-bitc",
+      "title": "CoinShares · Bitcoin ETP",
+      "url": "https://coinshares.com/etp/physical-bitcoin/",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-09-30T06:17:00.467Z",
+      "status": "reference-retrieved",
+      "httpStatus": 200,
+      "sourceAsOf": null,
+      "sourceSha256": "30f2ef2fd9a7fe3e4a9a7e4849bbd983ef59eb9dade8711910c541cfaa2b8fcb",
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": null
+    },
+    {
+      "id": "sec-news",
+      "title": "SEC · official announcements",
+      "url": "https://www.sec.gov/newsroom/press-releases",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-09-30T06:17:00.467Z",
+      "status": "unavailable",
+      "httpStatus": 403,
+      "sourceAsOf": null,
+      "sourceSha256": null,
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": "http_failure"
+    },
+    {
+      "id": "litecoin-register",
+      "title": "Litecoin Register · community research",
+      "url": "https://www.litecoinregister.com/",
+      "kind": "secondary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-09-30T06:17:00.467Z",
+      "status": "reference-retrieved",
+      "httpStatus": 200,
+      "sourceAsOf": null,
+      "sourceSha256": "a822308fa74a49de520da5f65383519c6b56dffbfbd1b61d34f4bd51fb35cc5c",
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": null
+    }
+  ]
+}

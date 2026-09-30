@@ -31,10 +31,16 @@ The browser checks are not a fresh byte restore of every IPFS file or proof of a
 
 ## Scope boundaries
 
-No live fund, donation intake, service reward program, pooled savings, autonomous treasury execution or public agent API is provided by the community site. No deposited budget is claimed. The separate Treasury prototype is not independently audited and its capability monitor does not monitor account positions or debt.
+The community revision publishes founder-supplied native BTC/LTC donation requests. It provides no live fund, balance monitoring, automated receipts, service reward program, pooled savings, autonomous treasury execution or public agent API. No deposited budget is claimed. The separate Treasury prototype is not independently audited and its capability monitor does not monitor account positions or debt.
 
 The project currently depends on GitHub, hosting and storage providers. Provider independence is a goal to demonstrate through documented exports, multiple maintained copies and recovery tests. [IPFS persistence requires maintained availability](https://docs.ipfs.tech/concepts/persistence/); a content address alone is not permanent hosting.
 
 ## Keeping this accurate
 
 Update this file when a release, integration or governance decision changes the facts. Include the date, exact source/PR, checks performed and remaining limits. Use [DECISIONS.md](DECISIONS.md) for changes of direction. Older reports do not override current verified evidence.
+
+## Community ecosystem revision for review
+
+The expanded website branch adds six connected programs, three complete beginner lessons, nine quiz answer reveals, Langar proof-of-service/reward design, creator payment plans, a meetup invitation, a social directory with only verified links, AI collaboration, a four-stage 90-day roadmap, and a founding LTC magazine. The magazine embeds dated source observations and an original mNAV explainer; daily editorial operations and unimplemented metrics are explicitly separated.
+
+Native BTC/LTC requests use founder-supplied addresses reaffirmed in this chat. Network prefixes and checksums pass. No funds have been sent, received, reconciled or managed by the agent.

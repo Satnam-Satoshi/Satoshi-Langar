@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "publication": "Lunch Time Conversations",
+  "scheduleStatus": "not-scheduled",
+  "sources": [
+    { "id": "ibit-holdings", "title": "iShares Bitcoin Trust ETF · holdings", "desk": "Markets & institutions", "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv", "referenceUrl": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf", "kind": "primary", "parser": "ibit-csv-v1", "metricStatus": "dated-holdings", "maxAgeDays": 4 },
+    { "id": "bitcoin-core", "title": "Bitcoin Core · software releases", "desk": "Network analysis", "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest", "referenceUrl": "https://bitcoincore.org/en/releases/", "kind": "primary", "parser": "github-release-v1", "metricStatus": "software-release", "maxAgeDays": null },
+    { "id": "strategy-notes", "title": "Strategy · mNAV definitions", "desk": "Markets & institutions", "url": "https://www.strategy.com/notes", "referenceUrl": "https://www.strategy.com/notes", "kind": "primary", "parser": "source-check-v1", "metricStatus": "methodology-reference", "maxAgeDays": null },
+    { "id": "coinshares-bitc", "title": "CoinShares · Bitcoin ETP", "desk": "Markets & institutions", "url": "https://coinshares.com/etp/physical-bitcoin/", "referenceUrl": "https://coinshares.com/etp/physical-bitcoin/", "kind": "primary", "parser": "source-check-v1", "metricStatus": "numeric-adapter-pending", "maxAgeDays": null },
+    { "id": "sec-news", "title": "SEC · official announcements", "desk": "Politics & public record", "url": "https://www.sec.gov/newsroom/press-releases", "referenceUrl": "https://www.sec.gov/newsroom/press-releases", "kind": "primary", "parser": "source-check-v1", "metricStatus": "editorial-selection-required", "maxAgeDays": null },
+    { "id": "litecoin-register", "title": "Litecoin Register · community research", "desk": "Litecoin holdings", "url": "https://www.litecoinregister.com/", "referenceUrl": "https://www.litecoinregister.com/help/", "kind": "secondary", "parser": "source-check-v1", "metricStatus": "attributed-reference-only", "maxAgeDays": null }
+  ]
+}

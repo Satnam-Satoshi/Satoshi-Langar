@@ -59,3 +59,9 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before starting. A GitHub account is nee
 The reviewed static website lives in [PR #46](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/46); `main` still contains earlier application code. Documentation improvements do not merge that application release or the separate [Treasury PR #45](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/45).
 
 Licensed under [Apache-2.0](LICENSE), with [contributor attribution](NOTICE). Public work should be inspectable, reusable and understandable without access to private conversations.
+
+## Community expansion for review — September 30
+
+The next website revision connects Sikh Bitcoin learning, Langar service, Kalakar artist payments, Lunch Time Conversations, meetups and Agent Sangat. Start with the [detailed ecosystem plan](docs/ECOSYSTEM-PLAN.md), [90-day roadmap](ROADMAP.md), [community launch playbook](docs/COMMUNITY-LAUNCH-PLAYBOOK.md) and [agent team responsibilities](docs/AGENT-TEAM.md).
+
+The website revision includes readable learning materials and program designs. Social registration, live field operations and payment intake have separate owners and readiness gates. satnam.x publication remains deferred. The publication distinguishes dated observations from news, interpretation and unsupported live claims.

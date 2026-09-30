@@ -25,8 +25,8 @@ const coverage = [
 ] as const;
 
 const pipeline = [
-  ["Source registry", "13 governed sources", "Verified"],
-  ["Primary-source policy", "Required for material claims", "Active"],
+  ["Source registry", "Historical registry; new LTC sources are dated separately", "Documented"],
+  ["Primary-source policy", "Required for material claims", "Documented"],
   ["Classification model", "Fact · estimate · interpretation", "Prepared"],
   ["Public daily dataset", "Awaiting ingestion verification", "Not live"],
 ] as const;
