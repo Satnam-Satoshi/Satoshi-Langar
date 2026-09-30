@@ -16,8 +16,11 @@ async function walk(directory) {
    html=html.replace(/\b(href|src)="(\/[^"\s]*)"/g,(match,attribute,url)=>{
     if(url.startsWith('//')) return match;
     const parsed=new URL(url,'https://export.invalid');
-    const local=path.relative(path.dirname(input),path.join(source,decodeURIComponent(parsed.pathname)))||'.';
-    return `${attribute}="${local}${parsed.pathname.endsWith('/')?'/':''}${parsed.search}${parsed.hash}"`;
+    // Some IPFS gateways list nested directories instead of serving their index.
+    const pathname=decodeURIComponent(parsed.pathname);
+    const destination=pathname.endsWith('/')?path.join(pathname,'index.html'):pathname;
+    const local=path.relative(path.dirname(input),path.join(source,destination))||'.';
+    return `${attribute}="${local}${parsed.search}${parsed.hash}"`;
    });
    await writeFile(output,html);
   } else await copyFile(input,output);

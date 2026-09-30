@@ -14,7 +14,7 @@ async function walk(dir){
    const clean=decodeURIComponent(url.split(/[?#]/)[0]);
    let dest=path.resolve(path.dirname(file),clean);
    if(!dest.startsWith(root+path.sep)&&dest!==root){failures.push(`${file}: path escapes release ${url}`);continue;}
-   try{const info=await stat(dest);if(info.isDirectory())await stat(path.join(dest,'index.html'));}
+   try{const info=await stat(dest);if(info.isDirectory())failures.push(`${file}: directory link depends on gateway index serving ${url}`);}
    catch{failures.push(`${file}: broken ${attr} ${url}`);}
   }
  }

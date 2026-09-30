@@ -16,7 +16,7 @@ Use Node 22.23.2 and pnpm 11.19.0. Run `pnpm install --frozen-lockfile`, `pnpm c
 
 Existing Vercel project: https-github-com-satnam-satoshi-satoshi-langar in Baba G's projects. Deploy the exact reviewed branch/commit with framework `Other`, install `pnpm install --frozen-lockfile`, build `pnpm build`, output `dist`. vercel.json defines these and static security headers. Preview first; verify actual rendered page and commit, then publish the approved candidate. Do not redeploy the old artifact. Do not provision paid services without approval.
 
-For any other static host, upload contents of dist. Preserve directory indexes. Add equivalent CSP and other headers where supported. The files also work below an IPFS gateway CID path because internal links and resources are relative. Gateway headers are controlled by the gateway operator.
+For any other static host, upload contents of dist. Preserve directory indexes. Add equivalent CSP and other headers where supported. The files also work below an IPFS gateway CID path because internal links and resources are relative. Page links explicitly include index.html: Pinata was observed to list nested directories for trailing-slash links. The export check rejects directory links so navigation does not rely on gateway index serving. Gateway headers are controlled by the gateway operator.
 
 ## satnam.x
 
