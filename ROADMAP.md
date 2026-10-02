@@ -4,6 +4,14 @@ Planning revision: September 30, 2026. This expands the community front-door roa
 
 Start with the [ecosystem plan](docs/ECOSYSTEM-PLAN.md), [agent team](docs/AGENT-TEAM.md) and [community launch playbook](docs/COMMUNITY-LAUNCH-PLAYBOOK.md). Check [current status](docs/STATUS.md) for verified availability. Role names below are responsibilities to fill, not appointments.
 
+## Release 0.1.26 — complete the next step
+
+October 1, 2026 implementation scope: turn each program's invitation into a useful first task, editable download, completion check and explicit next action. Langar, artists, meetup hosts, agent operators, collaborators, treasury researchers and mutual-aid researchers receive distinct planner paths. Courses and the original magazine retain their own learning and reading journeys.
+
+Before calling this release complete, verify the path selected in the browser matches the program, all toolkit downloads survive the production export, public GitHub drafts disclose visibility and user submission, and no screen implies a confirmed role, event, payout or accepted proposal. Website verification must cover narrow screens, keyboard navigation and the full download-to-next-step path. See the [flow map and toolkits](docs/ECOSYSTEM-PLAN.md#release-0126-a-complete-first-contribution-path).
+
+This release improves participation today; the 90-day operational gates below remain in force. A working personal planner does not fill unassigned human roles or activate future services.
+
 ## Days 1–14 — make the invitation useful
 
 | Work / proposed owner | Dependencies | Acceptance evidence |

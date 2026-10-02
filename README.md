@@ -8,7 +8,7 @@ Inspired by Guru Nanak's wisdom of equality, honest work and sharing, and by Bit
 
 [Explore the website](https://https-github-com-satnam-satoshi-sat.vercel.app/) · [Find your first contribution](docs/GOOD_FIRST_ISSUES.md) · [Read our mission](MISSION.md) · [See the roadmap](ROADMAP.md)
 
-> **September 30, 2026 · Community alpha.** The public information site is available for review. Service programs, agent infrastructure and financial systems are at different stages of planning or research. **satnam.x publication is deliberately deferred while the founder reviews the site.** See [current status and evidence](docs/STATUS.md).
+> **October 1, 2026 · Open-source release 0.1.26 for review.** The public information site is available for review. Service programs, agent infrastructure and financial systems are at different stages of planning or research. **satnam.x publication is deliberately deferred while the founder reviews the site.** See [current status and evidence](docs/STATUS.md).
 
 ## The story we are building
 
@@ -25,7 +25,8 @@ Our long-term ambition is a reusable community operating system: shared knowledg
 | **Satoshi Langar** | Help local people plan and coordinate dignified food and service initiatives | Pilot planning; no operating service claimed |
 | **Kalakar.x** | Give artists, writers and designers a place to create and share with clear attribution | Creative program discovery |
 | **Agent Sangat** | Let AI assist contributors through scoped tasks and human review | Contribution rules and templates; no public agent API |
-| **Lunch Time Conversations** | Share learning and research with sources and visible corrections | Editorial concepts and prototype pages |
+| **Lunch Time Conversations** | Original Bitcoin, policy, markets, AI and community journalism | Eight editorial previews, source desk, archive and RSS; human review pending |
+| **Sikh Bitcoin** | Open learning from first principles to protocol depth and sovereignty | Three courses of 21 lessons, exercises and self-check quizzes |
 | **Treasury Intelligence** | Explore transparent, read-only research and accounting | Separate prototypes; no funds managed |
 | **Crypto Kitty** | Study community savings-circle and mutual-aid ideas | Research only; no pool, deposits or promised returns |
 
@@ -56,12 +57,12 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before starting. A GitHub account is nee
 
 [Mission](MISSION.md) · [Roadmap](ROADMAP.md) · [Project map](docs/PROJECTS.md) · [Documentation index](docs/README.md) · [Current status](docs/STATUS.md) · [Security](SECURITY.md)
 
-The reviewed static website lives in [PR #46](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/46); `main` still contains earlier application code. Documentation improvements do not merge that application release or the separate [Treasury PR #45](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/45).
+The current combined website/docs review is [PR #52](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/52); `main` still contains earlier application code. Documentation improvements do not merge that application release or the separate [Treasury PR #45](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/45).
 
 Licensed under [Apache-2.0](LICENSE), with [contributor attribution](NOTICE). Public work should be inspectable, reusable and understandable without access to private conversations.
 
-## Community expansion for review — September 30
+## Community expansion for review — 0.1.26
 
 The next website revision connects Sikh Bitcoin learning, Langar service, Kalakar artist payments, Lunch Time Conversations, meetups and Agent Sangat. Start with the [detailed ecosystem plan](docs/ECOSYSTEM-PLAN.md), [90-day roadmap](ROADMAP.md), [community launch playbook](docs/COMMUNITY-LAUNCH-PLAYBOOK.md) and [agent team responsibilities](docs/AGENT-TEAM.md).
 
-The website revision includes readable learning materials and program designs. Social registration, live field operations and payment intake have separate owners and readiness gates. satnam.x publication remains deferred. The publication distinguishes dated observations from news, interpretation and unsupported live claims.
+The website includes 63 lessons, a personal first-contribution planner, seven guided program journeys, eight downloadable toolkits and an original LTC editorial preview. Plans and progress stay in the browser. Optional Apple/Google/GitHub/Facebook sign-in has an implementation and [owner setup guide](docs/COMMUNITY-ACCOUNTS.md); provider activation is pending. Social registration, live field operations and payment intake have separate owners and readiness gates. satnam.x publication remains deferred. The publication distinguishes dated observations from news, interpretation and unsupported live claims.

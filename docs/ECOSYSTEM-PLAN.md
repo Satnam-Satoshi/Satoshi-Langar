@@ -2,6 +2,26 @@
 
 Planning revision: September 30, 2026. This is the proposed operating design for human review. A page, course outline or agent role does not establish a live kitchen, payment service, funded reward, partnership or publication schedule. See [current status](STATUS.md), the [90-day roadmap](../ROADMAP.md) and [launch playbook](COMMUNITY-LAUNCH-PLAYBOOK.md).
 
+## Release 0.1.26: a complete first contribution path
+
+Prepared October 1, 2026. This revision gives each program a practical next action instead of ending at a general invitation. Preparing a plan is not registration, appointment, event booking, a grant application or acceptance by a steward.
+
+| Program | First useful result | Planner path | Downloadable worksheet |
+|---|---|---|---|
+| Langar | A local-need brief or service-record rehearsal | `/join/?path=langar` | [Kitchen plan](../public/toolkits/langar-starter.md), [service record](../public/toolkits/service-record.md) |
+| Kalakar.x | A creative brief with scope, authorship and permission | `/join/?path=kalakar` | [Artist brief](../public/toolkits/kalakar-starter.md) |
+| Meetups | A purpose, draft agenda and unconfirmed host decisions | `/join/?path=meetups` | [Host pack](../public/toolkits/meetup-starter.md) |
+| Agent Sangat | One bounded task with a human operator and review evidence | `/join/?path=agents` | [Agent brief](../public/toolkits/agent-starter.md) |
+| Collaborators | A useful deliverable, sponsor, license and review plan | `/join/?path=partners` | [Collaboration brief](../public/toolkits/collaboration-starter.md) |
+| Treasury research | One traceable public claim and its limitations | `/join/?path=treasury` | [Evidence worksheet](../public/toolkits/treasury-research-starter.md) |
+| Crypto Kitty | One documented mutual-aid example and open questions | `/join/?path=research` | [Research note](../public/toolkits/mutual-aid-research-starter.md) |
+
+Sikh Bitcoin has its own lesson/exercise path, and Lunch Time Conversations its article/source path. The ecosystem page connects all of these entry points. Each program worksheet can be downloaded and completed on the participant's own device. A separate optional link opens a GitHub draft; the participant decides what to disclose and submits it on GitHub. Public proposals must omit private contacts, recipient records, credentials and private locations.
+
+The first step is complete when the participant has a usable artifact and knows the next decision. Human review, local permission, live payments, publishing and recurring agent work remain separate steps. No response deadline or accepted role is implied by a submission. The default useful fallback is to keep the draft, improve it or continue learning.
+
+**Acceptance evidence for these flows:** every planner uses the agreed path key; downloads exist in the deployed output; each route shows a useful task, completion check and honest next step; GitHub submission is explicitly public and user-controlled; no address, wallet permission or money movement is introduced by these changes.
+
 ## One useful community cycle
 
 **Learn → meet → create → serve → verify → share what we learned.**

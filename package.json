@@ -1,18 +1,19 @@
 {
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build --webpack && node scripts/portable-export.mjs",
+    "build": "node scripts/build-browser.mjs && next build --webpack && node scripts/portable-export.mjs",
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit",
-    "check": "pnpm typecheck && node scripts/verify-donation-addresses.mjs && node --test scripts/test-ltc.mjs && pnpm build && node scripts/check-export.mjs",
+    "check": "pnpm typecheck && node scripts/verify-donation-addresses.mjs && node --test scripts/test-ltc.mjs scripts/test-community.mjs && pnpm build && node scripts/check-export.mjs",
     "ltc:collect": "node scripts/collect-ltc.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "framer-motion": "12.43.0",
     "lucide-react": "1.28.0",
-    "next": "16.3.3",
+    "next": "16.3.6",
     "radix-ui": "1.6.7",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -24,13 +25,14 @@
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
     "autoprefixer": "10.5.4",
+    "esbuild": "^0.28.2",
     "postcss": "8.5.25",
     "tailwindcss": "4.3.3",
     "typescript": "7.0.2"
   },
   "name": "satnam-satoshi",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.1.26",
   "packageManager": "pnpm@11.19.0",
   "engines": {
     "node": "22.x"

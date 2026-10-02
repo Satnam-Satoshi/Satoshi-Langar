@@ -147,3 +147,30 @@ body { background: var(--background); }
 .donation-qr{display:block;margin:22px auto;background:#fff;max-width:100%;height:auto}.donation-address{overflow-wrap:anywhere;font:13px/1.8 monospace!important;padding:14px;background:#f0f0e7;border:1px solid var(--border)}.donation-help{font-size:12px!important;margin-top:15px}.donation-grid .launch-button{width:100%}.roadmap-phase{padding-bottom:26px;margin-bottom:26px;border-bottom:1px solid var(--border)}
 .ltc-magazine{background:#faf9f5;color:#242423}.ltc-magazine>section:first-child{border-color:#aaa79e}.ltc-magazine>section:first-child>div{max-width:1180px;padding-top:58px;padding-bottom:40px}.ltc-magazine h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(48px,7.1vw,94px);line-height:.98;max-width:1040px;letter-spacing:-4px}.ltc-magazine .reading-content{max-width:1120px;padding-block:42px}.ltc-magazine .eyebrow{font:10px/1.7 monospace;text-transform:uppercase;letter-spacing:1.4px;color:#65615a}.magazine-edition{display:flex;justify-content:space-between;gap:20px;border-block:1px solid #b1aea5;margin-top:34px;padding:14px 0;font:10px/1.8 monospace;text-transform:uppercase;letter-spacing:.4px}.magazine-lead{display:grid;grid-template-columns:1.7fr 1fr;gap:48px}.ltc-magazine .magazine-cover-story h2{font:clamp(35px,4.3vw,54px)/1.06 Georgia,serif;letter-spacing:-1.7px;margin:16px 0 25px}.ltc-magazine .magazine-deck{font-size:19px;line-height:1.6;color:#41403a}.magazine-sidebar{border-left:1px solid #c5c1b7;padding-left:34px}.magazine-sidebar h2{font:28px/1.15 Georgia,serif;letter-spacing:-.5px!important;margin-top:20px}.magazine-sidebar p{font-size:14px!important;line-height:1.8!important}.ltc-magazine .fine-print{font-size:11px;line-height:1.7;color:#716c60;margin-top:22px}.ltc-magazine .task-card{border-radius:0;background:transparent;border-color:#c5c1b7}.ltc-magazine .task-card h3{font:25px/1.15 Georgia,serif;color:#2b2b27}.ltc-magazine .source-links{padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px}.ltc-magazine .source-links li{font-size:11px}.ltc-magazine .task-card a{font-size:12px;margin-top:10px}.ltc-magazine .snapshot-value{font:26px/1.4 Georgia,serif;overflow-wrap:anywhere;color:#242423}.snapshot-value span{font:11px monospace}.ltc-magazine .launch-button{background:#30322d}.ltc-magazine .magazine-invitation{border-top:3px double #8e8c83;padding-bottom:65px}.magazine-invitation .hero-actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-top:20px}.ltc-magazine .magazine-article{max-width:850px}.ltc-magazine .magazine-article h2{font-family:Georgia,serif;font-size:31px}.magazine-desks{gap:22px}.magazine-desks h3{min-height:58px}
 @media(max-width:700px){.ltc-magazine h1{letter-spacing:-2px}.magazine-lead{grid-template-columns:1fr;gap:32px}.magazine-sidebar{border-left:0;border-top:1px solid #c5c1b7;padding:24px 0 0}.magazine-edition{display:grid;gap:4px}.magazine-desks h3{min-height:0}.ltc-magazine .reading-content{padding-block:32px}}
+
+/* Small, portable enhancements for the open community workspace. */
+[hidden]{display:none!important}
+.onboarding-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(240px,.8fr);gap:64px;align-items:start}
+.onboarding-steps{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:32px;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.community-form{display:grid;gap:13px}
+.community-form label{font-weight:650;font-size:16px;margin-top:12px}
+.community-form select,.community-form textarea{width:100%;border:1px solid #c6cabe;border-radius:9px;background:#fffdf7;padding:14px 16px;color:#232c29;font:inherit;line-height:1.55}
+.community-form textarea{resize:vertical;min-height:125px}
+.community-form .launch-button{justify-self:start;margin-top:18px;cursor:pointer}
+.check-label{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;font-size:14px!important;line-height:1.7;font-weight:400!important}
+.check-label input{flex:none;width:18px;height:18px;margin-top:4px;accent-color:#355746}
+.check-label a{display:inline}
+.form-hint{font-size:13px!important;line-height:1.6!important;color:#59635d}
+.suggested-task{background:#eaf0e5;border-left:3px solid #507354;padding:22px;margin:12px 0}
+.suggested-task p{margin:7px 0 12px!important}
+.onboarding-aside{padding:32px;background:#eeeee5;border-radius:12px}
+.onboarding-aside h2{font-size:32px;line-height:1.2}
+.onboarding-aside a{font-weight:650}
+.provider-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:25px 0}
+.provider-grid button{padding:16px;border:1px solid #b5bcae;background:#fffdf7;color:#273a2e;border-radius:8px;font-weight:650;cursor:pointer}
+.provider-grid button:disabled{color:#63695e;background:#eaece4;cursor:not-allowed;border-color:#cbd0c5}
+.auth-panel>p:first-child{padding:20px;background:#edf0e7;border-radius:8px}
+.quiet-button{border:1px solid #aab3a7;background:transparent;border-radius:6px;padding:10px 15px;color:#38493e;cursor:pointer;font-size:14px;margin:20px 0}
+.personal-note{white-space:pre-wrap;overflow-wrap:anywhere;padding:18px;background:#f0f0e8;border-radius:8px}
+:where(button,select,textarea,input,a,summary):focus-visible{outline:3px solid #846421;outline-offset:4px}
+@media(max-width:700px){.onboarding-layout{grid-template-columns:1fr;gap:30px}.onboarding-aside{padding:24px}.provider-grid{grid-template-columns:1fr}.onboarding-steps{font-size:10px;letter-spacing:.04em}}

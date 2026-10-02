@@ -36,3 +36,6 @@ When documents disagree about what is live, use [STATUS.md](STATUS.md), dated ev
 - [Community launch playbook and social account pack](COMMUNITY-LAUNCH-PLAYBOOK.md)
 - [Agent roles, permissions and handoffs](AGENT-TEAM.md)
 - [LTC source collection and publishing](LTC-PIPELINE.md)
+- [Three learning tracks and curriculum review](LEARNING-CURRICULUM.md)
+- [Optional identity setup and deletion handoff](COMMUNITY-ACCOUNTS.md)
+- [LTC editorial charter and source record](LTC-EDITORIAL.md)

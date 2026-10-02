@@ -1,3 +1,4 @@
+import { ProgramJourney } from '../components/ProgramJourney';
 import type { Metadata } from "next";
 import { ArrowRight, Bitcoin, BookOpenCheck, Building2, Database, FileCheck2, Landmark, Scale, ShieldCheck, Waypoints } from "lucide-react";
 import Link from "next/link";
@@ -31,6 +32,37 @@ const pipeline = [
   ["Public daily dataset", "Awaiting ingestion verification", "Not live"],
 ] as const;
 
+const firstStep = {
+  "path": "treasury",
+  "title": "Trace one number to its source.",
+  "time": "30 MINUTES · EVIDENCE NOTE",
+  "description": "Make one public claim easier to verify. You can contribute a source, a correction or a reproducible calculation without connecting a wallet.",
+  "steps": [
+    {
+      "title": "Select one public claim",
+      "body": "Choose a company filing, issuer disclosure or official report. Confirm the entity or instrument and the exact statement you want to understand."
+    },
+    {
+      "title": "Record dates and definitions",
+      "body": "Use the evidence worksheet to separate effective date from retrieval time, label units and preserve any calculation. Missing values stay unavailable."
+    },
+    {
+      "title": "Explain the finding and limits",
+      "body": "State what the source supports, any conflict or stale input, and the next question. Share a public-safe source or correction proposal only when you choose."
+    }
+  ],
+  "toolkits": [
+    {
+      "href": "/toolkits/treasury-research-starter.md",
+      "label": "Public-claim evidence worksheet"
+    }
+  ],
+  "completion": "A reader can locate the source, understand its date and units, and reproduce your calculation or see why no calculation is possible.",
+  "next": "A human can review the note and, if appropriate, propose it for Lunch Time Conversations. An issue does not guarantee publication. This research path does not monitor your balances, debt or liquidation risk.",
+  "proposalTitle": "Treasury research: source or correction",
+  "proposalBody": "Entity/instrument and claim:\n\nPrimary source URL and section:\n\nEffective date / retrieval time:\n\nUnits and formula if relevant:\n\nFinding, limitations and correction:\n\nNext question:\n"
+} satisfies Parameters<typeof ProgramJourney>[0];
+
 export default function TreasuryPage() {
   return <main>
     <section className="relative overflow-hidden border-b border-border">
@@ -40,7 +72,7 @@ export default function TreasuryPage() {
           <p className="section-kicker">Treasury Intelligence</p>
           <h1 className="max-w-4xl text-balance text-5xl font-medium leading-[.96] tracking-[-.052em] sm:text-7xl lg:text-[5.4rem]">See the evidence.<br/><span className="text-muted-foreground">Then form a view.</span></h1>
           <p className="mt-8 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground">A public research system for understanding Bitcoin-standard institutions—built to expose sources, uncertainty, classifications, and corrections.</p>
-          <div className="mt-9 flex flex-wrap gap-3"><Button asChild><Link href="#method">Read the method <ArrowRight className="size-4" aria-hidden="true"/></Link></Button><Button asChild variant="secondary"><Link href="#coverage">Explore coverage</Link></Button></div>
+          <div className="mt-9 flex flex-wrap gap-3"><Button asChild><Link href="#get-started">Trace a public claim <ArrowRight className="size-4" aria-hidden="true"/></Link></Button><Button asChild variant="secondary"><Link href="#coverage">Explore coverage</Link></Button></div>
         </div>
         <Card className="overflow-hidden bg-card/70 backdrop-blur">
           <div className="flex items-center justify-between gap-4 border-b border-border p-5"><span className="text-xs uppercase tracking-[.16em] text-muted-foreground">Research system</span><StatusPill state="preparing">Pre-publication</StatusPill></div>
@@ -48,6 +80,8 @@ export default function TreasuryPage() {
         </Card>
       </div>
     </section>
+
+    <ProgramJourney {...firstStep} />
 
     <section id="coverage" className="scroll-mt-24 border-b border-border" aria-labelledby="coverage-title"><Reveal className="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
       <div className="grid gap-12 lg:grid-cols-[.72fr_1.28fr]"><div><SectionNumber>01 / COVERAGE</SectionNumber><h2 id="coverage-title" className="section-title mt-5">An institutional map, not a price screen.</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">Treasury Intelligence connects balance sheets, public policy, market structure, and network health. Every category has boundaries.</p></div><div className="border-y border-border">{coverage.map(([title,body],index)=><div key={title} className="grid gap-3 border-t border-border py-6 first:border-t-0 sm:grid-cols-[3rem_12rem_1fr]"><span className="font-mono text-xs text-primary">0{index+1}</span><h3 className="font-medium">{title}</h3><p className="text-sm leading-6 text-muted-foreground">{body}</p></div>)}</div></div>

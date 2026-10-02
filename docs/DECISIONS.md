@@ -31,3 +31,15 @@ Record the date, decision, authority, scope and evidence. This log summarizes pu
 ### Founder-supplied donation destinations
 
 In the September 30 website work the founder directed retrieval of previously supplied native BTC/LTC addresses. They were located in an earlier LTC draft and returned in an explicit public-use confirmation question. The founder replied that both addresses had already been supplied. The revision therefore publishes static receiving requests for voluntary open education and humanitarian seva. Format/QR checks do not prove custody, verify a payment or authorize spending. No personal Drive link is published.
+
+## October 1, 2026 — 0.1.26, usable contribution paths and deeper learning
+
+**Authority:** founder's direct request to complete onboarding, add optional social sign-in, expand LTC, create three 21-lesson tracks, update the website and report next steps.
+
+**Direction:** keep all reading and guest contribution tools open. Provide an original newspaper-style LTC issue, global organizer references, clear first tasks and downloadable program kits. Teach Bitcoin's native verification and self-custody distinctly from wrapped collateral, lending protocols and issuer-dependent stablecoins. AI Satoshi Ma is an assistant persona for research, design and engineering; it is not an independent legal officer, fiduciary, superintelligence claim or substitute for human judgment.
+
+**Identity choice:** use a reviewable Supabase Auth/PKCE adapter with an eventual self-hosting path, four separately activated provider options, exact callback origins, same-tab sessions and a private data-request contact. The default build does not activate accounts. Guest plans and lesson progress remain local and are not represented as enrollment or synchronized membership records.
+
+**Release naming:** use the founder's requested `0.1.26` label for this community review. This is a project version identifier, not a date or a claim that all proposed operations are live.
+
+**Boundaries:** no independent merge of #52, no satnam.x change, no legal-trust registration, no private record publication, no wallet connection or financial execution. Human governance and editorial-review limits remain visible. The next verified release record belongs in STATUS.md and the private handoff.

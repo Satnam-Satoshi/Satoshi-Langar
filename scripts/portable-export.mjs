@@ -6,13 +6,19 @@ async function walk(directory) {
  for (const entry of await readdir(directory, {withFileTypes:true})) {
   const input=path.join(directory,entry.name), relative=path.relative(source,input), output=path.join(target,relative);
   if(entry.isDirectory()) { await walk(input); continue; }
-  if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?)$/.test(entry.name) && relative !== 'data/ltc-snapshot.json') continue;
+  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','conversations/feed.xml'];
+  if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?)$/.test(entry.name) && !publicExtras.includes(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
   await mkdir(path.dirname(output),{recursive:true});
   if(entry.name.endsWith('.html')) {
    let html=await readFile(input,'utf8');
-   // This release has no client-side behavior: native links and details work offline.
+   // Keep native static navigation. Only explicitly reviewed progressive enhancements ship.
    html=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'')
     .replace(/<link\b(?=[^>]*\bas="script")[^>]*>/gi,'');
+   const scripts=[];
+   if(/\bdata-community="/.test(html)) scripts.push('community');
+   if(/\bdata-community-auth="/.test(html)) scripts.push('auth');
+   if(/\bdata-learning-progress(?:=|\s|>)/.test(html)) scripts.push('learning');
+   html=html.replace('</body>',scripts.map(name=>`<script src="/scripts/${name}.js" defer></script>`).join('')+'</body>');
    html=html.replace(/\b(href|src)="(\/[^"\s]*)"/g,(match,attribute,url)=>{
     if(url.startsWith('//')) return match;
     const parsed=new URL(url,'https://export.invalid');
@@ -29,4 +35,4 @@ async function walk(directory) {
 await walk(source);
 await copyFile('LICENSE',path.join(target,'LICENSE.txt'));
 await copyFile('NOTICE',path.join(target,'NOTICE.txt'));
-console.log('Portable static release generated in dist/; no application JavaScript or server endpoints.');
+console.log('Portable static release generated in dist/; allowlisted local enhancements, no application server.');

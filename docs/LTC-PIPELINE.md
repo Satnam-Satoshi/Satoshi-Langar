@@ -1,17 +1,21 @@
 # LTC publication and daily-source pipeline
 
-September 30, 2026. Lunch Time Conversations is the project's original magazine: political/public-record coverage, Bitcoin and Litecoin network analysis, ETF/ETP and treasury research, and community reporting. It is not an affiliate of Strategy, Litecoin Register, or any cited issuer. Institutional research is a quality target, not an audit or certification claim.
+Updated October 1, 2026. Lunch Time Conversations is the project's original magazine: political/public-record coverage, Bitcoin and Litecoin network analysis, ETF/ETP and treasury research, and community reporting. It is not an affiliate of Strategy, Litecoin Register, or any cited issuer. Institutional research is a quality target, not an audit or certification claim.
 
 ## Built in this revision
 
-- `/conversations/`: editorial magazine, first explainer link, source desk, stored observation cards, source status and contributor path.
+- `/conversations/`: original newspaper-inspired magazine, seven discoverable desks, morning/evening reading paths, source desk, stored observations and contributor path. Reading paths are not scheduled editions.
+- `app/data/magazine.ts` and `/conversations/read/[slug]/`: seven substantive original explainers, analyses and field guides, each with AI-prepared/review-pending status, section citations and source notebook.
+- `/conversations/events/`: dated organizer-announced global events with exact official links, source-check date and no arranged attendance; unconfirmed sources remain undated directory entries.
+- `/conversations/archive/`: archive of the actual prepared pieces, with dates and status.
+- `/conversations/feed.xml`: static RSS of editorial previews, explicitly labeled. No invented publication timestamp or completed human review.
 - `/conversations/methodology/`: substantive mNAV explainer, fictional teaching calculation, source-time/fetch-time distinction, editorial classifications and correction policy.
 - `config/ltc-sources.json`: six named public sources; primary and secondary sources distinguished.
 - `scripts/collect-ltc.mjs`: portable Node 22 collector using built-ins. IBIT CSV and Bitcoin Core release JSON have deterministic parsers. Strategy, CoinShares, SEC and Litecoin Register have availability checks, not numeric/headline extraction.
 - `public/data/ltc-snapshot.json`: last executed source check, including per-source outcome, exact retrieval time, hash and parsed source effective dates. Failures produce null observations.
 - `scripts/test-ltc.mjs`: offline checks for dates, precision, identity, missing fields, failed requests, response limits and reproducibility.
 
-No account, scheduler, newsletter service, existing feed, payment integration or external publication is connected by this change. No recurring publication cadence is represented as active. An existing publication archive can be imported later if the founder provides its canonical source and rights.
+Daily source collection and candidate drafting are active as a bounded preparation workflow. Automatic daily publication is inactive. No newsletter service, third-party publication feed or payment integration is connected by this magazine change. The new RSS distributes only this project’s explicitly labeled editorial previews; it is not an imported feed or an automatically scheduled publication. No recurring publication cadence is represented as active. An existing publication archive can be imported later if the founder provides its canonical source and rights.
 
 ## Run locally
 
@@ -29,17 +33,21 @@ Exit 0 means at least one source returned a successful collection/reference retr
 
 The snapshot renders at build time. A successful collector run alone does not update a deployed website. Rebuild, review the changes, and use the normal authorized deployment process. Git stores reviewed snapshots/editions and correction history. The collector overwrites the local latest snapshot; it does not provide an immutable raw-source archive. Add authorized archival storage before claiming full historical reproducibility.
 
+## Collection history and manual research
+
+The manually researched October 1 articles have their own exact source citations and effective-date qualifications. They do not inherit the collector’s success/failure status. See `docs/LTC-EDITORIAL.md` for evidence, ownership, source rights and known gaps. No collected issuer holdings figure is used as a current portfolio recommendation.
+
 ## First network verification
 
 At `2026-09-30T06:17:00.467Z`, the live collector retrieved and parsed IBIT holdings effective September 28, 2026 and the Bitcoin Core v31.1 release published July 8, 2026. CoinShares and Litecoin Register reference retrievals succeeded. Strategy and SEC returned HTTP 403; their observations remain null. No blocked source was bypassed. The current explainer's manual source review used publicly accessible official documentation separately from the collector.
 
-## Daily operating plan — not activated
+## Daily operating plan — preparation active, publication inactive
 
 1. Name a human editor and a source-maintenance owner; record backup/absence coverage and a stop procedure.
-2. Run the collector daily on a portable runner. Set the scheduler to America/New_York and document daylight-saving behavior. Exact time should fit editorial review, with the daily reading edition as the target.
+2. The active daily preparation workflow runs source checks and prepares candidate work. Keep its schedule/time zone and daylight-saving behavior documented with the automation. A candidate run is not authorization to publish an edition.
 3. Create a candidate snapshot/edition change. Verify source dates, identities, status and hashes. Check missing sections rather than filling them with inferred numbers.
 4. The human editor selects policy/network stories, separates reported facts from interpretation/opinion, and accepts publication. An agent can draft and flag discrepancies; it cannot impersonate that review.
-5. Build and deploy the approved snapshot and edition. Add RSS only for actual accepted editions, with canonical links and correction versions.
+5. Build and deploy the authorized snapshot and edition. The current RSS contains explicitly labeled editorial previews. Change an item to a reviewed publication only after a named human acceptance record exists; preserve canonical links and correction versions. Do not relabel old drafts as approved retroactively.
 6. Monitor sustained relevant collection failures, methodology drift and overdue editorial work. Do not send routine success spam. Preserve prior valid editions with original dates if a current collection fails.
 
 A future policy may authorize deterministic factual snapshots without per-edition review. That requires explicit human policy ownership, tests, bounded permissions, automated labeling and a correction path. It is not enabled here. Nostr/IPFS mirrors are optional downstream distribution, not the only canonical archive.
@@ -72,3 +80,11 @@ Activation tests: matched dates and units; source-backed inputs; treatment of de
 | Community | Named organizer, consented interview and service records | Human accountability and privacy review; no fabricated activity or beneficiary testimony. |
 
 The magazine is general, impersonal education and research. Keep individual trading, borrowing and portfolio instructions outside the publication workflow.
+
+## Static magazine integration and validation
+
+The pages render without client-side data fetching, accounts, trackers or forms. `generateStaticParams()` exports the seven article routes. The RSS route uses `dynamic = 'force-static'`; the portable exporter must preserve the exact `conversations/feed.xml` output as well as the existing source snapshot. `app/conversations/magazine.module.css` scopes the editorial design, includes mobile layouts, visible focus states and print styles. No remote font or borrowed news photography is required.
+
+Verification should include TypeScript, the full static build/link check, desktop/mobile visual review, every article route, source-notebook links, morning/evening anchors, the archive, valid RSS XML and preview labels. Confirm no exported page requires client scripts. The current magazine adds no data adapter and changes no collector permission boundary.
+
+The broader publication-provenance specification remains a target: this implementation has no PDF rendering, signed manifest, complete raw-source archive, immutable edition snapshots or independent audit. A rigorous daily research service needs those reviewable capabilities before it claims them.

@@ -1,85 +1,55 @@
 import type { Metadata } from 'next';
-import { PageIntro } from '../components/PageIntro';
+import { magazineArticles, magazineIssue, articleHref, morningReading, eveningReading } from '../data/magazine';
 import sourceConfig from '../../config/ltc-sources.json';
 import snapshotData from '../../public/data/ltc-snapshot.json';
+import styles from './magazine.module.css';
 
 export const metadata: Metadata = {
   title: 'LTC · Lunch Time Conversations',
-  description: 'The Satnam Satoshi magazine: politics, Bitcoin and Litecoin networks, institutional research, and community service. Read the evidence behind the story.',
+  description: 'An original magazine for curious humans: Bitcoin, proof of work, Wall Street, public policy, builders and community. Read the October 1 editorial preview.',
+  alternates: { types: { 'application/rss+xml': '/conversations/feed.xml' } },
 };
-
 type Observation = { label: string; value: string; unit: string; effectiveAt: string; classification: string };
 type SourceCheck = { id: string; status: string; sourceAsOf: string | null; freshness: string; observations: Observation[] | null };
 type Snapshot = { generatedAt: string | null; sources: SourceCheck[]; failureCount: number; sourceCount: number };
 const snapshot = snapshotData as Snapshot;
-const desks = [
-  { number: '01', title: 'Politics & the public record', body: 'What changed in policy, who made the decision, and whom it affects. Separate a political argument from a bill, a proposal from a final rule, and an allegation from a finding.', links: [['Congress.gov', 'https://www.congress.gov/'], ['SEC announcements', 'https://www.sec.gov/newsroom/press-releases'], ['CFTC announcements', 'https://www.cftc.gov/PressRoom/PressReleases']] },
-  { number: '02', title: 'Bitcoin & Litecoin networks', body: 'Understand the work beneath the price: software releases, mining, fees, payment tools, privacy, and the tradeoffs of proof-of-work. Analysis begins with observable evidence.', links: [['Bitcoin Core', 'https://bitcoincore.org/en/releases/'], ['Litecoin Core', 'https://github.com/litecoin-project/litecoin/releases'], ['Lightning specifications', 'https://github.com/lightning/bolts']] },
-  { number: '03', title: 'Markets & institutions', body: 'ETF and ETP holdings, treasury disclosures, and company-specific mNAV. Show the date, unit and formula, so readers can inspect a conclusion rather than borrow our confidence.', links: [['iShares IBIT', 'https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf'], ['CoinShares BITC', 'https://coinshares.com/etp/physical-bitcoin/'], ['Strategy definitions', 'https://www.strategy.com/notes']] },
-  { number: '04', title: 'Service & the creative commons', body: 'Report on real kitchens, artists, local meetups, learning, and useful human–AI collaboration. A community story starts with consent and an accountable person.', links: [['Satoshi Langar', '/langar/'], ['Kalakar.x', '/kalakar/'], ['Join the community', '/join/']] },
-];
-function dateLabel(value: string) {
-  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(value));
-}
-function displayValue(value: string) {
-  if (!/^\d+(?:\.\d+)?$/.test(value)) return value;
-  const [integer, fraction] = value.split('.');
-  return `${integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${fraction ? `.${fraction}` : ''}`;
+function dateLabel(value: string) { return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(value)); }
+function displayValue(value: string) { if (!/^\d+(?:\.\d+)?$/.test(value)) return value; const [integer, fraction] = value.split('.'); return `${integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${fraction ? `.${fraction}` : ''}`; }
+function ReadingPath({ title, description, slugs }: { title: string; description: string; slugs: string[] }) {
+  return <section className={styles.path}><h3>{title}</h3><p>{description}</p><ol>{slugs.map(slug => { const story = magazineArticles.find(item => item.slug === slug)!; return <li key={slug}><a href={articleHref(slug)}>{story.title}</a><span className={styles.pathTime}>{story.minutes} min</span></li>; })}</ol></section>;
 }
 export default function ConversationsPage() {
+  const lead = magazineArticles[0];
+  const briefs = [magazineArticles[2], magazineArticles[5]];
+  const deskStories = [magazineArticles[1], magazineArticles[3], magazineArticles[4], magazineArticles[6]];
   const observations = snapshot.sources.flatMap(source => (source.observations ?? []).map(item => ({ ...item, freshness: source.freshness, source: sourceConfig.sources.find(config => config.id === source.id) })));
-  return <main className="ltc-magazine">
-    <PageIntro eyebrow="LTC · A Satnam Satoshi magazine" title="Lunch Time Conversations." description="Politics, protocols, markets, and the people making a more useful world. A magazine to read closely, question freely, and discuss over a shared meal.">
-      <div className="magazine-edition"><span>Founding edition · September 30, 2026</span><span>Daily magazine in development</span></div>
-    </PageIntro>
-    <section className="reading-content magazine-lead" aria-labelledby="lead-title">
-      <article className="magazine-cover-story">
-        <p className="eyebrow">The institutional lens · Explainer</p><h2 id="lead-title">What mNAV can—and cannot—tell us.</h2>
-        <p className="magazine-deck">A company can hold Bitcoin. Its shares can still carry debt, dilution, operating risk, and a very different price. One ratio cannot tell the whole story.</p>
-        <p>Our first explainer opens the calculation: what goes above the line, what goes below it, and why a change in method can break a chart. Start with the definition before comparing the number.</p>
-        <a className="launch-button" href="/conversations/methodology/">Read the explainer →</a>
-        <p className="fine-print">AI-assisted educational draft for community review. Sources checked September 30, 2026. No current mNAV or investment recommendation is asserted.</p>
+  return <main className={styles.paper}>
+    <div className={styles.topline}><span>A Satnam Satoshi magazine</span><span>{magazineIssue.date} · Founding issue</span></div>
+    <header className={styles.masthead}>
+      <div className={styles.brand}><span className={styles.monogram} aria-hidden="true">LTC</span><h1>Lunch Time<br/>Conversations</h1></div>
+      <p>Ideas worth understanding.<br/>Work worth doing. A table for everyone.</p>
+    </header>
+    <nav className={styles.desknav} aria-label="Magazine desks"><a href="#networks">Bitcoin & PoW</a><a href="#markets">Wall Street</a><a href="#policy">Politics</a><a href="#litecoin">Litecoin</a><a href="#builders">Builders & AI</a><a href="#custody">Custody</a><a href="#community">Community</a><a href="/conversations/events/">Global events</a><a href="/conversations/archive/">Archive</a></nav>
+    <div className={styles.notice}><p><strong>Editorial preview.</strong> Original AI-prepared articles. Human editorial review pending. Daily publication is not yet active.</p><a href="/conversations/methodology/#editorial-standard">How we report →</a></div>
+    <section className={styles.lead} aria-label="The founding issue">
+      <article id="networks" className={styles.leadStory}>
+        <p className={styles.kicker}>{lead.desk} · {lead.classification}</p><h2><a className={styles.headlineLink} href={articleHref(lead.slug)}>{lead.title}</a></h2>
+        <p className={styles.dek}>{lead.dek}</p><a className={styles.readLink} href={articleHref(lead.slug)}>Read the cover story · {lead.minutes} minutes</a>
+        <div className={styles.diagram} role="img" aria-label="A reading method: inspect rules, evidence and responsibility"><span className={styles.diagramNode}>Rules</span><span className={styles.diagramLine}/><span className={styles.diagramNode}>Evidence</span><span className={styles.diagramLine}/><span className={styles.diagramNode}>People</span></div><p className={styles.caption}>A method for reading the world. Not a network diagram.</p>
       </article>
-      <aside className="magazine-sidebar" aria-label="From the editorial desk">
-        <p className="eyebrow">From the desk</p><h2>Ambition with a public record.</h2>
-        <p>We are building toward the care and reproducibility expected of institutional research. That standard has to be demonstrated through sources, methods, corrections, and accountable review.</p>
-        <p>Today: an original explainer, a source desk, and a working collector. A daily schedule and recurring human editorial review are still to be activated.</p>
-        <a href="/conversations/methodology/#editorial-standard">Our editorial compact →</a>
-      </aside>
+      <div className={styles.briefs}>{briefs.map(story => <article id={story.deskId} className={styles.brief} key={story.slug}><p className={styles.kicker}>{story.desk} · {story.classification}</p><h3><a className={styles.headlineLink} href={articleHref(story.slug)}>{story.title}</a></h3><p>{story.dek}</p><a className={styles.readLink} href={articleHref(story.slug)}>Read · {story.minutes} minutes</a></article>)}</div>
     </section>
-    <section className="reading-content" aria-labelledby="desks-heading">
-      <p className="eyebrow">The magazine</p><h2 id="desks-heading">Four desks. One curious community.</h2>
-      <div className="task-grid magazine-desks">{desks.map(desk => <article className="task-card" key={desk.number}>
-        <p className="eyebrow">Desk {desk.number}</p><h3>{desk.title}</h3><p>{desk.body}</p>
-        <ul className="source-links">{desk.links.map(([label, url]) => <li key={url}><a href={url}>{label} →</a></li>)}</ul>
-      </article>)}</div>
+    <section aria-labelledby="reading-rhythm"><div className={styles.sectionHead}><h2 id="reading-rhythm">Make time for a better question.</h2><p>Two reading paths · One issue</p></div><div className={styles.paths}><ReadingPath title="Your morning briefing" description="Start with the public record. Learn what changed, what is being measured, and what a headline leaves out." slugs={morningReading}/><ReadingPath title="Your evening long read" description="Step away from the ticker. Explore verification, useful agents and the art of building a community." slugs={eveningReading}/></div></section>
+    <article className={styles.featureBand} aria-labelledby="mnav-title"><div><p className={styles.kicker}>The institutional lens · Founding explainer</p><h2 id="mnav-title"><a className={styles.headlineLink} href="/conversations/methodology/">What mNAV can—and cannot—tell us.</a></h2><p>Company shares carry a capital structure. Coins do not tell the whole story. Open the numerator, denominator and assumptions before comparing the ratio.</p><a className={styles.readLink} href="/conversations/methodology/">Read the methodology · 5 minutes</a></div><div className={styles.fraction} aria-label="A ratio requires a defined numerator and a defined denominator"><span>A named numerator</span><span>A dated denominator</span><small>Method first. Multiple second.<br/>Illustration, not a live valuation.</small></div></article>
+    <section aria-labelledby="across-desks"><div className={styles.sectionHead}><h2 id="across-desks">Across the desks</h2><p>Read beyond the headline</p></div><div className={styles.deskGrid}>{deskStories.map(story => <article className={styles.deskStory} id={story.deskId} key={story.slug}><p className={styles.kicker}>{story.desk}</p><h3><a className={styles.headlineLink} href={articleHref(story.slug)}>{story.title}</a></h3><p>{story.dek}</p><span className={styles.meta}>{story.classification} · {story.minutes} minutes</span><br/><a className={styles.readLink} href={articleHref(story.slug)}>Read the story</a></article>)}</div></section>
+    <aside className={styles.tableQuestion} aria-label="A question for the table"><h2>Pass the<br/>question.</h2><div><p>What could your neighborhood build together before it needs an app?</p><small>No perfect answer required. Bring a friend, a useful skill, or a different point of view. <a href="/meetups/">Explore community gatherings →</a></small></div></aside>
+    <section id="evidence" className={styles.evidence} aria-labelledby="evidence-title"><div className={styles.sectionHead}><h2 id="evidence-title">The evidence desk</h2><p>Small, inspectable, dated</p></div>
+      <p>{snapshot.generatedAt ? `Stored source check collected ${dateLabel(snapshot.generatedAt)} (${snapshot.generatedAt}).` : 'No source check has been collected.'} This is not a live market feed. Effective dates belong to the source; age labels were evaluated when collected.</p>
+      {observations.length ? <div className={styles.observations}>{observations.map(item => <article className={styles.observation} key={`${item.label}-${item.effectiveAt}`}><p className={styles.kicker}>{item.classification.replaceAll('-', ' ')}</p><h3>{item.label}</h3><p className={styles.value}>{displayValue(item.value)} <span>{item.unit}</span></p><p className={styles.meta}>Source date: {dateLabel(item.effectiveAt)}<br/>{item.freshness.replaceAll('-', ' ')} at collection</p>{item.source && <a href={item.source.referenceUrl}>Inspect the source</a>}</article>)}</div> : <p>No validated observations are available. Missing data is not zero.</p>}
+      <p>ETF net flows, company mNAV, network telemetry and a comprehensive Litecoin treasury index are not calculated here. The source panel and editorial articles have separate evidence trails.</p><p><a href="/data/ltc-snapshot.json">Source-check JSON</a> · <a href="/conversations/methodology/#freshness">Dates and freshness</a></p>
+      <details className={styles.register}><summary>Inspect source coverage and collection status</summary><ul>{sourceConfig.sources.map(source => { const checked = snapshot.sources.find(item => item.id === source.id); return <li key={source.id}><a href={source.referenceUrl}>{source.title}</a> — {source.kind}; {checked?.status.replaceAll('-', ' ') ?? 'not checked'}. {source.metricStatus.replaceAll('-', ' ')}.</li>; })}</ul><p>“Reference retrieved” means a page responded, not that its claims or metrics were independently validated. Failed observations remain null.</p></details>
     </section>
-    <section className="reading-content" aria-labelledby="snapshot-heading">
-      <p className="eyebrow">The evidence desk</p><h2 id="snapshot-heading">Dates belong beside the numbers.</h2>
-      <p>{snapshot.generatedAt ? `This stored snapshot was collected ${dateLabel(snapshot.generatedAt)} (${snapshot.generatedAt}).` : 'The first source snapshot has not been collected.'} It is a read-only source check, not a continuously updating quote feed. Dates below are the source’s effective dates; source-age labels reflect the time of collection.</p>
-      {observations.length > 0 ? <div className="task-grid snapshot-grid">{observations.map(item => <article className="task-card" key={`${item.label}-${item.effectiveAt}`}>
-        <p className="eyebrow">{item.classification.replaceAll('-', ' ')}</p><h3>{item.label}</h3>
-        <p className="snapshot-value">{displayValue(item.value)} <span>{item.unit}</span></p><p>As of {dateLabel(item.effectiveAt)} · {item.freshness.replaceAll('-', ' ')}</p>
-        {item.source && <a href={item.source.referenceUrl}>Inspect the source →</a>}
-      </article>)}</div> : <p className="status-note">No validated observations are available in this snapshot. Missing data is not zero.</p>}
-      <p>ETF net flows and company mNAV are not calculated in this release. Holdings changes alone do not establish inflows; company ratios need matched dates and an explicit treatment of debt and dilution.</p>
-      <p><a href="/data/ltc-snapshot.json">Download the source-check JSON</a> · <a href="/conversations/methodology/#freshness">How freshness works</a></p>
-      <details className="source-register"><summary>Source coverage and current check status</summary><ul>{sourceConfig.sources.map(source => {
-        const checked = snapshot.sources.find(item => item.id === source.id);
-        return <li key={source.id}><a href={source.referenceUrl}>{source.title}</a> — {source.kind} source; {checked?.status.replaceAll('-', ' ') ?? 'not checked'}. {source.metricStatus.replaceAll('-', ' ')}.</li>;
-      })}</ul><p>“Reference retrieved” only confirms a successful source retrieval. It does not mean its claims or financial figures were parsed or verified. Failed checks contain no new numerical observations.</p></details>
-    </section>
-    <section className="reading-content" aria-labelledby="register-heading">
-      <p className="eyebrow">Litecoin research</p><h2 id="register-heading">A register needs context.</h2>
-      <p>The independent <a href="https://www.litecoinregister.com/">Litecoin Register</a> is useful community research. It is a secondary source, with its own <a href="https://www.litecoinregister.com/help/">methodology and limitations</a>. It is not a Satnam Satoshi service or an announced partner.</p>
-      <p>Our planned holdings desk separates company-owned coins from exchange custody, fund assets, and wrapped-asset reserves. A recent disclosure can describe old holdings; the same coins may appear in overlapping categories. We will trace rows back to their issuer or filing before presenting a verified institutional snapshot.</p>
-    </section>
-    <section className="reading-content magazine-invitation" aria-labelledby="invitation-heading">
-      <p className="eyebrow">An open newsroom</p><h2 id="invitation-heading">Bring a question. Bring the evidence.</h2>
-      <p>Writers, analysts, translators, technologists, artists, and careful readers can help. AI partners can collect sources, compare records, and draft within a defined task. Humans carry the editorial responsibility.</p>
-      <p>We distinguish reported fact, calculated estimate, analysis, and opinion. We disclose meaningful AI assistance, keep corrections visible, and separate sponsors from editorial conclusions.</p>
-      <div className="hero-actions"><a className="launch-button" href="/join/">Contribute to LTC →</a><a href="https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/new?title=LTC%20source%20or%20correction">Suggest a source or correction →</a></div>
-      <p className="fine-print">GitHub submissions are public. Do not include confidential records or personal financial information. LTC is general education and research, not individualized investment advice.</p>
-    </section>
+    <section aria-labelledby="outside-reading"><div className={styles.sectionHead}><h2 id="outside-reading">On the reading table</h2><p><a href="/conversations/events/">Explore global Bitcoin events →</a></p></div><div className={styles.readingShelf}><article><p className={styles.kicker}>Secondary journalism & opinion</p><h3><a href="https://bitcoinmagazine.com/">Bitcoin Magazine ↗</a></h3><p>A doorway into wider Bitcoin conversations. External reporting, opinion and sponsored material need their own source checks; LTC does not reproduce the articles.</p></article><article><p className={styles.kicker}>Secondary community research</p><h3><a href="https://www.litecoinregister.com/">Litecoin Register ↗</a></h3><p>A starting point for holdings research. Follow each row to its record; distinguish ownership, custody and overlapping reserves.</p></article><article><p className={styles.kicker}>Issuer announcements & research</p><h3><a href="https://www.bitgo.com/resources/blog/">BitGo resources ↗</a></h3><p>Read what the company says about its work. Issuer material is attributed evidence, not an independent assessment or a Satnam Satoshi partnership.</p></article></div></section>
+    <section className={styles.invitation} aria-labelledby="newsroom-title"><div><p className={styles.kicker}>An open newsroom</p><h2 id="newsroom-title">Bring a question.<br/>Bring the evidence.</h2><p>Writers, developers, translators, artists and careful readers belong here. AI can help prepare the work. Accountable humans make editorial decisions.</p><a className={styles.readLink} href="/join/?path=ltc">Contribute to LTC</a></div><div><p><strong>Our publishing promise</strong></p><p>This issue contains original explainers, analysis and field guides. It does not claim exhaustive daily coverage, audited research or a completed human review. Daily source collection and candidate drafting are active; automatic daily publication and separate morning/evening editions are not.</p><p><a href="/conversations/archive/">Browse the archive</a> · <a href="/conversations/feed.xml">Editorial-preview RSS</a> · <a href="https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/new?title=LTC%20source%20or%20correction">Send a correction</a></p><p className={styles.small}>General education and research, not individualized investment advice. GitHub submissions are public: omit personal financial information and confidential records.</p></div></section>
   </main>;
 }
