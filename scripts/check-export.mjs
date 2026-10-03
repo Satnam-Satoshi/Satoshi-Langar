@@ -12,7 +12,8 @@ async function walk(dir){
   if(/\bon\w+="|javascript:/i.test(html))failures.push(`${file}: inline executable content`);
   for(const [tag,attrs,body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
    const src=attrs.match(/\bsrc="([^"]+)"/)?.[1];
-   if(body.trim() || !src || !['community.js','auth.js','learning.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
+   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
+   if(src && path.basename(src)==='copy-address.js' && !/\bdata-address-copy(?:=|\s|>)/.test(html))failures.push(`${file}: address-copy script without its scoped marker`);
   }
   for(const [tag] of html.matchAll(/<form\b[^>]*>/gi))if(!/data-plan-form/.test(tag)||/\baction=/.test(tag))failures.push(`${file}: unexpected network form`);
   for(const [,attr,url] of html.matchAll(/\b(href|src)="([^"]+)"/g)){

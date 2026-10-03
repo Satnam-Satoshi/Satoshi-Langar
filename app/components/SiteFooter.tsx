@@ -1,2 +1,21 @@
-const links=[['Our story','/mission/'],['Sikh Bitcoin','/sikh-bitcoin/'],['Satoshi Langar','/langar/'],['Kalakar.x','/kalakar/'],['LTC magazine','/conversations/'],['About LTC Media','/conversations/about/'],['LTC archive','/conversations/archive/'],['LTC RSS feed','/conversations/feed.xml'],['Meetups','/meetups/'],['Humans + AI','/agents/'],['Collaborate','/partners/'],['Community channels','/connect/'],['Roadmap','/roadmap/'],['Support','/donate/'],['Open technology','/technology/'],['Transparency','/transparency/'],['My contribution plan','/welcome/'],['Sign-in','/sign-in/'],['Privacy','/privacy/'],['GitHub ↗','https://github.com/Satnam-Satoshi/Satoshi-Langar']];
-export function SiteFooter(){return <footer className="launch-footer"><div className="launch-wrap"><div className="footer-main"><div><strong>Satnam Satoshi</strong><p>Open tools. Shared knowledge.<br/>Human dignity.</p><small>Rooted in seva. Built in the open.</small></div><nav aria-label="Footer navigation">{links.map(([name,href])=><a key={href} href={href}>{name}</a>)}</nav></div><div className="footer-bottom"><span>© 2026 Satnam Satoshi contributors · v0.1.26</span><a href="/domain/">satnam.x · publication deferred</a><span>Humans govern. AI assists.</span></div></div></footer>}
+const groups = [
+  { id: 'footer-read', title: 'Read & learn', links: [['Sikh Bitcoin', '/sikh-bitcoin/'], ['LTC magazine', '/conversations/'], ['Edition archive', '/conversations/archive/'], ['Follow LTC by RSS', '/conversations/feed.xml'], ['About LTC Media', '/conversations/about/']] },
+  { id: 'footer-participate', title: 'Take part', links: [['Find your first task', '/join/'], ['Satoshi Langar', '/langar/'], ['Kalakar.x', '/kalakar/'], ['Bitcoin meetups', '/meetups/'], ['Humans + AI', '/agents/']] },
+  { id: 'footer-build', title: 'Build together', links: [['Collaborate', '/partners/'], ['Open technology', '/technology/'], ['Community channels', '/connect/'], ['Roadmap', '/roadmap/'], ['GitHub ↗', 'https://github.com/Satnam-Satoshi/Satoshi-Langar']] },
+  { id: 'footer-project', title: 'Project & help', links: [['Our story', '/mission/'], ['Transparency', '/transparency/'], ['Support the work', '/donate/'], ['My contribution plan', '/welcome/'], ['Account setup status', '/sign-in/'], ['Privacy', '/privacy/']] },
+];
+
+export function SiteFooter() {
+  return <footer className="launch-footer"><div className="launch-wrap">
+    <div className="footer-main">
+      <div className="footer-identity"><strong>Satnam Satoshi</strong><p>Open tools. Shared knowledge.<br />Human dignity.</p><small>Rooted in seva. Built in the open.</small></div>
+      <nav className="footer-groups" aria-label="Footer navigation">
+        {groups.map(group => <section key={group.id} aria-labelledby={group.id}>
+          <h2 id={group.id}>{group.title}</h2>
+          <ul>{group.links.map(([label, href]) => <li key={href}><a href={href}>{label}</a></li>)}</ul>
+        </section>)}
+      </nav>
+    </div>
+    <div className="footer-bottom"><span>© 2026 Satnam Satoshi contributors · v0.1.26</span><a href="/domain/">satnam.x · publication deferred</a><span>Humans govern. AI assists.</span></div>
+  </div></footer>;
+}

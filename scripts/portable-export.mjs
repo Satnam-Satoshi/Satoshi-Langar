@@ -6,7 +6,7 @@ async function walk(directory) {
  for (const entry of await readdir(directory, {withFileTypes:true})) {
   const input=path.join(directory,entry.name), relative=path.relative(source,input), output=path.join(target,relative);
   if(entry.isDirectory()) { await walk(input); continue; }
-  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','conversations/feed.xml','magazine/LTC-2026-10-02-design-review.pdf'];
+  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','conversations/feed.xml','magazine/LTC-2026-10-02-design-review.pdf'];
   if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?)$/.test(entry.name) && !publicExtras.includes(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
   await mkdir(path.dirname(output),{recursive:true});
   if(entry.name.endsWith('.html')) {
@@ -18,6 +18,7 @@ async function walk(directory) {
    if(/\bdata-community="/.test(html)) scripts.push('community');
    if(/\bdata-community-auth="/.test(html)) scripts.push('auth');
    if(/\bdata-learning-progress(?:=|\s|>)/.test(html)) scripts.push('learning');
+   if(/\bdata-address-copy(?:=|\s|>)/.test(html)) scripts.push('copy-address');
    html=html.replace('</body>',scripts.map(name=>`<script src="/scripts/${name}.js" defer></script>`).join('')+'</body>');
    html=html.replace(/\b(href|src)="(\/[^"\s]*)"/g,(match,attribute,url)=>{
     if(url.startsWith('//')) return match;
