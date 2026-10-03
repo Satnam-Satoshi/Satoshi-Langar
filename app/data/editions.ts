@@ -1,4 +1,5 @@
 import storedEditions from '../../content/ltc/index.json';
+import { publicationDays, publicationMonths } from './edition-calendar';
 
 export type LtcObservation = {
   metric: string; label: string; value: string; unit: string;
@@ -24,9 +25,13 @@ export type LtcEdition = {
   corrections: { reason: string; correctsEditionId: string }[];
 };
 
-export const ltcEditions = storedEditions as LtcEdition[];
-export const latestLtcEdition: LtcEdition | undefined = ltcEditions[0];
+export const ltcPublicationDays = publicationDays(storedEditions as LtcEdition[]);
+export const ltcPublicationMonths = publicationMonths(ltcPublicationDays);
+export const ltcEditions = ltcPublicationDays.flatMap(day => day.revisions);
+export const latestLtcEdition: LtcEdition | undefined = ltcPublicationDays[0]?.latest;
 export function formatEditionDate(date: string) {
   return new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${date}T12:00:00Z`));
 }
 export function editionHref(id: string) { return `/conversations/editions/${id}/`; }
+export function editionDateHref(date: string) { return editionHref(date); }
+export function archiveMonthHref(month: string) { return `/conversations/archive/${month}/`; }

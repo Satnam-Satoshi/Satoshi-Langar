@@ -40,6 +40,10 @@ for(const edition of editions) {
  if(JSON.stringify(download)!==JSON.stringify(edition)) failures.push(`Edition download differs from archive: ${edition.id}`);
  if(!rss.includes(`/conversations/editions/${edition.id}/`)) failures.push(`Edition missing from RSS: ${edition.id}`);
 }
+for(const date of new Set(editions.map(item=>item.date))) {
+ await stat(path.join(root,`conversations/editions/${date}/index.html`));
+ await stat(path.join(root,`conversations/archive/${date.slice(0,7)}/index.html`));
+}
 for(const name of ['sitemap.xml','robots.txt','conversations/about/index.html']) await stat(path.join(root,name));
 for(const route of ['index.html','join/index.html','welcome/index.html','sign-in/index.html','auth/callback/index.html','account-help/index.html','mission/index.html','langar/index.html','kalakar/index.html','crypto-kitty/index.html','agents/index.html','privacy/index.html','domain/index.html','ecosystem/index.html','sikh-bitcoin/index.html','meetups/index.html','donate/index.html','connect/index.html','roadmap/index.html','partners/index.html','technology/index.html','conversations/methodology/index.html','conversations/archive/index.html','conversations/feed.xml','data/community-auth.json'])await stat(path.join(root,route));
 if(failures.length){console.error(failures.join('\n'));process.exit(1);}

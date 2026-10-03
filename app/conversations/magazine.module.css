@@ -291,6 +291,46 @@
 .editionArchive li { grid-template-columns: 185px 1fr; }
 .revisionNote { font-size: 11px; line-height: 1.7; color: var(--muted); }
 .currentFeatures { margin-bottom: 40px; }
+.dateRibbon { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 18px 0 0; font-size: 11px; }
+.dateRibbon p { margin: 0; }
+.dateRibbon strong { display: block; font: 500 21px/1.3 Georgia, serif; }
+.dateRibbon p span { display: block; color: var(--muted); margin-top: 4px; }
+.dateRibbon > div { display: flex; gap: 24px; flex-wrap: wrap; }
+.dateRibbon a { min-height: 44px; display: inline-flex; align-items: center; }
+.publicationSummary { display: flex; align-items: center; justify-content: space-between; gap: 35px; border-block: 1px solid var(--rule); padding: 24px 0; margin-bottom: 35px; }
+.publicationSummary .dek { margin: 0 0 12px; }
+.publicationSummary > div { max-width: 660px; }
+.monthShelf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 40px; }
+.monthShelf > a { display: flex; flex-direction: column; gap: 14px; padding: 24px; background: #eae9de; text-decoration: none; border-bottom: 3px solid var(--ink); }
+.monthShelf > a:hover { border-color: var(--accent); background: #e2e3d6; }
+.monthShelf span { color: var(--accent); font-size: 11px; letter-spacing: .12em; }
+.monthShelf strong { font: 500 28px/1.2 Georgia, serif; }
+.monthShelf small { font-size: 11px; color: var(--muted); }
+.monthLayout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 60px; align-items: center; margin: 15px auto 40px; max-width: 1020px; }
+.calendarPanel { padding: 26px; background: #eeece1; min-width: 0; }
+.calendar { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.calendar caption { text-align: left; font: 500 30px/1.2 Georgia, serif; padding: 0 0 20px; }
+.calendar th { font-size: 10px; font-weight: 500; color: #555f50; padding: 10px 0; }
+.calendar td { text-align: center; padding: 3px 0; }
+.calendar td a { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 44px; background: #1b211b; color: #fff6e5; text-decoration: none; border-radius: 3px; font-size: 15px; font-weight: 600; }
+.calendar td a:hover { background: #8d300c; }
+.calendar td a span { font-size: 5px; line-height: 1.8; }
+.calendarEmpty { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; font-size: 14px; color: #666d61; }
+.calendarPanel > p:last-child { margin: 16px 0 0; }
+.calendarDot { color: var(--accent); }
+.monthNote h2 { font: 500 40px/1.1 Georgia, serif; letter-spacing: -.035em; margin: 0 0 20px; }
+.monthNote p:not(.kicker) { font-size: 14px; line-height: 1.85; color: #50594e; }
+.dayNavigation { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 25px; max-width: 1020px; margin: 0 auto 35px; padding: 20px 0; border-block: 1px solid var(--rule); font-size: 12px; }
+.dayNavigation > div:last-child { text-align: right; }
+.dayNavigation p { margin: 0; }
+.dayNavigation a { display: inline-flex; min-height: 44px; flex-direction: column; justify-content: center; }
+.dayNavigation span { display: block; color: var(--muted); font-size: 10px; margin-bottom: 7px; }
+.dayNavigation strong { font-weight: 550; }
+.revisionHistory { font-size: 12px; line-height: 1.8; padding: 14px 0; }
+.revisionHistory summary { cursor: pointer; min-height: 44px; display: list-item; align-content: center; }
+.revisionHistory ul { padding-left: 18px; list-style: disc; }
+.revisionHistory ul li { display: list-item; padding: 4px 0; border: 0; }
+.revisionHistory p { margin: 8px 0; }
 .featurePair { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; padding: 10px 0 26px; }
 .featurePair article { padding: 8px 0; }
 .featurePair article + article { border-left: 1px solid var(--rule); padding-left: 36px; }
@@ -317,6 +357,15 @@
  .editionSidebar { padding-left: 24px; }
 }
 @media (max-width: 600px) {
+ .dateRibbon, .publicationSummary { flex-direction: column; align-items: flex-start; gap: 10px; }
+ .dateRibbon > div { gap: 20px; }
+ .monthShelf { grid-template-columns: 1fr; }
+ .monthLayout { grid-template-columns: 1fr; gap: 28px; }
+ .calendarPanel { padding: 20px 14px; }
+ .calendar caption { font-size: 28px; }
+ .monthNote h2 { font-size: 34px; }
+ .dayNavigation { grid-template-columns: 1fr 1fr; gap: 16px; font-size: 11px; }
+ .dayNavigation > a { grid-column: 1 / -1; grid-row: 2; justify-self: center; }
  .cover { grid-template-columns: 1fr; padding: 27px 24px 0; margin-top: 22px; margin-bottom: 35px; }
  .coverCopy { padding-bottom: 0; }
  .coverKicker { margin-bottom: 19px; }
