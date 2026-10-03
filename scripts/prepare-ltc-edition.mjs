@@ -2,7 +2,8 @@ import { readFile, writeFile, mkdir, readdir, rename, open, unlink } from 'node:
 import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { SOURCE_RULES, RELEASE_RULES, decimal, freshness, validateSourceIdentity } from './collect-ltc.mjs';
+import { SOURCE_RULES, RELEASE_RULES, TICKER_RULES, decimal, freshness, tickerFreshness, validateSourceIdentity } from './collect-ltc.mjs';
+import { buildPresentation, validatePresentation } from './lib/ltc-presentation.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const DAY_MS = 86_400_000;
@@ -26,6 +27,7 @@ export function validatePolicy(policy) {
   assert(policy.enabled === true && policy.paused === false, 'publication_paused');
   // Code changes and review are required to widen this policy, not a configuration edit.
   assert(policy.maximumSnapshotAgeHours === 24 && policy.maximumObservationAgeDays === 4 && policy.requiresFreshPrimaryObservation === true && policy.individualHumanReview === false, 'invalid_publication_limits');
+  assert(policy.maximumTickerAgeMinutes === 120 && policy.requireCompletePresentation === true, 'invalid_presentation_or_ticker_policy');
 }
 
 function normalizeObservations(source, rule, checkedAt) {
@@ -37,7 +39,16 @@ function normalizeObservations(source, rule, checkedAt) {
   assert(Array.isArray(source.observations), 'missing_observations');
   const asOf = source.sourceAsOf;
   assert((isoDate(asOf) || isoTime(asOf)) && Date.parse(asOf) <= Date.parse(checkedAt), 'invalid_effective_date');
-  assert(source.freshness === freshness(asOf, checkedAt, rule.maxAgeDays), 'inconsistent_freshness');
+  const tickerRule = TICKER_RULES[rule.parser];
+  assert(source.freshness === (tickerRule ? tickerFreshness(asOf, checkedAt) : freshness(asOf, checkedAt, rule.maxAgeDays)), 'inconsistent_freshness');
+  if (tickerRule) {
+    assert(isoTime(asOf) && source.observations.length === 1, 'invalid_ticker_observations');
+    const item = source.observations[0];
+    assert(item?.metric === tickerRule.metric && item.unit === 'USD' && item.effectiveAt === asOf && item.timePrecision === 'second' && item.classification === 'venue-reported', 'invalid_ticker_units');
+    const value = decimal(item.value);
+    assert(value === item.value && /^\d{1,12}(?:\.\d{1,18})?$/.test(value) && Number(value) > 0, 'invalid_ticker_value');
+    return [{ metric: tickerRule.metric, label: `${tickerRule.asset}/USD last trade · Coinbase Exchange`, value, unit: 'USD', effectiveAt: asOf, timePrecision: 'second', classification: 'venue-reported' }];
+  }
   if (source.id === 'ibit-holdings') {
     assert(isoDate(asOf) && source.observations.length === 2, 'invalid_ibit_observations');
     const fields = [
@@ -89,11 +100,11 @@ export function validateSnapshot(snapshot, registry, policy, now, issueDate = ed
     if (isoDate(source.sourceAsOf)) assert(source.sourceAsOf <= issueDate, 'future_edition_source_date');
     if (isoTime(source.sourceAsOf)) assert(editionDate(source.sourceAsOf) <= issueDate, 'future_edition_source_date');
     // The collection's age check is evidence; publication freshness advances with the run clock.
-    const publicationFreshness = freshness(source.sourceAsOf, `${localDate}T12:00:00Z`, expected.maxAgeDays);
+    const publicationFreshness = !source.sourceAsOf ? 'unknown' : Object.hasOwn(TICKER_RULES, expected.parser) ? tickerFreshness(source.sourceAsOf, now) : freshness(source.sourceAsOf, `${localDate}T12:00:00Z`, expected.maxAgeDays);
     return { id: expected.id, title: expected.title, url: expected.url, kind: expected.kind, parserVersion: expected.parser, checkedAt: source.checkedAt, status: source.status, httpStatus: source.httpStatus, sourceAsOf: source.sourceAsOf, sourceSha256: source.sourceSha256, freshness: publicationFreshness, observations, errorCode: source.errorCode };
   });
   assert(snapshot.failureCount === sources.filter(source => source.status === 'unavailable').length, 'inconsistent_failure_count');
-  const fresh = sources.filter(source => source.kind === 'primary' && source.status === 'collected' && source.observations?.length && (Date.parse(localDate) - Date.parse(source.sourceAsOf.slice(0, 10))) / DAY_MS <= policy.maximumObservationAgeDays);
+  const fresh = sources.filter(source => source.kind === 'primary' && source.status === 'collected' && source.observations?.length && (Object.hasOwn(TICKER_RULES, source.parserVersion) ? tickerFreshness(source.sourceAsOf, now) === 'dated-observation' : (Date.parse(localDate) - Date.parse(source.sourceAsOf.slice(0, 10))) / DAY_MS <= policy.maximumObservationAgeDays));
   assert(fresh.length > 0, 'no_fresh_primary_observation');
   return sources;
 }
@@ -106,6 +117,16 @@ export function prepareEdition(snapshot, registry, policy, { now = new Date().to
   assert(revision === 1 ? !correctionReason && correctsEditionId === null : typeof correctionReason === 'string' && correctionReason.trim().length >= 12 && correctionReason.length <= 600 && correctsEditionId === `${date}-r${revision - 1}`, 'correction_requires_reason_and_predecessor');
   const sources = validateSnapshot(snapshot, registry, policy, now, date);
   const briefs = [];
+  const tickers = sources.filter(source => source.status === 'collected' && source.freshness === 'dated-observation' && Object.hasOwn(TICKER_RULES, source.parserVersion));
+  for (const ticker of tickers) {
+    const quote = ticker.observations[0];
+    const rule = TICKER_RULES[ticker.parserVersion];
+    briefs.push({ id: ticker.id, desk: 'Market snapshot', headline: `${rule.asset}/USD last trade: $${numberText(quote.value)}`, effectiveAt: ticker.sourceAsOf, sourceIds: [ticker.id], paragraphs: [
+      `Coinbase Exchange returned a ${rule.asset}/USD last trade of $${numberText(quote.value)}, timestamped ${ticker.sourceAsOf}. This venue-reported trade was retrieved at ${ticker.checkedAt}; the two times are recorded separately.`,
+      `This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.`,
+      `For newcomers: a quote belongs to a venue, a trading pair and a moment. For experienced readers: inspect the exact decimal value, source timestamp and parser in the sourcebook before making comparisons.`,
+    ] });
+  }
   const ibit = sources.find(source => source.id === 'ibit-holdings' && source.status === 'collected' && source.freshness !== 'stale');
   const releases = sources.filter(source => source.status === 'collected' && Object.hasOwn(RELEASE_RULES, source.parserVersion));
   if (ibit) {
@@ -130,18 +151,20 @@ export function prepareEdition(snapshot, registry, policy, { now = new Date().to
   const coverageGaps = sources.filter(source => source.status !== 'collected').map(source => source.status === 'unavailable'
     ? `${source.title}: unavailable during this collection${source.httpStatus ? ` (HTTP ${source.httpStatus})` : ''}. No claim or metric is supplied from this source.`
     : `${source.title}: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.`);
-  for (const source of sources.filter(source => source.status === 'collected' && source.freshness === 'stale')) coverageGaps.push(`${source.title}: its source-effective date exceeds the four-calendar-day observation window. It remains dated historical context, not a fresh reading.`);
-  coverageGaps.push('No independently measured network telemetry, ETF/ETP flow series, company mNAV, Litecoin treasury total, live price, new political headline or community event report is produced by this bounded edition.');
-  const ibitDate = ibit ? sourceDateLabel(ibit.sourceAsOf) : null;
+  for (const source of sources.filter(source => source.status === 'collected' && source.freshness === 'stale')) coverageGaps.push(Object.hasOwn(TICKER_RULES, source.parserVersion)
+    ? `${source.title}: the returned last trade is more than two hours old at edition preparation. It is excluded from price briefs and remains a dated historical observation only.`
+    : `${source.title}: its source-effective date exceeds the four-calendar-day observation window. It remains dated historical context, not a fresh reading.`);
+  coverageGaps.push('No independently measured network telemetry, ETF/ETP flow series, company mNAV, Litecoin treasury total, consolidated live price, 24-hour return, new political headline or community event report is produced by this bounded edition.');
+  const presentation = buildPresentation({ date, briefs });
   return {
     schemaVersion: 1, id: `${date}-r${revision}`, date, revision,
-    title: 'The daily record: evidence before the headline',
-    dek: ibitDate ? `IBIT holdings dated ${ibitDate}, official software release records, and a visible account of what the source desk could not verify.` : 'Official software release records with exact dates, links and a visible account of what the source desk could not verify.',
+    title: presentation.cover.title,
+    dek: presentation.cover.subtitle,
     preparedAt: now, publishedAt: now, timezone: TIMEZONE, status: 'published',
     classification: 'Automated source briefing', byline: 'AI-prepared by LTC Media',
     humanReview: 'Not individually reviewed by a human editor',
     sourceSnapshotSha256: digest(snapshot), publicationPolicy: POLICY_ID,
-    briefs, sources, coverageGaps,
+    briefs, sources, coverageGaps, presentation,
     corrections: revision === 1 ? [] : [{ reason: correctionReason.trim(), correctsEditionId }],
   };
 }
@@ -180,6 +203,7 @@ export async function publishEdition(edition, { directory, policy }) {
       const current = edition.revision === 1 ? sameDay[0] : existing;
       return { status: 'unchanged', id: current.id, edition: current };
     }
+    validatePresentation(edition.presentation, edition);
     if (edition.revision === 1) assert(sameDay.length === 0, 'edition_revision_conflict');
     else assert(sameDay[0]?.revision === edition.revision - 1 && edition.corrections[0]?.correctsEditionId === sameDay[0].id && edition.corrections[0]?.reason?.trim().length >= 12, 'missing_correction_predecessor');
     await writeFile(path.join(directory, `${edition.id}.json`), `${JSON.stringify(edition, null, 2)}\n`, { flag: 'wx' });

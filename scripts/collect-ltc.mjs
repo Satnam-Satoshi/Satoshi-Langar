@@ -17,6 +17,8 @@ export const ALLOWED_URLS = new Set([
   'https://coinshares.com/etp/physical-bitcoin/',
   'https://www.sec.gov/newsroom/press-releases',
   'https://www.litecoinregister.com/',
+  'https://api.exchange.coinbase.com/products/BTC-USD/ticker',
+  'https://api.exchange.coinbase.com/products/LTC-USD/ticker',
 ]);
 
 // A URL alone is insufficient: the source identity, parser and age policy must agree.
@@ -29,7 +31,33 @@ export const SOURCE_RULES = Object.freeze({
   'coinshares-bitc': { url: 'https://coinshares.com/etp/physical-bitcoin/', parser: 'source-check-v1', kind: 'primary', maxAgeDays: null },
   'sec-news': { url: 'https://www.sec.gov/newsroom/press-releases', parser: 'source-check-v1', kind: 'primary', maxAgeDays: null },
   'litecoin-register': { url: 'https://www.litecoinregister.com/', parser: 'source-check-v1', kind: 'secondary', maxAgeDays: null },
+  'coinbase-btc-usd': { url: 'https://api.exchange.coinbase.com/products/BTC-USD/ticker', parser: 'coinbase-btc-ticker-v1', kind: 'primary', maxAgeDays: 0 },
+  'coinbase-ltc-usd': { url: 'https://api.exchange.coinbase.com/products/LTC-USD/ticker', parser: 'coinbase-ltc-ticker-v1', kind: 'primary', maxAgeDays: 0 },
 });
+
+export const TICKER_RULES = Object.freeze({
+  'coinbase-btc-ticker-v1': { asset: 'BTC', product: 'BTC-USD', metric: 'btc_usd_last_trade' },
+  'coinbase-ltc-ticker-v1': { asset: 'LTC', product: 'LTC-USD', metric: 'ltc_usd_last_trade' },
+});
+
+export function tickerFreshness(asOf, now) {
+  const age = Date.parse(now) - Date.parse(asOf);
+  if (!Number.isFinite(age) || age < 0) return 'invalid';
+  return age > 2 * 3_600_000 ? 'stale' : 'dated-observation';
+}
+
+export function parseTicker(text, now, parser) {
+  const rule = TICKER_RULES[parser];
+  const item = JSON.parse(text);
+  if (!rule || !Number.isSafeInteger(item.trade_id) || item.trade_id <= 0 || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/.test(item.time ?? '') || !Number.isFinite(Date.parse(item.time))) throw new Error('invalid_ticker');
+  const sourceAsOf = new Date(item.time).toISOString();
+  if (sourceAsOf.slice(0, 19) !== item.time.slice(0, 19) || Date.parse(sourceAsOf) > Date.parse(now)) throw new Error('invalid_source_date');
+  for (const field of ['price', 'bid', 'ask', 'size', 'volume']) {
+    if (typeof item[field] !== 'string' || !/^\d{1,12}(?:\.\d{1,18})?$/.test(item[field]) || decimal(item[field]) !== item[field]) throw new Error('invalid_ticker');
+  }
+  if (Number(item.price) <= 0 || Number(item.bid) <= 0 || Number(item.ask) <= 0 || Number(item.bid) > Number(item.ask) || Number(item.size) <= 0) throw new Error('invalid_ticker');
+  return { sourceAsOf, observations: [{ metric: rule.metric, label: `${rule.asset}/USD last trade · Coinbase Exchange`, value: item.price, unit: 'USD', effectiveAt: sourceAsOf, timePrecision: 'second', classification: 'venue-reported' }] };
+}
 
 export const RELEASE_RULES = Object.freeze({
   'github-release-v1': { repository: 'bitcoin/bitcoin', name: 'Bitcoin Core', pattern: /^v\d+\.\d+(?:\.\d+)?$/ },
@@ -128,32 +156,39 @@ async function boundedText(response) {
 }
 
 export async function collectSource(source, now, fetcher = fetch) {
-  const base = { id: source.id, title: source.title, url: source.url, kind: source.kind, parserVersion: source.parser, checkedAt: now, status: 'unavailable', httpStatus: null, sourceAsOf: null, sourceSha256: null, freshness: 'unknown', observations: null, errorCode: null };
+  const clock = typeof now === 'function' ? now : () => now;
+  const base = { id: source.id, title: source.title, url: source.url, kind: source.kind, parserVersion: source.parser, checkedAt: clock(), status: 'unavailable', httpStatus: null, sourceAsOf: null, sourceSha256: null, freshness: 'unknown', observations: null, errorCode: null };
   let status = null;
   try {
     if (!ALLOWED_URLS.has(source.url)) throw new Error('url_not_allowlisted');
     validateSourceIdentity(source);
-    const response = await fetcher(source.url, { redirect: 'error', signal: AbortSignal.timeout(TIMEOUT_MS), headers: { 'User-Agent': 'SatnamSatoshi-LTC/1.0 (+https://github.com/Satnam-Satoshi/Satoshi-Langar)', Accept: Object.hasOwn(RELEASE_RULES, source.parser) ? 'application/json' : 'text/csv,text/plain,text/html;q=0.8' } });
+    const response = await fetcher(source.url, { redirect: 'error', signal: AbortSignal.timeout(TIMEOUT_MS), headers: { 'User-Agent': 'SatnamSatoshi-LTC/1.0 (+https://github.com/Satnam-Satoshi/Satoshi-Langar)', Accept: Object.hasOwn(RELEASE_RULES, source.parser) || Object.hasOwn(TICKER_RULES, source.parser) ? 'application/json' : 'text/csv,text/plain,text/html;q=0.8' } });
     status = response.status;
     if (!response.ok) throw new Error('http_failure');
     const contentType = response.headers.get('content-type') || '';
     if (!/(text\/(csv|plain|html)|application\/(json|octet-stream))/.test(contentType)) throw new Error('unexpected_content_type');
     const text = await boundedText(response);
     if (/cf-chl-|challenge-platform|<title[^>]*>\s*(?:Access Denied|Just a moment)/i.test(text)) throw new Error('source_challenge');
-    const parsed = source.parser === 'ibit-csv-v1' ? parseIbit(text, now) : Object.hasOwn(RELEASE_RULES, source.parser) ? parseRelease(text, now, source.parser) : { sourceAsOf: null, observations: null };
-    return { ...base, ...parsed, httpStatus: status, status: parsed.observations ? 'collected' : 'reference-retrieved', sourceSha256: createHash('sha256').update(text).digest('hex'), freshness: freshness(parsed.sourceAsOf, now, source.maxAgeDays) };
+    const checkedAt = clock();
+    const ticker = Object.hasOwn(TICKER_RULES, source.parser);
+    const parsed = source.parser === 'ibit-csv-v1' ? parseIbit(text, checkedAt) : Object.hasOwn(RELEASE_RULES, source.parser) ? parseRelease(text, checkedAt, source.parser) : ticker ? parseTicker(text, checkedAt, source.parser) : { sourceAsOf: null, observations: null };
+    return { ...base, ...parsed, checkedAt, httpStatus: status, status: parsed.observations ? 'collected' : 'reference-retrieved', sourceSha256: createHash('sha256').update(text).digest('hex'), freshness: ticker ? tickerFreshness(parsed.sourceAsOf, checkedAt) : freshness(parsed.sourceAsOf, checkedAt, source.maxAgeDays) };
   } catch (error) {
-    const safeErrors = new Set(['url_not_allowlisted','invalid_source_identity','http_failure','response_too_large','empty_response','unexpected_content_type','source_challenge','malformed_csv','invalid_decimal','missing_source_date','invalid_source_date','wrong_product','missing_columns','wrong_asset','impossible_quantity','wrong_release']);
+    const safeErrors = new Set(['url_not_allowlisted','invalid_source_identity','http_failure','response_too_large','empty_response','unexpected_content_type','source_challenge','malformed_csv','invalid_decimal','missing_source_date','invalid_source_date','wrong_product','missing_columns','wrong_asset','impossible_quantity','wrong_release','invalid_ticker']);
     return { ...base, httpStatus: status, errorCode: safeErrors.has(error.message) ? error.message : 'transport_or_parse_failure' };
   }
 }
 
-export async function collectSnapshot(config, { now = new Date().toISOString(), fetcher = fetch } = {}) {
-  if (!Number.isFinite(Date.parse(now))) throw new Error('invalid_run_time');
+export async function collectSnapshot(config, { now, fetcher = fetch } = {}) {
+  const clock = now === undefined ? () => new Date().toISOString() : () => now;
+  if (!Number.isFinite(Date.parse(clock()))) throw new Error('invalid_run_time');
   if (!Array.isArray(config.sources) || config.sources.length === 0 || config.sources.length > ALLOWED_URLS.size || new Set(config.sources.map(source => source.id)).size !== config.sources.length) throw new Error('invalid_source_registry');
   config.sources.forEach(validateSourceIdentity);
-  const sources = await Promise.all(config.sources.map(source => collectSource(source, now, fetcher)));
-  return { schemaVersion: 1, publication: 'Lunch Time Conversations', generatedAt: now, timezone: 'America/New_York', scheduleStatus: 'collection-only; scheduler is separate', editorialStatus: 'automated-source-check', coverage: 'IBIT holdings and official Bitcoin Core, Litecoin Core and LND release parsers; other sources are reference availability checks. No ETF flow or mNAV calculation.', sourceCount: sources.length, failureCount: sources.filter(source => source.status === 'unavailable').length, sources };
+  const collected = await Promise.all(config.sources.map(source => collectSource(source, clock, fetcher)));
+  const generatedAt = clock();
+  // This is the completion time of the batch check, not a market observation time.
+  const sources = collected.map(source => ({ ...source, checkedAt: generatedAt, freshness: source.sourceAsOf ? (Object.hasOwn(TICKER_RULES, source.parserVersion) ? tickerFreshness(source.sourceAsOf, generatedAt) : freshness(source.sourceAsOf, generatedAt, SOURCE_RULES[source.id].maxAgeDays)) : 'unknown' }));
+  return { schemaVersion: 1, publication: 'Lunch Time Conversations', generatedAt, timezone: 'America/New_York', scheduleStatus: 'collection-only; scheduler is separate', editorialStatus: 'automated-source-check', coverage: 'Coinbase Exchange BTC/USD and LTC/USD last-trade snapshots, IBIT holdings and official Bitcoin Core, Litecoin Core and LND releases; other sources are reference availability checks. No global price, ETF flow or mNAV calculation.', sourceCount: sources.length, failureCount: sources.filter(source => source.status === 'unavailable').length, sources };
 }
 
 async function main() {

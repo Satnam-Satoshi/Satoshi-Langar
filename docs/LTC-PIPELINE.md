@@ -18,11 +18,12 @@ Original explainers, analysis, opinion, interviews and community reporting remai
 
 ## Sources and acceptance boundaries
 
-The collector uses eight exact allowlisted HTTPS endpoints. The source identity, parser, classification and age policy must match the registry in code; editing a URL in configuration is insufficient to widen network access.
+The collector uses ten exact allowlisted HTTPS endpoints. The source identity, parser, classification and age policy must match the registry in code; editing a URL in configuration is insufficient to widen network access.
 
 | Source | Accepted observation | Boundary |
 | --- | --- | --- |
 | [iShares IBIT holdings](https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv) | Dated BTC quantity and shares outstanding | Exact product/asset/column checks; decimal strings; four-calendar-day window for a new financial brief. Holdings changes are not flows. |
+| [Coinbase Exchange ticker](https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker) · BTC/USD and LTC/USD | Exact venue-reported last-trade price and trade time | Two exact product endpoints; positive decimal strings and response shape checked. Fresh for at most two hours at preparation. A sampled price at one exchange, not a global index, daily close or continuously live quote. |
 | [Bitcoin Core](https://api.github.com/repos/bitcoin/bitcoin/releases/latest) | Upstream version and publication timestamp | Exact official repository and stable version pattern; no draft/prerelease; historical releases keep their original dates. |
 | [Litecoin Core](https://api.github.com/repos/litecoin-project/litecoin/releases/latest) | Upstream version and publication timestamp | Exact official repository; three- or four-component numeric release; no draft/prerelease. |
 | [LND](https://api.github.com/repos/lightningnetwork/lnd/releases/latest) | Upstream version and publication timestamp | Exact official repository; preserves `-beta` naming used by LND; GitHub prereleases, drafts and RC tags are rejected. This is not a safety certification. |
@@ -33,20 +34,21 @@ The collector uses eight exact allowlisted HTTPS endpoints. The source identity,
 
 The collector uses no credentials, refuses redirects, limits each response to 2 MB, times out after 15 seconds, and never executes source HTML. Remote instructions are untrusted content. A `reference-retrieved` page has no validated numbers or headlines merely because it loaded.
 
-No live BTC/LTC price, ETF/ETP flow series, company mNAV, independently measured network telemetry, new political reporting or full publication-feed import is produced by these adapters. Broader coverage needs accepted parsers or sourced editorial work and, where relevant, source rights review. Do not replace a missing field with zero. Do not double-count custody, fund assets, company holdings or cross-listed ETPs.
+No continuously live or composite BTC/LTC price, ETF/ETP flow series, company mNAV, independently measured network telemetry, new political reporting or full publication-feed import is produced by these adapters. Broader coverage needs accepted parsers or sourced editorial work and, where relevant, source rights review. Do not replace a missing field with zero. Do not double-count custody, fund assets, company holdings or cross-listed ETPs.
 
 ## Edition acceptance gates
 
-`prepare-ltc-edition.mjs` validates the full eight-source registry before writing anything into the archive. It requires:
+`prepare-ltc-edition.mjs` validates the full ten-source registry before writing anything into the archive. It requires:
 
 1. Exact recognized source identities and parser versions; unique sources and consistent source/failure counts.
 2. A well-formed snapshot collected within 24 hours of preparation. Future retrieval and source-effective dates fail.
 3. Correct observations, units, classifications, precision and source hashes. Availability-only sources cannot become numeric observations.
-4. At least one primary, successfully parsed observation with an effective date within four calendar days of the issue’s New York date. An old software release cannot by itself make an otherwise stale edition publishable.
+4. At least one primary, successfully parsed observation within its freshness window. Coinbase venue quotes must be no older than two hours; other accepted observations use four calendar days relative to the issue’s New York date. An old software release cannot by itself make an otherwise stale edition publishable.
 5. For the IBIT financial brief specifically, a source date inside the four-day window. If a fresh software release permits an edition while IBIT is stale, the financial brief is withheld and its historical source is labeled stale.
-6. An enabled, unpaused policy with unchanged limits. A configuration change cannot silently relax the hard-coded limits.
+6. Venue ticker observations pass product-specific metric, USD unit, exact decimal and timestamp checks; stale ticker observations remain dated in the evidence record but are omitted from the financial briefing.
+7. An enabled, unpaused policy with unchanged limits. A configuration change cannot silently relax the hard-coded limits.
 
-The four-day window is a conservative calendar rule, not an exchange-holiday calendar. A new edition may repeat an unchanged but still eligible observation, with its original source date. Rechecking a historical release does not make it breaking news. When no fresh primary observation remains, no edition is created and the last valid edition stays available under its original date.
+For non-ticker observations, the four-day window is a conservative calendar rule, not an exchange-holiday calendar. A new edition may repeat an unchanged but still eligible observation, with its original source date. Rechecking a historical release does not make it breaking news. When no fresh primary observation remains, no edition is created and the last valid edition stays available under its original date.
 
 Freshness is recomputed against the publication run’s New York date, even when the collection is still within its 24-hour retrieval window. A financial value that ages past the four-day boundary between collection and publication cannot retain its earlier fresh classification.
 
@@ -108,3 +110,15 @@ Offline tests exercise source identity, strict release channels, impossible date
 Per-source hashes refer to the retrieved body before parsing. Only normalized observations and hashes are stored in the public edition; complete third-party response bodies are not republished. The collector snapshot is retained with the private release evidence. Its digest is computed over `JSON.stringify(parsedSnapshot)`, not the pretty-printed file bytes. This preserves an audit reference without claiming a full raw-source archive, issuer signature or independent verification. Human editors can request the source evidence and reproduce the next public fetch; upstream pages may subsequently change.
 
 General, impersonal education and research only. This workflow cannot manage a portfolio, monitor positions or debt, sign a transaction, move funds, configure authentication, change donation addresses, publish the deferred satnam.x domain, merge a protected branch or invent a human reviewer.
+
+## A new jacket for each daily issue
+
+The founder explicitly requested daily publication without waiting for individual founder review, with updated numbers, a fresh cover and back page, and an accessible past-issue archive. The routine factual and original educational-design lane publishes after source, content, build and reader-flow checks. It never represents those checks as independent human editorial review.
+
+New edition records include an archived `presentation`: a date-derived original cover composition, palette, thematic title, source-bound subtitle, exact reading order and educational closing page. Geometric illustrations use original code and a date-specific seed; they do not copy Bitcoin Magazine branding, photographs or article text. Seven visual families and original educational exercises provide variation within a consistent LTC identity. The cover is a creative editorial theme, not an unsupported claim about breaking news. Reading order contains every accepted brief exactly once.
+
+Presentation travels inside the immutable JSON record so tomorrow's art direction cannot rewrite yesterday's jacket. Existing source-only editions remain readable with a labeled legacy treatment. A revision is explicit and retains its predecessor. The date page selects the newest accepted revision for its day; exact revision URLs preserve the original. No blank future editions are manufactured.
+
+Freshness means fresh checks, not forced numerical change. Daily prices are snapshots from one named venue with exact trade times. Fund holdings keep their actual report dates, including weekends and holidays; unchanged balances are allowed. A failed or stale field is missing or visibly dated, never substituted with zero. A new cover does not make an old software release today's news.
+
+Always-on cloud publishing is a separate operational setup. The reviewed local daily task is active. The activation package and remaining owner actions are documented in LTC-CLOUD-SETUP.md; do not claim the draft cloud workflow is running.

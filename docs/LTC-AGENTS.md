@@ -2,7 +2,7 @@
 
 Updated October 2, 2026. These charters implement `AGENTS.md` for the daily magazine workflow. They describe responsibilities, not a claim that six independent companies, human editors or continuously running services have been hired.
 
-**Human owner:** the Satnam Satoshi founder, acting through this project. The founder has authorized a daily, source-bound factual website briefing. AI Satoshi Ma coordinates the work as AI editorial lead. Humans retain mission, governance, account, financial and final editorial authority. A separately named human editor and backup are still pending.
+**Human owner:** the Satnam Satoshi founder, acting through this project. The founder has authorized daily, source-bound factual website publication without waiting for individual founder review, with original educational cover/back-page treatments. AI Satoshi Ma coordinates the work as AI editorial lead. Humans retain mission, governance, account, financial and final editorial authority. A separately named human editor and backup are still pending.
 
 Several roles may be performed by one process or a bounded agent session. Independent checks must be recorded accurately; an agent cannot describe its own automated validation as an independent human review. [LTC-EDITORIAL.md](LTC-EDITORIAL.md) defines the factual publication lane and review-required editorial lane. [LTC-PIPELINE.md](LTC-PIPELINE.md) describes the implementation and actual scheduling status.
 
@@ -65,7 +65,7 @@ Several roles may be performed by one process or a bounded agent session. Indepe
 | Charter field | Boundary |
 | --- | --- |
 | Mission | Let people read, verify and contribute comfortably across devices and levels of experience. |
-| Responsibilities | Check mobile/desktop layout, reading order, heading structure, focus, contrast, touch targets, source links, archive/feed links and guest learning/contribution paths. |
+| Responsibilities | Generate the date-specific cover composition, palette and educational closing exercise; save them with the issue. Check mobile/desktop layout, reading order, heading structure, focus, contrast, touch targets, source links, archive/feed links and guest learning/contribution paths. |
 | Knowledge sources | Rendered local preview, accessibility guidance, the approved visual reference, site components and actual route/export checks. |
 | Permissions | Inspect previews, run browser checks and prepare scoped interface changes on the review branch. No account setup, tracking additions or production credential access. |
 | Escalation rules | A broken reader path, inaccessible critical content, privacy-confusing form, missing source disclosure or a visual treatment that makes a preview look independently reviewed. |
@@ -104,12 +104,12 @@ Several roles may be performed by one process or a bounded agent session. Indepe
 
 ## The daily handoff
 
-The target is 10:00 America/New_York through the existing Codex automation when its host is available. It is not an always-on cloud service. The policy permits one initial edition per local day after its gates pass; repeat runs do not duplicate it. Creating a local edition record is separate from deployment. A delayed or failed release keeps the prior issue and its original date. See the release handoff for actual scheduler activation.
+The target is 10:00 America/New_York through the existing Codex automation when its host is available. It is not an always-on cloud service. The inactive cloud activation package and remaining owner setup are documented in [LTC-CLOUD-SETUP.md](LTC-CLOUD-SETUP.md). The policy permits one initial edition per local day after its gates pass; repeat runs do not duplicate it. Creating a local edition record is separate from deployment. A delayed or failed release keeps the prior issue and its original date. See the release handoff for actual scheduler activation.
 
 1. Collector provides dated evidence and explicit failures.
 2. Checker admits only observations that meet the implemented rules.
 3. Data editor prepares the bounded briefing and labels any missing coverage.
-4. Design/release checks verify that readers can inspect the evidence and follow working paths.
+4. Design checks require the archived front cover, back-page reflection and complete reading order, then verify that readers can inspect the evidence and follow working paths. Covers are original generative illustrations, not data charts or documentary images.
 5. Release archivist publishes only within the authorized boundary and records the actual result.
 6. Community editor prepares useful follow-up questions; substantive interpretation remains in the review lane.
 

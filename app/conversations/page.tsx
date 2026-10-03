@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { magazineArticles, magazineIssue, articleHref } from '../data/magazine';
 import { latestLtcEdition, formatEditionDate, editionDateHref, archiveMonthHref } from '../data/editions';
+import { LtcEditionCover, orderedEditionBriefs } from '../components/LtcEditionPresentation';
 import styles from './magazine.module.css';
 
 export const metadata: Metadata = {
@@ -9,18 +10,12 @@ export const metadata: Metadata = {
   alternates: { types: { 'application/rss+xml': '/conversations/feed.xml' } },
 };
 
-function OrbitArtwork() {
-  return <svg viewBox="0 0 560 520" className={styles.orbitArt} role="img" aria-label="Original orange and ivory orbital line art: separate circles meeting at one table">
-    <g fill="none" stroke="#f58036" strokeWidth=".85">{Array.from({ length: 19 }, (_, index) => <ellipse key={index} cx="260" cy="262" rx={35 + index * 9} ry="197" transform={`rotate(${index * 10} 260 262)`} />)}</g>
-    <g fill="none" stroke="#dedfd6" strokeWidth=".75" opacity=".82">{Array.from({ length: 13 }, (_, index) => <ellipse key={index} cx="425" cy="213" rx={12 + index * 6} ry="87" transform={`rotate(${index * 14} 425 213)`} />)}</g>
-    <circle cx="260" cy="262" r="8" fill="#f58036"/><path d="M42 465H518M42 460V470M518 460V470" stroke="#646a60" strokeWidth=".6"/><text x="43" y="494" fill="#b8bcb3" fontSize="9" letterSpacing="2">RULES · EVIDENCE · HUMAN RESPONSIBILITY</text>
-  </svg>;
-}
-
 export default function ConversationsPage() {
   const edition = latestLtcEdition;
+  const briefs = edition ? orderedEditionBriefs(edition) : [];
   const latestHref = edition ? editionDateHref(edition.date) : '/conversations/archive/';
-  const observations = edition?.sources.flatMap(source => (source.observations ?? []).map(item => ({ ...item, source }))) ?? [];
+  const priority: Record<string, number> = { 'coinbase-btc-usd': 0, 'coinbase-ltc-usd': 1, 'ibit-holdings': 2 };
+  const observations = (edition?.sources.filter(source => source.status === 'collected' && source.freshness !== 'stale').flatMap(source => (source.observations ?? []).map(item => ({ ...item, source }))) ?? []).sort((a, b) => (priority[a.source.id] ?? 3) - (priority[b.source.id] ?? 3)).slice(0, 4);
   const currentFeatures = magazineArticles.filter(article => ['sec-crypto-custody-proposal-october-2026', 'lnd-0214-reading-a-release'].includes(article.slug));
   const foundingStories = magazineArticles.filter(article => !currentFeatures.includes(article));
   return <main className={styles.paper}>
@@ -31,14 +26,10 @@ export default function ConversationsPage() {
     </header>
     <nav className={styles.desknav} aria-label="Magazine desks"><a href="#daily">01 · Daily brief</a><a href="#reading-room">02 · The reading room</a><a href="#evidence">03 · Sourcebook</a><a href="/conversations/events/">04 · Global events</a><a href="/conversations/archive/">Archive</a><a href="/conversations/about/">The newsroom</a></nav>
     <div className={styles.dateRibbon} aria-label="Daily publication"><p><strong>One day. One edition.</strong><span>Daily target · 10 a.m. New York time</span></p><div>{edition && <a href={archiveMonthHref(edition.date.slice(0, 7))}>Choose a date →</a>}<a href="/conversations/feed.xml">Follow daily editions ↗</a></div></div>
-    <section className={styles.cover} aria-labelledby="cover-title">
-      <div className={styles.coverCopy}><p className={styles.coverKicker}>The Nakamoto standard</p><h2 id="cover-title">The proof<br/>of work<br/><em>issue.</em></h2><p className={styles.coverDek}>Capital. Code. Custody.<br/>A clearer lens on money, open networks<br className={styles.desktopBreak}/> and the people building what comes next.</p><a className={styles.coverButton} href={latestHref}>{edition ? 'Read the latest daily brief' : 'Enter the reading room'} <span aria-hidden="true">↗</span></a></div>
-      <div className={styles.coverVisual}><OrbitArtwork/><p>Open systems. Shared questions.</p></div>
-      <div className={styles.coverFoot}><span>Bitcoin / Litecoin / Human + AI</span><span>Original reporting methods · Open sources</span></div>
-    </section>
+    {edition && <LtcEditionCover edition={edition} mode="home"/>}
     <section id="daily" className={styles.dailySection} aria-labelledby="daily-title">
       <div className={styles.sectionHead}><h2 id="daily-title">The daily record</h2><p>Source dates stay with the facts</p></div>
-      {edition ? <div className={styles.dailyGrid}><article className={styles.dailyLead}><p className={styles.kicker}>{formatEditionDate(edition.date)} · Revision {edition.revision}</p><h3><a className={styles.headlineLink} href={latestHref}>{edition.title}</a></h3><p className={styles.dek}>{edition.dek}</p><a className={styles.readLink} href={latestHref}>Read the briefing & sourcebook</a><p className={styles.small}>{edition.classification} · AI-prepared · Not individually reviewed by a human editor.</p></article><aside className={styles.editionContents} aria-label="In the latest edition"><p className={styles.kicker}>Inside this edition</p><ol>{edition.briefs.map((brief, index) => <li key={brief.id}><span>{String(index + 1).padStart(2, '0')}</span><a href={`${latestHref}#${brief.id}`}>{brief.headline}</a></li>)}</ol><p><a href={`${latestHref}#coverage`}>See missing coverage and collection limits →</a></p></aside></div> : <p>No daily source edition is available yet. Explore the original explainers below.</p>}
+      {edition ? <div className={styles.dailyGrid}><article className={styles.dailyLead}><p className={styles.kicker}>{formatEditionDate(edition.date)} · Revision {edition.revision}</p><h3><a className={styles.headlineLink} href={latestHref}>{edition.title}</a></h3><p className={styles.dek}>{edition.dek}</p><a className={styles.readLink} href={latestHref}>Read the briefing & sourcebook</a><p className={styles.small}>{edition.classification} · AI-prepared · Not individually reviewed by a human editor.</p></article><aside className={styles.editionContents} aria-label="In the latest edition"><p className={styles.kicker}>Inside this edition</p><ol>{briefs.map((brief, index) => <li key={brief.id}><span>{String(index + 1).padStart(2, '0')}</span><a href={`${latestHref}#${brief.id}`}>{brief.headline}</a></li>)}</ol><p><a href={`${latestHref}#coverage`}>See missing coverage and collection limits →</a></p><p><a href={`${latestHref}#back-page`}>The back page · A question to take away →</a></p></aside></div> : <p>No daily source edition is available yet. Explore the original explainers below.</p>}
       <div className={styles.deliveryStrip}><div><strong>Read on your terms.</strong><span>No account, wallet or purchase required.</span></div><a href="/conversations/feed.xml">Follow the RSS feed ↗</a><a href="/conversations/archive/">Explore every edition ↗</a></div>
     </section>
     <section aria-labelledby="find-your-place"><div className={styles.sectionHead}><h2 id="find-your-place">One table. More than one way in.</h2><p>Curiosity is the only prerequisite</p></div><div className={styles.readerPaths}>
@@ -51,7 +42,7 @@ export default function ConversationsPage() {
       <div className={styles.storyGrid}>{foundingStories.slice(1).map((story, index) => <article className={styles.storyCard} id={story.deskId} key={story.slug}><p className={styles.kicker}>{String(index + 2).padStart(2, '0')} / {story.desk}</p><h3><a className={styles.headlineLink} href={articleHref(story.slug)}>{story.title}</a></h3><p>{story.dek}</p><a className={styles.readLink} href={articleHref(story.slug)}>{story.classification} · {story.minutes} min</a></article>)}</div><p className={styles.previewNote}>The reading room contains original AI-prepared explainers and analysis, awaiting human editorial review. It is separate from the dated, automatically prepared source briefings.</p>
     </section>
     <section id="evidence" className={styles.evidence} aria-labelledby="evidence-title"><div className={styles.sectionHead}><h2 id="evidence-title">The sourcebook</h2><p>Show the record. Keep the date.</p></div><p>Selected observations from the latest edition. These are stored source records, not live prices or independently audited metrics. A missing observation is never zero.</p>
-      {observations.length > 0 && <div className={styles.observations}>{observations.slice(0, 3).map(item => <article className={styles.observation} key={`${item.source.id}-${item.metric}`}><p className={styles.kicker}>{item.classification.replaceAll('-', ' ')}</p><h3>{item.label}</h3><p className={styles.value}>{/^\d+(?:\.\d+)?$/.test(item.value) ? item.value.split('.').map((part, index) => index === 0 ? part.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : part).join('.') : item.value}<span>{item.unit}</span></p><p className={styles.meta}>Source date: {item.effectiveAt}<br/>{item.source.freshness.replaceAll('-', ' ')} at edition preparation</p><a href={item.source.url}>Inspect the source ↗</a></article>)}</div>}
+      {observations.length > 0 && <div className={`${styles.observations} ${styles.marketObservations}`}>{observations.map(item => <article className={styles.observation} key={`${item.source.id}-${item.metric}`}><p className={styles.kicker}>{item.classification.replaceAll('-', ' ')}</p><h3>{item.label}</h3><p className={styles.value}>{/^\d+(?:\.\d+)?$/.test(item.value) ? item.value.split('.').map((part, index) => index === 0 ? part.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : part).join('.') : item.value}<span>{item.unit}</span></p><p className={styles.meta}>{item.timePrecision === 'second' ? 'Source timestamp (UTC)' : 'Source date'}: {item.effectiveAt}<br/>{item.source.freshness.replaceAll('-', ' ')} at edition preparation</p>{item.source.id.startsWith('coinbase-') && <p className={styles.small}>Sampled venue last trade. Not streaming or a global reference price.</p>}<a href={item.source.url}>Inspect the source ↗</a></article>)}</div>}
       <div className={styles.sourcebookRow}><div><h3>A smaller table.<br/>A clearer claim.</h3><p>Holdings are not flows. A release is not an endorsement. A retrieved page is not a validated statistic. Every edition names the evidence it has—and the reporting it still needs.</p></div><div><a className={styles.readLink} href={`${latestHref}${edition ? '#sourcebook' : ''}`}>Open the complete sourcebook</a><a className={styles.readLink} href="/conversations/methodology/">Read our research methodology</a><a className={styles.readLink} href="/conversations/daily/">October 2 design edition · review reference</a><a className={styles.readLink} href="https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/new?title=LTC%20source%20or%20correction">Submit a source or correction</a></div></div>
     </section>
     <aside className={styles.tableQuestion} aria-label="A question for the table"><h2>Pass the<br/>question.</h2><div><p>What could your neighborhood build together before it needs an app?</p><small>Bring a useful skill, a different point of view, or simply an appetite to learn. <a href="/meetups/">Explore community gatherings →</a></small></div></aside>

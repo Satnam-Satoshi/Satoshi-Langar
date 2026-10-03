@@ -16,6 +16,16 @@ export type LtcBrief = {
   id: string; desk: string; headline: string; paragraphs: string[];
   sourceIds: string[]; effectiveAt: string;
 };
+export type LtcEditionPresentation = {
+  schemaVersion: 1;
+  cover: {
+    theme: string; palette: 'ember' | 'cobalt' | 'forest' | 'ochre';
+    motif: 'orbits' | 'timechain' | 'signal' | 'constellation' | 'ledger' | 'horizon' | 'weave';
+    title: string; subtitle: string; kicker: string; seed: string;
+  };
+  backPage: { title: string; prompt: string; practice: string; closingLine: string };
+  readingOrder: string[];
+};
 export type LtcEdition = {
   schemaVersion: 1; id: string; date: string; revision: number; title: string; dek: string;
   preparedAt: string; publishedAt: string; timezone: 'America/New_York';
@@ -23,6 +33,7 @@ export type LtcEdition = {
   humanReview: string; sourceSnapshotSha256: string; publicationPolicy: 'bounded-daily-v1';
   briefs: LtcBrief[]; sources: LtcEditionSource[]; coverageGaps: string[];
   corrections: { reason: string; correctsEditionId: string }[];
+  presentation?: LtcEditionPresentation;
 };
 
 export const ltcPublicationDays = publicationDays(storedEditions as LtcEdition[]);

@@ -1,0 +1,40 @@
+# LTC cloud publication: inactive activation draft
+
+**No cloud schedule is active.** `ops/ltc-daily-workflow.yml` is outside GitHub's workflow directory. Its presence does not publish anything. The current local Codex schedule remains the publication service until an explicit, tested handover. PR #52 remains unmerged and satnam.x remains deferred.
+
+## What is prepared
+
+`scripts/cloud-ltc-release.mjs` defaults to a comprehensive dry run. It verifies the accepted tracked implementation before executing project code, clones only committed source into a temporary directory, prepares a source-bound edition when needed, runs the full checks and portable build, and saves a receipt. It does not change the original checkout or make remote writes in dry-run mode. Source fetches and dependency installation require network access.
+
+The explicit `--publish` path is restricted to the canonical repository's default-branch GitHub Actions context. It checks the cloud admission switch, remote publication policy and observed branch head. Only a new date's edition JSON, archive index and public snapshot may be committed to the existing review branch. Old revisions cannot be rewritten. GitHub's repository-specific `GITHUB_TOKEN` creates a child commit and updates the branch with `force: false`; a competing head stops the release.
+
+The runner targets only the existing Vercel project. It prepares an unpromoted prebuilt candidate, verifies the dated page, exact revision, month, archive, RSS and JSON against build hashes, rechecks the remote policy/head and current production deployment, then promotes that candidate. Public readback verifies the deployment ID and artifact bytes. A failed verification attempts rollback to the previous production deployment and records the outcome. If another actor has taken production, it does not overwrite that actor's deployment. A committed but unpromoted newest issue is retried before another date is prepared.
+
+## One-time owner setup
+
+1. Review this draft and its runner. Keep `LTC_CLOUD_PUBLISH` absent or `false`. Prepare a **separate scheduler-only PR** to place the workflow on `main`; do not merge #52 as a shortcut. The review branch contains the application and accepted runner.
+2. Create the `ltc-production` GitHub environment with access limited to `main`. Privately place a narrowly scoped Vercel deployment credential in its `VERCEL_TOKEN` secret. Use the job's repository-specific `GITHUB_TOKEN` for GitHub writes. Never copy an existing desktop session credential or paste a secret into chat, code, logs or a receipt.
+3. Record `LTC_ACCEPTED_IMPLEMENTATION_SHA256` after the complete reviewed implementation is committed; compute it with `node scripts/ltc-release-guard.mjs`. Record an exact, tested stable `LTC_VERCEL_CLI_VERSION`. Empty values fail closed. Set the admission variable to `false` until cutover.
+4. Resolve the existing project's old native Git connection. This conservative draft currently requires the Vercel project to have **no native Git link**, so a different repository cannot automatically replace its production deployment. Any alternative that retains a link needs a reviewed check proving native deployments are disabled. The script never disconnects a repository or changes project settings itself.
+5. Run the manual workflow with **dry_run=true**. Inspect the receipt and artifact paths. Then, in an explicitly authorized activation session, test the exact project/API responses, candidate access, promotion/readback, rollback and an in-flight pause. Do not disable deployment protection to make candidate verification pass.
+6. After these tests pass, set `LTC_CLOUD_PUBLISH=true` and pause the local publisher for a single-owner handover. No per-edition founder approval is needed within the accepted bounded factual policy. The proposed cloud targets are 10:07 and 10:27 America/New_York; the second run retries or confirms the same issue, rather than creating a second edition.
+
+## Stop controls
+
+`LTC_CLOUD_PUBLISH` is an **admission switch**, read when a job starts. Changing it does not guarantee an already-running job stops. Cancel that job and/or commit `paused: true` to `config/ltc-publication.json` on the review branch for an in-flight stop. The runner rereads that remote file and requires the exact expected branch head immediately before promotion. A changed head or paused policy cancels promotion. This design does not request an additional credential just to read GitHub repository variables. Resume only after reviewing and accepting the new implementation digest; daily jobs cannot self-approve it.
+
+Keep failed releases dated and retain the last verified issue. Do not fabricate a missed issue or mark older source observations current. The cloud schedule still depends on GitHub, Vercel and available upstream sources; it is not a delivery SLA.
+
+## Verification status and limits
+
+Five offline guard tests pass: allowed data changes/immutable records, pause and competing-head rejection, credential/error redaction, required verification routes, and code-digest/symlink rejection. JavaScript syntax passes. Run with `node --test scripts/test-cloud-ltc-release.mjs`.
+
+**No live cloud dry run, GitHub write, Vercel candidate, promotion, rollback or schedule activation has been tested by this draft.** Those are owner activation checks, not implied accomplishments. API identity fields and the chosen Vercel CLI version must be verified in that session. The draft refuses protected candidates it cannot read. Promotion timeouts can leave an uncertain asynchronous provider operation; an owner must reconcile provider state before retrying if the receipt reports a failure. Source evidence and a JSON release receipt are retained in the temporary runner workspace; the workflow uploads the receipt for 30 days. Durable private source/static backup and disaster-recovery restore remain separate follow-up work; no Drive credential is added to this workflow.
+
+The workflow has no model credential and performs no general LLM journalism. It can publish only the current deterministic source adapter and presentation logic accepted in its implementation digest. Expanding reporting, sources or editorial generation requires an accepted code/policy release. It cannot activate community login, create social accounts, change donation addresses, control wallets, merge protected branches or publish satnam.x.
+
+## Official references checked October 3, 2026 UTC
+
+- [GitHub scheduled workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule): schedules require a workflow on the default branch, support timezones, can be delayed or dropped, and may be disabled after inactivity in public repositories.
+- [Vercel with GitHub Actions](https://vercel.com/kb/guide/how-can-i-use-github-actions-with-vercel): prebuilt deployment, avoiding duplicate native Git deployments, and deployment-token setup. Vercel currently does not support OIDC for Actions deployment authentication; protected-deployment access is a different capability.
+- [Vercel deployment](https://vercel.com/docs/cli/deploy), [promotion](https://vercel.com/docs/cli/promote) and [rollback](https://vercel.com/docs/cli/rollback): verify supported options with the exact pinned CLI before activation.

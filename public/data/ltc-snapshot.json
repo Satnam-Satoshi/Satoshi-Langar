@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "publication": "Lunch Time Conversations",
-  "generatedAt": "2026-10-03T01:26:52.988Z",
+  "generatedAt": "2026-10-03T03:30:09.005Z",
   "timezone": "America/New_York",
   "scheduleStatus": "collection-only; scheduler is separate",
   "editorialStatus": "automated-source-check",
-  "coverage": "IBIT holdings and official Bitcoin Core, Litecoin Core and LND release parsers; other sources are reference availability checks. No ETF flow or mNAV calculation.",
-  "sourceCount": 8,
+  "coverage": "Coinbase Exchange BTC/USD and LTC/USD last-trade snapshots, IBIT holdings and official Bitcoin Core, Litecoin Core and LND releases; other sources are reference availability checks. No global price, ETF flow or mNAV calculation.",
+  "sourceCount": 10,
   "failureCount": 2,
   "sources": [
     {
@@ -15,7 +15,7 @@
       "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
       "kind": "primary",
       "parserVersion": "ibit-csv-v1",
-      "checkedAt": "2026-10-03T01:26:52.988Z",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
       "status": "collected",
       "httpStatus": 200,
       "sourceAsOf": "2026-10-01",
@@ -49,11 +49,11 @@
       "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
       "kind": "primary",
       "parserVersion": "github-release-v1",
-      "checkedAt": "2026-10-03T01:26:52.988Z",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
       "status": "collected",
       "httpStatus": 200,
       "sourceAsOf": "2026-07-08T09:14:15Z",
-      "sourceSha256": "3ddf30b77a66db3f446f61892dc00f7a167412658a19a87196b81af5d111d222",
+      "sourceSha256": "11acdb65470f559344fcade56d986e9696da79819c4bfbba3b62ccb2d17b62e7",
       "freshness": "dated-event",
       "observations": [
         {
@@ -74,11 +74,11 @@
       "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
       "kind": "primary",
       "parserVersion": "github-litecoin-release-v1",
-      "checkedAt": "2026-10-03T01:26:52.988Z",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
       "status": "collected",
       "httpStatus": 200,
       "sourceAsOf": "2026-09-12T12:06:49Z",
-      "sourceSha256": "2411da34d8349618ec789dc20dc784a16fe3677d2d58df49bb9743140969a2c6",
+      "sourceSha256": "b2dd3ffeb0750272600f3ae74af0cd7ad10fd0817d5c7283bae88e02db31629c",
       "freshness": "dated-event",
       "observations": [
         {
@@ -99,11 +99,11 @@
       "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
       "kind": "primary",
       "parserVersion": "github-lnd-release-v1",
-      "checkedAt": "2026-10-03T01:26:52.988Z",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
       "status": "collected",
       "httpStatus": 200,
       "sourceAsOf": "2026-10-01T16:46:15Z",
-      "sourceSha256": "fbdb977eb616b639e543f8209e907f50cb1ef6e8fea8f7fc9a76577222ad3a01",
+      "sourceSha256": "d41c10a1483c9311a65c0ade05e4fbb6ecdd352ecb3d123110d67baf0c674f25",
       "freshness": "dated-event",
       "observations": [
         {
@@ -124,7 +124,7 @@
       "url": "https://www.strategy.com/notes",
       "kind": "primary",
       "parserVersion": "source-check-v1",
-      "checkedAt": "2026-10-03T01:26:52.988Z",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
       "status": "unavailable",
       "httpStatus": 403,
       "sourceAsOf": null,
@@ -139,11 +139,11 @@
       "url": "https://coinshares.com/etp/physical-bitcoin/",
       "kind": "primary",
       "parserVersion": "source-check-v1",
-      "checkedAt": "2026-10-03T01:26:52.988Z",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
       "status": "reference-retrieved",
       "httpStatus": 200,
       "sourceAsOf": null,
-      "sourceSha256": "025c93ab975ca5ba4083f48e10e2ecd85e4c62bec654cf54580491b768d2c05b",
+      "sourceSha256": "800bc977029e90202b4d34560f7c45e8f0f2775d1e3736d22d4092684e55c602",
       "freshness": "unknown",
       "observations": null,
       "errorCode": null
@@ -154,7 +154,7 @@
       "url": "https://www.sec.gov/newsroom/press-releases",
       "kind": "primary",
       "parserVersion": "source-check-v1",
-      "checkedAt": "2026-10-03T01:26:52.988Z",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
       "status": "unavailable",
       "httpStatus": 403,
       "sourceAsOf": null,
@@ -169,13 +169,63 @@
       "url": "https://www.litecoinregister.com/",
       "kind": "secondary",
       "parserVersion": "source-check-v1",
-      "checkedAt": "2026-10-03T01:26:52.988Z",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
       "status": "reference-retrieved",
       "httpStatus": 200,
       "sourceAsOf": null,
       "sourceSha256": "a1fe8c13a60413f94b48671503d33c8643007e7336f00e7a113b4548de716de4",
       "freshness": "unknown",
       "observations": null,
+      "errorCode": null
+    },
+    {
+      "id": "coinbase-btc-usd",
+      "title": "Coinbase Exchange · BTC/USD last trade",
+      "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
+      "kind": "primary",
+      "parserVersion": "coinbase-btc-ticker-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-03T03:30:07.991Z",
+      "sourceSha256": "ff44747560701732e0ca383680540e1f73bee59ba83775f944f049c0143f4bed",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "btc_usd_last_trade",
+          "label": "BTC/USD last trade · Coinbase Exchange",
+          "value": "84577.22",
+          "unit": "USD",
+          "effectiveAt": "2026-10-03T03:30:07.991Z",
+          "timePrecision": "second",
+          "classification": "venue-reported"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "coinbase-ltc-usd",
+      "title": "Coinbase Exchange · LTC/USD last trade",
+      "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
+      "kind": "primary",
+      "parserVersion": "coinbase-ltc-ticker-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-03T03:30:03.572Z",
+      "sourceSha256": "45628342e129be3db786af2eb94719ebfbbee11389dd25e0c2b28c87ab9765ab",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "ltc_usd_last_trade",
+          "label": "LTC/USD last trade · Coinbase Exchange",
+          "value": "69.131",
+          "unit": "USD",
+          "effectiveAt": "2026-10-03T03:30:03.572Z",
+          "timePrecision": "second",
+          "classification": "venue-reported"
+        }
+      ],
       "errorCode": null
     }
   ]

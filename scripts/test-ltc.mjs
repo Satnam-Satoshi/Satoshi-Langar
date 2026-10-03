@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { collectSource, collectSnapshot, decimal, freshness, parseIbit, parseRelease, sourceDate } from './collect-ltc.mjs';
+import { collectSource, collectSnapshot, decimal, freshness, parseIbit, parseRelease, sourceDate, parseTicker, tickerFreshness } from './collect-ltc.mjs';
 
 const now = '2026-09-30T06:10:26.000Z';
 const csv = '\uFEFFiShares Bitcoin Trust ETF\nFund Holdings as of,"Sep 28, 2026"\nShares Outstanding,"1,412,720,000.00"\n\nTicker,Name,Quantity,Market Currency\n"BTC","BITCOIN","800,535.28920","BTC"\n"USD","USD CASH","22,646.77000","USD"\n';
@@ -63,3 +63,20 @@ const first = await collectSnapshot({ sources: [ibit] }, { now, fetcher: async (
 const second = await collectSnapshot({ sources: [ibit] }, { now, fetcher: async () => new Response(csv, { headers: { 'content-type': 'text/csv' } }) });
 assert.deepEqual(first, second); checks++;
 console.log(`PASS ${checks} LTC collector checks; no network or credentials used.`);
+
+check('venue ticker keeps exact price and normalizes documented nanosecond timestamp', () => {
+ const ticker = { trade_id: 123, price: '84593.470', bid: '84590', ask: '84594', size: '0.001', volume: '1200', time: '2026-09-30T06:10:24.788034321Z' };
+ const parsed = parseTicker(JSON.stringify(ticker), now, 'coinbase-btc-ticker-v1');
+ assert.equal(parsed.observations[0].value, '84593.470');
+ assert.equal(parsed.observations[0].metric, 'btc_usd_last_trade');
+ assert.equal(parsed.sourceAsOf, '2026-09-30T06:10:24.788Z');
+ for (const change of [{price:'0'}, {price:'1e6'}, {price:123}, {time:'2026-10-01T00:00:00Z'}, {time:'2026-02-30T00:00:00Z'}, {trade_id:0}, {bid:'99999'}, {volume:'-1'}]) assert.throws(()=>parseTicker(JSON.stringify({...ticker,...change}),now,'coinbase-btc-ticker-v1'));
+ assert.throws(()=>parseTicker(JSON.stringify(ticker),now,'unrecognized-parser'));
+});
+check('last-trade freshness uses elapsed time across midnight, not a calendar bucket', () => {
+ assert.equal(tickerFreshness('2026-09-29T23:59:00Z','2026-09-30T00:01:00Z'),'dated-observation');
+ assert.equal(tickerFreshness('2026-09-30T00:00:00Z','2026-09-30T02:00:00Z'),'dated-observation');
+ assert.equal(tickerFreshness('2026-09-30T00:00:00Z','2026-09-30T02:00:00.001Z'),'stale');
+ assert.equal(tickerFreshness('2026-10-01T00:00:00Z',now),'invalid');
+});
+console.log(`PASS ${checks} total collector checks including daily price snapshots.`);
