@@ -1,10 +1,102 @@
-# LTC editorial charter and founding-issue record
+# LTC Media editorial charter
 
-Updated October 1, 2026. **Editorial previews; human review pending.**
+Updated October 2, 2026. Owner: the human founder of Satnam Satoshi. The founder requested the daily website publication workflow in this chat; this charter defines its bounded scope.
 
-Lunch Time Conversations is Satnam Satoshi's original magazine. It aims to make Bitcoin, proof-of-work systems, institutional research, public policy, creative work and service understandable to a curious global community. It does not claim to be an audited institutional research service, a complete news wire or an affiliate of a cited organization.
+**Lunch Time Conversations is the magazine of LTC Media, a Satnam Satoshi media project.** We explain Bitcoin, proof-of-work systems, public policy, institutional research, builders and service through original work that readers can inspect. We welcome a first-time learner and an experienced Bitcoin reader at the same table.
 
-## This issue
+LTC Media is a project name. It does not establish an incorporated media company, a registered charity, a legal trust, an audited research service or a partnership with a cited publisher. AI Satoshi Ma is the AI editorial lead, coordinating bounded research, drafting and checks. The human founder retains ownership, mission, publication policy and final authority. A human editor and backup have not yet been appointed; no review is credited to an invented person.
+
+## A Nakamoto standard with a human purpose
+
+For this project, the Nakamoto standard means understandable rules, verifiable evidence, open participation and individual sovereignty. Bitcoin's proof of work anchors our coverage. This is an editorial commitment, not a new protocol specification or an endorsement by Bitcoin's creators.
+
+Seva makes knowledge useful to other people. Explain tradeoffs plainly, respect readers' agency, and welcome informed disagreement. Newcomers must be able to read, learn and prepare a contribution without a wallet, payment or account. Technical depth remains available through sources, methodology and the advanced courses.
+
+## Publication authority: two distinct lanes
+
+### Automatic daily factual briefing
+
+The founder authorizes daily website publication of a **source-bound factual briefing** after the implemented acceptance gates pass. This lane uses approved public sources, source-specific parsers and original deterministic summaries of accepted observations. It may state an issuer-reported quantity and effective date, identify a verified software release, show an approved public-record reference, and describe collection coverage or gaps.
+
+An edition must show its issue date, collection time, source-effective dates, source links, classifications, missing or stale sections and AI/automation authorship. A new collection is not evidence of a new event. Reused historical facts retain their original dates. Retrieved pages with no validated extraction are reference links, not verified numerical observations. A source title is not proof of every claim in the page.
+
+This authority does not extend to unrestricted autonomous news interpretation. An agent must not infer ETF flows from a holdings change, compute a live company mNAV without the required comparable inputs, invent a current event to fill a section, or silently turn a failed source into zero. A failed acceptance gate withholds the affected material or release according to the pipeline's tested rules. The last verified edition remains accessible; a failure must not relabel it as a fresh successful edition.
+
+The bounded-daily-v1 policy in `config/ltc-publication.json` controls this lane. Acceptance requires the configured eight-source registry and source-specific parser checks, a snapshot no older than 24 hours, no future data, and at least one parsed primary-source observation effective within four calendar days. Currently the numerical/technical observations come from iShares IBIT and the official Bitcoin Core, Litecoin Core and LND release records; the other four sources are availability-only references. These checks do not create a complete market feed.
+
+See [LTC-PIPELINE.md](LTC-PIPELINE.md) for exact schemas, commands and storage. The schedule targets **10:00 America/New_York daily**, through the existing Codex automation when its host is available. It is not an always-on cloud service or an uptime guarantee. A missed, stale or failed run keeps the prior dated edition; no separate morning and evening editions are promised. The release handoff records actual scheduler activation and the last verified deployment.
+
+Only one initial edition is admitted per local calendar day; a repeat run is a no-op. The scheduled lane does not create correction revisions autonomously. The correction command requires an explicit revision number, a reason and an earlier edition; material corrections still need the human decision described below.
+
+### Original features, analysis and opinion
+
+Explain the inference, relevant uncertainty and who is speaking. AI-prepared features may be made available as clearly marked editorial previews under the founder's website-review authorization. They remain **human editorial review pending** until a real human editor records acceptance. Automated checks and publication do not confer independent human review.
+
+Fresh political interpretation, allegations about people or organizations, interviews, investment theses, sponsored material, legal-status claims, translations of sensitive cultural context and substantial corrections require human editorial review before being presented as reviewed reporting. The pipeline must never invent that approval. A daily factual update cannot silently republish or change this material.
+
+## Classification and evidence
+
+| Classification | What the reader needs |
+| --- | --- |
+| Reported fact | Actor, exact action, source, event/effective date and collection date. An issuer statement is attributed evidence of what it reported. |
+| Estimate | Inputs, units, formula, assumptions and uncertainty. Missing inputs remain missing. |
+| Analysis | The reasoning, its limits, plausible alternatives and what could change the conclusion. |
+| Opinion | A clear label, speaker's role and relevant conflicts. |
+| Field guide | A separation between proposed practice, implemented capability and jurisdiction-dependent requirements. |
+| Source availability | Whether a record could be retrieved. This is not independent validation of its claims or metrics. |
+
+Use underlying records first: agency documents, filings, issuer product documents, protocol specifications, versioned software releases and accountable organizer records. Verify identity, units, effective dates and the intended parser before admitting a number. Keep raw or hashed evidence as specified by the pipeline; preserve the same provenance in the archive. Financial figures must not outgrow their source's scope.
+
+Politics is covered through public records and fair attribution. A proposal, final rule, law, speech, allegation and adjudicated finding must not be conflated. We do not personalize partisan persuasion, fabricate interviews, claim eyewitness reporting we did not perform, or manufacture false balance around established evidence.
+
+## Rights, affiliations and sponsorship
+
+Write original explanations and use brief, necessary quotations. Link to source material. Check reuse rights before adding automated redistribution. Reader links do not establish an affiliation or a partner feed.
+
+Bitcoin Magazine is external journalism and opinion, not a mirrored feed. Litecoin Register is secondary community research, not a complete verified institutional dataset. BitGo's resources are issuer material, not independent validation or an endorsement. Do not reproduce their stories, distinctive branding or photographs without appropriate rights.
+
+Relevant sponsorships, holdings and affiliations should be disclosed. Sponsorship cannot buy a conclusion; paid placements must be distinguishable from editorial work. No sponsors or partners are asserted by this charter. Cultural context should be handled respectfully: references to Langar do not claim ownership of the tradition or an institution's endorsement.
+
+## Editorial states and audit record
+
+1. **Prepared:** a human or agent creates a candidate with identified evidence and scope.
+2. **Checks passed / withheld:** the implemented evidence and release checks record their actual result. A pass applies only to those checks; it is not human editorial approval.
+3. **Human reviewed:** only when an accountable person records what they reviewed, when, and their decision. This state is separate from the automatic factual lane.
+4. **Published:** the release record identifies the edition, source, artifact and deployment. It preserves any preview or automation label.
+5. **Corrected:** the record explains what changed, why, when, and the prior edition or revision reference.
+6. **Paused:** further automated publication is stopped; the last verified edition and its original dates remain available.
+
+The distinct agent responsibilities and permission limits are in [LTC-AGENTS.md](LTC-AGENTS.md). Several roles may run in one process or agent session; role separation is not a claim of independently staffed desks or independent verification.
+
+## Corrections, pitches and privacy
+
+The public newsroom at `/conversations/about/` offers prepared GitHub drafts for corrections and source/story proposals. Opening a draft does not submit it; submitting requires a GitHub account and makes the issue public. Guests can first prepare a local contribution plan at `/join/?path=ltc`.
+
+A useful correction includes the article or edition URL, the disputed claim, a dated primary source and the proposed change. Do not post confidential records, private contact details, recipient identities, account balances, recovery words or keys. Sensitive security issues should use the repository's security guidance. A future private editorial inbox needs a real monitored owner and a published retention policy; no inbox is invented here.
+
+Correct factual errors promptly and visibly. Material corrections require an accountable human decision on wording and prominence; automated publication must not erase the original audit record. Typos and broken-link repairs still leave a revision trail. Notify the founder of a material source-method change, a sustained new collection failure, a release failure or a decision requiring human authority. Routine healthy runs do not need repetitive notifications.
+
+## Community, service and global events
+
+Service stories require consent and accountable verification. A recipient's identity, image, wallet or private circumstances must never be required as public proof of service. AI can assist logistics, drafts and translations; people remain responsible for physical operations, food safety and consent. No agent awards money or verifies a physical meal merely by generating a record.
+
+Before listing a dated event, check the organizer's own record, calendar dates and location, and preserve the check date. Attendance arrangements need separate confirmation of time zones, access, cost, accessibility and cancellations. Directory links are not completed checks. Distinguish Satnam Satoshi events from independent events; do not invent hosts, gatherings or community size.
+
+Contributions can improve a lesson, check one source, repair an accessibility issue, translate a reviewed passage or propose a local reading table. Public proposals are reviewed as capacity permits. No assignment, reply time, reward or financial outcome is promised.
+
+## Archive and reader access
+
+The magazine, dated archive and RSS feed use the same edition record where implemented. Retain issue dates and stable identifiers; do not use retrieval time as a fabricated event time. Founding features retain their preview labels and source-check date. Changing the canonical domain requires an intentional, tested update; satnam.x publication is still deferred separately.
+
+RSS is an open subscription format. It does not create a mailing-list account or imply that the user subscribed merely by opening the feed. A reader can paste the feed URL into a feed reader. Reading and guest contribution planning stay available without signing in. Social accounts and account recovery remain separate owner tasks; no inactive channel is presented as live.
+
+## Emergency stop and restart
+
+The human founder may pause publication at any time. Operators should set `paused: true` in `config/ltc-publication.json`, pause the active scheduler, retain candidate/evidence files, record the reason and verify that no later release is promoted. The edition preparer must exit without writing a new release while paused. Never delete the archive to hide a failed run. Restore the last verified static artifact if a harmful release reached production, keeping the correction record.
+
+Restart only after the blocking condition is understood, the relevant tests pass and the human owner approves any changed publication boundary. A parser repair within the existing boundary still requires fixture checks and a reviewed diff; a new source, financial calculation, privilege or category of autonomous claim needs explicit owner review. Wallets, money, donation addresses, protected-branch merges, domain records and account credentials remain outside the editorial agent mandate.
+
+## Founding feature archive: October 1, 2026
 
 Seven new original articles live in `app/data/magazine.ts`, each with a desk, classification, reading-time estimate, takeaways, sections, primary/secondary source labels, source notes and a discussion prompt. The existing mNAV explainer remains at `/conversations/methodology/`. All articles disclose AI preparation and pending human editorial review. A four-minute label is an approximate reading-time estimate, not a scheduled broadcast.
 
@@ -22,61 +114,3 @@ Seven new original articles live in `app/data/magazine.ts`, each with a desk, cl
 The manually researched source notes were checked October 1, 2026, independently of the collector. Third-party endpoints can change or fail between checks. Availability is not evidence that a claim has been independently verified. Exact links appear near the relevant sections and in each source notebook.
 
 The morning and evening paths are curated reading lists within this single issue. They are **not** two scheduled editions and must not be represented as an active recurring service.
-
-## Editorial states and ownership
-
-1. **Prepared:** a scoped human or agent contributor produces an original draft and source record.
-2. **Evidence checked:** a reviewer tests each material factual claim against its cited source, dates, units, identity and context; unresolved items remain visible.
-3. **Editorially reviewed:** the named human editor reviews fairness, accuracy, conflicts, privacy, accessibility and rights, and records acceptance.
-4. **Published:** an authorized publisher deploys an identified commit/edition. Public availability alone does not imply that the draft was editorially reviewed.
-5. **Corrected:** preserve what changed, why, when, supporting evidence and the prior version reference.
-
-The current public-review design intentionally shows prepared material as an **editorial preview**. No person is credited with a review they have not performed. The founder retains final publication authority under `AGENTS.md`. A human editor and backup must be appointed before promising a daily reviewed edition.
-
-## Classification and evidence
-
-- **Reported fact:** identify the actor, source, exact action and relevant date. A company statement is evidence of what the company reported; it is not automatically independent confirmation.
-- **Estimate:** display inputs, units, formula, assumptions and uncertainty. Missing inputs remain missing; a retrieval timestamp never substitutes for a source-effective date.
-- **Analysis:** state the inference, its limits and what might change it. Do not turn a regulator's forecast into an established outcome.
-- **Opinion:** label it plainly and disclose the speaker's role and relevant conflicts.
-- **Field guide:** distinguish proposed practice from implemented capability and legal/operational requirements that vary by jurisdiction.
-
-Politics is covered through public records and fair, attributed analysis. A proposal, final rule, law, speech, allegation and adjudicated finding must not be conflated. No persuasive targeting, invented interviews or fabricated eyewitness reporting.
-
-## Source hierarchy and rights
-
-Use underlying records first: agency documents, filings, issuer product documents, protocol specifications, versioned software releases and accountable organizer records. Secondary reporting is useful for discovery and context, with attribution and independent checks for material claims.
-
-Bitcoin Magazine is an external reading link, not a mirrored feed. Litecoin Register is secondary community research, not a complete verified institutional dataset. BitGo's blog is issuer material, not independent validation. None is presented as a partner. No outside publication's stories, branding, photographs or full text are republished here.
-
-Write original explanations. Keep quotations brief and necessary. Link to source material. Review source terms and reuse rights before expanding automated data redistribution. Religious and cultural context should be handled respectfully; SGPC context does not imply endorsement or give this project ownership of Langar tradition.
-
-## Community and global events
-
-Before listing a dated organizer announcement, verify the organizer source, calendar dates and venue/location; preserve the source-check date. Before arranging attendance, separately confirm session time zones, accessibility, access/costs and cancellation/contact details. Do not imply that a directory entry completes those checks. Distinguish project events from independent events. Do not fabricate coverage to fill a daily issue.
-
-Service stories need consent and accountable verification. Do not require publication of a recipient's identity, image, wallet or private circumstances as proof of service. AI may assist drafts and translations; people remain responsible for physical operations and editorial decisions.
-
-## Archive and feed
-
-`/conversations/archive/` lists actual prepared pieces. `/conversations/feed.xml` is a static RSS feed explicitly titled **LTC — editorial previews**. Each item is labeled editorial preview and discloses AI preparation and review pending. It does not fabricate a publication time; the issue's source-check date is descriptive text. Item GUIDs identify the preview version and do not claim editorial approval.
-
-The feed uses the currently documented HTTPS site as its canonical base. When an approved canonical address changes, update and test feed links deliberately. An IPFS copy still points readers to that canonical site in RSS. Portable HTML links are separately rewritten by the site's exporter.
-
-Source content is currently typed TypeScript plus the existing TSX method note. `docs/PUBLICATION-PROVENANCE.md` describes the broader **target** of canonical Markdown, PDFs, manifest hashes and immutable archives. Those outputs are not implemented by this revision. Git preserves code history; it is not a substitute for the planned publication manifest.
-
-## Corrections and conflicts
-
-The site links the repository's public issue form for source suggestions and corrections. Contributors must omit confidential records and personal financial details. A future private reporting channel requires an explicit privacy/retention policy. Sponsors, holdings and affiliations relevant to a report should be disclosed; no sponsorship buys a conclusion. No sponsor relationships or paid placements are asserted in this issue.
-
-## Before daily publication is activated
-
-Appoint a human editor and backup; adopt a schedule and time zone; authorize the publication boundary; implement a candidate-edition audit record; add source-specific acceptance tests and revision history; test missing/stale data behavior; review legal/source rights as appropriate; publish correction and pause procedures. Agent drafting may be automated separately from approval and deployment. None of these future gates is satisfied by simply setting a timer.
-
-## Global-events desk: October 1 source check
-
-`/conversations/events/` contains three organizer-announced upcoming events verified directly against their official sites: [Plan ₿ Forum](https://planb.lugano.ch/planb-forum/) (October 23–24, 2026; Lugano, Switzerland); [Bitcoin Amsterdam](https://www.bitcoin.amsterdam/) (November 5–6, 2026; SugarFactory in Halfweg, Netherlands); and [Bitcoin Korea Conference](https://www.bitcoinkoreaconference.com/en) (November 7–8, 2026; Seoul, with different day-specific venues). Dates are local calendar dates, not fabricated session timestamps. Every entry states **organizer announced, attendance not arranged**.
-
-Official Africa Bitcoin Conference and Dakar Bitcoin Days pages appeared in search, but direct page retrieval could not be completed during this check. They are undated organizer-directory references, not confirmed event entries. No registration, ticket purchase, outreach, travel, sponsorship or partnership occurred. Recheck all entries before extending the calendar or making attendance arrangements.
-
-Material facts in the seven articles were checked against the cited primary records during October 1 research: white paper and Bitcoin Core release notes; iShares/CoinShares issuer notes; the Federal Reserve September 30 release and Congress.gov process guide; MCP/BTCPay technical documentation; BitGo's dated issuer statement and OCC's earlier conditional-approval release; Lite Strategy's dated results announcement; and SGPC context. Litecoin Register is explicitly a secondary source for its own methodology warnings. Research verification is not a completed human editorial sign-off.

@@ -6,7 +6,7 @@ async function walk(directory) {
  for (const entry of await readdir(directory, {withFileTypes:true})) {
   const input=path.join(directory,entry.name), relative=path.relative(source,input), output=path.join(target,relative);
   if(entry.isDirectory()) { await walk(input); continue; }
-  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','conversations/feed.xml'];
+  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','conversations/feed.xml','magazine/LTC-2026-10-02-design-review.pdf'];
   if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?)$/.test(entry.name) && !publicExtras.includes(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
   await mkdir(path.dirname(output),{recursive:true});
   if(entry.name.endsWith('.html')) {
@@ -33,6 +33,27 @@ async function walk(directory) {
  }
 }
 await walk(source);
+await mkdir(path.join(target,'data/ltc-editions'),{recursive:true});
+for(const entry of await readdir('content/ltc',{withFileTypes:true})) {
+ if(entry.isFile() && /^(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(entry.name))
+  await copyFile(path.join('content/ltc',entry.name),path.join(target,'data/ltc-editions',entry.name));
+}
+// Search discovery uses the canonical HTTPS home; portable reading still uses relative links.
+const canonical='https://https-github-com-satnam-satoshi-sat.vercel.app';
+const pages=[];
+async function indexPages(directory) {
+ for(const entry of await readdir(directory,{withFileTypes:true})) {
+  const file=path.join(directory,entry.name);
+  if(entry.isDirectory()) await indexPages(file);
+  else if(entry.name==='index.html') {
+   const relative=path.relative(target,file).replace(/index\.html$/,'');
+   if(!/^(?:404|_not-found|auth|sign-in|welcome|account-help)\//.test(relative)) pages.push(`${canonical}/${relative}`);
+  }
+ }
+}
+await indexPages(target);
+await writeFile(path.join(target,'sitemap.xml'),'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+pages.sort().map(url=>`<url><loc>${url}</loc></url>`).join('')+'</urlset>\n');
+await writeFile(path.join(target,'robots.txt'),`User-agent: *\nAllow: /\nDisallow: /auth/\nDisallow: /sign-in/\nDisallow: /welcome/\nSitemap: ${canonical}/sitemap.xml\n`);
 await copyFile('LICENSE',path.join(target,'LICENSE.txt'));
 await copyFile('NOTICE',path.join(target,'NOTICE.txt'));
 console.log('Portable static release generated in dist/; allowlisted local enhancements, no application server.');

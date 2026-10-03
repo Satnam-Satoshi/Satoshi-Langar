@@ -1,0 +1,254 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "2026-10-02-r1",
+    "date": "2026-10-02",
+    "revision": 1,
+    "title": "The daily record: evidence before the headline",
+    "dek": "IBIT holdings dated October 1, 2026, official software release records, and a visible account of what the source desk could not verify.",
+    "preparedAt": "2026-10-03T01:27:53.337Z",
+    "publishedAt": "2026-10-03T01:27:53.337Z",
+    "timezone": "America/New_York",
+    "status": "published",
+    "classification": "Automated source briefing",
+    "byline": "AI-prepared by LTC Media",
+    "humanReview": "Not individually reviewed by a human editor",
+    "sourceSnapshotSha256": "14d816a699687b3944797f4e9fa097be191f2ee20c22211e3a7fa259896c22f0",
+    "publicationPolicy": "bounded-daily-v1",
+    "briefs": [
+      {
+        "id": "ibit-holdings",
+        "desk": "Wall Street & institutions",
+        "headline": "IBIT’s dated holdings record: October 1, 2026",
+        "effectiveAt": "2026-10-01",
+        "sourceIds": [
+          "ibit-holdings"
+        ],
+        "paragraphs": [
+          "The iShares Bitcoin Trust ETF holdings file reports 803,343.05410 BTC and 1,414,760,000.00 shares outstanding as of October 1, 2026. The source supplies a date, not an intraday timestamp.",
+          "This is an issuer-reported balance at a point in time. It is not a live price, independently audited total or measurement of money entering the fund. Holdings changes alone are not ETF flows.",
+          "For newcomers: read the “as of” date before comparing a number. For experienced readers: the source notebook preserves the exact decimal strings, parser version and retrieved-file hash for this observation."
+        ]
+      },
+      {
+        "id": "bitcoin-core-release",
+        "desk": "Bitcoin & builders",
+        "headline": "Bitcoin Core v31.1: the dated upstream record",
+        "effectiveAt": "2026-07-08T09:14:15Z",
+        "sourceIds": [
+          "bitcoin-core"
+        ],
+        "paragraphs": [
+          "The official Bitcoin Core repository’s latest-release endpoint returned v31.1, published July 8, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+          "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup."
+        ]
+      },
+      {
+        "id": "litecoin-core-release",
+        "desk": "Litecoin & proof of work",
+        "headline": "Litecoin Core v0.21.5.8: the dated upstream record",
+        "effectiveAt": "2026-09-12T12:06:49Z",
+        "sourceIds": [
+          "litecoin-core"
+        ],
+        "paragraphs": [
+          "The official Litecoin Core repository’s latest-release endpoint returned v0.21.5.8, published September 12, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+          "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup."
+        ]
+      },
+      {
+        "id": "lnd-release",
+        "desk": "Lightning & builders",
+        "headline": "LND v0.21.4-beta: the dated upstream record",
+        "effectiveAt": "2026-10-01T16:46:15Z",
+        "sourceIds": [
+          "lnd"
+        ],
+        "paragraphs": [
+          "The official LND repository’s latest-release endpoint returned v0.21.4-beta, published October 1, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+          "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup.",
+          "LND uses a beta suffix in the version name returned by its latest-release endpoint. Our parser preserves that suffix and rejects releases marked as drafts or prereleases by GitHub, as well as release-candidate tags. This is a description of the upstream channel, not a safety certification."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "ibit-holdings",
+        "title": "iShares Bitcoin Trust ETF · holdings",
+        "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
+        "kind": "primary",
+        "parserVersion": "ibit-csv-v1",
+        "checkedAt": "2026-10-03T01:26:52.988Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-10-01",
+        "sourceSha256": "cb8cf6a3eb5d697f90bdf8881be1b2689365098605396adf6d132ed825e8b6fd",
+        "freshness": "dated-observation",
+        "observations": [
+          {
+            "metric": "fund_btc_quantity",
+            "label": "IBIT reported BTC holdings",
+            "value": "803343.05410",
+            "unit": "BTC",
+            "effectiveAt": "2026-10-01",
+            "timePrecision": "date",
+            "classification": "issuer-reported"
+          },
+          {
+            "metric": "fund_shares_outstanding",
+            "label": "IBIT shares outstanding",
+            "value": "1414760000.00",
+            "unit": "shares",
+            "effectiveAt": "2026-10-01",
+            "timePrecision": "date",
+            "classification": "issuer-reported"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "bitcoin-core",
+        "title": "Bitcoin Core · software releases",
+        "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-release-v1",
+        "checkedAt": "2026-10-03T01:26:52.988Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-07-08T09:14:15Z",
+        "sourceSha256": "3ddf30b77a66db3f446f61892dc00f7a167412658a19a87196b81af5d111d222",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "Bitcoin Core latest returned release",
+            "value": "v31.1",
+            "unit": "version",
+            "effectiveAt": "2026-07-08T09:14:15Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "litecoin-core",
+        "title": "Litecoin Core · software releases",
+        "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-litecoin-release-v1",
+        "checkedAt": "2026-10-03T01:26:52.988Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-09-12T12:06:49Z",
+        "sourceSha256": "2411da34d8349618ec789dc20dc784a16fe3677d2d58df49bb9743140969a2c6",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "Litecoin Core latest returned release",
+            "value": "v0.21.5.8",
+            "unit": "version",
+            "effectiveAt": "2026-09-12T12:06:49Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "lnd",
+        "title": "LND · Lightning software releases",
+        "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-lnd-release-v1",
+        "checkedAt": "2026-10-03T01:26:52.988Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-10-01T16:46:15Z",
+        "sourceSha256": "fbdb977eb616b639e543f8209e907f50cb1ef6e8fea8f7fc9a76577222ad3a01",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "LND latest returned release",
+            "value": "v0.21.4-beta",
+            "unit": "version",
+            "effectiveAt": "2026-10-01T16:46:15Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "strategy-notes",
+        "title": "Strategy · mNAV definitions",
+        "url": "https://www.strategy.com/notes",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-10-03T01:26:52.988Z",
+        "status": "unavailable",
+        "httpStatus": 403,
+        "sourceAsOf": null,
+        "sourceSha256": null,
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": "http_failure"
+      },
+      {
+        "id": "coinshares-bitc",
+        "title": "CoinShares · Bitcoin ETP",
+        "url": "https://coinshares.com/etp/physical-bitcoin/",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-10-03T01:26:52.988Z",
+        "status": "reference-retrieved",
+        "httpStatus": 200,
+        "sourceAsOf": null,
+        "sourceSha256": "025c93ab975ca5ba4083f48e10e2ecd85e4c62bec654cf54580491b768d2c05b",
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": null
+      },
+      {
+        "id": "sec-news",
+        "title": "SEC · official announcements",
+        "url": "https://www.sec.gov/newsroom/press-releases",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-10-03T01:26:52.988Z",
+        "status": "unavailable",
+        "httpStatus": 403,
+        "sourceAsOf": null,
+        "sourceSha256": null,
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": "http_failure"
+      },
+      {
+        "id": "litecoin-register",
+        "title": "Litecoin Register · community research",
+        "url": "https://www.litecoinregister.com/",
+        "kind": "secondary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-10-03T01:26:52.988Z",
+        "status": "reference-retrieved",
+        "httpStatus": 200,
+        "sourceAsOf": null,
+        "sourceSha256": "a1fe8c13a60413f94b48671503d33c8643007e7336f00e7a113b4548de716de4",
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": null
+      }
+    ],
+    "coverageGaps": [
+      "Strategy · mNAV definitions: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
+      "CoinShares · Bitcoin ETP: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
+      "SEC · official announcements: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
+      "Litecoin Register · community research: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
+      "No independently measured network telemetry, ETF/ETP flow series, company mNAV, Litecoin treasury total, live price, new political headline or community event report is produced by this bounded edition."
+    ],
+    "corrections": []
+  }
+]

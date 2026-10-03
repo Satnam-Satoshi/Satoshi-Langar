@@ -11,11 +11,37 @@ const TIMEOUT_MS = 15_000;
 export const ALLOWED_URLS = new Set([
   'https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv',
   'https://api.github.com/repos/bitcoin/bitcoin/releases/latest',
+  'https://api.github.com/repos/litecoin-project/litecoin/releases/latest',
+  'https://api.github.com/repos/lightningnetwork/lnd/releases/latest',
   'https://www.strategy.com/notes',
   'https://coinshares.com/etp/physical-bitcoin/',
   'https://www.sec.gov/newsroom/press-releases',
   'https://www.litecoinregister.com/',
 ]);
+
+// A URL alone is insufficient: the source identity, parser and age policy must agree.
+export const SOURCE_RULES = Object.freeze({
+  'ibit-holdings': { url: 'https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv', parser: 'ibit-csv-v1', kind: 'primary', maxAgeDays: 4 },
+  'bitcoin-core': { url: 'https://api.github.com/repos/bitcoin/bitcoin/releases/latest', parser: 'github-release-v1', kind: 'primary', maxAgeDays: null },
+  'litecoin-core': { url: 'https://api.github.com/repos/litecoin-project/litecoin/releases/latest', parser: 'github-litecoin-release-v1', kind: 'primary', maxAgeDays: null },
+  'lnd': { url: 'https://api.github.com/repos/lightningnetwork/lnd/releases/latest', parser: 'github-lnd-release-v1', kind: 'primary', maxAgeDays: null },
+  'strategy-notes': { url: 'https://www.strategy.com/notes', parser: 'source-check-v1', kind: 'primary', maxAgeDays: null },
+  'coinshares-bitc': { url: 'https://coinshares.com/etp/physical-bitcoin/', parser: 'source-check-v1', kind: 'primary', maxAgeDays: null },
+  'sec-news': { url: 'https://www.sec.gov/newsroom/press-releases', parser: 'source-check-v1', kind: 'primary', maxAgeDays: null },
+  'litecoin-register': { url: 'https://www.litecoinregister.com/', parser: 'source-check-v1', kind: 'secondary', maxAgeDays: null },
+});
+
+export const RELEASE_RULES = Object.freeze({
+  'github-release-v1': { repository: 'bitcoin/bitcoin', name: 'Bitcoin Core', pattern: /^v\d+\.\d+(?:\.\d+)?$/ },
+  'github-litecoin-release-v1': { repository: 'litecoin-project/litecoin', name: 'Litecoin Core', pattern: /^v\d+\.\d+\.\d+(?:\.\d+)?$/ },
+  // LND's official stable channel uses a beta suffix. GitHub prereleases and RC tags still fail.
+  'github-lnd-release-v1': { repository: 'lightningnetwork/lnd', name: 'LND', pattern: /^v\d+\.\d+\.\d+-beta$/ },
+});
+
+export function validateSourceIdentity(source) {
+  const rule = Object.hasOwn(SOURCE_RULES, source?.id) ? SOURCE_RULES[source.id] : null;
+  if (!rule || source.url !== rule.url || source.parser !== rule.parser || source.kind !== rule.kind || source.maxAgeDays !== rule.maxAgeDays) throw new Error('invalid_source_identity');
+}
 
 export function csvRows(text) {
   const rows = []; let row = []; let value = ''; let quoted = false;
@@ -80,11 +106,12 @@ export function parseIbit(text, now) {
   ] };
 }
 
-export function parseRelease(text, now) {
+export function parseRelease(text, now, parser = 'github-release-v1') {
+  const rule = RELEASE_RULES[parser];
   const item = JSON.parse(text);
-  if (item.draft || item.prerelease || !/^v\d+\.\d+(?:\.\d+)?$/.test(item.tag_name ?? '') || item.html_url !== `https://github.com/bitcoin/bitcoin/releases/tag/${item.tag_name}`) throw new Error('wrong_release');
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(item.published_at ?? '') || !Number.isFinite(Date.parse(item.published_at)) || Date.parse(item.published_at) > Date.parse(now)) throw new Error('invalid_source_date');
-  return { sourceAsOf: item.published_at, observations: [{ metric: 'software_release', label: 'Bitcoin Core latest returned release', value: item.tag_name, unit: 'version', effectiveAt: item.published_at, timePrecision: 'second', classification: 'upstream-release' }] };
+  if (!rule || item.draft !== false || item.prerelease !== false || !rule.pattern.test(item.tag_name ?? '') || item.html_url !== `https://github.com/${rule.repository}/releases/tag/${item.tag_name}`) throw new Error('wrong_release');
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(item.published_at ?? '') || !Number.isFinite(Date.parse(item.published_at)) || new Date(item.published_at).toISOString().slice(0, 19) !== item.published_at.slice(0, 19) || Date.parse(item.published_at) > Date.parse(now)) throw new Error('invalid_source_date');
+  return { sourceAsOf: item.published_at, observations: [{ metric: 'software_release', label: `${rule.name} latest returned release`, value: item.tag_name, unit: 'version', effectiveAt: item.published_at, timePrecision: 'second', classification: 'upstream-release' }] };
 }
 
 async function boundedText(response) {
@@ -105,26 +132,28 @@ export async function collectSource(source, now, fetcher = fetch) {
   let status = null;
   try {
     if (!ALLOWED_URLS.has(source.url)) throw new Error('url_not_allowlisted');
-    const response = await fetcher(source.url, { redirect: 'error', signal: AbortSignal.timeout(TIMEOUT_MS), headers: { 'User-Agent': 'SatnamSatoshi-LTC/1.0 (+https://github.com/Satnam-Satoshi/Satoshi-Langar)', Accept: source.parser === 'github-release-v1' ? 'application/json' : 'text/csv,text/plain,text/html;q=0.8' } });
+    validateSourceIdentity(source);
+    const response = await fetcher(source.url, { redirect: 'error', signal: AbortSignal.timeout(TIMEOUT_MS), headers: { 'User-Agent': 'SatnamSatoshi-LTC/1.0 (+https://github.com/Satnam-Satoshi/Satoshi-Langar)', Accept: Object.hasOwn(RELEASE_RULES, source.parser) ? 'application/json' : 'text/csv,text/plain,text/html;q=0.8' } });
     status = response.status;
     if (!response.ok) throw new Error('http_failure');
     const contentType = response.headers.get('content-type') || '';
     if (!/(text\/(csv|plain|html)|application\/(json|octet-stream))/.test(contentType)) throw new Error('unexpected_content_type');
     const text = await boundedText(response);
     if (/cf-chl-|challenge-platform|<title[^>]*>\s*(?:Access Denied|Just a moment)/i.test(text)) throw new Error('source_challenge');
-    const parsed = source.parser === 'ibit-csv-v1' ? parseIbit(text, now) : source.parser === 'github-release-v1' ? parseRelease(text, now) : { sourceAsOf: null, observations: null };
+    const parsed = source.parser === 'ibit-csv-v1' ? parseIbit(text, now) : Object.hasOwn(RELEASE_RULES, source.parser) ? parseRelease(text, now, source.parser) : { sourceAsOf: null, observations: null };
     return { ...base, ...parsed, httpStatus: status, status: parsed.observations ? 'collected' : 'reference-retrieved', sourceSha256: createHash('sha256').update(text).digest('hex'), freshness: freshness(parsed.sourceAsOf, now, source.maxAgeDays) };
   } catch (error) {
-    const safeErrors = new Set(['url_not_allowlisted','http_failure','response_too_large','empty_response','unexpected_content_type','source_challenge','malformed_csv','invalid_decimal','missing_source_date','invalid_source_date','wrong_product','missing_columns','wrong_asset','impossible_quantity','wrong_release']);
+    const safeErrors = new Set(['url_not_allowlisted','invalid_source_identity','http_failure','response_too_large','empty_response','unexpected_content_type','source_challenge','malformed_csv','invalid_decimal','missing_source_date','invalid_source_date','wrong_product','missing_columns','wrong_asset','impossible_quantity','wrong_release']);
     return { ...base, httpStatus: status, errorCode: safeErrors.has(error.message) ? error.message : 'transport_or_parse_failure' };
   }
 }
 
 export async function collectSnapshot(config, { now = new Date().toISOString(), fetcher = fetch } = {}) {
   if (!Number.isFinite(Date.parse(now))) throw new Error('invalid_run_time');
-  if (!Array.isArray(config.sources) || config.sources.length > ALLOWED_URLS.size || new Set(config.sources.map(source => source.id)).size !== config.sources.length) throw new Error('invalid_source_registry');
+  if (!Array.isArray(config.sources) || config.sources.length === 0 || config.sources.length > ALLOWED_URLS.size || new Set(config.sources.map(source => source.id)).size !== config.sources.length) throw new Error('invalid_source_registry');
+  config.sources.forEach(validateSourceIdentity);
   const sources = await Promise.all(config.sources.map(source => collectSource(source, now, fetcher)));
-  return { schemaVersion: 1, publication: 'Lunch Time Conversations', generatedAt: now, timezone: 'America/New_York', scheduleStatus: 'not-scheduled', editorialStatus: 'automated-source-check', coverage: 'IBIT holdings and Bitcoin Core release parser; other sources are reference availability checks. No ETF flow or mNAV calculation.', sourceCount: sources.length, failureCount: sources.filter(source => source.status === 'unavailable').length, sources };
+  return { schemaVersion: 1, publication: 'Lunch Time Conversations', generatedAt: now, timezone: 'America/New_York', scheduleStatus: 'collection-only; scheduler is separate', editorialStatus: 'automated-source-check', coverage: 'IBIT holdings and official Bitcoin Core, Litecoin Core and LND release parsers; other sources are reference availability checks. No ETF flow or mNAV calculation.', sourceCount: sources.length, failureCount: sources.filter(source => source.status === 'unavailable').length, sources };
 }
 
 async function main() {

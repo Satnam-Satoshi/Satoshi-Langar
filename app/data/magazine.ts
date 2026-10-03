@@ -4,6 +4,7 @@ export type MagazineArticle = {
   slug: string; desk: string; deskId: string; title: string; dek: string;
   classification: 'Explainer' | 'Analysis' | 'Field guide'; minutes: number;
   takeaway: string; question: string; sections: MagazineSection[]; sources: MagazineSource[];
+  preparedDate?: string; sourceCheckedDate?: string; sourceCheckedAt?: string;
 };
 export const magazineIssue = {
   id: '2026-10-01', date: 'October 1, 2026', title: 'The work behind the promise',
@@ -220,6 +221,141 @@ export const magazineArticles: MagazineArticle[] = [
       { id: 'sgpc', label: 'SGPC: Around Harmandir Sahib — Guru Ka Langar', url: 'https://new.sgpc.net/around-harmandir-sahib/', kind: 'Primary record', note: 'An institutional account of the tradition; no endorsement of Satnam Satoshi is implied.' },
       { id: 'gazette', label: 'SGPC Gurdwara Gazette, June 2019', url: 'https://sgpc.net/gazette/2019/June/June-English.pdf', kind: 'Primary record', note: 'Historical and religious context. This publication is not a substitute for community or scholarly interpretation.' },
     ],
+  },
+  {
+    "slug": "sec-crypto-custody-proposal-october-2026",
+    "desk": "Public policy & custody",
+    "deskId": "policy-current",
+    "title": "Custody is back on the rulemaking table",
+    "dek": "The SEC’s October 1 proposal puts crypto custody arrangements under discussion. Our reading begins with the action taken, then the questions it leaves open.",
+    "classification": "Analysis",
+    "minutes": 3,
+    "preparedDate": "October 2, 2026",
+    "sourceCheckedDate": "October 2, 2026 (America/New_York)",
+    "sourceCheckedAt": "2026-10-03T01:25:08Z",
+    "takeaway": "A proposed framework is a policy development. It does not establish that a particular custody arrangement is permitted or appropriate.",
+    "question": "When an institution says it holds an asset safely, which part of that claim would you want to inspect first?",
+    "sections": [
+      {
+        "heading": "What the agency announced",
+        "paragraphs": [
+          "On October 1, 2026, the SEC proposed a crypto-asset custody framework for registered investment advisers and regulated funds. Its announcement describes conditional routes for self-custody and the use of state trust companies, alongside changes to adviser audits and fund custodial services.",
+          "The stated comment window runs for 60 days after the proposing release appears in the Federal Register. We have not established that publication date, so we do not calculate a closing deadline. This is a proposal, not a final rule or a determination about any reader’s arrangement."
+        ],
+        "sourceIds": [
+          "sec-custody"
+        ]
+      },
+      {
+        "heading": "Read the argument as an argument",
+        "paragraphs": [
+          "In a separate October 1 statement, SEC Chairman Paul S. Atkins argues that existing custody provisions have lagged crypto markets and that a tailored framework would give advisers and funds greater clarity. That is the chair’s rationale for the proposal; it is not evidence that its intended outcomes have already happened.",
+          "Our analysis: a useful policy story preserves that distance. An institution can explain what it wants a rule to achieve while readers examine whether the mechanism supports the promise. The interesting work begins when the aim, the proposed conditions and the evidence are placed next to one another."
+        ],
+        "sourceIds": [
+          "atkins"
+        ]
+      },
+      {
+        "heading": "Two questions that should stay separate",
+        "paragraphs": [
+          "For a newcomer, it helps to separate authority from capability. One question is who is allowed to perform a role under the relevant rules. Another is who can actually authorize a transfer, recover access or stop a mistaken instruction. A confident answer to one question should not be substituted for evidence about the other.",
+          "For an experienced Bitcoiner, our proposed reading exercise is to draw the responsibility chain: client, adviser, custodian, software operator and approver. Mark where each role begins, which evidence describes it, and what remains unknown. This is an analytical worksheet, not a conclusion about the proposal’s legal application or the safety of a named provider."
+        ]
+      },
+      {
+        "heading": "A question for the community treasury",
+        "paragraphs": [
+          "Imagine a fictional community organization comparing two custody designs. One has a polished dashboard; the other has a careful recovery rehearsal. The useful comparison would ask what each design demonstrates and what still needs testing. A logo, an interface or an article about regulation cannot stand in for that work.",
+          "For Satnam Satoshi, this preview opens a research question rather than a financial action. Readers can contribute a dated source or a clearer explanation of an assumption. A future arrangement still needs accountable people and appropriate review. We have not assessed the full proposed rule text, certified a provider or changed any custody setup."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "sec-custody",
+        "label": "SEC release 2026-100: crypto custody proposal",
+        "url": "https://www.sec.gov/newsroom/press-releases/2026-100-sec-proposal-would-address-how-investment-advisers-funds-can-custody-crypto-assets-under-federal",
+        "kind": "Primary record",
+        "note": "Agency announcement dated October 1, 2026. Proposal, not final rule. Full proposed-rule text and Federal Register publication date were not assessed in this preview."
+      },
+      {
+        "id": "atkins",
+        "label": "Paul S. Atkins: October 1 custody-proposal statement",
+        "url": "https://www.sec.gov/newsroom/speeches-statements/atkins-crypto-custody-100126-statement-proposal-address-custody-crypto-assets-under-investment-advisers-act-investment-company",
+        "kind": "Primary record",
+        "note": "Attributed policy rationale from the SEC chair, dated October 1, 2026. It is distinct from the agency action and from LTC’s analysis."
+      }
+    ]
+  },
+  {
+    "slug": "lnd-0214-reading-a-release",
+    "desk": "Lightning & open-source builders",
+    "deskId": "builders-current",
+    "title": "A Lightning release, read one boundary at a time",
+    "dek": "LND v0.21.4-beta arrived on October 1. Its release record offers a useful exercise in how open-source changes become understandable, testable evidence.",
+    "classification": "Field guide",
+    "minutes": 3,
+    "preparedDate": "October 2, 2026",
+    "sourceCheckedDate": "October 2, 2026 (America/New_York)",
+    "sourceCheckedAt": "2026-10-03T01:25:08Z",
+    "takeaway": "A release note describes intended changes. Reading it carefully is different from verifying a binary, testing a deployment or deciding to upgrade.",
+    "question": "Could a newcomer explain one software change accurately after a technical contributor showed them the source?",
+    "sections": [
+      {
+        "heading": "Begin with an identifiable release",
+        "paragraphs": [
+          "The lightningnetwork/lnd repository lists v0.21.4-beta as released on October 1, 2026. Its release page points to notes, signed manifests and verification guidance. This article links the notes at that version’s tag, so the reading reference is tied to the release rather than a moving development branch.",
+          "For a first-time reader, try a modest goal: identify the project, the exact version and the date before deciding what the headline means. You do not need a funded node to learn how a software project explains its work. A useful reading habit can begin with a source link and a blank page."
+        ],
+        "sourceIds": [
+          "lnd-release"
+        ]
+      },
+      {
+        "heading": "Follow the edge of a change",
+        "paragraphs": [
+          "The tagged notes describe stricter BOLT 11 invoice decoding: more than one payment-hash field is rejected. They also report that LND no longer opens or accepts new channels with the legacy commitment type, while existing channels of that type continue operating. These are distinct changes with different boundaries.",
+          "The same notes describe explicit channel-type negotiation and fixes involving pending HTLCs and invoice processing. This is a selected summary, not a complete change log or an independently tested security assessment. The linked record gives technical readers the associated changes to inspect."
+        ],
+        "sourceIds": [
+          "lnd-notes"
+        ]
+      },
+      {
+        "heading": "Turn a release into a learning exercise",
+        "paragraphs": [
+          "Our suggested exercise has two columns: what changed, and what the evidence does not establish. In the first, describe one behavior precisely. In the second, record questions about compatibility, application assumptions or testing. This keeps a version announcement from becoming an all-purpose assurance about a system you have not examined.",
+          "For an experienced contributor, write one small test case on paper: an input, the expected behavior and the evidence supporting that expectation. Then explain it to someone new to Lightning without requiring them to memorize every abbreviation. Good technical communication makes a boundary easier to inspect."
+        ]
+      },
+      {
+        "heading": "Verification is work with an owner",
+        "paragraphs": [
+          "The release page documents manifest-signature and archive-hash checks, along with reproducible-build guidance. Those are procedures readers can inspect. We have read the documentation; we have not downloaded, rebuilt or independently verified these binaries for this article.",
+          "Our editorial conclusion is simple: curiosity can move faster than deployment. A community can learn from the release today while an accountable operator separately decides what applies to a particular system. This field guide is not an upgrade instruction and does not operate a Lightning node, move funds or certify a production setup."
+        ],
+        "sourceIds": [
+          "lnd-release"
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "lnd-release",
+        "label": "LND v0.21.4-beta: official release record",
+        "url": "https://github.com/lightningnetwork/lnd/releases/tag/v0.21.4-beta",
+        "kind": "Primary record",
+        "note": "October 1, 2026 release. Source and instructions were inspected; no binary verification or deployment was performed by LTC."
+      },
+      {
+        "id": "lnd-notes",
+        "label": "LND v0.21.4-beta: version-tagged release notes",
+        "url": "https://raw.githubusercontent.com/lightningnetwork/lnd/v0.21.4-beta/docs/release-notes/release-notes-0.21.4.md",
+        "kind": "Technical documentation",
+        "note": "Version-tagged notes, checked October 2 in New York (October 3 UTC). Our selected summary is not a full compatibility assessment."
+      }
+    ]
   },
 ];
 export const articleHref = (slug: string) => `/conversations/read/${slug}/`;

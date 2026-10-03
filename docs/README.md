@@ -39,3 +39,6 @@ When documents disagree about what is live, use [STATUS.md](STATUS.md), dated ev
 - [Three learning tracks and curriculum review](LEARNING-CURRICULUM.md)
 - [Optional identity setup and deletion handoff](COMMUNITY-ACCOUNTS.md)
 - [LTC editorial charter and source record](LTC-EDITORIAL.md)
+
+- [LTC agent charters](LTC-AGENTS.md)
+- [LTC daily release and stop procedure](LTC-RELEASE-RUNBOOK.md)

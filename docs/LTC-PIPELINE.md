@@ -1,90 +1,110 @@
-# LTC publication and daily-source pipeline
+# LTC daily publication pipeline
 
-Updated October 1, 2026. Lunch Time Conversations is the project's original magazine: political/public-record coverage, Bitcoin and Litecoin network analysis, ETF/ETP and treasury research, and community reporting. It is not an affiliate of Strategy, Litecoin Register, or any cited issuer. Institutional research is a quality target, not an audit or certification claim.
+Updated October 2, 2026. LTC Media is Satnam Satoshi’s public editorial project. The founder has authorized automatic publication of tested, narrowly scoped daily source briefings. The pipeline does not claim a legally incorporated company, independent audit or human review of each automated edition.
 
-## Built in this revision
+## What can publish automatically
 
-- `/conversations/`: original newspaper-inspired magazine, seven discoverable desks, morning/evening reading paths, source desk, stored observations and contributor path. Reading paths are not scheduled editions.
-- `app/data/magazine.ts` and `/conversations/read/[slug]/`: seven substantive original explainers, analyses and field guides, each with AI-prepared/review-pending status, section citations and source notebook.
-- `/conversations/events/`: dated organizer-announced global events with exact official links, source-check date and no arranged attendance; unconfirmed sources remain undated directory entries.
-- `/conversations/archive/`: archive of the actual prepared pieces, with dates and status.
-- `/conversations/feed.xml`: static RSS of editorial previews, explicitly labeled. No invented publication timestamp or completed human review.
-- `/conversations/methodology/`: substantive mNAV explainer, fictional teaching calculation, source-time/fetch-time distinction, editorial classifications and correction policy.
-- `config/ltc-sources.json`: six named public sources; primary and secondary sources distinguished.
-- `scripts/collect-ltc.mjs`: portable Node 22 collector using built-ins. IBIT CSV and Bitcoin Core release JSON have deterministic parsers. Strategy, CoinShares, SEC and Litecoin Register have availability checks, not numeric/headline extraction.
-- `public/data/ltc-snapshot.json`: last executed source check, including per-source outcome, exact retrieval time, hash and parsed source effective dates. Failures produce null observations.
-- `scripts/test-ltc.mjs`: offline checks for dates, precision, identity, missing fields, failed requests, response limits and reproducibility.
+`config/ltc-publication.json` records policy `bounded-daily-v1`, the human owner and the emergency pause switch. The policy permits deterministic, original factual briefs from accepted public observations. It does not permit arbitrary source text, political opinions, allegations, personal financial recommendations, social posts, wallet operations or broader untested data extraction.
 
-Daily source collection and candidate drafting are active as a bounded preparation workflow. Automatic daily publication is inactive. No newsletter service, third-party publication feed or payment integration is connected by this magazine change. The new RSS distributes only this project’s explicitly labeled editorial previews; it is not an imported feed or an automatically scheduled publication. No recurring publication cadence is represented as active. An existing publication archive can be imported later if the founder provides its canonical source and rights.
+An edition contains:
 
-## Run locally
+- A New York calendar date, revision, preparation/publication timestamp and immutable identifier such as `2026-10-02-r1`.
+- A clear **AI-prepared by LTC Media** byline and **Not individually reviewed by a human editor** label. Template preparation does not impersonate an independent editorial review.
+- Source-specific effective dates and retrieval times, exact decimal strings, parser versions, official URLs and retrieved-file SHA-256 hashes.
+- Short original factual briefs, missing/stale coverage, and correction links when applicable.
+- A digest of the normalized collector snapshot. This is a content-integrity reference, not a signature, proof of issuer identity or independent audit.
 
-From the repository root with Node 22:
+Original explainers, analysis, opinion, interviews and community reporting remain a separate editorial-preview/review workflow. The automated runner must not silently promote them to reviewed reporting. See [editorial policy](LTC-EDITORIAL.md) and [agent responsibilities](LTC-AGENTS.md).
+
+## Sources and acceptance boundaries
+
+The collector uses eight exact allowlisted HTTPS endpoints. The source identity, parser, classification and age policy must match the registry in code; editing a URL in configuration is insufficient to widen network access.
+
+| Source | Accepted observation | Boundary |
+| --- | --- | --- |
+| [iShares IBIT holdings](https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv) | Dated BTC quantity and shares outstanding | Exact product/asset/column checks; decimal strings; four-calendar-day window for a new financial brief. Holdings changes are not flows. |
+| [Bitcoin Core](https://api.github.com/repos/bitcoin/bitcoin/releases/latest) | Upstream version and publication timestamp | Exact official repository and stable version pattern; no draft/prerelease; historical releases keep their original dates. |
+| [Litecoin Core](https://api.github.com/repos/litecoin-project/litecoin/releases/latest) | Upstream version and publication timestamp | Exact official repository; three- or four-component numeric release; no draft/prerelease. |
+| [LND](https://api.github.com/repos/lightningnetwork/lnd/releases/latest) | Upstream version and publication timestamp | Exact official repository; preserves `-beta` naming used by LND; GitHub prereleases, drafts and RC tags are rejected. This is not a safety certification. |
+| [Strategy notes](https://www.strategy.com/notes) | Availability only | No mNAV or company input parser. HTTP 403 remains an explicit gap. |
+| [CoinShares BITC](https://coinshares.com/etp/physical-bitcoin/) | Availability only | No ETP numeric or flow adapter. |
+| [SEC announcements](https://www.sec.gov/newsroom/press-releases) | Availability only | No inferred headlines. HTTP 403 remains an explicit gap; no bypass. |
+| [Litecoin Register](https://www.litecoinregister.com/) | Secondary reference availability only | No treasury totals, affiliation or original-record verification claimed. |
+
+The collector uses no credentials, refuses redirects, limits each response to 2 MB, times out after 15 seconds, and never executes source HTML. Remote instructions are untrusted content. A `reference-retrieved` page has no validated numbers or headlines merely because it loaded.
+
+No live BTC/LTC price, ETF/ETP flow series, company mNAV, independently measured network telemetry, new political reporting or full publication-feed import is produced by these adapters. Broader coverage needs accepted parsers or sourced editorial work and, where relevant, source rights review. Do not replace a missing field with zero. Do not double-count custody, fund assets, company holdings or cross-listed ETPs.
+
+## Edition acceptance gates
+
+`prepare-ltc-edition.mjs` validates the full eight-source registry before writing anything into the archive. It requires:
+
+1. Exact recognized source identities and parser versions; unique sources and consistent source/failure counts.
+2. A well-formed snapshot collected within 24 hours of preparation. Future retrieval and source-effective dates fail.
+3. Correct observations, units, classifications, precision and source hashes. Availability-only sources cannot become numeric observations.
+4. At least one primary, successfully parsed observation with an effective date within four calendar days of the issue’s New York date. An old software release cannot by itself make an otherwise stale edition publishable.
+5. For the IBIT financial brief specifically, a source date inside the four-day window. If a fresh software release permits an edition while IBIT is stale, the financial brief is withheld and its historical source is labeled stale.
+6. An enabled, unpaused policy with unchanged limits. A configuration change cannot silently relax the hard-coded limits.
+
+The four-day window is a conservative calendar rule, not an exchange-holiday calendar. A new edition may repeat an unchanged but still eligible observation, with its original source date. Rechecking a historical release does not make it breaking news. When no fresh primary observation remains, no edition is created and the last valid edition stays available under its original date.
+
+Freshness is recomputed against the publication run’s New York date, even when the collection is still within its 24-hour retrieval window. A financial value that ages past the four-day boundary between collection and publication cannot retain its earlier fresh classification.
+
+## Collection, candidates and publication
+
+With Node 22, from the repository root:
 
 ```sh
-node scripts/test-ltc.mjs
-node scripts/collect-ltc.mjs
-pnpm check
+node scripts/collect-ltc.mjs --stdout > /private/tmp/ltc-snapshot.json
+node scripts/prepare-ltc-edition.mjs --snapshot /private/tmp/ltc-snapshot.json --output /private/tmp/ltc-candidate.json
+node --test scripts/test-ltc.mjs scripts/test-ltc-edition.mjs
 ```
 
-The collector needs network access to six hard-coded public HTTPS URLs. It accepts no user-supplied endpoint, uses no credentials, refuses redirects, times out after 15 seconds per source, caps each response at 2 MB, and does not execute source HTML. It writes normalized observations and source hashes, not downloaded third-party pages. `--stdout` prints the JSON instead of saving it. No outbound message, deployment or financial action occurs.
+The collector’s exit status is not an edition acceptance decision. Exit 0 means at least one collection/reference retrieval succeeded; exit 2 means every source failed. A candidate operation still performs all policy/source checks. Its output has `status: candidate` and no publication timestamp. No website changes until the explicit apply and deployment steps.
 
-Exit 0 means at least one source returned a successful collection/reference retrieval; it does **not** mean every desk is ready to publish. Inspect `failureCount` and per-source `status`. Exit 2 means all sources failed. Exit 1 means a configuration/CLI error. A `reference-retrieved` source has no validated numbers merely because its page loaded.
+The authorized release runner applies the accepted edition with:
 
-The snapshot renders at build time. A successful collector run alone does not update a deployed website. Rebuild, review the changes, and use the normal authorized deployment process. Git stores reviewed snapshots/editions and correction history. The collector overwrites the local latest snapshot; it does not provide an immutable raw-source archive. Add authorized archival storage before claiming full historical reproducibility.
+```sh
+node scripts/prepare-ltc-edition.mjs --snapshot /private/tmp/ltc-snapshot.json --publish
+```
 
-## Collection history and manual research
+This creates `content/ltc/YYYY-MM-DD-r1.json` with exclusive creation and updates `content/ltc/index.json`. A process lock prevents concurrent publication. The CLI reports `published-locally`, never a successful website deployment. The index is imported by `app/data/editions.ts` at static build time. The site must still pass its full checks, build and deploy through the project’s authorized release workflow; then its public edition and RSS must be read back. A source collection or local write alone is not a live edition.
 
-The manually researched October 1 articles have their own exact source citations and effective-date qualifications. They do not inherit the collector’s success/failure status. See `docs/LTC-EDITORIAL.md` for evidence, ownership, source rights and known gaps. No collected issuer holdings figure is used as a current portfolio recommendation.
+Run again on the same New York day and the first edition is preserved. The result is `unchanged`, even if a newly collected value differs. If a correction exists, a normal repeated run returns the current revision without replacing it. Date boundaries follow `America/New_York`, including daylight-saving time. A failed later check cannot replace a prior successful edition with empty data.
 
-## First network verification
+The index is rebuildable from immutable edition files. A crash after an edition file is created but before the index is replaced can be reconciled by the next apply operation. A leftover `.publish-lock` after a killed process requires the operator to establish that no writer is active before removing it. Do not claim the pipeline can run when its scheduler/host is unavailable; the deployment handoff records the actual installed schedule and its operating dependency.
 
-At `2026-09-30T06:17:00.467Z`, the live collector retrieved and parsed IBIT holdings effective September 28, 2026 and the Bitcoin Core v31.1 release published July 8, 2026. CoinShares and Litecoin Register reference retrievals succeeded. Strategy and SEC returned HTTP 403; their observations remain null. No blocked source was bypassed. The current explainer's manual source review used publicly accessible official documentation separately from the collector.
+The daily release is scheduled for **10:00 a.m. America/New_York** through the existing Codex local automation `satnam-satoshi-foundation-and-launch-follow-up`. It depends on that host being available and authenticated; it is not an always-on cloud newsroom. Follow the [release runbook](LTC-RELEASE-RUNBOOK.md) for branch checks, the isolated build, deployment, public read-back and the last pause check before promotion. Schedule activation and the released version are recorded in the handoff, not inferred from a successful collector invocation.
 
-## Daily operating plan — preparation active, publication inactive
+## Corrections and pause
 
-1. Name a human editor and a source-maintenance owner; record backup/absence coverage and a stop procedure.
-2. The active daily preparation workflow runs source checks and prepares candidate work. Keep its schedule/time zone and daylight-saving behavior documented with the automation. A candidate run is not authorization to publish an edition.
-3. Create a candidate snapshot/edition change. Verify source dates, identities, status and hashes. Check missing sections rather than filling them with inferred numbers.
-4. The human editor selects policy/network stories, separates reported facts from interpretation/opinion, and accepts publication. An agent can draft and flag discrepancies; it cannot impersonate that review.
-5. Build and deploy the authorized snapshot and edition. The current RSS contains explicitly labeled editorial previews. Change an item to a reviewed publication only after a named human acceptance record exists; preserve canonical links and correction versions. Do not relabel old drafts as approved retroactively.
-6. Monitor sustained relevant collection failures, methodology drift and overdue editorial work. Do not send routine success spam. Preserve prior valid editions with original dates if a current collection fails.
+A normal daily run does not create revisions. A reviewed correction requires the next explicit revision number and a meaningful correction reason:
 
-A future policy may authorize deterministic factual snapshots without per-edition review. That requires explicit human policy ownership, tests, bounded permissions, automated labeling and a correction path. It is not enabled here. Nostr/IPFS mirrors are optional downstream distribution, not the only canonical archive.
+```sh
+node scripts/prepare-ltc-edition.mjs --snapshot /private/tmp/ltc-corrected-snapshot.json --publish --revision 2 --correct-date 2026-10-02 --correction-reason "Describe the specific correction and the evidence."
+```
 
-## Data rules
+The previous revision for the target issue date must exist. Its immutable JSON remains intact. The new edition links `correctsEditionId`, records the reason and appears before its predecessor in the index. `--correct-date` supports a next-day correction while preserving the original issue date: the new preparation/publication timestamps record when the correction is actually prepared. Without this flag, the target is today’s issue.
 
-- Never equate a retrieval timestamp with a source date. Date-only source records remain date-only; do not invent a closing timestamp.
-- Values are decimal strings; missing values are null. Do not treat stale/missing as zero, or holdings changes as ETF flows.
-- IBIT holdings use an illustrative four-calendar-day stale threshold at collection time. This is conservative, not an exchange-calendar engine. Calendar-aware rules and live age alerts are not yet implemented.
-- Public site observations are attributed snapshots, not current quotes. No ETF flow, ETP flow, company mNAV, company ranking or claimed portfolio coverage is calculated.
-- Cross-listed ETPs require ISIN-level deduplication. Custody, company ownership, fund assets and wrapped reserves must remain distinct.
-- Source rights/terms need review before broader automated extraction or redistribution. Official HTML is not a stable or licensed bulk-data API by default.
-- Litecoin Register is a secondary attributed source; no affiliation or complete dataset integration is implied.
+Corrections still require fresh collection and a currently eligible primary observation. A source-effective date after the target issue day is rejected, so a correction cannot silently put newer holdings into an older issue. Historical corrections that cannot meet those evidence gates require a separately reviewed archival-source change. Never backdate a correction’s publication timestamp or silently replace an old file.
 
-## mNAV methodology gate
+Emergency stop: set `paused` to `true` in `config/ltc-publication.json` and stop the release scheduler. Both preparation and apply then fail closed. The website retains its last valid dated edition. A deliberate stop is not a request to remove the archive. Resume only after the human owner authorizes it and the failing condition is understood.
 
-[Strategy's official notes](https://www.strategy.com/notes) record a July 23, 2026 definition change. A new ratio must specify numerator, denominator, debt/preferred/cash treatment, basic/diluted shares and source dates. Do not splice incompatible formulas. Do not both subtract a convertible as debt and include its converted shares without an explicit scenario. Non-positive denominators are not meaningful valuation multiples.
+## First expanded source check
 
-Activation tests: matched dates and units; source-backed inputs; treatment of debt and dilution; formula-version boundary; missing input; denominator zero/negative; source revisions; no recommendation generated. Current page teaches the method without publishing a live ratio.
+Collection at `2026-10-03T01:26:52.988Z` (October 2 in New York) accepted:
 
-## Next sources and editorial desks
+- IBIT: `803343.05410` BTC and `1414760000.00` shares, source-effective October 1, 2026.
+- Bitcoin Core: `v31.1`, upstream publication `2026-07-08T09:14:15Z`.
+- Litecoin Core: `v0.21.5.8`, upstream publication `2026-09-12T12:06:49Z`.
+- LND: `v0.21.4-beta`, upstream publication `2026-10-01T16:46:15Z`.
 
-| Desk | Canonical evidence | Next acceptance gate |
-| --- | --- | --- |
-| Politics & public record | [Congress.gov](https://www.congress.gov/), [SEC](https://www.sec.gov/newsroom/press-releases), [CFTC](https://www.cftc.gov/PressRoom/PressReleases) | Exact action/date/jurisdiction/status, source link and human framing review; clearly label political opinion. |
-| Bitcoin/Litecoin network analysis | [Bitcoin Core](https://bitcoincore.org/en/releases/), [Litecoin Core](https://github.com/litecoin-project/litecoin/releases), independently operated nodes where available | Release IDs and node observation method; no invented network telemetry. |
-| ETF/ETP | [iShares IBIT](https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf), [CoinShares BITC](https://coinshares.com/etp/physical-bitcoin/) | Product identity, dated fields and documented flow methodology; parser rights and calendar tests. |
-| Treasury/mNAV | [SEC public APIs](https://www.sec.gov/search-filings/edgar-application-programming-interfaces), issuer filings/definitions | Verified CIK, accounting period, debt/dilution treatment, formula versions. |
-| Litecoin holdings | [Litecoin Register methodology](https://www.litecoinregister.com/help/), issuer disclosures | Verify each row against original records, prevent ownership/custody double counts, obtain appropriate data access. |
-| Community | Named organizer, consented interview and service records | Human accountability and privacy review; no fabricated activity or beneficiary testimony. |
+Strategy and SEC returned their already-known HTTP 403 failures. CoinShares and Litecoin Register were availability checks only. The resulting first bounded briefing is `2026-10-02-r1`. Its original observations are historical evidence after that issue date, not a claim of present-day freshness.
 
-The magazine is general, impersonal education and research. Keep individual trading, borrowing and portfolio instructions outside the publication workflow.
+## Tests, provenance and limits
 
-## Static magazine integration and validation
+Offline tests exercise source identity, strict release channels, impossible dates, decimal precision/zero, response limits, failed requests, stale/future snapshots, all-failed inputs, false reference metrics, policy pause, daily date boundaries, reproducibility, archive idempotence, explicit correction history and concurrent-writer lock behavior. The full site check must also verify TypeScript, portable export, internal links, all edition pages, RSS and desktop/mobile reading.
 
-The pages render without client-side data fetching, accounts, trackers or forms. `generateStaticParams()` exports the seven article routes. The RSS route uses `dynamic = 'force-static'`; the portable exporter must preserve the exact `conversations/feed.xml` output as well as the existing source snapshot. `app/conversations/magazine.module.css` scopes the editorial design, includes mobile layouts, visible focus states and print styles. No remote font or borrowed news photography is required.
+Per-source hashes refer to the retrieved body before parsing. Only normalized observations and hashes are stored in the public edition; complete third-party response bodies are not republished. The collector snapshot is retained with the private release evidence. Its digest is computed over `JSON.stringify(parsedSnapshot)`, not the pretty-printed file bytes. This preserves an audit reference without claiming a full raw-source archive, issuer signature or independent verification. Human editors can request the source evidence and reproduce the next public fetch; upstream pages may subsequently change.
 
-Verification should include TypeScript, the full static build/link check, desktop/mobile visual review, every article route, source-notebook links, morning/evening anchors, the archive, valid RSS XML and preview labels. Confirm no exported page requires client scripts. The current magazine adds no data adapter and changes no collector permission boundary.
-
-The broader publication-provenance specification remains a target: this implementation has no PDF rendering, signed manifest, complete raw-source archive, immutable edition snapshots or independent audit. A rigorous daily research service needs those reviewable capabilities before it claims them.
+General, impersonal education and research only. This workflow cannot manage a portfolio, monitor positions or debt, sign a transaction, move funds, configure authentication, change donation addresses, publish the deferred satnam.x domain, merge a protected branch or invent a human reviewer.

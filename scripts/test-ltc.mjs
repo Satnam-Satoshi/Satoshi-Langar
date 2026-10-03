@@ -38,6 +38,16 @@ check('release identity and publication time are required', () => {
   assert.equal(parseRelease(JSON.stringify(release), now).observations[0].value, 'v31.1');
   assert.throws(() => parseRelease(JSON.stringify({ ...release, html_url: 'https://example.com/' }), now));
   assert.throws(() => parseRelease(JSON.stringify({ ...release, published_at: 'tomorrow' }), now));
+  assert.throws(() => parseRelease(JSON.stringify({ ...release, published_at: '2026-02-30T09:14:15Z' }), now), /invalid_source_date/);
+});
+check('Litecoin and LND have exact repositories and explicit beta handling', () => {
+  const common = { draft: false, prerelease: false, published_at: '2026-09-28T09:14:15Z' };
+  const litecoin = { ...common, tag_name: 'v0.21.5.8', html_url: 'https://github.com/litecoin-project/litecoin/releases/tag/v0.21.5.8' };
+  const lnd = { ...common, tag_name: 'v0.21.4-beta', html_url: 'https://github.com/lightningnetwork/lnd/releases/tag/v0.21.4-beta' };
+  assert.equal(parseRelease(JSON.stringify(litecoin), now, 'github-litecoin-release-v1').observations[0].value, 'v0.21.5.8');
+  assert.equal(parseRelease(JSON.stringify(lnd), now, 'github-lnd-release-v1').observations[0].value, 'v0.21.4-beta');
+  assert.throws(() => parseRelease(JSON.stringify(lnd), now, 'github-release-v1'), /wrong_release/);
+  for (const changed of [{ ...lnd, prerelease: true }, { ...lnd, draft: true }, { ...lnd, tag_name: 'v0.21.4-beta.rc1' }, { ...lnd, html_url: 'https://github.com/other/lnd/releases/tag/v0.21.4-beta' }]) assert.throws(() => parseRelease(JSON.stringify(changed), now, 'github-lnd-release-v1'), /wrong_release/);
 });
 const ok = await collectSource(ibit, now, async () => new Response(csv, { headers: { 'content-type': 'text/csv' } }));
 assert.equal(ok.status, 'collected'); assert.equal(ok.sourceAsOf, '2026-09-28'); assert.equal(ok.sourceSha256.length, 64); checks++;

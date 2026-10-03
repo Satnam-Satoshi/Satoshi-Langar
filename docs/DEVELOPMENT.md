@@ -26,9 +26,9 @@ Inspect the finished **dist/** site in a browser. The authoring server (`pnpm de
 - Next.js authors static HTML and styles. The exporter removes its runtime and rewrites local URLs to explicit relative index.html files.
 - Three reviewed public enhancements support local learning progress, local contribution drafts and optional identity. Native articles, links, quizzes and downloads still work without JavaScript.
 - Browser code under `scripts/browser/` is bundled locally with esbuild. Only the explicit script allowlist ships; no remote runtime or inline script is allowed by the production CSP.
-- The build exports public source-check JSON, preview RSS and starter-kit Markdown. It does not export private user data.
+- The build exports public source-check JSON, edition/preview RSS and immutable edition JSON and starter-kit Markdown. It does not export private user data.
 - Optional Auth configuration is described in [COMMUNITY-ACCOUNTS.md](COMMUNITY-ACCOUNTS.md). Defaults are disabled. Secret/provider/admin keys never enter this repository or browser bundle.
-- `pnpm ltc:collect --stdout` requests bounded public sources. Saving a snapshot is not editorial approval or deployment. See [LTC-PIPELINE.md](LTC-PIPELINE.md).
+- `pnpm ltc:collect --stdout` requests bounded public sources. A tested, founder-authorized deterministic edition pipeline can publish a factual briefing; saving a snapshot alone is not website deployment. See [LTC-PIPELINE.md](LTC-PIPELINE.md).
 
 ## Change and review
 
@@ -41,3 +41,7 @@ The founder requested a Vercel website update for review. A protected-branch mer
 ## Optional adapter browser tests
 
 `scripts/test-auth-browser.mjs` uses Playwright/Chromium and the actual `dist/scripts/auth.js` bundle with wholly intercepted HTTPS fixtures. Install Playwright in your test environment, build the export, then run `node --test scripts/test-auth-browser.mjs`. If Playwright is supplied by your workspace runtime, set `PLAYWRIGHT_MODULE` to its importable module path. These seven tests do not contact real identity providers or create accounts, and do not replace an external-provider acceptance test.
+
+## Daily magazine release
+
+Run `pnpm ltc:edition --snapshot <candidate.json> --output <edition.json>` to prepare a candidate. `--publish` applies only a validated dated edition under the enabled policy; it does not deploy. `pnpm check` includes freshness, identity, pause, correction and idempotence checks. See [the daily release runbook](LTC-RELEASE-RUNBOOK.md) for the local schedule, isolated build, exact-artifact deployment, audit record and stop procedure.
