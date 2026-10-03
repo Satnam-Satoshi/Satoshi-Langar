@@ -1,40 +1,43 @@
-# What is available today
+# What is available today · 0.1.26
 
-Last reviewed: September 30, 2026. This is a dated evidence summary, not a service-level promise or independent security audit.
+Last reviewed: October 2, 2026. This is a dated engineering record, not an independent security audit or a claim that proposed community operations are live.
 
-## Available for review
+## Community release for founder review
 
-- [Public HTTPS website](https://https-github-com-satnam-satoshi-sat.vercel.app/): community story, projects and contribution choices. The founder is reviewing it before the satnam.x launch.
-- [Independent IPFS copy](https://bafybeicvc4z32ltjdspnoukvujytd6lq24azxg65sr22tyosux6ymxgmrq.ipfs.inbrowser.link/): all 16 linked community pages rendered in the September 30 browser check, including Home-to-Join navigation. Public gateways have no uptime guarantee.
-- GitHub issues and PRs: public contribution and review channels. The website's contribution links open draft GitHub issues for the visitor to review and submit; they are not a private registration form.
-- Public mission, roadmap, project map and contributor/agent templates.
+[Website](https://https-github-com-satnam-satoshi-sat.vercel.app/) · [Combined website/docs PR #52](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/52) · [Source branch](https://github.com/Satnam-Satoshi/Satoshi-Langar/tree/agent/community-ecosystem-20260930)
 
-## Source and evidence
+- Three Sikh Bitcoin tracks: **63 complete lessons**, 21 per course, with worked exercises, self-check questions, primary references and optional local progress/export/reset.
+- A **personal contribution planner**: choose a path, download a draft, return to a program guide, or review an optional public GitHub proposal. No registration or automatic submission is implied.
+- Seven guided program journeys and eight editable Markdown starter kits. Human owners, accepted assignments and field operations remain to be established.
+- **LTC Media**: a magazine adapted from the supplied October 2 design, a bounded daily source briefing, immutable edition records, RSS, a newsroom/about page and separate newcomer/deep-dive paths. Nine original feature previews and the mNAV explainer retain their human-review-pending labels. The original 29-page design PDF remains explicitly unreconciled review material, separate from parsed daily facts. No external-media affiliation is claimed.
+- Dated October 2 New York public-source capture (October 3 UTC). IBIT observation is effective October 1; Bitcoin Core, Litecoin Core and LND release metadata retain their own original publication dates. Known Strategy/SEC collection failures stay missing, not zero. No live ETF flow, mNAV or comprehensive treasury index is invented.
+- Existing founder-supplied native BTC/LTC receiving requests and QR codes. No custody proof, payment, balance monitoring, automatic receipt or spending authorization is claimed.
 
-| Surface | Source / record | What the evidence establishes |
-|---|---|---|
-| HTTPS community release | `9da423aab6e7407a6ecc750379e43fa28e9f9047` on the website branch | September 30 HTTP check matched 26 public files to the release bytes |
-| Portable IPFS release | `a3ba466e5313fba42344ca74be833327133ab660` | Explicit index.html links; 16 linked pages rendered with expected headings/style and no page scripts/forms |
-| Website review | [PR #46](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/46), [CI run](https://github.com/Satnam-Satoshi/Satoshi-Langar/actions/runs/36660496139) | CI passed for that exact website commit; application PR remains separate from this documentation revision |
-| Main application | Earlier implementation, before PR #46 | Do not assume a checkout of main reproduces the current static website |
+The default branch remains separate until #52 is explicitly approved and merged. Documentation PR #51 is already merged. Do not independently merge old website #46 or Treasury #45. The current Vercel update is manually released for founder review; check the PR deployment record for the exact tested commit and deployment ID.
 
-The browser checks are not a fresh byte restore of every IPFS file or proof of all Web3 resolvers. Pinata's own HTML gateway was restricted; the independent browser gateway provided a working review route.
+## Optional accounts: implementation is not activation
 
-## Deliberately deferred or incomplete
+The Apple, Google, GitHub and Facebook OAuth/PKCE adapter exists, but the deployed configuration stays inactive until human-controlled provider setup, a monitored private account contact and a real round-trip test are complete. Buttons do not pretend to register users. The existing founder-owned Supabase project is created and healthy, its exact website redirects are saved, and the GitHub OAuth app is registered. Private provider-secret configuration and a monitored public privacy/deletion contact remain pending. Secret credentials are handled by the founder.
 
-- **satnam.x:** founder deferred publication while reviewing the website. No completed update to the new content address is verified. Wallet troubleshooting is not a current contributor task.
-- **Canonical automatic deployment:** Vercel's Git integration still points to an older repository lineage. [Issue #39](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/39) tracks alignment. A merge in this repository is not proof of a new deployment.
-- **Recovery:** local archive integrity and remote metadata were checked; a complete download-and-restore from the remote backup remains unverified.
-- **Community operations:** named intake backup, non-GitHub contact route, reviewed translations and an approved local service pilot remain work to do.
-- **Private reporting:** a verified confidential reporting/contact path must be established. Follow [SECURITY.md](../SECURITY.md); never put exploit details or personal data in public issues.
-- **Open-source records:** main's abbreviated license text is restored to the full intended Apache-2.0 text in this documentation revision, preserving contributor attribution. Historical publication/design records remain dated evidence.
+Guest plans and course marks stay in browser storage. Sign-in is not cross-device sync, legal membership or permission to operate an agent or treasury. [Account activation and deletion handoff](COMMUNITY-ACCOUNTS.md).
 
-## Scope boundaries
+## Verification and limits
 
-No live fund, donation intake, service reward program, pooled savings, autonomous treasury execution or public agent API is provided by the community site. No deposited budget is claimed. The separate Treasury prototype is not independently audited and its capability monitor does not monitor account positions or debt.
+The assembled release has **113 static HTML files** and **110 content routes**. All 220 desktop/mobile renders passed without overflow, broken images or browser errors. Internal links, anchors and assets resolve. Daily edition records and RSS agree; immutable archive, source identity, future/stale evidence, pause, correction and concurrent-write cases pass. Guest learning/progress/download/reset, portable navigation, mobile menu and blocked-storage fallbacks remain verified. Earlier isolated OAuth adapter tests used synthetic responses; live sign-in remains disabled and untested.
 
-The project currently depends on GitHub, hosting and storage providers. Provider independence is a goal to demonstrate through documented exports, multiple maintained copies and recovery tests. [IPFS persistence requires maintained availability](https://docs.ipfs.tech/concepts/persistence/); a content address alone is not permanent hosting.
+Next.js was updated to 16.3.6 for [GHSA-vcvr-r3jv-pc5j](https://github.com/vercel/next.js/security/advisories/GHSA-vcvr-r3jv-pc5j). The published static site does not implement the affected dynamic `next/og` image path. Dependency checks and a build are not a substitute for an independent security assessment.
 
-## Keeping this accurate
+## Still needed
 
-Update this file when a release, integration or governance decision changes the facts. Include the date, exact source/PR, checks performed and remaining limits. Use [DECISIONS.md](DECISIONS.md) for changes of direction. Older reports do not override current verified evidence.
+- Founder review, protected-branch merge approval and later satnam.x publication. The domain remains explicitly deferred.
+- Provider activation and a verified private account/deletion contact; social-channel registration, recovery and moderation ownership.
+- Human curriculum reviewer, editorial lead and intake steward/backup.
+- A willing local host and safety lead before any kitchen or meetup is announced as operating.
+- A consenting artist and payment/accounting rehearsal before a creator-payment service is called live.
+- Canonical Git/Vercel linkage: [issue #39](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/39). A GitHub merge alone is not deployment evidence.
+
+The founder has authorized daily source-bound factual website publication. The release workflow collects, validates, archives, builds and verifies before promotion; its local Codex schedule targets 10:00 America/New_York when the host is available. The latest release handoff records actual activation and deployment evidence. This is not an always-on cloud newsroom or authorization to publish unchecked reporting. See [release procedure and stop controls](LTC-RELEASE-RUNBOOK.md). Positions and debt are not monitored. The 1,000,000-sat amount remains a planning figure, not deposited or managed capital.
+
+## Portability and recovery
+
+HTML, local enhancement scripts, source JSON, RSS and Markdown toolkits are exportable. GitHub, Vercel, identity providers, storage and gateways remain dependencies. The existing IPFS copy is an earlier release, not 0.1.26. Publishing a new IPFS/domain record is a separate action. Private release archives preserve source and evidence; no participant database is included. A backup upload is not proof of a complete remote restore.

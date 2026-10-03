@@ -2,11 +2,16 @@ import Link from "next/link";
 import { PageIntro } from "../components/PageIntro";
 
 const status = [
-  ["Satnam.x Public Alpha", "BUILDING", "Public pages are under active review on a non-production branch and Vercel preview."],
-  ["Lunch Time Conversations", "BUILDING", "Publication surface exists; canonical Markdown + source-manifest pipeline is being formalized."],
+  ["Satnam Satoshi website", "SOFT LAUNCH", "The story and contribution paths are available here. Program services and the satnam.x domain connection are separate milestones."],
+  ["Sikh Bitcoin", "READABLE LESSONS", "Three introductory lessons and quizzes; further course modules are planned."],
+  ["Lunch Time Conversations", "FOUNDING MAGAZINE", "Original editorial pages, dated source snapshots and a tested collector; daily publication activation is separate."],
+  ["Community channels", "SETUP", "GitHub is available; Nostr, X, YouTube and Matrix accounts are planned."],
+  ["Donations", "ADDRESSES PUBLISHED", "Founder-supplied native BTC/LTC addresses and QR codes. No balance monitoring, test transfer or automated receipt service."],
+  ["Bitcoin meetups", "HOST INVITATION", "No event date, venue or partner is confirmed."],
   ["Treasury Intelligence", "BUILDING", "Read-only research interface. No custody, trading, or autonomous execution."],
   ["Satoshi Langar", "BUILDING", "Mission and workflow are public; field pilots and operating controls are not yet live."],
-  ["Agent Sangat", "RESEARCH", "Agent permissions, audit, memory, human ownership, and emergency-stop standards are being documented."],
+  ["Kalakar.x", "RESEARCH", "Creative ideas and contributions are welcome; no marketplace or paid commissions are active."],
+  ["Agent Sangat", "RESEARCH", "Scoped task and permission documents are available. Ongoing agent jobs and unfilled steward roles are not presented as running."],
   ["Crypto Kitty", "RESEARCH", "No pooled investment system is live. Legal and cooperative structures require review before any pilot."],
 ];
 
@@ -20,7 +25,7 @@ export default function TransparencyPage() {
       <div className="mt-12 grid gap-4 md:grid-cols-2">
         <article className="rounded-2xl border border-border bg-card p-7"><p className="section-kicker">Human governance</p><h2 className="text-2xl font-semibold">Humans retain authority.</h2><p className="mt-4 leading-7 text-muted-foreground">Custody, consent, governance, mission, ethical authority, treasury control, production release, contracts, and legal commitments remain human decisions.</p></article>
         <article className="rounded-2xl border border-border bg-card p-7"><p className="section-kicker">AI limitations</p><h2 className="text-2xl font-semibold">AI serves within boundaries.</h2><p className="mt-4 leading-7 text-muted-foreground">AI may research, draft, test, coordinate, and recommend. It does not hold private keys, move assets, merge protected production, or bypass human governance.</p></article>
-        <article className="rounded-2xl border border-border bg-card p-7"><p className="section-kicker">Treasury policy</p><h2 className="text-2xl font-semibold">Research is separate from custody.</h2><p className="mt-4 leading-7 text-muted-foreground">BTC is reserve doctrine; Treasury Intelligence is read-only. Community funds are not represented as investments or pooled funds without an appropriate legal structure.</p></article>
+        <article className="rounded-2xl border border-border bg-card p-7"><p className="section-kicker">Treasury policy</p><h2 className="text-2xl font-semibold">Research is separate from custody.</h2><p className="mt-4 leading-7 text-muted-foreground">Bitcoin informs our long-term design; Treasury Intelligence is read-only. Community funds are not represented as investments or pooled funds without an appropriate legal structure.</p></article>
         <article className="rounded-2xl border border-border bg-card p-7"><p className="section-kicker">Corrections</p><h2 className="text-2xl font-semibold">Correct the record, do not erase it.</h2><p className="mt-4 leading-7 text-muted-foreground">Material corrections should preserve edition IDs, timestamps, source manifests, version history, and canonical Git history wherever practical.</p></article>
       </div>
       <div className="mt-12 flex flex-wrap gap-3"><Link href="/open-source" className="rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground">Verify on GitHub</Link><Link href="/community" className="rounded-full border border-border bg-secondary px-5 py-3 text-sm font-semibold">Help improve the work</Link></div>

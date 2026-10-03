@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "publication": "Lunch Time Conversations",
+  "generatedAt": "2026-10-03T03:30:09.005Z",
+  "timezone": "America/New_York",
+  "scheduleStatus": "collection-only; scheduler is separate",
+  "editorialStatus": "automated-source-check",
+  "coverage": "Coinbase Exchange BTC/USD and LTC/USD last-trade snapshots, IBIT holdings and official Bitcoin Core, Litecoin Core and LND releases; other sources are reference availability checks. No global price, ETF flow or mNAV calculation.",
+  "sourceCount": 10,
+  "failureCount": 2,
+  "sources": [
+    {
+      "id": "ibit-holdings",
+      "title": "iShares Bitcoin Trust ETF · holdings",
+      "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
+      "kind": "primary",
+      "parserVersion": "ibit-csv-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-01",
+      "sourceSha256": "cb8cf6a3eb5d697f90bdf8881be1b2689365098605396adf6d132ed825e8b6fd",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "fund_btc_quantity",
+          "label": "IBIT reported BTC holdings",
+          "value": "803343.05410",
+          "unit": "BTC",
+          "effectiveAt": "2026-10-01",
+          "timePrecision": "date",
+          "classification": "issuer-reported"
+        },
+        {
+          "metric": "fund_shares_outstanding",
+          "label": "IBIT shares outstanding",
+          "value": "1414760000.00",
+          "unit": "shares",
+          "effectiveAt": "2026-10-01",
+          "timePrecision": "date",
+          "classification": "issuer-reported"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "bitcoin-core",
+      "title": "Bitcoin Core · software releases",
+      "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
+      "kind": "primary",
+      "parserVersion": "github-release-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-07-08T09:14:15Z",
+      "sourceSha256": "11acdb65470f559344fcade56d986e9696da79819c4bfbba3b62ccb2d17b62e7",
+      "freshness": "dated-event",
+      "observations": [
+        {
+          "metric": "software_release",
+          "label": "Bitcoin Core latest returned release",
+          "value": "v31.1",
+          "unit": "version",
+          "effectiveAt": "2026-07-08T09:14:15Z",
+          "timePrecision": "second",
+          "classification": "upstream-release"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "litecoin-core",
+      "title": "Litecoin Core · software releases",
+      "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
+      "kind": "primary",
+      "parserVersion": "github-litecoin-release-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-09-12T12:06:49Z",
+      "sourceSha256": "b2dd3ffeb0750272600f3ae74af0cd7ad10fd0817d5c7283bae88e02db31629c",
+      "freshness": "dated-event",
+      "observations": [
+        {
+          "metric": "software_release",
+          "label": "Litecoin Core latest returned release",
+          "value": "v0.21.5.8",
+          "unit": "version",
+          "effectiveAt": "2026-09-12T12:06:49Z",
+          "timePrecision": "second",
+          "classification": "upstream-release"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "lnd",
+      "title": "LND · Lightning software releases",
+      "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
+      "kind": "primary",
+      "parserVersion": "github-lnd-release-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-01T16:46:15Z",
+      "sourceSha256": "d41c10a1483c9311a65c0ade05e4fbb6ecdd352ecb3d123110d67baf0c674f25",
+      "freshness": "dated-event",
+      "observations": [
+        {
+          "metric": "software_release",
+          "label": "LND latest returned release",
+          "value": "v0.21.4-beta",
+          "unit": "version",
+          "effectiveAt": "2026-10-01T16:46:15Z",
+          "timePrecision": "second",
+          "classification": "upstream-release"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "strategy-notes",
+      "title": "Strategy · mNAV definitions",
+      "url": "https://www.strategy.com/notes",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "unavailable",
+      "httpStatus": 403,
+      "sourceAsOf": null,
+      "sourceSha256": null,
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": "http_failure"
+    },
+    {
+      "id": "coinshares-bitc",
+      "title": "CoinShares · Bitcoin ETP",
+      "url": "https://coinshares.com/etp/physical-bitcoin/",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "reference-retrieved",
+      "httpStatus": 200,
+      "sourceAsOf": null,
+      "sourceSha256": "800bc977029e90202b4d34560f7c45e8f0f2775d1e3736d22d4092684e55c602",
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": null
+    },
+    {
+      "id": "sec-news",
+      "title": "SEC · official announcements",
+      "url": "https://www.sec.gov/newsroom/press-releases",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "unavailable",
+      "httpStatus": 403,
+      "sourceAsOf": null,
+      "sourceSha256": null,
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": "http_failure"
+    },
+    {
+      "id": "litecoin-register",
+      "title": "Litecoin Register · community research",
+      "url": "https://www.litecoinregister.com/",
+      "kind": "secondary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "reference-retrieved",
+      "httpStatus": 200,
+      "sourceAsOf": null,
+      "sourceSha256": "a1fe8c13a60413f94b48671503d33c8643007e7336f00e7a113b4548de716de4",
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": null
+    },
+    {
+      "id": "coinbase-btc-usd",
+      "title": "Coinbase Exchange · BTC/USD last trade",
+      "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
+      "kind": "primary",
+      "parserVersion": "coinbase-btc-ticker-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-03T03:30:07.991Z",
+      "sourceSha256": "ff44747560701732e0ca383680540e1f73bee59ba83775f944f049c0143f4bed",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "btc_usd_last_trade",
+          "label": "BTC/USD last trade · Coinbase Exchange",
+          "value": "84577.22",
+          "unit": "USD",
+          "effectiveAt": "2026-10-03T03:30:07.991Z",
+          "timePrecision": "second",
+          "classification": "venue-reported"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "coinbase-ltc-usd",
+      "title": "Coinbase Exchange · LTC/USD last trade",
+      "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
+      "kind": "primary",
+      "parserVersion": "coinbase-ltc-ticker-v1",
+      "checkedAt": "2026-10-03T03:30:09.005Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-03T03:30:03.572Z",
+      "sourceSha256": "45628342e129be3db786af2eb94719ebfbbee11389dd25e0c2b28c87ab9765ab",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "ltc_usd_last_trade",
+          "label": "LTC/USD last trade · Coinbase Exchange",
+          "value": "69.131",
+          "unit": "USD",
+          "effectiveAt": "2026-10-03T03:30:03.572Z",
+          "timePrecision": "second",
+          "classification": "venue-reported"
+        }
+      ],
+      "errorCode": null
+    }
+  ]
+}
