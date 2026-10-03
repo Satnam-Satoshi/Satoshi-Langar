@@ -2,9 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation } from './cloud-ltc-release.mjs';
+import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate } from './cloud-ltc-release.mjs';
 
 const id = '2026-10-02-r1';
 const head = 'a'.repeat(40);
@@ -35,6 +36,35 @@ test('release verification covers date, exact revision, month, archive, RSS and 
   const files = pathsFor(id);
   for (const required of ['conversations/editions/2026-10-02/index.html', 'conversations/editions/2026-10-02-r1/index.html', 'conversations/archive/2026-10/index.html', 'conversations/feed.xml', 'data/ltc-editions/index.json']) assert.ok(files.includes(required));
   assert.throws(() => pathsFor('../auth'));
+});
+test('Vercel 61.1 JSON deployment output and legacy URL both parse; malformed or nonproduction output fails closed', () => {
+  const deployment = { id: 'dpl_Fixture123', url: 'ltc-fixture.vercel.app', readyState: 'READY', target: 'production' };
+  assert.deepEqual(parseDeploymentOutput(JSON.stringify({ status: 'ok', deployment })), { id: deployment.id, url: 'https://ltc-fixture.vercel.app' });
+  assert.deepEqual(parseDeploymentOutput(JSON.stringify({ status: 'ok', deployment: { ...deployment, url: 'https://ltc-fixture.vercel.app/' } })), { id: deployment.id, url: 'https://ltc-fixture.vercel.app' });
+  assert.deepEqual(parseDeploymentOutput('https://ltc-fixture.vercel.app\n'), { id: null, url: 'https://ltc-fixture.vercel.app' });
+  for (const changed of [{ target: 'preview' }, { readyState: 'ERROR' }, { id: '' }, { url: 'https://example.com' }, { url: 'https://ltc-fixture.vercel.app/secret' }, { url: 'https://user:pass@ltc-fixture.vercel.app' }]) assert.throws(() => parseDeploymentOutput(JSON.stringify({ status: 'ok', deployment: { ...deployment, ...changed } })));
+  for (const bad of ['not JSON', '{"status":"error","deployment":{}}', '{}', 'https://ltc-fixture.vercel.app?token=secret']) assert.throws(() => parseDeploymentOutput(bad));
+});
+test('authenticated protected-candidate reads are restricted to manifest paths, with Vercel credentials before curl passthrough', async () => {
+  const body = '<html>verified fixture</html>\n';
+  const hash = createHash('sha256').update(body).digest('hex');
+  const manifest = pathsFor(id).map(file => ({ file, sha256: hash }));
+  const calls = [];
+  await verifyProtectedCandidate('dpl_Fixture123', id, manifest, args => { calls.push(args); return body; });
+  assert.equal(calls.length, 10);
+  assert.equal(calls[0][1], '/');
+  for (const args of calls) {
+    assert.equal(args[0], 'curl'); assert.equal(args[2], '--deployment'); assert.equal(args[3], 'dpl_Fixture123');
+    const authenticated = withVercelAuth(args, 'fixture-runtime-token');
+    assert.ok(authenticated.indexOf('--scope') < authenticated.indexOf('--'));
+    assert.ok(authenticated.indexOf('--token') < authenticated.indexOf('--'));
+    assert.ok(!authenticated.slice(authenticated.indexOf('--') + 1).includes('fixture-runtime-token'));
+  }
+  let forbiddenCalls = 0;
+  await assert.rejects(verifyProtectedCandidate('dpl_Fixture123', id, [{ file: '../../secret', sha256: hash }], () => { forbiddenCalls++; return body; }), /invalid_candidate_manifest/);
+  assert.equal(forbiddenCalls, 0);
+  await assert.rejects(verifyProtectedCandidate('dpl_Fixture123', id, manifest, () => 'Login required'), /deployed_artifact_mismatch/);
+  await assert.rejects(verifyProtectedCandidate('https://example.com', id, manifest, () => body), /candidate_identity_failed/);
 });
 test('implementation digest rejects changed code before execution but permits dated data changes', async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'ltc-cloud-guard-'));

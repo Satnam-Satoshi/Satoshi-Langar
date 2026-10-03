@@ -57,6 +57,37 @@ export function pathsFor(editionId) {
     `conversations/editions/${editionId}/index.html`, 'conversations/feed.xml',
     `data/ltc-editions/${editionId}.json`, 'data/ltc-editions/index.json', 'data/ltc-snapshot.json'];
 }
+export function parseDeploymentOutput(output) {
+  const text = output.trim();
+  if (/^https:\/\/[a-z0-9-]+\.vercel\.app\/?$/.test(text)) return { url: text.replace(/\/$/, ''), id: null };
+  let result;
+  try { result = JSON.parse(text); } catch { throw new Error('invalid_deployment_output'); }
+  const deployment = result?.deployment;
+  requireThat(result?.status === 'ok' && /^dpl_[A-Za-z0-9]+$/.test(deployment?.id ?? '') && deployment.readyState === 'READY' && deployment.target === 'production', 'invalid_deployment_output');
+  requireThat(typeof deployment.url === 'string', 'invalid_candidate_url');
+  const url = deployment.url.startsWith('https://') ? deployment.url : `https://${deployment.url}`;
+  requireThat(/^https:\/\/[a-z0-9-]+\.vercel\.app\/?$/.test(url), 'invalid_candidate_url');
+  return { url: url.replace(/\/$/, ''), id: deployment.id };
+}
+export function withVercelAuth(args, token) {
+  requireThat(typeof token === 'string' && token.length > 10, 'deployment_credential_missing');
+  const split = args.indexOf('--');
+  const global = ['--scope', TARGET.scope, '--token', token];
+  // Curl passthrough arguments follow --; Vercel authentication must precede it.
+  return split === -1 ? [...args, ...global] : [...args.slice(0, split), ...global, ...args.slice(split)];
+}
+function routeFor(file) {
+  return '/' + (file.endsWith('/index.html') ? file.slice(0, -10) : file === 'index.html' ? '' : file);
+}
+export async function verifyProtectedCandidate(deploymentId, editionId, manifest, readWithCli) {
+  requireThat(/^dpl_[A-Za-z0-9]+$/.test(deploymentId), 'candidate_identity_failed');
+  const allowed = new Set(pathsFor(editionId));
+  requireThat(manifest.length === allowed.size && new Set(manifest.map(record => record.file)).size === allowed.size && manifest.every(record => allowed.has(record.file) && /^[a-f0-9]{64}$/.test(record.sha256)), 'invalid_candidate_manifest');
+  for (const record of manifest) {
+    const bytes = await readWithCli(['curl', routeFor(record.file), '--deployment', deploymentId, '--', '--silent', '--show-error', '--location', '--fail', '--max-time', '30', '--max-redirs', '3', '--proto', '=https', '--proto-redir', '=https']);
+    requireThat(sha(bytes) === record.sha256, 'deployed_artifact_mismatch');
+  }
+}
 async function responseBytes(url, options = {}) {
   let response;
   try { response = await fetch(url, { ...options, redirect: 'error', signal: AbortSignal.timeout(30_000) }); }
@@ -68,8 +99,7 @@ async function responseBytes(url, options = {}) {
 }
 async function verifySite(base, manifest) {
   for (const record of manifest) {
-    const route = record.file.endsWith('/index.html') ? record.file.slice(0, -10) : record.file === 'index.html' ? '' : record.file;
-    requireThat(sha(await responseBytes(`${base}/${route}`)) === record.sha256, 'deployed_artifact_mismatch');
+    requireThat(sha(await responseBytes(`${base}${routeFor(record.file)}`)) === record.sha256, 'deployed_artifact_mismatch');
   }
 }
 function apiClients(env) {
@@ -206,16 +236,15 @@ export async function runRelease(options, env = process.env) {
     const cli = env.LTC_VERCEL_CLI || 'vercel';
     requireThat(!cli.includes('\n') && !cli.includes('\0'), 'invalid_cli_path');
     const vercelCommand = args => {
-      requireThat(typeof env.VERCEL_TOKEN === 'string' && env.VERCEL_TOKEN.length > 10, 'deployment_credential_missing');
       // Token is supplied only by the runtime environment, never looked up or written. Captured output is never logged.
-      return command(cli, [...args, '--scope', TARGET.scope, '--token', env.VERCEL_TOKEN], clone);
+      return command(cli, withVercelAuth(args, env.VERCEL_TOKEN), clone);
     };
-    const candidate = vercelCommand(['deploy', '--prebuilt', '--prod', '--skip-domain', '--yes']).trim();
-    requireThat(/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(candidate), 'invalid_candidate_url');
+    const candidateOutput = parseDeploymentOutput(vercelCommand(['deploy', '--prebuilt', '--prod', '--skip-domain', '--yes']));
+    const candidate = candidateOutput.url;
     const deployment = await vercel(`/v13/deployments/${new URL(candidate).hostname}`);
-    requireThat(deployment.projectId === TARGET.project && deployment.readyState === 'READY' && deployment.target === 'production', 'candidate_identity_failed');
+    requireThat(deployment.projectId === TARGET.project && deployment.readyState === 'READY' && deployment.target === 'production' && /^dpl_[A-Za-z0-9]+$/.test(deployment.id) && (!candidateOutput.id || candidateOutput.id === deployment.id), 'candidate_identity_failed');
     record.candidateDeployment = deployment.id; record.candidateUrl = candidate; await save();
-    await verifySite(candidate, manifest); // Protected candidate returns an error; never disable protection.
+    await verifyProtectedCandidate(deployment.id, edition.id, manifest, vercelCommand); // Authenticated read; protection stays enabled.
     await verifyImplementation(clone, options.expected);
     await controls(github, record.releaseCommit);
     const stillPrevious = await vercel(`/v13/deployments/${new URL(TARGET.canonical).hostname}`);
@@ -248,7 +277,7 @@ export async function runRelease(options, env = process.env) {
 }
 export function safeFailure(error) {
   const message = typeof error?.message === 'string' ? error.message : '';
-  const known = new Set(['accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
+  const known = new Set(['accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'invalid_deployment_output', 'invalid_candidate_manifest', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
   return known.has(message) || /^http_[1-5]\d{2}$/.test(message) || /^command_failed_(?:node|git|pnpm|vercel)$/.test(message) ? message : 'release_failed_details_withheld';
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
