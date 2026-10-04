@@ -16,6 +16,8 @@ await writeFile(path.join(output, 'config.json'), JSON.stringify({
   routes: [
     { src: '/(.*)', headers, continue: true },
     { src: '/conversations/feed.xml', headers: { 'Content-Type': 'application/rss+xml; charset=utf-8' }, continue: true },
+    { src: '/magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf', status: 308, headers: { Location: '/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r2.pdf' } },
+    { src: '/conversations/specials/litecoin-at-15(?:/.*)?', status: 308, headers: { Location: '/conversations/specials/proof-of-birthday/' } },
     { handle: 'filesystem' },
     { src: '/(.*)', dest: '/404.html', status: 404 },
   ],

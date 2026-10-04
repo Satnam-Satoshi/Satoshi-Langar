@@ -5,9 +5,11 @@ await rm(target, { recursive: true, force: true });
 async function walk(directory) {
  for (const entry of await readdir(directory, {withFileTypes:true})) {
   const input=path.join(directory,entry.name), relative=path.relative(source,input), output=path.join(target,relative);
+  if(relative==='conversations/specials/litecoin-at-15') continue;
   if(entry.isDirectory()) { await walk(input); continue; }
-  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','conversations/feed.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf'];
-  if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?)$/.test(entry.name) && !publicExtras.includes(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
+  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','conversations/feed.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r2.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
+  if(relative==='magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf') continue;
+  if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
   await mkdir(path.dirname(output),{recursive:true});
   if(entry.name.endsWith('.html')) {
    let html=await readFile(input,'utf8');
@@ -30,10 +32,23 @@ async function walk(directory) {
     return `${attribute}="${local}${parsed.search}${parsed.hash}"`;
    });
    await writeFile(output,html);
+  } else if(entry.name.endsWith('.css')) {
+   const css=(await readFile(input,'utf8')).replace(/url\((['"]?)(\/(?!\/)[^)'"]+)\1\)/g,(_,quote,url)=>{
+    const local=path.relative(path.dirname(input),path.join(source,url));
+    return `url(${quote}${local}${quote})`;
+   });
+   await writeFile(output,css);
   } else await copyFile(input,output);
  }
 }
 await walk(source);
+// Retired special routes lead to the replacement, including old numbered-page bookmarks.
+for(const suffix of ['',...Array.from({length:84},(_,i)=>`${i+1}/`)]) {
+ const directory=path.join(target,'conversations/specials/litecoin-at-15',suffix);
+ await mkdir(directory,{recursive:true});
+ const next=path.relative(directory,path.join(target,'conversations/specials/proof-of-birthday/index.html'));
+ await writeFile(path.join(directory,'index.html'),`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=${next}"><title>Proof of Birthday · New edition</title></head><body><main><h1>The new edition is ready.</h1><p>The earlier design has been replaced.</p><a href="${next}">Open Proof of Birthday and its complete index →</a></main></body></html>`);
+}
 await mkdir(path.join(target,'data/ltc-editions'),{recursive:true});
 for(const entry of await readdir('content/ltc',{withFileTypes:true})) {
  if(entry.isFile() && /^(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(entry.name))
@@ -48,7 +63,7 @@ async function indexPages(directory) {
   if(entry.isDirectory()) await indexPages(file);
   else if(entry.name==='index.html') {
    const relative=path.relative(target,file).replace(/index\.html$/,'');
-   if(!/^(?:404|_not-found|auth|sign-in|welcome|account-help)\//.test(relative)) pages.push(`${canonical}/${relative}`);
+   if(!/^(?:404|_not-found|auth|sign-in|welcome|account-help|conversations\/specials\/litecoin-at-15)\//.test(relative) && !relative.endsWith('/print/')) pages.push(`${canonical}/${relative}`);
   }
  }
 }

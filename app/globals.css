@@ -209,3 +209,6 @@ body { background: var(--background); }
   .magazine-feature .invitation-links { gap: 8px 22px; }
 }
 @media (max-width: 480px) { .donation-actions { grid-template-columns: 1fr; } }
+
+/* Only the full Proof of Birthday reader uses fixed print folios. */
+@media print{body:has([data-birthday-print]){margin:0!important;padding:0!important;background:#fff!important}body:has([data-birthday-print])>header,body:has([data-birthday-print])>footer,body:has([data-birthday-print])>a,body:has([data-birthday-print]) .publication-header,body:has([data-birthday-print]) .publication-footer{display:none!important}body:has([data-birthday-print]) #main-content,body:has([data-birthday-print]) .publication-shell{margin:0!important;padding:0!important;display:block!important}}
