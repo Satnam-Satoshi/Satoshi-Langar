@@ -16,6 +16,6 @@ export function SiteFooter() {
         </section>)}
       </nav>
     </div>
-    <div className="footer-bottom"><span>© 2026 Satnam Satoshi contributors · v0.1.26</span><a href="/domain/">satnam.x · publication deferred</a><span>Humans govern. AI assists.</span></div>
+    <div className="footer-bottom"><span>© 2026 Satnam Satoshi contributors · v0.1.26</span><a href="/domain/">satnam.x · website access</a><span>Humans govern. AI assists.</span></div>
   </div></footer>;
 }
