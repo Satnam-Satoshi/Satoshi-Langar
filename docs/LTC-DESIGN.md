@@ -32,3 +32,7 @@ Use an isolated tracked-source build and the full existing checks. Verify public
 ## Complete magazine coverage — October 4, 2026
 
 The founder requested every topic from the 29-page reference, including Morpho, cbBTC/cbLTC, Arc, USDC, EURC and SEC/CFTC. Read [LTC-COVERAGE.md](LTC-COVERAGE.md) for the full page map and numerical limits. Each new issue archives all 29 coverage entries, source status and copied desk context. Historical tables retain their original October 2 qualification and do not become fresh measurements. Validate the entire manifest before release; preserve earlier JSON. This adds a complete reading structure, not new numeric source adapters. Routine publication must keep unqueried links, availability checks, dated software records and fresh accepted observations distinct.
+
+## Illustrated fieldbook refresh — October 4, 2026
+
+See [LTC-VISUAL-FIELDBOOK.md](LTC-VISUAL-FIELDBOOK.md). The interior now uses numbered illustrated spreads, original artwork and eleven explanatory diagram families. The independent Litecoin fieldbook covers Foundation initiatives, MWEB with its security history, Nexus, LitVM's testnet and planned phases, and attributed social references. A tested optional art-direction record adds date-based cover/layout/back-art selection to future editions while preserving older saved records.

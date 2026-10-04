@@ -52,3 +52,17 @@ test('missing back page, wrong-date seed, unknown treatment and omitted or dupli
   assert.throws(() => validate({ ...base, readingOrder: ['test-price'] }), /invalid_presentation_reading_order/);
   assert.throws(() => buildPresentation({ date: '2026-10-02', briefs: [] }), /presentation_requires_unique_briefs/);
 });
+
+test('editorial art rotates by day, rejects remote assets and keeps legacy archived records valid',()=>{
+ const dates=['2026-10-05','2026-10-06','2026-10-07','2026-10-08'];
+ const editions=dates.map(build);
+ assert.equal(new Set(editions.map(e=>e.artDirection.coverAsset)).size,4);
+ assert.equal(new Set(editions.map(e=>e.artDirection.layout)).size,3);
+ for(const e of editions) assert.notEqual(e.artDirection.coverAsset,e.artDirection.backAsset);
+ const legacy=structuredClone(editions[0]);delete legacy.artDirection;
+ assert.equal(validatePresentation(legacy,{date:dates[0],briefs}),true);
+ const remote=structuredClone(editions[0]);remote.artDirection.coverAsset='https://untrusted.invalid/art.jpg';
+ assert.throws(()=>validatePresentation(remote,{date:dates[0],briefs}),/invalid_editorial_art_direction/);
+ const wrongDay=structuredClone(editions[0]);wrongDay.artDirection=editions[1].artDirection;
+ assert.throws(()=>validatePresentation(wrongDay,{date:dates[0],briefs}),/art_direction_date_mismatch/);
+});

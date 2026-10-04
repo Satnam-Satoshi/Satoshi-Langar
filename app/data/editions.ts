@@ -19,6 +19,7 @@ export type LtcBrief = {
 };
 export type LtcEditionPresentation = {
   schemaVersion: 1;
+  artDirection?: {version:1;layout:'folio'|'atlas'|'dispatch';coverAsset:string;backAsset:string;spreadOffset:number};
   cover: {
     theme: string; palette: 'ember' | 'cobalt' | 'forest' | 'ochre';
     motif: 'orbits' | 'timechain' | 'signal' | 'constellation' | 'ledger' | 'horizon' | 'weave';

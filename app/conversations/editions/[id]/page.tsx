@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ltcEditions, ltcPublicationDays, formatEditionDate, editionHref, editionDateHref, archiveMonthHref } from '../../../data/editions';
-import { LtcEditionCover, LtcEditionBackPage, LtcEditionArtwork, orderedEditionBriefs } from '../../../components/LtcEditionPresentation';
+import { LtcEditionCover, LtcEditionBackPage, orderedEditionBriefs } from '../../../components/LtcEditionPresentation';
+import LtcVisualExplainer from '../../../components/LtcVisualExplainer';
 import styles from '../../issue.module.css';
 import LtcCoverage from '../../../components/LtcCoverage';
 
@@ -21,7 +22,6 @@ function numberLabel(value: string) {
   const [integer, decimal] = value.split('.');
   return integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (decimal ? `.${decimal}` : '');
 }
-const motifs = ['timechain', 'signal', 'ledger', 'horizon', 'constellation', 'weave', 'orbits'] as const;
 
 export default async function EditionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -36,7 +36,7 @@ export default async function EditionPage({ params }: { params: Promise<{ id: st
   const readingMinutes = Math.max(1, Math.ceil(briefs.flatMap(brief => brief.paragraphs).join(' ').split(/\s+/).length / 180));
   const collected = edition.sources.filter(source => source.status === 'collected').length;
   const unavailable = edition.sources.filter(source => source.status === 'unavailable').length;
-  return <main className={styles.issue}>
+  return <main className={styles.issue} data-reader-layout={edition.presentation?.artDirection?.layout ?? ['folio','atlas','dispatch'][Number(edition.date.slice(-2)) % 3]} data-reader-palette={edition.presentation?.cover.palette ?? 'ember'}>
     <div className={styles.issueLine}><span>The daily edition</span><span><time dateTime={edition.date}>{formatEditionDate(edition.date)}</time> · R{edition.revision}</span></div>
     <div className={styles.jacket} id="front-cover"><LtcEditionCover edition={edition}/></div>
 
@@ -51,10 +51,10 @@ export default async function EditionPage({ params }: { params: Promise<{ id: st
     <article className={styles.stories} aria-label="Daily source briefing">{briefs.map((brief, index) => {
       const source = edition.sources.find(item => brief.sourceIds.includes(item.id) && item.observations?.length);
       const observation = source?.observations?.[0];
-      return <section className={styles.spread} id={brief.id} key={brief.id} data-treatment={index % 3 === 1 ? 'tint' : 'paper'}>
+      return <section className={styles.spread} id={brief.id} key={brief.id} data-treatment={index % 3 === 1 ? 'tint' : 'paper'} data-composition={(index + (edition.presentation?.artDirection?.spreadOffset ?? Number(edition.date.slice(-2)) % 3)) % 3}>
         <header className={styles.spreadHeader}><span className={styles.sectionNumber} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><p className={styles.eyebrow}>{brief.desk}</p><h2>{brief.headline}</h2><p className={styles.effectiveDate}>Source-effective date<br/><time dateTime={brief.effectiveAt}>{brief.effectiveAt}</time></p></header>
         <div className={styles.spreadBody}>{brief.paragraphs.map((paragraph, paragraphIndex) => <p className={paragraphIndex === 0 ? styles.leadParagraph : undefined} key={paragraph}>{paragraph}</p>)}<p className={styles.evidenceLinks}><span>Follow the evidence</span>{brief.sourceIds.map(sourceId => { const cited = edition.sources.find(item => item.id === sourceId)!; return <a key={sourceId} href={`#source-${sourceId}`}>{cited.title} ↗</a>; })}</p></div>
-        <figure className={styles.spreadFigure}><div className={styles.smallArt}><LtcEditionArtwork motif={motifs[index % motifs.length]} seed={edition.presentation?.cover.seed ?? '0000000000000000'} decorative/></div><figcaption>Original illustration<br/>Not a data chart</figcaption></figure>
+        <div className={styles.storyDiagram}><LtcVisualExplainer deskId={brief.sourceIds.some(id=>id.startsWith('coinbase-'))?'market-opening':brief.sourceIds.some(id=>id.includes('ibit'))?'bitcoin-etf-flows':brief.sourceIds.some(id=>id.includes('lnd'))?'lightning':'bitcoin-core'} compact/></div>
         {observation && <aside className={styles.recordCard} aria-label={`${observation.label} source record`}><p className={styles.eyebrow}>From the cited record</p><strong>{numberLabel(observation.value)} <span>{observation.unit}</span></strong><p>{observation.label}</p><small>{observation.classification.replaceAll('-', ' ')} · {observation.effectiveAt}{source?.id.startsWith('coinbase-') ? ' · A sampled venue last trade, not a live or global price.' : ''}</small></aside>}
         <footer className={styles.folio}><span>LTC / {edition.date}</span><span>{String(index + 1).padStart(2, '0')} / {String(briefs.length).padStart(2, '0')}</span></footer>
       </section>;
