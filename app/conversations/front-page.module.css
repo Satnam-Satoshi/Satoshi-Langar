@@ -14,3 +14,5 @@
 @media(prefers-reduced-motion:reduce){.bookLink>div{transition:none;transform:none}}
 
 .deskStrip{display:flex;flex-wrap:wrap;align-items:center;gap:12px 24px;padding:18px 0 6px;font:600 12px/1.6 system-ui,sans-serif}.deskStrip span{font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:#a43c1b}.deskStrip a{padding:7px 0;text-decoration:underline;text-underline-offset:4px}.deskStrip a:last-child{margin-left:auto}@media(max-width:650px){.deskStrip{gap:5px 19px;padding-bottom:16px}.deskStrip span{flex-basis:100%}.deskStrip a:last-child{margin-left:0}}
+
+.anniversaryArt{display:block;width:100%;height:clamp(320px,42vw,530px);object-fit:cover;object-position:50% 42%}
