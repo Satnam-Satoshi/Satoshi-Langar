@@ -122,3 +122,7 @@ Presentation travels inside the immutable JSON record so tomorrow's art directio
 Freshness means fresh checks, not forced numerical change. Daily prices are snapshots from one named venue with exact trade times. Fund holdings keep their actual report dates, including weekends and holidays; unchanged balances are allowed. A failed or stale field is missing or visibly dated, never substituted with zero. A new cover does not make an old software release today's news.
 
 Always-on cloud publishing is a separate operational setup. The reviewed local daily task is active. The activation package and remaining owner actions are documented in LTC-CLOUD-SETUP.md; do not claim the draft cloud workflow is running.
+
+## Complete magazine coverage — October 4, 2026
+
+The founder requested every topic from the 29-page reference, including Morpho, cbBTC/cbLTC, Arc, USDC, EURC and SEC/CFTC. Read [LTC-COVERAGE.md](LTC-COVERAGE.md) for the full page map and numerical limits. Each new issue archives all 29 coverage entries, source status and copied desk context. Historical tables retain their original October 2 qualification and do not become fresh measurements. Validate the entire manifest before release; preserve earlier JSON. This adds a complete reading structure, not new numeric source adapters. Routine publication must keep unqueried links, availability checks, dated software records and fresh accepted observations distinct.

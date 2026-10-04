@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "referenceDate": "2026-10-02",
+  "pages": [
+    {
+      "page": 1,
+      "title": "Front cover",
+      "deskId": null,
+      "href": "#front-cover",
+      "kind": "front-cover"
+    },
+    {
+      "page": 2,
+      "title": "The reading room · contents",
+      "deskId": null,
+      "href": "#edition-record",
+      "kind": "contents"
+    },
+    {
+      "page": 3,
+      "title": "The market opening",
+      "deskId": "market-opening",
+      "href": "/conversations/desks/market-opening/",
+      "kind": "desk"
+    },
+    {
+      "page": 4,
+      "title": "Washington · SEC + CFTC",
+      "deskId": "sec-cftc",
+      "href": "/conversations/desks/sec-cftc/",
+      "kind": "desk"
+    },
+    {
+      "page": 5,
+      "title": "Bitcoin ETF flow tape",
+      "deskId": "bitcoin-etf-flows",
+      "href": "/conversations/desks/bitcoin-etf-flows/",
+      "kind": "desk"
+    },
+    {
+      "page": 6,
+      "title": "Global Bitcoin product register",
+      "deskId": "bitcoin-products",
+      "href": "/conversations/desks/bitcoin-products/",
+      "kind": "desk"
+    },
+    {
+      "page": 7,
+      "title": "IBIT · Strategy · Strive",
+      "deskId": "institution-profiles",
+      "href": "/conversations/desks/institution-profiles/",
+      "kind": "desk"
+    },
+    {
+      "page": 8,
+      "title": "Public Bitcoin treasuries",
+      "deskId": "bitcoin-treasuries",
+      "href": "/conversations/desks/bitcoin-treasuries/",
+      "kind": "desk"
+    },
+    {
+      "page": 9,
+      "title": "The mNAV lens",
+      "deskId": "mnav",
+      "href": "/conversations/desks/mnav/",
+      "kind": "desk"
+    },
+    {
+      "page": 10,
+      "title": "Litecoin Register",
+      "deskId": "litecoin-register",
+      "href": "/conversations/desks/litecoin-register/",
+      "kind": "desk"
+    },
+    {
+      "page": 11,
+      "title": "Litecoin product register",
+      "deskId": "litecoin-products",
+      "href": "/conversations/desks/litecoin-products/",
+      "kind": "desk"
+    },
+    {
+      "page": 12,
+      "title": "Public Litecoin treasuries",
+      "deskId": "litecoin-treasuries",
+      "href": "/conversations/desks/litecoin-treasuries/",
+      "kind": "desk"
+    },
+    {
+      "page": 13,
+      "title": "Litecoin Foundation",
+      "deskId": "litecoin-foundation",
+      "href": "/conversations/desks/litecoin-foundation/",
+      "kind": "desk"
+    },
+    {
+      "page": 14,
+      "title": "MWEB privacy + security",
+      "deskId": "mweb",
+      "href": "/conversations/desks/mweb/",
+      "kind": "desk"
+    },
+    {
+      "page": 15,
+      "title": "Bitcoin Core",
+      "deskId": "bitcoin-core",
+      "href": "/conversations/desks/bitcoin-core/",
+      "kind": "desk"
+    },
+    {
+      "page": 16,
+      "title": "Lightning Network",
+      "deskId": "lightning",
+      "href": "/conversations/desks/lightning/",
+      "kind": "desk"
+    },
+    {
+      "page": 17,
+      "title": "Timechain Calendar",
+      "deskId": "timechain",
+      "href": "/conversations/desks/timechain/",
+      "kind": "desk"
+    },
+    {
+      "page": 18,
+      "title": "Nakamoto standard",
+      "deskId": "nakamoto-standard",
+      "href": "/conversations/desks/nakamoto-standard/",
+      "kind": "desk"
+    },
+    {
+      "page": 19,
+      "title": "Morpho market intelligence",
+      "deskId": "morpho",
+      "href": "/conversations/desks/morpho/",
+      "kind": "desk"
+    },
+    {
+      "page": 20,
+      "title": "cbBTC · cbLTC · market identity",
+      "deskId": "wrapped-assets",
+      "href": "/conversations/desks/wrapped-assets/",
+      "kind": "desk"
+    },
+    {
+      "page": 21,
+      "title": "Open builders · LitVM · LiteForge",
+      "deskId": "builders",
+      "href": "/conversations/desks/builders/",
+      "kind": "desk"
+    },
+    {
+      "page": 22,
+      "title": "Stellar · XLM",
+      "deskId": "stellar",
+      "href": "/conversations/desks/stellar/",
+      "kind": "desk"
+    },
+    {
+      "page": 23,
+      "title": "DOGE · PEPE",
+      "deskId": "doge-pepe",
+      "href": "/conversations/desks/doge-pepe/",
+      "kind": "desk"
+    },
+    {
+      "page": 24,
+      "title": "Community + newsroom",
+      "deskId": "community-newsroom",
+      "href": "/conversations/desks/community-newsroom/",
+      "kind": "desk"
+    },
+    {
+      "page": 25,
+      "title": "Circle · Arc · USDC · EURC",
+      "deskId": "circle-arc",
+      "href": "/conversations/desks/circle-arc/",
+      "kind": "desk"
+    },
+    {
+      "page": 26,
+      "title": "Partner studio",
+      "deskId": "partner-studio",
+      "href": "/conversations/desks/partner-studio/",
+      "kind": "desk"
+    },
+    {
+      "page": 27,
+      "title": "The 21 standard",
+      "deskId": "21-standard",
+      "href": "/conversations/desks/21-standard/",
+      "kind": "desk"
+    },
+    {
+      "page": 28,
+      "title": "Sourcebook",
+      "deskId": null,
+      "href": "#sourcebook",
+      "kind": "sourcebook"
+    },
+    {
+      "page": 29,
+      "title": "Back cover",
+      "deskId": null,
+      "href": "#back-page",
+      "kind": "back-cover"
+    }
+  ]
+}

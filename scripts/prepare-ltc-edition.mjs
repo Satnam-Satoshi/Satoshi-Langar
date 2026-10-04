@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { SOURCE_RULES, RELEASE_RULES, TICKER_RULES, decimal, freshness, tickerFreshness, validateSourceIdentity } from './collect-ltc.mjs';
 import { buildPresentation, validatePresentation } from './lib/ltc-presentation.mjs';
+import { buildCoverage, validateCoverage } from './lib/ltc-coverage.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const DAY_MS = 86_400_000;
@@ -109,7 +110,7 @@ export function validateSnapshot(snapshot, registry, policy, now, issueDate = ed
   return sources;
 }
 
-export function prepareEdition(snapshot, registry, policy, { now = new Date().toISOString(), revision = 1, correctionReason = '', correctsEditionId = null, issueDate = null } = {}) {
+export function prepareEdition(snapshot, registry, policy, { now = new Date().toISOString(), revision = 1, correctionReason = '', correctsEditionId = null, issueDate = null, coverage = null } = {}) {
   const today = editionDate(now);
   const date = issueDate ?? today;
   assert(isoDate(date) && date <= today && (revision > 1 || date === today), 'invalid_correction_date');
@@ -165,6 +166,7 @@ export function prepareEdition(snapshot, registry, policy, { now = new Date().to
     humanReview: 'Not individually reviewed by a human editor',
     sourceSnapshotSha256: digest(snapshot), publicationPolicy: POLICY_ID,
     briefs, sources, coverageGaps, presentation,
+    ...(coverage ? { coverage: buildCoverage({ catalog: coverage.catalog, mapping: coverage.mapping, sources, generatedAt: now }) } : {}),
     corrections: revision === 1 ? [] : [{ reason: correctionReason.trim(), correctsEditionId }],
   };
 }
@@ -204,6 +206,7 @@ export async function publishEdition(edition, { directory, policy }) {
       return { status: 'unchanged', id: current.id, edition: current };
     }
     validatePresentation(edition.presentation, edition);
+    if (edition.coverage) validateCoverage(edition.coverage, { sources: edition.sources, generatedAt: edition.preparedAt });
     if (edition.revision === 1) assert(sameDay.length === 0, 'edition_revision_conflict');
     else assert(sameDay[0]?.revision === edition.revision - 1 && edition.corrections[0]?.correctsEditionId === sameDay[0].id && edition.corrections[0]?.reason?.trim().length >= 12, 'missing_correction_predecessor');
     await writeFile(path.join(directory, `${edition.id}.json`), `${JSON.stringify(edition, null, 2)}\n`, { flag: 'wx' });
@@ -228,13 +231,15 @@ function argumentsFor(args) {
 
 async function main() {
   const args = argumentsFor(process.argv.slice(2));
-  const [snapshot, registry, policy] = await Promise.all([
+  const [snapshot, registry, policy, catalog, mapping] = await Promise.all([
     readFile(path.resolve(args.snapshot), 'utf8').then(JSON.parse),
     readFile(path.join(root, 'config/ltc-sources.json'), 'utf8').then(JSON.parse),
     readFile(path.join(root, 'config/ltc-publication.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(root, 'content/ltc-desks.json'), 'utf8').then(JSON.parse),
+    readFile(path.join(root, 'config/ltc-coverage.json'), 'utf8').then(JSON.parse),
   ]);
   const now = new Date().toISOString();
-  const edition = prepareEdition(snapshot, registry, policy, { now, revision: args.revision, issueDate: args.issueDate, correctionReason: args.correctionReason, correctsEditionId: args.revision > 1 ? `${args.issueDate ?? editionDate(now)}-r${args.revision - 1}` : null });
+  const edition = prepareEdition(snapshot, registry, policy, { now, revision: args.revision, issueDate: args.issueDate, correctionReason: args.correctionReason, correctsEditionId: args.revision > 1 ? `${args.issueDate ?? editionDate(now)}-r${args.revision - 1}` : null, coverage: { catalog, mapping } });
   const candidate = { ...edition, status: 'candidate', publishedAt: null };
   if (args.output) { const output = path.resolve(args.output); await mkdir(path.dirname(output), { recursive: true }); await writeFile(output, `${JSON.stringify(candidate, null, 2)}\n`); }
   if (args.publish) {

@@ -1,4 +1,5 @@
 import storedEditions from '../../content/ltc/index.json';
+import type { DeskSection } from './desks';
 import { publicationDays, publicationMonths } from './edition-calendar';
 
 export type LtcObservation = {
@@ -26,6 +27,16 @@ export type LtcEditionPresentation = {
   backPage: { title: string; prompt: string; practice: string; closingLine: string };
   readingOrder: string[];
 };
+export type LtcCoverageRecord = {
+  schemaVersion: 1; referenceDate: string; generatedAt: string; catalogSha256: string;
+  pages: {
+    page: number; title: string; href: string; deskId: string | null; kind: string;
+    status: string; summary: string; sourceIds: string[];
+    sources: { id: string; label: string; url: string; kind: string }[];
+    sourceChecks?: { id: string; checkedAt: string; sourceAsOf: string | null; status: string; freshness: string; metricLabels: string[] }[];
+    context?: { reviewedAt: string; intro: string[]; sections: DeskSection[]; checks: string[]; limits: string };
+  }[];
+};
 export type LtcEdition = {
   schemaVersion: 1; id: string; date: string; revision: number; title: string; dek: string;
   preparedAt: string; publishedAt: string; timezone: 'America/New_York';
@@ -34,6 +45,7 @@ export type LtcEdition = {
   briefs: LtcBrief[]; sources: LtcEditionSource[]; coverageGaps: string[];
   corrections: { reason: string; correctsEditionId: string }[];
   presentation?: LtcEditionPresentation;
+  coverage?: LtcCoverageRecord;
 };
 
 export const ltcPublicationDays = publicationDays(storedEditions as LtcEdition[]);

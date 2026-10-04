@@ -28,3 +28,7 @@ The copy enhancement only writes the displayed, URI-matched public address after
 ## Release checks
 
 Use an isolated tracked-source build and the full existing checks. Verify publication and platform headers at desktop/tablet/mobile sizes, native mobile menus, current issue navigation, source details, archive/revision history, contribution-plan creation and the copy success/fallback paths. Keep the daily schedule's accepted implementation digest synchronized only after the tested authorized release. The separate cloud scheduler was merged with founder approval but remains unactivated; this visual release does not configure credentials, merge application PR52, publish satnam.x or activate account sign-in.
+
+## Complete magazine coverage — October 4, 2026
+
+The founder requested every topic from the 29-page reference, including Morpho, cbBTC/cbLTC, Arc, USDC, EURC and SEC/CFTC. Read [LTC-COVERAGE.md](LTC-COVERAGE.md) for the full page map and numerical limits. Each new issue archives all 29 coverage entries, source status and copied desk context. Historical tables retain their original October 2 qualification and do not become fresh measurements. Validate the entire manifest before release; preserve earlier JSON. This adds a complete reading structure, not new numeric source adapters. Routine publication must keep unqueried links, availability checks, dated software records and fresh accepted observations distinct.
