@@ -1,3 +1,4 @@
+import { SocialLinks } from './SocialLinks';
 const groups = [
   { id: 'footer-read', title: 'Read & learn', links: [['Sikh Bitcoin', '/sikh-bitcoin/'], ['MiiKey · self-custody', '/miikey/'], ['LTC magazine', '/conversations/'], ['Litecoin Register ↗', 'https://litecoinregister.com/?c=table'], ['Proof of Birthday special', '/conversations/specials/proof-of-birthday/'], ['Past issues', '/conversations/archive/'], ['Get the daily magazine', '/subscribe/'], ['Follow LTC by RSS', '/conversations/feed.xml'], ['About LTC Media', '/conversations/about/']] },
   { id: 'footer-participate', title: 'Take part', links: [['The community open table', '/ecosystem/'], ['Ask AI Satoshi Ma', '/ecosystem/#ask-ma'], ['Find your first task', '/join/'], ['Satoshi Langar', '/langar/'], ['Kalakar.x', '/kalakar/'], ['Bitcoin meetups', '/meetups/'], ['Humans + AI', '/agents/']] },
@@ -8,7 +9,7 @@ const groups = [
 export function SiteFooter() {
   return <footer className="launch-footer"><div className="launch-wrap">
     <div className="footer-main">
-      <div className="footer-identity"><strong>Satnam Satoshi</strong><p>Open tools. Shared knowledge.<br />Human dignity.</p><small>Rooted in seva. Built in the open.</small></div>
+      <div className="footer-identity"><strong>Satnam Satoshi</strong><p>Open tools. Shared knowledge.<br />Human dignity.</p><small>Rooted in seva. Built in the open.</small><SocialLinks mode="footer"/></div>
       <nav className="footer-groups" aria-label="Footer navigation">
         {groups.map(group => <section key={group.id} aria-labelledby={group.id}>
           <h2 id={group.id}>{group.title}</h2>
