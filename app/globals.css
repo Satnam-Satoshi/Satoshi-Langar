@@ -219,3 +219,6 @@ body { background: var(--background); }
   .launch-brand strong { font-size:16px; }
   .header-join { padding:10px 12px; font-size:12px; white-space:nowrap; }
 }
+
+/* Keep the expanded community navigation comfortable on tablet widths. */
+@media(min-width:701px) and (max-width:1200px){.header-row{flex-wrap:wrap}.desktop-nav{order:3;flex-basis:100%;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid #d9ddcf}.desktop-nav a{font-size:12px}.header-join{display:inline-flex;margin-left:auto}}
