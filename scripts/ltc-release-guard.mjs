@@ -7,7 +7,7 @@ import { readFile } from 'node:fs/promises';
 const files = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(Boolean).sort();
 const hash = createHash('sha256');
 for (const file of files) {
-  if (/^content\/ltc\/(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(file) || file === 'public/data/ltc-snapshot.json') continue;
+  if (/^content\/ltc\/(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(file) || /^content\/ltc-newsroom\/(?:latest|newsroom-\d{8}T\d{6}Z)\.json$/.test(file) || file === 'content/ltc-community/latest.json' || file === 'public/data/ltc-snapshot.json') continue;
   hash.update(file + '\0');
   hash.update(await readFile(file));
   hash.update('\0');
