@@ -212,3 +212,10 @@ body { background: var(--background); }
 
 /* Only the full Proof of Birthday reader uses fixed print folios. */
 @media print{body:has([data-birthday-print]){margin:0!important;padding:0!important;background:#fff!important}body:has([data-birthday-print])>header,body:has([data-birthday-print])>footer,body:has([data-birthday-print])>a,body:has([data-birthday-print]) .publication-header,body:has([data-birthday-print]) .publication-footer{display:none!important}body:has([data-birthday-print]) #main-content,body:has([data-birthday-print]) .publication-shell{margin:0!important;padding:0!important;display:block!important}}
+/* Keep the expanded public navigation readable on small laptops. */
+@media (min-width:1001px) and (max-width:1200px) {
+  .header-row { gap:18px; }
+  .desktop-nav { gap:18px; font-size:12px; }
+  .launch-brand strong { font-size:16px; }
+  .header-join { padding:10px 12px; font-size:12px; white-space:nowrap; }
+}

@@ -47,13 +47,20 @@ for(const date of new Set(editions.map(item=>item.date))) {
 }
 for(const name of ['sitemap.xml','robots.txt','conversations/about/index.html']) await stat(path.join(root,name));
 for(const route of ['index.html','join/index.html','welcome/index.html','sign-in/index.html','auth/callback/index.html','account-help/index.html','mission/index.html','langar/index.html','kalakar/index.html','crypto-kitty/index.html','agents/index.html','privacy/index.html','domain/index.html','ecosystem/index.html','sikh-bitcoin/index.html','meetups/index.html','donate/index.html','connect/index.html','roadmap/index.html','partners/index.html','technology/index.html','conversations/methodology/index.html','conversations/archive/index.html','conversations/feed.xml','data/community-auth.json'])await stat(path.join(root,route));
-const birthday=JSON.parse(await readFile('content/specials/proof-of-birthday-r2.json','utf8'));
+const birthday=JSON.parse(await readFile('content/specials/proof-of-birthday-r3.json','utf8'));
 await stat(path.join(root,birthday.pdf));
+for(const archive of ['conversations/archive/index.html',`conversations/archive/${birthday.preparedAt.slice(0,7)}/index.html`]){
+ const html=await content(path.join(root,archive));
+ if(!html.includes(`data-special-edition="${birthday.id}"`)||!html.includes('Proof of Birthday'))failures.push(`Reviewed special missing from past issues: ${archive}`);
+}
+try{await stat(path.join(root,'magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r2.pdf'));failures.push('Superseded birthday PDF is still in public export');}catch(error){if(error.code!=='ENOENT')throw error;}
 const retired=path.join(root,'magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf');
 try{await stat(retired);failures.push('Retired special PDF is still in public export');}catch(error){if(error.code!=='ENOENT')throw error;}
 for(let p=1;p<=84;p++) {
  const html=await content(path.join(root,`conversations/specials/proof-of-birthday/${p}/index.html`));
  if(!html.includes(`data-birthday-page="${p}"`))failures.push(`Missing birthday page ${p}`);
+ if(/human.{0,20}review.{0,20}pending/i.test(html))failures.push(`Outdated review label on birthday page ${p}`);
+ if(!/founder reviewed October 4, 2026/i.test(html))failures.push(`Missing founder review on birthday page ${p}`);
  const prior=await content(path.join(root,`conversations/specials/litecoin-at-15/${p}/index.html`));
  if(!prior.includes('http-equiv="refresh"')||prior.includes('An open network.'))failures.push(`Old special remains publicly readable: ${p}`);
 }

@@ -4,6 +4,7 @@ import path from 'node:path';
 // Only the checked portable release is uploaded. Source, private records and
 // local credentials never enter this Build Output API directory.
 const root = process.cwd();
+const birthday = JSON.parse(await readFile(path.join(root, 'content/specials/proof-of-birthday-r3.json'), 'utf8'));
 const config = JSON.parse(await readFile(path.join(root, 'vercel.json'), 'utf8'));
 await readFile(path.join(root, 'dist/index.html'));
 const output = path.join(root, '.vercel/output');
@@ -16,7 +17,8 @@ await writeFile(path.join(output, 'config.json'), JSON.stringify({
   routes: [
     { src: '/(.*)', headers, continue: true },
     { src: '/conversations/feed.xml', headers: { 'Content-Type': 'application/rss+xml; charset=utf-8' }, continue: true },
-    { src: '/magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf', status: 308, headers: { Location: '/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r2.pdf' } },
+    { src: '/magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf', status: 308, headers: { Location: birthday.pdf } },
+    { src: '/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r2.pdf', status: 308, headers: { Location: birthday.pdf } },
     { src: '/conversations/specials/litecoin-at-15(?:/.*)?', status: 308, headers: { Location: '/conversations/specials/proof-of-birthday/' } },
     { handle: 'filesystem' },
     { src: '/(.*)', dest: '/404.html', status: 404 },

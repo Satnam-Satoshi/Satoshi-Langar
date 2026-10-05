@@ -1,13 +1,14 @@
-# Proof of Birthday · Revision 2
+# Proof of Birthday · Revision 3
 
-An 84-page advance anniversary magazine, prepared October 4, 2026. Network anniversary October 13; planned cover October 15. It is an independent AI-prepared editorial preview, with human review pending. No future events are reported as completed.
+An 84-page advance anniversary magazine, prepared October 4, 2026. Network anniversary October 13; planned cover October 15. It is an independent AI-prepared edition accepted by the Satnam Satoshi founder on October 4, 2026. Founder editorial acceptance is recorded separately from source verification; it does not resolve the source-specific uncertainties below. No future events are reported as completed.
 
 ## Reading and preservation
 
 - New reader: `/conversations/specials/proof-of-birthday/`, 84 numbered pages and complete contents.
 - Continuous reader: `/conversations/specials/proof-of-birthday/print/`.
-- Print PDF: `/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r2.pdf`.
-- At the founder’s request, the earlier public version is retired. Its old reader and PDF URLs lead to the new edition. Original source/PDF bytes remain unchanged in Git/private backup, not in the public static export.
+- Print PDF: `/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf`.
+- At the founder’s request, earlier public versions are retired. The first reader and both superseded PDF URLs lead to the reviewed edition. Original source/PDF bytes remain unchanged in Git/private backup, not in the public static export.
+- Both the complete archive and the October 2026 monthly shelf contain an illustrated special-edition card, with links to page one, contents and the reviewed PDF. The special is filed under its October 4 preparation/review date; it does not add a daily issue or falsely publish on its future October 15 cover date.
 - The dated research companion is `/conversations/litecoin/research/2026-10-04/`.
 
 Page 4 provides a dated milestone map, linked to the underlying stories; the landing page has both a topic index and all 84 page titles.
@@ -29,3 +30,12 @@ Six pages introduce Satnam Satoshi, Langar, proof of service, Kalakar.x, human/a
 ## Release checks
 
 Require 84 consecutive pages, complete source resolution, retained quote budgets, prior-record hash preservation, correct relative export links and a valid 84-page PDF. Render every print page; inspect contact sheets and detailed typography/diagrams. Check desktop/mobile reading, contents, page turns, source expansion and archive links with JavaScript disabled. Verify downloaded PDF and served static bytes before and after promotion. Daily release automation must preserve this special and may not modify its implementation or edition record.
+
+
+## October 4 founder review record
+
+Revision 3 records the founder’s explicit statement that they checked the special edition and requested final public versions. The active record is `content/specials/proof-of-birthday-r3.json`; r2 JSON/PDF remain byte-for-byte preserved. Changed content consists of review labels, the editorial acceptance/colophon explanation and archive navigation. Source records, quotations, measurements and research dates are unchanged. Other editorial reading-room pieces retain their own review statuses.
+
+The active special contains no blanket pending-human-review label. Founder review is not described as independent verification. Book-release uncertainty, unreconciled institutional observations, source-specific limitations and the future-date boundary remain visible.
+
+Generate the new PDF from `/conversations/specials/proof-of-birthday/print/` after building the current reader, with all images and fonts settled, CSS print page size, background graphics enabled and no browser headers/footers. Save it at `public/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf`; rebuild the export so the PDF matches the reader. Check the PDF is exactly 84 pages and inspect the cover, pages 2/73/76 and the folios for the recorded review. Never overwrite r2. `scripts/test-proof-of-birthday.mjs` protects both prior source and PDF hashes and verifies that review has not silently changed evidence.

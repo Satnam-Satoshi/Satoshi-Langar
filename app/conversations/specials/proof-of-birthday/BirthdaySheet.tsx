@@ -10,7 +10,7 @@ export default function BirthdaySheet({ page: p, print = false }: { page: Birthd
       <div className={styles.coverTop}><span>LUNCH TIME CONVERSATIONS</span><strong>LTC</strong><span>THE LITECOIN ANNIVERSARY / VOL. 01</span></div>
       <div className={styles.coverTitle}><span>FIFTEEN YEARS. STILL MAKING BLOCKS.</span><h1>Proof of<br/><em>Birthday.</em></h1><p>Litecoin at 15.</p></div>
       <div className={styles.coverTeasers}><p><b>THE ORIGINALS</b>Charlie Lee, an open launch<br/>and a very persistent idea.</p><p><b>THE NEXT CHAPTER</b>Builders. Miners. Privacy.<br/>The institutional paper trail.</p></div>
-      <div className={styles.coverBottom}><strong>84</strong><div>PAGES / FOR 84 MILLION LTC<br/>ADVANCE EDITION · OCTOBER 15, 2026<br/>RESEARCH THROUGH OCTOBER 4 · REVISION 2</div><span>AI-prepared<br/>Human review pending</span></div>
+      <div className={styles.coverBottom}><strong>84</strong><div>PAGES / FOR 84 MILLION LTC<br/>ADVANCE EDITION · OCTOBER 15, 2026<br/>RESEARCH THROUGH OCTOBER 4 · REVISION {issue.revision}</div><span>FOUNDER REVIEWED<br/>OCTOBER 4, 2026</span></div>
     </> : back ? <>
       <img className={styles.fullArt} src={p.art!.src} alt={p.art!.alt} width="1024" height="1536"/>
       <div className={styles.backCopy}><p className={styles.kicker}>THE BLOCK PARTY IS OPEN.</p><h1>Make a wish.<br/><em>Then make<br/>something useful.</em></h1><p>Read a source. Test a tool.<br/>Teach a newcomer. Share a meal.</p><a href="/join/?path=ltc">Join the Satnam Satoshi community →</a></div>
@@ -41,7 +41,7 @@ export default function BirthdaySheet({ page: p, print = false }: { page: Birthd
         </>}
       </div>
       <div className={styles.pageSources}>{p.sources.map(id=>{const source=birthdaySources.get(id)!;return <a key={id} href={source.url}>[{source.number}] {source.title}</a>;})}</div>
-      <footer className={styles.folio}><span>OCT 04 RESEARCH / OCT 15 COVER<br/>ADVANCE AI EDITORIAL PREVIEW</span><span>{p.classification}</span><strong>{String(p.page).padStart(2,'0')}</strong></footer>
+      <footer className={styles.folio}><span>OCT 04 RESEARCH / OCT 15 COVER<br/>FOUNDER-REVIEWED ADVANCE EDITION</span><span>{p.classification}</span><strong>{String(p.page).padStart(2,'0')}</strong></footer>
     </>}
   </article>;
 }
