@@ -4,6 +4,23 @@ export const COVER_MOTIFS = Object.freeze(['orbits', 'timechain', 'signal', 'con
 export const COVER_PALETTES = Object.freeze(['ember', 'cobalt', 'forest', 'ochre']);
 export const EDITION_LAYOUTS = Object.freeze(['folio', 'atlas', 'dispatch']);
 export const EDITORIAL_ART = Object.freeze(['litecoin-open-network.jpg', 'mweb-private-public.jpg', 'open-builders-workshop.jpg', 'open-table-editorial.jpg']);
+export const FLAGSHIP_ART = Object.freeze(['daily/proof-of-work-2026-10-05.jpg', 'daily/small-blocks-2026-10-06.jpg', ...EDITORIAL_ART]);
+const FLAGSHIP_THEMES = Object.freeze([
+  ['The world between blocks.', 'Proof of Work', 'Two networks. A world of people. One daily conversation.'],
+  ['Small blocks. Big world.', 'Small blocks, big world', 'From the ledger to the local table. Follow what connects us.'],
+  ['Silver threads. Orange horizons.', 'Shared horizons', 'Different networks. Shared questions about open money.'],
+  ['Good morning, open world.', 'An open world', 'Read the record. Meet the builders. Make room at the table.'],
+  ['Less noise. More nodes.', 'Check for yourself', 'The useful things that happen beyond a price ticker.'],
+  ['The future has a source code.', 'Built in the open', 'People, protocols and the patient work of building together.'],
+  ['Money talks. We listen.', 'A better conversation', 'Follow the facts. Ask better questions. Keep your own point of view.'],
+  ['A little proof. A lot of possibility.', 'Useful evidence', 'A fresh reading of open money, public records and shared work.'],
+  ['The block goes on.', 'Continuity', 'What changes. What endures. What the evidence can tell us.'],
+  ['Keys to a bigger conversation.', 'Sovereignty & service', 'Responsibility in your hands. Possibility at a shared table.'],
+]);
+export function flagshipDirection(date) {
+  const offset = Math.floor((Date.parse(date) - Date.parse('2026-10-05')) / DAY_MS);
+  return { version: 2, layout: EDITION_LAYOUTS[mod(offset,3)], coverAsset: FLAGSHIP_ART[mod(offset,FLAGSHIP_ART.length)], backAsset: FLAGSHIP_ART[mod(offset+1,FLAGSHIP_ART.length)], spreadOffset: mod(offset,3) };
+}
 const DAY_MS = 86_400_000;
 const assert = (value, code) => { if (!value) throw new Error(code); };
 const dateIsValid = date => typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
@@ -51,12 +68,14 @@ export function buildPresentation({ date, briefs }) {
   const seed = createHash('sha256').update(`ltc-presentation-v1:${date}`).digest('hex').slice(0, 16);
   // Reuse accepted factual brief titles rather than deriving news from a design theme.
   const subtitle = `${briefs.length} sourced ${briefs.length === 1 ? 'brief' : 'briefs'}. ${briefs.slice(0, 2).map(brief => brief.headline).join(' · ')}`;
+  const flagship = date >= '2026-10-05';
+  const flagshipTheme = FLAGSHIP_THEMES[mod(day - Math.floor(Date.parse('2026-10-05') / DAY_MS), FLAGSHIP_THEMES.length)];
   const result = {
     schemaVersion: 1,
-    artDirection: { version: 1, layout: EDITION_LAYOUTS[mod(day, EDITION_LAYOUTS.length)], coverAsset: EDITORIAL_ART[mod(day, EDITORIAL_ART.length)], backAsset: EDITORIAL_ART[mod(day + 2, EDITORIAL_ART.length)], spreadOffset: mod(day, 3) },
+    artDirection: flagship ? flagshipDirection(date) : { version: 1, layout: EDITION_LAYOUTS[mod(day, EDITION_LAYOUTS.length)], coverAsset: EDITORIAL_ART[mod(day, EDITORIAL_ART.length)], backAsset: EDITORIAL_ART[mod(day + 2, EDITORIAL_ART.length)], spreadOffset: mod(day, 3) },
     cover: {
       theme: theme.theme, palette: COVER_PALETTES[mod(day + Math.floor(day / 7), COVER_PALETTES.length)], motif: COVER_MOTIFS[mod(day, COVER_MOTIFS.length)],
-      title: theme.title, subtitle, kicker: `LTC / DAILY SOURCE EDITION / ${dateLabel}`, seed,
+      title: flagship ? flagshipTheme[0] : theme.title, subtitle: flagship ? flagshipTheme[2] : subtitle, kicker: `LTC / ${flagship ? 'PROOF OF WORK' : 'DAILY SOURCE EDITION'} / ${dateLabel}`, seed,
     },
     backPage: { title: theme.backTitle, prompt: exercise.prompt, practice: exercise.practice, closingLine: theme.closingLine },
     readingOrder,
@@ -77,8 +96,13 @@ export function validatePresentation(presentation, { date, briefs }) {
   if (presentation.artDirection !== undefined) {
     const art = presentation.artDirection;
     const day = Math.floor(Date.parse(date) / DAY_MS);
-    assert(art?.version === 1 && EDITION_LAYOUTS.includes(art.layout) && EDITORIAL_ART.includes(art.coverAsset) && EDITORIAL_ART.includes(art.backAsset) && Number.isInteger(art.spreadOffset) && art.spreadOffset >= 0 && art.spreadOffset < 3, 'invalid_editorial_art_direction');
-    assert(art.layout === EDITION_LAYOUTS[mod(day,3)] && art.coverAsset === EDITORIAL_ART[mod(day,4)] && art.backAsset === EDITORIAL_ART[mod(day+2,4)] && art.spreadOffset === mod(day,3), 'art_direction_date_mismatch');
+    if (art?.version === 2) {
+      assert(FLAGSHIP_ART.includes(art.coverAsset) && FLAGSHIP_ART.includes(art.backAsset), 'invalid_editorial_art_direction');
+      assert(date >= '2026-10-05' && JSON.stringify(art) === JSON.stringify(flagshipDirection(date)), 'art_direction_date_mismatch');
+    } else {
+      assert(art?.version === 1 && EDITION_LAYOUTS.includes(art.layout) && EDITORIAL_ART.includes(art.coverAsset) && EDITORIAL_ART.includes(art.backAsset) && Number.isInteger(art.spreadOffset) && art.spreadOffset >= 0 && art.spreadOffset < 3, 'invalid_editorial_art_direction');
+      assert(art.layout === EDITION_LAYOUTS[mod(day,3)] && art.coverAsset === EDITORIAL_ART[mod(day,4)] && art.backAsset === EDITORIAL_ART[mod(day+2,4)] && art.spreadOffset === mod(day,3), 'art_direction_date_mismatch');
+    }
   }
   const ids = briefs.map(brief => brief.id);
   assert(presentation.readingOrder.length === ids.length && new Set(presentation.readingOrder).size === ids.length && presentation.readingOrder.every(id => ids.includes(id)), 'invalid_presentation_reading_order');

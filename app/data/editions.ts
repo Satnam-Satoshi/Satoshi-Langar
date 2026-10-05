@@ -19,7 +19,7 @@ export type LtcBrief = {
 };
 export type LtcEditionPresentation = {
   schemaVersion: 1;
-  artDirection?: {version:1;layout:'folio'|'atlas'|'dispatch';coverAsset:string;backAsset:string;spreadOffset:number};
+  artDirection?: {version:1|2;layout:'folio'|'atlas'|'dispatch';coverAsset:string;backAsset:string;spreadOffset:number};
   cover: {
     theme: string; palette: 'ember' | 'cobalt' | 'forest' | 'ochre';
     motif: 'orbits' | 'timechain' | 'signal' | 'constellation' | 'ledger' | 'horizon' | 'weave';
@@ -47,6 +47,9 @@ export type LtcEdition = {
   corrections: { reason: string; correctsEditionId: string }[];
   presentation?: LtcEditionPresentation;
   coverage?: LtcCoverageRecord;
+  intelligence?: import('./intelligence').LtcIntelligence;
+  features?: import('./intelligence').LtcDailyFeatures;
+  policyRecords?: import('./intelligence').LtcPolicySnapshot;
 };
 
 export const ltcPublicationDays = publicationDays(storedEditions as LtcEdition[]);

@@ -1,6 +1,8 @@
 import {build} from 'esbuild';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {validateAuthConfig} from './community-core.mjs';
+import {validateLtcArchive} from './validate-ltc-archive.mjs';
+await validateLtcArchive();
 await mkdir('public/scripts',{recursive:true});
 await mkdir('public/data',{recursive:true});
 const enabled=process.env.COMMUNITY_AUTH_ENABLED==='true';

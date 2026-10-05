@@ -5,6 +5,7 @@ import path from 'node:path';
 import { SOURCE_RULES, RELEASE_RULES, TICKER_RULES, decimal, freshness, tickerFreshness, validateSourceIdentity } from './collect-ltc.mjs';
 import { buildPresentation, validatePresentation } from './lib/ltc-presentation.mjs';
 import { buildCoverage, validateCoverage } from './lib/ltc-coverage.mjs';
+import { validateFlagshipRecord } from './lib/ltc-flagship-record.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const DAY_MS = 86_400_000;
@@ -177,6 +178,7 @@ export async function readEditionArchive(directory) {
   const editions = await Promise.all(names.map(async name => {
     const edition = JSON.parse(await readFile(path.join(directory, name), 'utf8'));
     assert(edition.id === name.slice(0, -5) && edition.status === 'published' && edition.publicationPolicy === POLICY_ID, 'invalid_archived_edition');
+    validateFlagshipRecord(edition);
     return edition;
   }));
   return editions.sort((a, b) => b.date.localeCompare(a.date) || b.revision - a.revision);
@@ -191,6 +193,8 @@ async function writeIndex(directory, editions) {
 export async function publishEdition(edition, { directory, policy }) {
   validatePolicy(policy);
   assert(edition.publicationPolicy === POLICY_ID && edition.status === 'published' && edition.id === `${edition.date}-r${edition.revision}` && /^\d{4}-\d{2}-\d{2}-r[1-9]\d?$/.test(edition.id), 'invalid_edition');
+  // Enforce the expanded evidence boundary even for old CLI callers and reruns.
+  validateFlagshipRecord(edition);
   await mkdir(directory, { recursive: true });
   const lockPath = path.join(directory, '.publish-lock');
   let lock;

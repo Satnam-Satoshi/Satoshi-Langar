@@ -1,5 +1,6 @@
 import { editionDateHref, formatEditionDate, type LtcEdition } from '../data/editions';
 import styles from './ltc-edition-presentation.module.css';
+import flagship from './ltc-flagship.module.css';
 
 type Motif = 'orbits' | 'timechain' | 'signal' | 'constellation' | 'ledger' | 'horizon' | 'weave';
 
@@ -45,6 +46,18 @@ export function LtcEditionCover({ edition, mode = 'edition' }: { edition: LtcEdi
   const art = edition.presentation?.artDirection;
   const sampledPrices = edition.sources.filter(source => ['coinbase-btc-usd', 'coinbase-ltc-usd'].includes(source.id) && source.status === 'collected' && source.freshness !== 'stale');
   const label = `${formatEditionDate(edition.date)} · ${cover.title}`;
+  if (art?.version === 2) {
+    const Heading = mode === 'thumbnail' ? 'p' : mode === 'edition' ? 'h1' : 'h2';
+    return <section className={flagship.cover} data-cover-mode={mode} data-layout={art.layout} data-edition-date={edition.date} aria-label={`${label} · Proof of Work daily magazine`}>
+      <img className={flagship.coverArt} src={`/magazine/${art.coverAsset}`} width={art.coverAsset.startsWith('daily/')?1086:1536} height={art.coverAsset.startsWith('daily/')?1448:1024} alt={mode==='thumbnail'?'':'Original conceptual cover illustration in Litecoin blue, silver and Bitcoin orange; not a documentary photograph or data chart.'} loading={mode==='thumbnail'?'lazy':'eager'}/>
+      <div className={flagship.coverShade}/>
+      <div className={flagship.coverTop}><strong>LTC<span>MAGAZINE</span></strong><p>Lunch Time Conversations<br/><time dateTime={edition.date}>{formatEditionDate(edition.date)}</time></p></div>
+      <div className={flagship.coverType}><span className={flagship.coverSeries}>THE PROOF OF WORK EDITION</span><Heading>{cover.title}</Heading><p>{cover.subtitle}</p></div>
+      <div className={flagship.coverTeasers}><span>BITCOIN × LITECOIN<br/><b>Read the networks.</b></span><span>PEOPLE × POSSIBILITY<br/><b>Build the conversation.</b></span></div>
+      {mode!=='thumbnail'&&<a className={flagship.coverStart} href={mode==='home'?editionDateHref(edition.date):'#edition-record'}>{mode==='home'?'Read this issue':'Turn the page'} <span>↗</span></a>}
+      <footer className={flagship.coverBottom}><span>OPEN MONEY. OPEN MINDS.</span><span>DAILY / {edition.date.slice(5).replace('-','.')} / R{edition.revision}</span></footer>
+    </section>;
+  }
   if (mode === 'thumbnail') return <div className={styles.thumbnail} data-palette={cover.palette} data-motif={cover.motif} data-layout={art?.layout} data-presentation={legacy ? 'legacy' : 'archived'} aria-label={`${label}${legacy ? ' · Legacy archive jacket' : ' · Saved cover'}`}><div><span>LTC</span><time dateTime={edition.date}>{edition.date}</time></div><>{art?<img className={styles.coverPhoto} src={`/magazine/${art.coverAsset}`} width="1536" height="1024" alt="Original conceptual editorial artwork" loading="lazy"/>:<LtcEditionArtwork motif={cover.motif} seed={cover.seed} decorative/>}</><p>{cover.title}</p><small>{legacy ? 'Legacy archive jacket' : cover.theme}</small></div>;
   const Heading = mode === 'edition' ? 'h1' : 'h2';
   return <section className={styles.cover} data-palette={cover.palette} data-motif={cover.motif} data-layout={art?.layout} data-presentation={legacy ? 'legacy' : 'archived'} data-edition-date={edition.date} aria-label={`${formatEditionDate(edition.date)} magazine cover`}>

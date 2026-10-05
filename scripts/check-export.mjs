@@ -1,5 +1,7 @@
 import {readdir,readFile,stat} from 'node:fs/promises';
 import path from 'node:path';
+import {validateLtcArchive} from './validate-ltc-archive.mjs';
+const editions=await validateLtcArchive();
 const root=path.resolve('dist'); let count=0; const failures=[];
 const fileCache=new Map();
 async function content(file){if(!fileCache.has(file))fileCache.set(file,await readFile(file,'utf8'));return fileCache.get(file);}
@@ -32,7 +34,8 @@ async function walk(dir){
  }
 }
 await walk(root);
-const editions=JSON.parse(await readFile('content/ltc/index.json','utf8'));
+const exportedIndex=JSON.parse(await readFile(path.join(root,'data/ltc-editions/index.json'),'utf8'));
+if(JSON.stringify(exportedIndex)!==JSON.stringify(editions)) failures.push('Exported edition index differs from validated archive');
 const rss=await readFile(path.join(root,'conversations/feed.xml'),'utf8');
 for(const edition of editions) {
  const route=`conversations/editions/${edition.id}/index.html`;
