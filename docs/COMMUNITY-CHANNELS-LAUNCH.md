@@ -1,3 +1,7 @@
+Current X profile: https://x.com/Ltcmagazineorg — founder completed registration October 5; matching avatar, banner, bio and website saved.
+
+> October 5 update: the media channel [LTC Magazine on YouTube](https://www.youtube.com/@LTCMagazine) is created and branded under the founder’s Google account. No video is published yet. X email registration must finish in the phone app; Instagram [@ltcmagazine](https://www.instagram.com/ltcmagazine/) is also created and branded; its clickable website field requires the phone app. Telegram setup remains pending. The current [birthday campaign](BIRTHDAY-LAUNCH-CAMPAIGN.md) and [public press kit](https://satnamsatoshi.com/press/) supersede proposed media branding below.
+
 # Community channels: launch kit
 
 Prepared October 4, 2026 at the founder's request. X and Telegram account creation is requested; profiles are not yet created or verified. No public handle below is claimed or linked from the site until availability and ownership are confirmed.

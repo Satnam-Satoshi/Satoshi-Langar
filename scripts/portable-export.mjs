@@ -1,6 +1,9 @@
 import { readdir, readFile, mkdir, writeFile, rm, copyFile } from 'node:fs/promises';
 import path from 'node:path';
+import { applySiteSeo, buildSeoSitemaps } from './lib/site-seo.mjs';
 const source = path.resolve('out'), target = path.resolve('dist');
+const editions = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
+const seoPages = [];
 await rm(target, { recursive: true, force: true });
 async function walk(directory) {
  for (const entry of await readdir(directory, {withFileTypes:true})) {
@@ -16,6 +19,10 @@ async function walk(directory) {
    // Keep native static navigation. Only explicitly reviewed progressive enhancements ship.
    html=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'')
     .replace(/<link\b(?=[^>]*\bas="script")[^>]*>/gi,'');
+   // Discard framework/arbitrary scripts first; recreate only our controlled,
+   // escaped JSON-LD data alongside canonical metadata for the final artifact.
+   const seo = applySiteSeo(html, relative.split(path.sep).join('/'), { editions });
+   html = seo.html; seoPages.push(seo.model);
    const scripts=[];
    if(/\bdata-community="/.test(html)) scripts.push('community');
    if(/\bdata-community-auth="/.test(html)) scripts.push('auth');
@@ -48,29 +55,18 @@ for(const suffix of ['',...Array.from({length:84},(_,i)=>`${i+1}/`)]) {
  const directory=path.join(target,'conversations/specials/litecoin-at-15',suffix);
  await mkdir(directory,{recursive:true});
  const next=path.relative(directory,path.join(target,'conversations/specials/proof-of-birthday/index.html'));
- await writeFile(path.join(directory,'index.html'),`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=${next}"><title>Proof of Birthday · New edition</title></head><body><main><h1>The new edition is ready.</h1><p>The earlier design has been replaced.</p><a href="${next}">Open Proof of Birthday and its complete index →</a></main></body></html>`);
+ const retired = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="0;url=${next}"><title>Proof of Birthday · New edition</title></head><body><main><h1>The new edition is ready.</h1><p>The earlier design has been replaced.</p><a href="${next}">Open Proof of Birthday and its complete index →</a></main></body></html>`;
+ const seo = applySiteSeo(retired, path.relative(target,path.join(directory,'index.html')).split(path.sep).join('/'), { editions });
+ seoPages.push(seo.model);
+ await writeFile(path.join(directory,'index.html'),seo.html);
 }
 await mkdir(path.join(target,'data/ltc-editions'),{recursive:true});
 for(const entry of await readdir('content/ltc',{withFileTypes:true})) {
  if(entry.isFile() && /^(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(entry.name))
   await copyFile(path.join('content/ltc',entry.name),path.join(target,'data/ltc-editions',entry.name));
 }
-// Search discovery uses the canonical HTTPS home; portable reading still uses relative links.
-const canonical='https://https-github-com-satnam-satoshi-sat.vercel.app';
-const pages=[];
-async function indexPages(directory) {
- for(const entry of await readdir(directory,{withFileTypes:true})) {
-  const file=path.join(directory,entry.name);
-  if(entry.isDirectory()) await indexPages(file);
-  else if(entry.name==='index.html') {
-   const relative=path.relative(target,file).replace(/index\.html$/,'');
-   if(!/^(?:404|_not-found|auth|sign-in|welcome|account-help|conversations\/specials\/litecoin-at-15)\//.test(relative) && !relative.endsWith('/print/')) pages.push(`${canonical}/${relative}`);
-  }
- }
-}
-await indexPages(target);
-await writeFile(path.join(target,'sitemap.xml'),'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+pages.sort().map(url=>`<url><loc>${url}</loc></url>`).join('')+'</urlset>\n');
-await writeFile(path.join(target,'robots.txt'),`User-agent: *\nAllow: /\nDisallow: /auth/\nDisallow: /sign-in/\nDisallow: /welcome/\nSitemap: ${canonical}/sitemap.xml\n`);
+// Canonical URLs use the two public brands; reading links remain portable.
+for (const [filename, text] of Object.entries(buildSeoSitemaps(seoPages))) await writeFile(path.join(target, filename), text);
 await copyFile('LICENSE',path.join(target,'LICENSE.txt'));
 await copyFile('NOTICE',path.join(target,'NOTICE.txt'));
 console.log('Portable static release generated in dist/; allowlisted local enhancements, no application server.');

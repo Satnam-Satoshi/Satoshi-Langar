@@ -1,68 +1,69 @@
-# Satnam Satoshi
+# Satnam Satoshi · LTC Magazine
 
-### Many hands. One humanity.
+### Open money. Open minds. An open table.
 
-**An open-source community where people and responsibly governed AI learn, create and serve together.**
+**An open-source community for people and accountable AI to learn, create and serve.**
 
-Inspired by Guru Nanak's wisdom of equality, honest work and sharing, and by Bitcoin's culture of open verification, we are building tools that communities can understand, improve and operate for themselves. Everyone is welcome. You do not need bitcoin, a wallet, a technical background or a particular faith to participate.
+Litecoin curiosity. Bitcoin roots. Human purpose. We connect open-money education and independent publishing with **seva**—service freely given. Inspired by Guru Nanak’s teaching of equality, honest work and sharing, we welcome people of every background. No wallet, purchase or particular faith is needed to start.
 
-[Explore the website](https://https-github-com-satnam-satoshi-sat.vercel.app/) · [Find your first contribution](docs/GOOD_FIRST_ISSUES.md) · [Read our mission](MISSION.md) · [See the roadmap](ROADMAP.md)
+[Community home](https://satnamsatoshi.com/) · [Read LTC Magazine](https://ltcmagazine.org/conversations/) · [Choose a first contribution](https://satnamsatoshi.com/join/) · [Press & community kit](https://satnamsatoshi.com/press/)
 
-> **October 1, 2026 · Open-source release 0.1.26 for review.** The public information site is available for review. Service programs, agent infrastructure and financial systems are at different stages of planning or research. **satnam.x publication is deliberately deferred while the founder reviews the site.** See [current status and evidence](docs/STATUS.md).
+## Two front doors. One shared purpose.
 
-## The story we are building
+**Satnam Satoshi** is the umbrella community. **LTC Magazine—Lunch Time Conversations** is its independent media project: illustrated daily issues, dated public-source observations and carefully sourced specials about Litecoin, Bitcoin, technology, policy and the people building open systems.
 
-Useful technology should help people care for one another. Our starting point is simple: make it easy to offer a skill, learn in public, and turn a small contribution into something another person can use.
+Our **Nakamoto standard** is an editorial and engineering lens: open verification, proof of work, peer-to-peer systems and respect for self-custody. It is not a certification, affiliation or promise of investment returns. Compare the evidence. Understand the trade-offs. Bring a good question.
 
-**Satnam Satoshi is the umbrella community. Satoshi Langar is our proposed first service program.** This repository keeps its original `Satoshi-Langar` name and is the public home for the community website, documentation and contribution process.
+This repository keeps its original **Satoshi-Langar** name. It holds the website, research methods, community plans and contribution process. “Satnam Satoshi” and “LTC Media” describe projects; we do not assert a registered trust, incorporated company or charitable status.
 
-Our long-term ambition is a reusable community operating system: shared knowledge, local service, creative work and accountable AI collaboration. We will grow from demonstrated usefulness, with clear ownership and evidence at each step.
+## Read, learn, create, serve
 
-## One community, several ways to serve
-
-| Initiative | Purpose | Current stage |
+| Project | Start here | What exists today |
 |---|---|---|
-| **Satoshi Langar** | Help local people plan and coordinate dignified food and service initiatives | Pilot planning; no operating service claimed |
-| **Kalakar.x** | Give artists, writers and designers a place to create and share with clear attribution | Creative program discovery |
-| **Agent Sangat** | Let AI assist contributors through scoped tasks and human review | Contribution rules and templates; no public agent API |
-| **Lunch Time Conversations** | Original Bitcoin, policy, markets, AI and community journalism | Eight editorial previews, source desk, archive and RSS; human review pending |
-| **Sikh Bitcoin** | Open learning from first principles to protocol depth and sovereignty | Three courses of 21 lessons, exercises and self-check quizzes |
-| **Treasury Intelligence** | Explore transparent, read-only research and accounting | Separate prototypes; no funds managed |
-| **Crypto Kitty** | Study community savings-circle and mutual-aid ideas | Research only; no pool, deposits or promised returns |
+| **LTC Magazine** | [Newsroom & daily issues](https://ltcmagazine.org/conversations/) | Dated editions, sources, special features, archives and RSS; AI-assisted, with human governance |
+| **Sikh Bitcoin** | [The open school](https://satnamsatoshi.com/sikh-bitcoin/) | Three courses of 21 lessons, practice questions and local learning experiments |
+| **MiiKey** | [Self-custody & sovereignty](https://satnamsatoshi.com/miikey/) | Educational resource hub; no custody or wallet service |
+| **Satoshi Langar** | [Food, dignity & seva](https://satnamsatoshi.com/langar/) | Community-kitchen planning and toolkits; no operating kitchen claimed |
+| **Kalakar.x** | [Art, ownership & bitcoin](https://satnamsatoshi.com/kalakar/) | Artist pilot design and tools; no marketplace or payment automation |
+| **Agent Sangat** | [Humans + accountable AI](https://satnamsatoshi.com/agents/) | Scoped contribution rules, human ownership and review; no public agent API |
 
-[Explore the project map](docs/PROJECTS.md) for boundaries, evidence and the next useful outcome for each initiative.
+## The Litecoin anniversary reading room
 
-## Start with one useful contribution
+- **[Proof of Birthday](https://ltcmagazine.org/conversations/specials/proof-of-birthday/)** — 84 illustrated pages tracing Litecoin’s history, builders, mining, privacy and institutional record.
+- **[Charlie Lee: The quiet fork](https://ltcmagazine.org/conversations/specials/charlie-lee/)** — a source-linked profile of his public journey and published vision.
+- **[IYKYK: The overlooked Litecoin](https://ltcmagazine.org/conversations/specials/iykyk/)** — a closer look at technology and community history.
 
-- **Read and write:** [test the newcomer journey](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/47).
-- **Design and test:** [review keyboard navigation](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/48).
-- **Translate:** [help with an English–Punjabi glossary](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/49).
-- **Organize and serve:** [review the Langar planning checklist](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/50).
-- **Build:** read the [development guide](docs/DEVELOPMENT.md), then choose a small issue.
-- **Contribute with AI:** use the [agent contribution brief](docs/AGENT-CONTRIBUTION.md) and name an accountable human operator.
+Litecoin’s public network anniversary is **October 13**. Proof of Birthday is an advance edition with a planned **October 15** cover date and **October 4** research cutoff. Founder review is not independent verification. The specials do not imply contributor, Foundation or issuer endorsement.
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before starting. A GitHub account is needed to post here; reading the site requires no account. Contributions are voluntary unless a separate written arrangement says otherwise. We have no contribution token or automatic reward program.
+## Your first useful contribution
 
-## Our commitments
+1. **Explore:** read an issue or try a lesson—no account needed.
+2. **Choose:** [make a guest contribution plan](https://satnamsatoshi.com/join/), or read [good first tasks](docs/GOOD_FIRST_ISSUES.md).
+3. **Contribute:** propose one bounded improvement, with evidence and a clear outcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md).
+4. **Review:** explain what changed and how you checked it. Keep private information, credentials and wallet material out of public issues.
 
-**Service with dignity.** Consent, privacy and practical usefulness come before publicity or activity counts.
+Useful work includes accessibility checks, corrections, translations, curriculum review, design, documentation and careful open-source improvements. AI contributors should follow the [agent contribution brief](docs/AGENT-CONTRIBUTION.md) with an accountable human operator. Contributions are voluntary unless separately agreed; there is no contribution token or automatic reward program.
 
-**A Bitcoin standard.** Bitcoin and sats are our long-term monetary reference; verification, self-custody and patient stewardship inform our design. This is a community philosophy, not a statement that a treasury has been funded or that returns are assured.
+## Publishing with evidence
 
-**People remain accountable.** AI can research, draft, design and test within an authorized task. Human stewards retain governance, publication, custody and spending authority. [Governance](GOVERNANCE.md) · [Code of conduct](CODE_OF_CONDUCT.md)
+Readers can inspect dates, methods, missing data and corrections. Source availability does not validate every metric. Historical holdings changes are not ETF flows; market snapshots are not offers or personal financial advice. Older features keep their research dates.
 
-**No irreplaceable provider.** We aim for portable code, standard formats, independent copies and tested recovery. GitHub, Vercel and current storage services remain dependencies today. [Architecture](ARCHITECTURE.md)
+A local publishing workflow targets **10 a.m. America/New_York**, subject to host, network, service availability and successful checks. It is not an always-on cloud news service. [Editorial approach](https://ltcmagazine.org/conversations/about/) · [Methodology](https://ltcmagazine.org/conversations/methodology/) · [Daily RSS](https://ltcmagazine.org/conversations/daily.xml) · [Full RSS](https://ltcmagazine.org/conversations/feed.xml)
 
-## Find your way around
+## Current release and boundaries
 
-[Mission](MISSION.md) · [Roadmap](ROADMAP.md) · [Project map](docs/PROJECTS.md) · [Documentation index](docs/README.md) · [Current status](docs/STATUS.md) · [Security](SECURITY.md)
+**Open-source version 0.1.26 · status reviewed October 5, 2026.** The public websites are live. The combined application review remains [draft PR #52](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/52), on [agent/community-ecosystem-20260930](https://github.com/Satnam-Satoshi/Satoshi-Langar/tree/agent/community-ecosystem-20260930). **The deployed website is ahead of `main`.** Read the branch and its release evidence when reviewing current implementation; do not assume a documentation merge deploys application code.
 
-The current combined website/docs review is [PR #52](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/52); `main` still contains earlier application code. Documentation improvements do not merge that application release or the separate [Treasury PR #45](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/45).
+Guest reading, local learning and contribution planning work. Website sign-in and email delivery are not activated. Social accounts are official only when listed in the [verified channel directory](https://satnamsatoshi.com/connect/). Shop items remain concepts; there is no checkout. satnam.x publication is deferred.
 
-Licensed under [Apache-2.0](LICENSE), with [contributor attribution](NOTICE). Public work should be inspectable, reusable and understandable without access to private conversations.
+Humans retain ownership, governance, custody and spending authority. No managed treasury, autonomous portfolio or account-level liquidation monitoring is operating. The 1,000,000-sat figure is planning only. Donation details are published separately; no custody proof, automated receipt or balance-monitoring claim is made.
 
-## Community expansion for review — 0.1.26
+## Find the story—and build on it
 
-The next website revision connects Sikh Bitcoin learning, Langar service, Kalakar artist payments, Lunch Time Conversations, meetups and Agent Sangat. Start with the [detailed ecosystem plan](docs/ECOSYSTEM-PLAN.md), [90-day roadmap](ROADMAP.md), [community launch playbook](docs/COMMUNITY-LAUNCH-PLAYBOOK.md) and [agent team responsibilities](docs/AGENT-TEAM.md).
+[Mission](MISSION.md) · [Roadmap](ROADMAP.md) · [Project map](docs/PROJECTS.md) · [Development](docs/DEVELOPMENT.md) · [Governance](GOVERNANCE.md) · [Security](SECURITY.md) · [Launch campaign](docs/BIRTHDAY-LAUNCH-CAMPAIGN.md)
 
-The website includes 63 lessons, a personal first-contribution planner, seven guided program journeys, eight downloadable toolkits and LTC Media: a redesigned magazine, dated automated source briefings, original feature previews, a source notebook and RSS. Plans and progress stay in the browser. Optional Apple/Google/GitHub/Facebook sign-in has an implementation and [owner setup guide](docs/COMMUNITY-ACCOUNTS.md); provider activation is pending. Social registration, live field operations and payment intake have separate owners and readiness gates. satnam.x publication remains deferred. The publication distinguishes dated observations from news, interpretation and unsupported live claims.
+Verified media profiles: [X @Ltcmagazineorg](https://x.com/Ltcmagazineorg) · [YouTube @LTCMagazine](https://www.youtube.com/@LTCMagazine) · [Instagram @ltcmagazine](https://www.instagram.com/ltcmagazine/). These are new channels; no published video or staffed support service is claimed.
+
+Official project links: [satnamsatoshi.com](https://satnamsatoshi.com/) and [ltcmagazine.org](https://ltcmagazine.org/). Contact: [eddiemalhotra@gmail.com](mailto:eddiemalhotra@gmail.com), designated by the founder for community help, privacy and editorial replies. An email or GitHub contribution does not enroll you in a newsletter.
+
+Licensed under [Apache-2.0](LICENSE), with [attribution](NOTICE). Portable code and standard formats support reuse; GitHub, Vercel and other current hosts remain operational dependencies.

@@ -1,8 +1,12 @@
 import {readdir,readFile,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {validateLtcArchive} from './validate-ltc-archive.mjs';
+import {buildSeoSitemaps,validatePageSeo} from './lib/site-seo.mjs';
 const editions=await validateLtcArchive();
 const root=path.resolve('dist'); let count=0; const failures=[];
+const seoPages=[]; const assetPaths=new Set();
+async function listAssets(dir){for(const entry of await readdir(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())await listAssets(file);else assetPaths.add(path.relative(root,file).split(path.sep).join('/'));}}
+await listAssets(root);
 const fileCache=new Map();
 async function content(file){if(!fileCache.has(file))fileCache.set(file,await readFile(file,'utf8'));return fileCache.get(file);}
 async function walk(dir){
@@ -11,8 +15,14 @@ async function walk(dir){
   if(entry.isDirectory()){await walk(file);continue;}
   if(!entry.name.endsWith('.html'))continue;
   count++; const html=await readFile(file,'utf8');
+  const seo=validatePageSeo(html,path.relative(root,file).split(path.sep).join('/'),{editions,assetPaths});
+  failures.push(...seo.failures.map(message=>`${file}: SEO ${message}`));
+  if(seo.model)seoPages.push(seo.model);
   if(/\bon\w+="|javascript:/i.test(html))failures.push(`${file}: inline executable content`);
   for(const [tag,attrs,body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
+   // Only the exact controlled data block is exempt from executable-script rules;
+   // validatePageSeo checks its keys, values, serialization and complete schema.
+   if(/^\s+type="application\/ld\+json" data-site-seo="v1"\s*$/.test(attrs))continue;
    const src=attrs.match(/\bsrc="([^"]+)"/)?.[1];
    if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js','ecosystem-help.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
    if(src && path.basename(src)==='copy-address.js' && !/\bdata-address-copy(?:=|\s|>)/.test(html))failures.push(`${file}: address-copy script without its scoped marker`);
@@ -36,6 +46,9 @@ async function walk(dir){
  }
 }
 await walk(root);
+for(const [name,expected] of Object.entries(buildSeoSitemaps(seoPages))){
+ try{if(await readFile(path.join(root,name),'utf8')!==expected)failures.push(`${name}: differs from canonical indexed-page policy`);}catch{failures.push(`${name}: missing canonical discovery file`);}
+}
 const exportedIndex=JSON.parse(await readFile(path.join(root,'data/ltc-editions/index.json'),'utf8'));
 if(JSON.stringify(exportedIndex)!==JSON.stringify(editions)) failures.push('Exported edition index differs from validated archive');
 const rss=await readFile(path.join(root,'conversations/feed.xml'),'utf8');
