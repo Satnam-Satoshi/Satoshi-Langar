@@ -62,6 +62,8 @@ Humans retain ownership, governance, custody and spending authority. No managed 
 
 [Mission](MISSION.md) · [Roadmap](ROADMAP.md) · [Project map](docs/PROJECTS.md) · [Development](docs/DEVELOPMENT.md) · [Governance](GOVERNANCE.md) · [Security](SECURITY.md) · [Launch campaign](docs/BIRTHDAY-LAUNCH-CAMPAIGN.md)
 
+Verified media profiles: [X @Ltcmagazineorg](https://x.com/Ltcmagazineorg) · [YouTube @LTCMagazine](https://www.youtube.com/@LTCMagazine) · [Instagram @ltcmagazine](https://www.instagram.com/ltcmagazine/). These are new channels; no published video or staffed support service is claimed.
+
 Official project links: [satnamsatoshi.com](https://satnamsatoshi.com/) and [ltcmagazine.org](https://ltcmagazine.org/). Contact: [eddiemalhotra@gmail.com](mailto:eddiemalhotra@gmail.com), designated by the founder for community help, privacy and editorial replies. An email or GitHub contribution does not enroll you in a newsletter.
 
 Licensed under [Apache-2.0](LICENSE), with [attribution](NOTICE). Portable code and standard formats support reuse; GitHub, Vercel and other current hosts remain operational dependencies.

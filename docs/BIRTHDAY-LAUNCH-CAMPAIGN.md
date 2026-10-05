@@ -1,7 +1,7 @@
 # Litecoin at 15: the open reading table
 ## LTC Magazine × Satnam Satoshi — campaign and channel plan
 
-Prepared October 5, 2026. Campaign posts and trailer below are drafts, not published messages. The founder owns account recovery. YouTube @LTCMagazine has been created and branded with founder-approved terms; no video is published. X email signup requires the owner’s phone app; Instagram registration awaits the owner’s private password/birthday/verification. No social posting scheduler is active.
+Prepared October 5, 2026. Campaign posts and trailer below are drafts, not published messages. The founder owns account recovery. YouTube @LTCMagazine has been created and branded with founder-approved terms; no video is published. The founder completed X registration; https://x.com/Ltcmagazineorg is verified and branded. The founder completed Instagram registration; https://www.instagram.com/ltcmagazine/ is verified and branded. The clickable website field requires the Instagram phone app; the bio includes the domain as text. No social posting scheduler is active.
 
 **Campaign line:** A birthday deserves more than a price chart.
 
@@ -201,7 +201,7 @@ Use two topical hashtags at most on a short post. **#Litecoin** fits the anniver
 
 ## Operational gaps to keep honest
 
-- YouTube https://www.youtube.com/@LTCMagazine (channel UCXha6mWCn3wy1B8FJYeAbgA) was created under the founder’s Google account and branded on October 5. X, Instagram and Telegram remain incomplete. Verify recovery and a human moderation backup before operating discussion channels; add only real public URLs.
+- YouTube https://www.youtube.com/@LTCMagazine (channel UCXha6mWCn3wy1B8FJYeAbgA) was created under the founder’s Google account and branded on October 5. Instagram https://www.instagram.com/ltcmagazine/ is also created and branded. X and Telegram remain incomplete. Verify recovery and a human moderation backup before operating discussion channels; add only real public URLs.
 - Website sign-in remains disabled in the latest release handoff. Google backend configuration exists, but the end-to-end public login check is pending. Do not make one-touch account creation the campaign CTA.
 - Newsletter signup and email delivery remain inactive. Offer the published reading pages and available RSS; do not advertise “daily in your inbox” yet.
 - The daily issue target is 10 a.m. New York through the local Codex publisher. It depends on the host, network and authenticated services. Cloud publishing is inactive; “24/7 newsroom” and guaranteed daily delivery are inaccurate.
