@@ -14,10 +14,12 @@ async function walk(dir){
   if(/\bon\w+="|javascript:/i.test(html))failures.push(`${file}: inline executable content`);
   for(const [tag,attrs,body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
    const src=attrs.match(/\bsrc="([^"]+)"/)?.[1];
-   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
+   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js','ecosystem-help.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
    if(src && path.basename(src)==='copy-address.js' && !/\bdata-address-copy(?:=|\s|>)/.test(html))failures.push(`${file}: address-copy script without its scoped marker`);
+   if(src && path.basename(src)==='ecosystem-help.js' && !/\bdata-ecosystem-help(?:=|\s|>)/.test(html))failures.push(`${file}: ecosystem-help script without its scoped marker`);
   }
-  for(const [tag] of html.matchAll(/<form\b[^>]*>/gi))if(!/data-plan-form/.test(tag)||/\baction=/.test(tag))failures.push(`${file}: unexpected network form`);
+  if(/\bdata-ecosystem-help(?:=|\s|>)/.test(html) && !/<script\b[^>]*src="[^"]*\/ecosystem-help\.js"/.test(html))failures.push(`${file}: community guide is missing its browser enhancement`);
+  for(const [tag] of html.matchAll(/<form\b[^>]*>/gi))if(!/\bdata-(?:plan|guide)-form(?:=|\s|>)/.test(tag)||/\baction=/.test(tag)||(/\bdata-guide-form(?:=|\s|>)/.test(tag)&&!/\bhidden(?:=|\s|>)/.test(tag)))failures.push(`${file}: unexpected network form`);
   for(const [,attr,url] of html.matchAll(/\b(href|src)="([^"]+)"/g)){
    if(/^(https?:|mailto:|data:)/.test(url))continue;
    if (/^(bitcoin:|litecoin:)/.test(url)) { const allowed=['bitcoin:bc1q3qxtztzjp6wllmszv9fryp4rln8wt0er2xz8rx','litecoin:ltc1q78882zg99eedjnscxlv43we2r4exxua4e5c63j']; if(!allowed.includes(url))failures.push(`${file}: unapproved payment URI`); continue; }
@@ -37,6 +39,22 @@ await walk(root);
 const exportedIndex=JSON.parse(await readFile(path.join(root,'data/ltc-editions/index.json'),'utf8'));
 if(JSON.stringify(exportedIndex)!==JSON.stringify(editions)) failures.push('Exported edition index differs from validated archive');
 const rss=await readFile(path.join(root,'conversations/feed.xml'),'utf8');
+const dailyRss=await readFile(path.join(root,'conversations/daily.xml'),'utf8');
+const expectedDailyIds=[...editions].sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)||b.date.localeCompare(a.date)||b.revision-a.revision).map(edition=>`ltc:edition:${edition.id}`);
+const dailyIds=[...dailyRss.matchAll(/<guid isPermaLink="false">([^<]+)<\/guid>/g)].map(match=>match[1]);
+if(JSON.stringify(dailyIds)!==JSON.stringify(expectedDailyIds))failures.push('Daily feed must contain only daily edition publication events in publication order');
+if(!dailyRss.includes('href="https://ltcmagazine.org/conversations/daily.xml"')||dailyRss.includes('ltc:feature:'))failures.push('Daily feed has an invalid canonical URL or editorial preview');
+for(const [,item] of dailyRss.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+ const id=item.match(/<guid isPermaLink="false">ltc:edition:([^<]+)<\/guid>/)?.[1];
+ const edition=editions.find(record=>record.id===id);
+ const asset=edition?.presentation?.artDirection?.coverAsset;
+ const enclosure=item.match(/<enclosure url="([^"]+)" length="(\d+)" type="([^"]+)"\/>/);
+ if(asset){
+  const info=await stat(path.join(root,'magazine',asset));
+  const mime={'.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.webp':'image/webp'}[path.extname(asset).toLowerCase()];
+  if(!enclosure||enclosure[1]!==`https://ltcmagazine.org/magazine/${asset}`||Number(enclosure[2])!==info.size||enclosure[3]!==mime)failures.push(`Daily feed cover differs from saved edition: ${id}`);
+ } else if(enclosure)failures.push(`Daily feed invented a cover for ${id}`);
+}
 for(const edition of editions) {
  const route=`conversations/editions/${edition.id}/index.html`;
  await stat(path.join(root,route));

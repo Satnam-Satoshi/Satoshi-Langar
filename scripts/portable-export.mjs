@@ -7,7 +7,7 @@ async function walk(directory) {
   const input=path.join(directory,entry.name), relative=path.relative(source,input), output=path.join(target,relative);
   if(relative==='conversations/specials/litecoin-at-15') continue;
   if(entry.isDirectory()) { await walk(input); continue; }
-  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','conversations/feed.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
+  const publicExtras=['data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','scripts/ecosystem-help.js','conversations/feed.xml','conversations/daily.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
   if(relative==='magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf') continue;
   if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
   await mkdir(path.dirname(output),{recursive:true});
@@ -21,6 +21,7 @@ async function walk(directory) {
    if(/\bdata-community-auth="/.test(html)) scripts.push('auth');
    if(/\bdata-learning-progress(?:=|\s|>)/.test(html)) scripts.push('learning');
    if(/\bdata-address-copy(?:=|\s|>)/.test(html)) scripts.push('copy-address');
+   if(/\bdata-ecosystem-help(?:=|\s|>)/.test(html)) scripts.push('ecosystem-help');
    html=html.replace('</body>',scripts.map(name=>`<script src="/scripts/${name}.js" defer></script>`).join('')+'</body>');
    html=html.replace(/\b(href|src)="(\/[^"\s]*)"/g,(match,attribute,url)=>{
     if(url.startsWith('//')) return match;

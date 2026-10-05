@@ -1,63 +1,70 @@
-import { PageIntro } from '../components/PageIntro';
-import { ProgramGrid } from '../components/ProgramGrid';
+import styles from './community.module.css';
+import { communityAnswers, communityDestinations, communityPaths } from '../data/community-hub';
+import { latestLtcEdition, editionDateHref, formatEditionDate } from '../data/editions';
+import { repo, propose } from '../data/ecosystem';
 
-export const metadata = { title: 'The ecosystem' };
+export const metadata = {
+  title:'The open table · Community',
+  description:'A home for the Litecoin and Bitcoin curious: learn, build, create and serve. Find community links, free AI Satoshi Ma guidance and a useful first contribution.',
+  openGraph:{ title:'Many minds. One open table.', description:'The Satnam Satoshi community: humans, AI and useful work.', images:[{url:'https://satnamsatoshi.com/images/community/open-table.jpg',width:1672,height:941,alt:'An imagined community sharing knowledge, art and food.'}] },
+};
+const issue = latestLtcEdition;
+const pitch = propose('Community question or contribution','Page or project:\n\nMy question or proposed contribution:\n\nSources / evidence:\n\nOne useful next step:');
+const correction = propose('LTC source check / story pitch','Page / issue date:\n\nClaim to check or story idea:\n\nOriginal source and its date:\n\nSuggested correction or next step:');
+const introPrompt = 'Help me choose a first contribution to Satnam Satoshi. Start by asking about my interests and available time. Use https://satnamsatoshi.com/ecosystem/ and cite the project pages you use. Distinguish current features from proposals. If you cannot read a page, say so. Do not ask for wallet secrets or private information.';
 
-const flow = [
-  ['Learn', 'Sikh Bitcoin gives newcomers the knowledge to participate.', '/sikh-bitcoin/'],
-  ['Create', 'Kalakar artists can turn ideas into stories, lessons and invitations.', '/kalakar/'],
-  ['Gather', 'Meetup plans help people find a purpose and prepare a welcoming space.', '/meetups/'],
-  ['Serve', 'Langar planning begins with a local need and a responsible human host.', '/langar/'],
-  ['Verify', 'Humans review service evidence; agents help organize it.', '/agents/'],
-  ['Share', 'LTC connects what we learn to sources, context and corrections.', '/conversations/'],
-];
+export default function CommunityPage(){return <main className={styles.hub}>
+  <section className={styles.hero} aria-labelledby="community-title">
+    <img src="/images/community/open-table.jpg" width="1672" height="941" alt="An imagined community sharing books, creative work and food around a table on blue and silver terraces." fetchPriority="high" />
+    <div className={styles.heroShade}/>
+    <div className={styles.heroBody}>
+      <p className={styles.eyebrow}>SATNAM SATOSHI / THE OPEN TABLE</p>
+      <h1 id="community-title">Many minds.<br/>One <em>open table.</em></h1>
+      <p className={styles.heroLead}>Litecoin family. Bitcoin thinkers.<br/>Curious humans. Helpful AI.<br/>Bring what you know. Build something useful.</p>
+      <div className={styles.actions}><a className={styles.primary} href="#choose-a-path">Find your place <span>↗</span></a><a className={styles.lightLink} href="#ask-ma">Meet AI Satoshi Ma ↓</a></div>
+    </div>
+    <div className={styles.heroFoot}><span>ROOTED IN SEVA. OPEN TO EVERYONE.</span><span>Original AI illustration · a vision, not an event</span></div>
+  </section>
+  <nav className={styles.jumpNav} aria-label="Community sections"><a href="#ask-ma">Ask Ma</a><a href="#community-channels">Find your people</a><a href="#community-reading">On the reading table</a><a href="#contribute">Make a contribution</a><a href="#how-we-gather">How we gather</a></nav>
 
-const firstResults = [
-  { title: 'I want to learn', result: 'Read one lesson, try the exercise and check your understanding.', href: '/sikh-bitcoin/', label: 'Choose a lesson' },
-  { title: 'I want to help a kitchen', result: 'Write a local-need brief or review a consent-safe service checklist.', href: '/langar/#get-started', label: 'Start a Langar brief' },
-  { title: 'I create art or stories', result: 'Describe one work, its audience and how you want it to be used.', href: '/kalakar/#get-started', label: 'Make a creative brief' },
-  { title: 'I want to bring people together', result: 'Prepare a meetup purpose, agenda and host-readiness checklist.', href: '/meetups/#get-started', label: 'Plan a gathering' },
-  { title: 'I want to understand the news', result: 'Read an original article and inspect the sources behind a claim.', href: '/conversations/', label: 'Open the magazine' },
-  { title: 'I work with an AI agent', result: 'Define a bounded task, human reviewer and evidence of completion.', href: '/agents/#get-started', label: 'Brief one agent' },
-  { title: 'My team can contribute', result: 'Propose one deliverable, clear permissions and a way to review it.', href: '/partners/#get-started', label: 'Scope a collaboration' },
-  { title: 'I can check a number', result: 'Trace one public treasury claim to its date, definition and original source.', href: '/treasury/#get-started', label: 'Create an evidence note' },
-  { title: 'I study community cooperation', result: 'Document a mutual-aid example and its unanswered governance questions.', href: '/crypto-kitty/#get-started', label: 'Start a research note' },
-];
+  <section id="choose-a-path" className={styles.section} aria-labelledby="path-title">
+    <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>01 / YOU BELONG IN THE CONVERSATION</p><h2 id="path-title">Come as you are.<br/><em>Leave with a next step.</em></h2></div><p>You do not need a wallet, a membership or the right vocabulary. Start with curiosity. Find one useful thing to learn, make or share.</p></div>
+    <div className={styles.pathGrid}>{communityPaths.map(p=><a className={styles.pathCard} href={p.href} key={p.number}><div className={styles.pathTop}><span>{p.number} / {p.role}</span><b aria-hidden="true">{p.symbol}</b></div><h3>{p.title}</h3><p>{p.body}</p><strong>{p.label}<span aria-hidden="true">↗</span></strong></a>)}</div>
+  </section>
 
-export default function Page() {
-  return (
-    <main>
-      <PageIntro eyebrow="One community · Connected programs" title="An ecosystem built around service." description="Knowledge becomes confidence. Creativity brings people together. Shared work can become a meal, a useful tool or a story that helps someone else.">
-        <div className="launch-actions"><a className="launch-button" href="#choose-a-path">Choose one useful next step ↓</a><a href="/join/">Make a personal contribution plan →</a></div>
-      </PageIntro>
-      <section className="reading-content wide-content" id="choose-a-path" aria-labelledby="first-result-title">
-        <span className="inline-tag">START WITH A RESULT · 0.1.26</span>
-        <h2 id="first-result-title">Leave with something useful.</h2>
-        <p>You can learn, plan or draft without joining a paid service or connecting a wallet. Each planning path includes an editable toolkit, a completion check and a choice about what to share.</p>
-        <div className="task-grid">
-          {firstResults.map(({ title, result, href, label }) => (
-            <article className="task-card" key={href}><h3>{title}</h3><p>{result}</p><a href={href}>{label} →</a></article>
-          ))}
-        </div>
-        <h3>Prepare → check → choose what to share</h3>
-        <p>A private draft is a useful result. Download a template and keep it on your device, or choose to open a public GitHub proposal that you review and submit yourself. There is no automatic event booking, role assignment or promise of funding.</p>
-      </section>
-      <section className="launch-wrap story-section" aria-label="How the programs connect">
-        <div className="ecosystem-flow">{flow.map(([name, body, href], index) => <a href={href} key={name}><span>{String(index + 1).padStart(2, '0')}</span><h2>{name}</h2><p>{body}</p><b aria-hidden="true">→</b></a>)}</div>
-        <div className="purpose-note"><strong>At the center: human dignity.</strong><p>AI can support each stage. People decide what is needed, review the evidence and control resources. Taking part never requires buying a token or proving a belief.</p></div>
-      </section>
-      <section className="project-section"><div className="launch-wrap"><ProgramGrid /></div></section>
-      <section className="reading-content">
-        <h2>What one local pilot could look like</h2>
-        <p>A volunteer reads a beginner lesson. An artist creates a kitchen poster with clear permission to use it. A local host plans a gathering. An agent drafts a checklist for an experienced human to review. After the local plan is approved, sevadars prepare and serve meals. Human stewards review the result, and an editor may propose a consented account for LTC.</p>
-        <p>This is a proposed workflow, not a completed event. Every kitchen needs a real host, appropriate local safety review, resources and consent before it opens.</p>
-        <h2>How resources move</h2>
-        <p>Knowledge and code move openly. In the proposed payment flow, artist payments would go to the artist’s chosen wallet. Kitchen resources need a stated purpose and human-controlled budget. Any future grants would reimburse or recognize pre-agreed work; they remain separate from the free meal.</p>
-        <p><a href="/donate/">See the current BTC/LTC support options and limits</a>. Donation requests do not establish an operating kitchen, an automated grant program or account-level fund monitoring.</p>
-        <h2>Research beyond the first pilot</h2>
-        <p><a href="/crypto-kitty/#get-started">Crypto Kitty</a> explores community savings governance. <a href="/treasury/#get-started">Treasury Intelligence</a> studies public data. Neither is an active pooled fund, lending service or autonomous portfolio manager.</p>
-        <a className="launch-button" href="/roadmap/">See the delivery roadmap →</a>
-      </section>
-    </main>
-  );
-}
+  <section className={styles.guideSection} id="ask-ma" aria-labelledby="guide-title" data-ecosystem-help>
+    <div className={styles.guideIntro}><div className={styles.maMark} aria-hidden="true"><span>Ma</span><i>✳</i></div><p className={styles.eyebrow}>02 / AI SATOSHI MA · COMMUNITY GUIDE</p><h2 id="guide-title">A little guidance.<br/><em>A useful beginning.</em></h2><p>Find a lesson, a community or a first contribution. Search prepared answers from the project’s published pages.</p><div className={styles.guideLabel}>FREE GUIDE · NO ACCOUNT NEEDED</div><p className={styles.fine}>AI-prepared answers, not a live AI chat. Search stays in this page’s memory. No questions are sent or saved by this guide.</p><a className={styles.textLink} href="/agents/">Meet the role, responsibilities &amp; limits ↗</a></div>
+    <div className={styles.guidePanel}>
+      <form data-guide-form data-guide-enhancement hidden className={styles.guideForm}><label htmlFor="community-question">What would you like help with?</label><div><input id="community-question" data-guide-query type="search" maxLength={240} autoComplete="off" placeholder="Try: how can I help with Langar?"/><button type="submit">Find an answer <span aria-hidden="true">↗</span></button></div><p>Use general questions. Never enter passwords, seed words or personal records.</p></form>
+      <div data-guide-enhancement hidden className={styles.suggestions}><span>Try a starting point</span>{[['start','I’m new here'],['join','Find my people'],['langar','Help with Langar'],['build','Build with AI']].map(([id,label])=><button type="button" data-guide-suggestion={id} key={id}>{label}</button>)}<button type="button" data-guide-reset>Show all answers</button></div>
+      <noscript><p className={styles.noScript}>Browse the prepared answers below. Search and prompt copying become available when JavaScript is enabled.</p></noscript>
+      <p data-guide-status role="status" aria-live="polite" className={styles.guideStatus}>10 prepared answers · choose any question</p>
+      <div className={styles.answers}>{communityAnswers.map(a=><details data-guide-card={a.id} data-guide-keywords={a.keywords} key={a.id}><summary><span data-guide-question>{a.question}</span><span aria-hidden="true">+</span></summary><div><p data-guide-answer>{a.answer}</p><ul>{a.links.map(([label,href])=><li key={href}><a data-guide-source href={href}>{label} ↗</a></li>)}</ul><small>Guide checked October 5, 2026 · follow the sources for details</small></div></details>)}</div>
+      <div className={styles.handoff}><span className={styles.eyebrow}>WANT TO KEEP EXPLORING?</span><h3>Take your question to ChatGPT.</h3><p>Prepare a prompt here, then choose whether to paste and send it in ChatGPT. Nothing is sent automatically. ChatGPT is a separate service with its own account, usage limits and privacy terms.</p><div data-guide-enhancement hidden><label htmlFor="community-prompt">Your editable prompt</label><textarea id="community-prompt" data-guide-prompt rows={6} maxLength={6000} defaultValue={introPrompt}/><div className={styles.actions}><button type="button" className={styles.primary} data-guide-copy>Copy prompt</button><a className={styles.textLink} href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT ↗</a></div><p data-guide-copy-status role="status" aria-live="polite" className={styles.fine}>Copy first. Open ChatGPT, paste, then send when you are ready.</p></div><noscript><p><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Open ChatGPT ↗</a> and share a link to this page with your question.</p></noscript></div>
+    </div>
+  </section>
+
+  <section className={styles.section} id="community-channels" aria-labelledby="channels-title">
+    <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>03 / FIND YOUR PEOPLE</p><h2 id="channels-title">One family.<br/><em>Many places to gather.</em></h2></div><p>Follow the builders. Ask a thoughtful question. Share something useful. Every space has its own people, rules and point of view.</p></div>
+    <div className={styles.ourCommons}><div><span className={styles.eyebrow}>OUR WORKING COMMONS</span><h3>Built in public.<br/>A place for your first idea.</h3><p>Our GitHub repository is where code, questions and proposals can become reviewable work.</p></div><div className={styles.commonsLinks}><a href={`${repo}/issues`}>Browse the public issue board <span>↗</span></a><a href={pitch}>Draft a question or contribution <span>↗</span></a><a href="/conversations/feed.xml">Follow LTC’s publication feed · RSS <span>↗</span></a><small>GitHub requires an account to post. You review and submit your own public message.</small></div></div>
+    <div className={styles.channelNote}><strong>LITECOIN &amp; BITCOIN COMMUNITIES</strong><p>These are external destinations, independently operated and moderated. Listings do not imply affiliation or endorsement. Links were checked against their source pages on October 5, 2026; these are not live social feeds.</p></div>
+    <div className={styles.channelGrid}>{communityDestinations.map(d=><article key={d.href} className={styles.channelCard}><div><span>{d.network}</span><small>{d.owner}</small></div><h3><a href={d.href} target="_blank" rel="noopener noreferrer">{d.label} <span aria-hidden="true">↗</span></a></h3><p>{d.detail}</p><a className={styles.sourceLink} href={d.evidence}>Source of this link ↗</a></article>)}</div>
+    <div className={styles.pending}><span className={styles.pendingDot}/><p><strong>Our own X &amp; Telegram spaces are being prepared.</strong> Their links will appear here once ownership, recovery and moderation are in place. <a href="/connect/">See our channel status →</a></p></div>
+  </section>
+
+  <section className={styles.readingSection} id="community-reading" aria-labelledby="reading-title"><div className={styles.sectionHeading}><div><p className={styles.eyebrow}>04 / ON THE READING TABLE</p><h2 id="reading-title">Stay curious.<br/><em>Bring receipts.</em></h2></div><p>Read the latest published issue, explore Litecoin’s story and check the source behind a claim.</p></div><div className={styles.readingGrid}>
+    {issue&&<a className={styles.issueCard} href={editionDateHref(issue.date)}><div className={styles.issueArt}>{issue.presentation?.artDirection?.coverAsset&&<img src={`/magazine/${issue.presentation.artDirection.coverAsset}`} alt="Original illustrated cover artwork for the latest LTC issue." width="1200" height="800" loading="lazy"/>}<span>LTC<br/><small>PROOF OF WORK</small></span></div><div><p className={styles.eyebrow}>LATEST PUBLISHED / {formatEditionDate(issue.date)}</p><h3>{issue.presentation?.cover.title||issue.title}</h3><p>Network evidence, open money, policy records and the people building the next chapter.</p><strong>Read the daily issue ↗</strong></div></a>}
+    <div className={styles.readingStack}><a href="/conversations/specials/proof-of-birthday/"><span>THE COLLECTOR’S EDITION / 84 PAGES</span><h3>Proof of Birthday.</h3><p>Fifteen years of Litecoin. A story worth turning the pages for.</p><b>Open the special ↗</b></a><a href="/conversations/litecoin/"><span>THE LITECOIN FIELDBOOK</span><h3>Follow the builders.</h3><p>Foundation projects, MWEB, LitVM, open-source work and the questions to ask.</p><b>Explore the ecosystem ↗</b></a><a href="/conversations/archive/"><span>THE PUBLICATION LIBRARY</span><h3>Every issue has a date.</h3><p>Revisit past editions, original records and visible corrections.</p><b>Browse the archive ↗</b></a></div>
+  </div><div className={styles.resourceRail}><a href="https://litecoin.com/news">Foundation news ↗</a><a href="https://litecoinregister.com/?c=table">Litecoin Register ↗</a><a href="https://bitcoincore.org/en/releases/">Bitcoin Core releases ↗</a><a href="/conversations/desks/">All LTC research desks →</a></div><p className={styles.fine}>External publishers retain their own dates and methods. A tracker entry or social post is a starting point for research, not verified investment advice.</p></section>
+
+  <section className={styles.section} id="contribute" aria-labelledby="contribute-title"><div className={styles.sectionHeading}><div><p className={styles.eyebrow}>05 / SMALL ACTS. REAL CONTRIBUTIONS.</p><h2 id="contribute-title">Make yourself<br/><em>useful to someone.</em></h2></div><p>Nakamoto’s open networks meet the spirit of seva: learn openly, do the work and share what helps. These are starting ideas, not assigned or funded tasks.</p></div><div className={styles.taskList}>{[
+      ['15 MINUTES','Check one claim.','Choose an LTC passage. Find its original source and date. Suggest a correction if the evidence differs.','Draft a source check',correction],
+      ['30 MINUTES','Make an idea clearer.','Sketch a diagram, explain one technical term or draft a translation with permission and attribution.','Start a creative brief','/kalakar/#get-started'],
+      ['ONE FOCUSED SESSION','Improve the open commons.','Reproduce a bug, test an accessible flow or review a small documentation change.','Read the contribution guide',`${repo}/blob/main/CONTRIBUTING.md`],
+      ['START A LOCAL CONVERSATION','Plan a table for others.','Identify a local need and a responsible host. Prepare a Langar or meetup brief before announcing an event.','Plan a gathering','/meetups/#get-started'],
+    ].map(([time,title,body,label,href],i)=><article key={title}><span className={styles.taskNumber}>0{i+1}</span><div><span className={styles.eyebrow}>{time}</span><h3>{title}</h3><p>{body}</p></div><a href={href}>{label} ↗</a></article>)}</div><div className={styles.buildLinks}><p><strong>Want to help the networks directly?</strong> Read each project’s own contribution process before proposing work.</p><a href="https://github.com/litecoin-project/litecoin/blob/master/CONTRIBUTING.md">Litecoin Core ↗</a><a href="https://bitcoincore.org/en/contribute/">Bitcoin Core ↗</a><a href="https://litecoin.com/projects">Foundation projects ↗</a></div></section>
+
+  <section className={styles.serviceSection} id="how-we-gather" aria-labelledby="gather-title"><div><p className={styles.eyebrow}>06 / FROM KNOWLEDGE TO SERVICE</p><h2 id="gather-title">A better world<br/>starts with <em>a place at the table.</em></h2><p>Langar inspires an open welcome and a shared meal. We are designing ways for people and AI tools to help: learning, planning, creating, checking and serving together.</p><a className={styles.primary} href="/langar/">Discover Satoshi Langar ↗</a></div><ol>{[['Learn','A newcomer builds confidence.'],['Create','An artist makes the idea understandable.'],['Gather','A human host plans a welcoming space.'],['Serve','Sevadars carry out an approved local plan.'],['Verify & share','Humans review consent-safe evidence; AI helps organize it.']].map(([name,body])=><li key={name}><strong>{name}</strong><p>{body}</p></li>)}</ol><p className={styles.serviceNote}>This is a proposed pilot workflow. Kitchens need real hosts, resources, consent and local safety review. No operating kitchen, automatic reward or completed event is claimed.</p></section>
+  <section className={styles.covenant} aria-label="Community principles"><p className={styles.eyebrow}>THE WAY WE GATHER MATTERS</p><div><article><span>01</span><h3>Be generous with knowledge.</h3><p>Welcome beginners. Explain the unfamiliar. Challenge ideas without attacking people.</p></article><article><span>02</span><h3>Verify before you amplify.</h3><p>Link the source, keep its date and disclose uncertainty. Correct mistakes in the open.</p></article><article><span>03</span><h3>Keep people in charge.</h3><p>Humans own decisions and resources. AI helps with bounded tasks, never wallet secrets or private recovery.</p></article></div><a href={`${repo}/blob/main/CODE_OF_CONDUCT.md`}>Read the community code →</a><a href="/privacy/">Privacy &amp; reporting limits →</a></section>
+  <section className={styles.closing}><span className={styles.eyebrow}>YOU DO NOT HAVE TO BUILD EVERYTHING.</span><h2>Bring one good question.<br/><em>Leave one useful thing.</em></h2><div className={styles.actions}><a className={styles.primary} href="/join/">Make my first contribution plan ↗</a><a href="#ask-ma">Help me choose, Ma ↑</a></div><p>No account or wallet needed. Your draft stays with you until you choose to share.</p></section>
+</main>}

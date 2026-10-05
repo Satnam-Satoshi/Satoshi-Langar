@@ -2,7 +2,9 @@ import {build} from 'esbuild';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {validateAuthConfig} from './community-core.mjs';
 import {validateLtcArchive} from './validate-ltc-archive.mjs';
+import {validateNewsletterConfig} from './lib/newsletter-config.mjs';
 await validateLtcArchive();
+validateNewsletterConfig(JSON.parse(await readFile('config/newsletter.json','utf8')));
 await mkdir('public/scripts',{recursive:true});
 await mkdir('public/data',{recursive:true});
 const enabled=process.env.COMMUNITY_AUTH_ENABLED==='true';
@@ -14,5 +16,5 @@ if(config.enabled){
  if(!origins.includes(config.url))throw new Error('Add the exact configured authentication origin to connect-src before enabling accounts.');
 }
 await writeFile('public/data/community-auth.json',JSON.stringify(config,null,2)+'\n');
-await build({entryPoints:['scripts/browser/community.mjs','scripts/browser/auth.mjs','scripts/browser/copy-address.mjs'],outdir:'public/scripts',bundle:true,minify:true,format:'iife',platform:'browser',target:['safari16','chrome110'],logLevel:'warning'});
+await build({entryPoints:['scripts/browser/community.mjs','scripts/browser/auth.mjs','scripts/browser/copy-address.mjs','scripts/browser/ecosystem-help.mjs'],outdir:'public/scripts',bundle:true,minify:true,format:'iife',platform:'browser',target:['safari16','chrome110'],logLevel:'warning'});
 console.log(`Browser enhancements built; community auth ${config.enabled?'configured':'inactive'}.`);
