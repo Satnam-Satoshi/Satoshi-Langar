@@ -16,5 +16,5 @@ if(config.enabled){
  if(!origins.includes(config.url))throw new Error('Add the exact configured authentication origin to connect-src before enabling accounts.');
 }
 await writeFile('public/data/community-auth.json',JSON.stringify(config,null,2)+'\n');
-await build({entryPoints:['scripts/browser/community.mjs','scripts/browser/auth.mjs','scripts/browser/copy-address.mjs','scripts/browser/ecosystem-help.mjs'],outdir:'public/scripts',bundle:true,minify:true,format:'iife',platform:'browser',target:['safari16','chrome110'],logLevel:'warning'});
+await build({entryPoints:['scripts/browser/community.mjs','scripts/browser/auth.mjs','scripts/browser/copy-address.mjs','scripts/browser/ecosystem-help.mjs','scripts/browser/learning.mjs'],outdir:'public/scripts',bundle:true,minify:true,format:'iife',platform:'browser',target:['safari16','chrome110'],logLevel:'warning'});
 console.log(`Browser enhancements built; community auth ${config.enabled?'configured':'inactive'}.`);

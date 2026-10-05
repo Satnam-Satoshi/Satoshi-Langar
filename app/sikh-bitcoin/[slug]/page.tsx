@@ -1,101 +1,19 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { PageIntro } from '../../components/PageIntro';
 import { courses, getCourseLessons, lessons } from '../../data/courses';
+import { quizAnswers } from '../../data/learning-quiz-answers';
 import { LearningProgress } from '../components/LearningProgress';
-
-type LessonPageProps = { params: Promise<{ slug: string }> };
-export const dynamicParams = false;
-export function generateStaticParams() { return lessons.map(({ slug }) => ({ slug })); }
-export async function generateMetadata({ params }: LessonPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const lesson = lessons.find((item) => item.slug === slug);
-  if (!lesson) notFound();
-  return { title: `${lesson.title} · Sikh Bitcoin`, description: lesson.description };
-}
-
-export default async function LessonPage({ params }: LessonPageProps) {
-  const { slug } = await params;
-  const lesson = lessons.find((item) => item.slug === slug);
-  if (!lesson) notFound();
-  const course = courses.find(({ id }) => id === lesson.courseId);
-  if (!course) notFound();
-  const courseLessons = getCourseLessons(course.id);
-  const previousLesson = courseLessons[lesson.order - 2];
-  const nextLesson = courseLessons[lesson.order];
-  const nextCourse = courses[courses.findIndex(({ id }) => id === course.id) + 1];
-
-  return (
-    <main>
-      <PageIntro eyebrow={`Sikh Bitcoin · ${course.level} · Lesson ${lesson.order} of 21`} title={lesson.title} description={lesson.description} />
-      <article className="reading-content">
-        <nav className="flex flex-wrap gap-5" aria-label="Learning section">
-          <a href={`/sikh-bitcoin/course/${course.id}/`}>← {course.title}</a>
-          <a href="/sikh-bitcoin/">All courses</a>
-        </nav>
-        <p className="status-note">About {lesson.minutes} minutes with practice. You only need something to take notes with. No real wallet details or payments are part of this lesson.</p>
-        <details>
-          <summary>Course contents · Lesson {lesson.order} of 21</summary>
-          <ol>
-            {courseLessons.map((item) => (
-              <li key={item.slug}>
-                <a href={`/sikh-bitcoin/${item.slug}/`} data-learning-lesson-link={item.slug} aria-current={item.slug === slug ? 'page' : undefined}>{item.title}</a>
-                <span className="!text-sm" data-learning-completed={item.slug} hidden> · Marked complete</span>
-              </li>
-            ))}
-          </ol>
-        </details>
-        <h2>What you will learn</h2>
-        <ul>{lesson.outcomes.map((outcome) => <li key={outcome}>{outcome}</li>)}</ul>
-        {lesson.sections.map((section) => (
-          <section key={section.title}>
-            <h2>{section.title}</h2>
-            {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
-            {section.sourceIds && (
-              <p className="!text-sm">Read the source:{' '}
-                {section.sourceIds.map((id, index) => {
-                  const source = lesson.sources.find((item) => item.id === id);
-                  return source ? <span key={id}>{index > 0 ? ' · ' : ''}<a href={source.url}>{source.title}</a></span> : null;
-                })}
-              </p>
-            )}
-          </section>
-        ))}
-        <section aria-labelledby="practice">
-          <h2 id="practice">{lesson.exercise.title}</h2>
-          <p>{lesson.exercise.prompt}</p>
-          <details><summary>Reveal the worked answer</summary><p>{lesson.exercise.answer}</p></details>
-        </section>
-        <section aria-labelledby="self-check">
-          <h2 id="self-check">Check your understanding</h2>
-          <p>Choose an answer in your head or on paper, then reveal the explanation. Retry whenever you like. Answers are not submitted or scored; completion marks are your own learning notes.</p>
-          {lesson.quiz.map((question, index) => (
-            <section key={question.question} aria-labelledby={`question-${index + 1}`}>
-              <h3 id={`question-${index + 1}`}>{index + 1}. {question.question}</h3>
-              <ul>{question.options.map((option) => <li key={option}>{option}</li>)}</ul>
-              <details><summary>Reveal answer {index + 1}</summary><p>{question.answer}</p></details>
-            </section>
-          ))}
-        </section>
-        <h2>Take this with you</h2>
-        <p>{lesson.takeaway}</p>
-        <LearningProgress course={course} lessons={courseLessons} currentSlug={lesson.slug} />
-        <nav className="my-8 flex flex-wrap items-center gap-6" aria-label="Lesson navigation">
-          {previousLesson && <a href={`/sikh-bitcoin/${previousLesson.slug}/`}>← {previousLesson.title}</a>}
-          {nextLesson ? (
-            <a className="launch-button" href={`/sikh-bitcoin/${nextLesson.slug}/`}>Next: {nextLesson.title} <span aria-hidden="true">→</span></a>
-          ) : (
-            <a className="launch-button" href={nextCourse ? `/sikh-bitcoin/course/${nextCourse.id}/` : '/sikh-bitcoin/'}>{nextCourse ? `Explore ${nextCourse.title}` : 'Explore all courses'} <span aria-hidden="true">→</span></a>
-          )}
-        </nav>
-        <aside className="source-notes" aria-labelledby="sources">
-          <h2 id="sources">Read and verify</h2>
-          <p>Primary references checked October 1, 2026. Classroom scenarios and calculations are original illustrations, not live data. Specifications describe their stated scope; implementation and operational details can change.</p>
-          <ul>{lesson.sources.map((source) => <li key={source.id}><a href={source.url}>{source.title}</a></li>)}</ul>
-          <p>AI-assisted educational material; independent subject-matter review is pending. No accreditation, institutional endorsement or individualized financial advice is claimed.</p>
-          <p>Found an unclear explanation? <a href="https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/new">Suggest a correction on GitHub</a> without wallet secrets or personal payment details.</p>
-        </aside>
-      </article>
-    </main>
-  );
-}
+import { LessonVisual, courseStyle } from '../components/LearningVisuals';
+import s from '../learning.module.css';
+type Props={params:Promise<{slug:string}>};
+export const dynamicParams=false;
+export function generateStaticParams(){return lessons.map(({slug})=>({slug}))}
+export async function generateMetadata({params}:Props):Promise<Metadata>{const{slug}=await params;const l=lessons.find(l=>l.slug===slug);if(!l)notFound();return{title:`${l.title} · Sikh Bitcoin`,description:l.description}}
+export default async function LessonPage({params}:Props){const{slug}=await params;const l=lessons.find(l=>l.slug===slug);if(!l)notFound();const c=courses.find(c=>c.id===l.courseId);if(!c)notFound();const ls=getCourseLessons(c.id),prev=ls[l.order-2],next=ls[l.order],nextCourse=courses[courses.findIndex(v=>v.id===c.id)+1];return <main className={s.school}>
+ <header className={s.lessonHero}><div className={s.wrap}><nav className={s.breadcrumbs} aria-label="Learning breadcrumb"><a href="/sikh-bitcoin/">The open school</a><span aria-hidden="true">/</span><a href={`/sikh-bitcoin/course/${c.id}/`}>{c.title}</a></nav><span className={s.eyebrow}>Lesson {String(l.order).padStart(2,'0')} / 21 · {c.level}</span><h1>{l.title}</h1><p>{l.description}</p><div className={s.lessonMeta}><span>{l.minutes} MIN WITH PRACTICE</span><span>READ → TRY → REFLECT</span><span>NO WALLET NEEDED</span></div></div></header>
+ <div className={`${s.wrap} ${s.readingLayout}`}><aside className={s.lessonSidebar}><span className={s.eyebrow}>In this lesson</span><a href="#the-idea">See the idea</a><a href="#read">Read the story</a><a href="#practice">Try the exercise</a><a href="#self-check">Check your thinking</a><a href="#takeaway">Take it with you</a><details><summary>All 21 lessons</summary><ol>{ls.map(item=><li key={item.slug}><a href={`/sikh-bitcoin/${item.slug}/`} aria-current={item.slug===slug?'page':undefined}>{item.title}</a><span data-learning-completed={item.slug} hidden> · Complete</span></li>)}</ol></details></aside>
+ <article className={s.lessonBody}><section id="the-idea"><div className={s.outcomes}><h2>By the end, you’ll be able to…</h2><ul>{l.outcomes.map(o=><li key={o}>{o}</li>)}</ul></div><LessonVisual lesson={l}/></section><div id="read">{l.sections.map((section,i)=><section className={s.readingSection} key={section.title}><h2 data-section={`READ / ${String(i+1).padStart(2,'0')}`}>{section.title}</h2>{section.paragraphs.map(p=><p key={p}>{p}</p>)}{section.sourceIds&&<p className={s.note}>Follow the source: {section.sourceIds.map((id,j)=>{const source=l.sources.find(v=>v.id===id);return source?<span key={id}>{j>0?' · ':''}<a href={source.url}>{source.title}</a></span>:null})}</p>}</section>)}</div>
+ <section id="practice" className={s.practice}><span className={s.eyebrow}>Your turn / A paper experiment</span><h2>{l.exercise.title}</h2><p>{l.exercise.prompt}</p><details><summary>I’ve tried it — show the worked answer</summary><p>{l.exercise.answer}</p></details><p className={s.note}>Want to explore with buttons and instant feedback? <a href={`/sikh-bitcoin/lab/#${courseStyle[c.id].lab}`}>Try the practice lab ↗</a></p></section>
+ <section id="self-check"><span className={s.eyebrow}>Think it through</span><h2>Make a choice. Discover why.</h2><p>Choose an answer and check the explanation. You can retry as often as you like. These are practice questions, not a test of mastery; answers are not saved or sent.</p>{l.quiz.map((q,i)=><fieldset className={s.quiz} data-learning-quiz data-answer={quizAnswers[slug][i]} key={q.question}><legend>{i+1}. {q.question}</legend><div data-quiz-options hidden>{q.options.map((o,j)=><label key={o}><input type="radio" name={`quiz-${slug}-${i}`} value={j}/><span>{o.replace(/^[A-Z]\.\s*/,'')}</span></label>)}</div><ul data-quiz-fallback>{q.options.map(o=><li key={o}>{o}</li>)}</ul><button type="button" className={s.secondary} data-quiz-check hidden>Check my answer</button><p data-quiz-feedback aria-live="polite" hidden/><details data-quiz-explanation><summary>Read the explanation</summary><p>{q.answer.replace(/^[A-Z]\.\s*/,'')}</p></details></fieldset>)}</section>
+ <section id="takeaway" className={s.takeaway}><h2>One idea to take with you</h2><p>{l.takeaway}</p></section><LearningProgress course={c} lessons={ls} currentSlug={slug}/><nav className={s.lessonNav} aria-label="Lesson navigation"><a href={prev?`/sikh-bitcoin/${prev.slug}/`:`/sikh-bitcoin/course/${c.id}/`}><span>← Back</span>{prev?.title||'Course map'}</a><a href={next?`/sikh-bitcoin/${next.slug}/`:nextCourse?`/sikh-bitcoin/course/${nextCourse.id}/`:'/sikh-bitcoin/'}><span>{next?'Up next →':'Keep exploring →'}</span>{next?.title||nextCourse?.title||'All learning paths'}</a></nav>
+ <aside className={s.sourcebook} aria-labelledby="sources"><h2 id="sources">Read. Question. Verify.</h2><p>Primary lesson references checked October 1, 2026. Classroom scenarios are original illustrations, not live data. Implementation and operational details can change.</p><ul>{l.sources.map(source=><li key={source.id}><a href={source.url}>{source.title}</a></li>)}</ul><p>AI-assisted material; independent subject-matter review is pending. Completion is not accreditation or individualized financial advice. <a href="https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/new">Suggest a correction</a> without sharing private wallet details.</p></aside></article></div></main>}

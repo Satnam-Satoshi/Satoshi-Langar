@@ -19,7 +19,7 @@ async function walk(directory) {
    const scripts=[];
    if(/\bdata-community="/.test(html)) scripts.push('community');
    if(/\bdata-community-auth="/.test(html)) scripts.push('auth');
-   if(/\bdata-learning-progress(?:=|\s|>)/.test(html)) scripts.push('learning');
+   if(/\bdata-learning-(?:progress|hub|lab)(?:=|\s|>)/.test(html)) scripts.push('learning');
    if(/\bdata-address-copy(?:=|\s|>)/.test(html)) scripts.push('copy-address');
    if(/\bdata-ecosystem-help(?:=|\s|>)/.test(html)) scripts.push('ecosystem-help');
    html=html.replace('</body>',scripts.map(name=>`<script src="/scripts/${name}.js" defer></script>`).join('')+'</body>');

@@ -1,77 +1,16 @@
 import type { Metadata } from 'next';
-import { PageIntro } from '../components/PageIntro';
 import { courses, getCourseLessons } from '../data/courses';
-
-export const metadata: Metadata = {
-  title: 'Sikh Bitcoin · Learn together',
-  description: 'Three free Bitcoin courses, 63 complete lessons, exercises and self-checks. Learn foundations, technical depth and self-custody without a wallet or sign-in.',
-};
-
-export default function SikhBitcoinPage() {
-  return (
-    <main>
-      <PageIntro
-        eyebrow="Sikh Bitcoin · Community learning"
-        title="Learn deeply. Verify for yourself."
-        description="From your first Bitcoin question to a careful self-custody design. Three open courses, 63 complete lessons and room to learn at your own pace. No wallet, purchase or sign-in required."
-      />
-      <section className="reading-content wide-content" aria-labelledby="choose-course">
-        <span className="inline-tag">Free to read · 21 lessons per course</span>
-        <h2 id="choose-course">Choose your starting point</h2>
-        <p>
-          Each lesson includes a clear explanation, a paper exercise with a worked answer and questions
-          you can reveal at your own pace. You can save completion marks in your browser; answers are
-          never submitted. Levels describe the material, not a qualification you must earn.
-        </p>
-        <div className="course-list">
-          {courses.map((course, index) => (
-            <article className="course-row" key={course.id}>
-              <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-              <div>
-                <span className="inline-tag">{course.level} · {getCourseLessons(course.id).length} lessons</span>
-                <h3 className="!mt-3">{course.title}</h3>
-                <p>{course.description}</p>
-                <p><strong>By the end:</strong> {course.outcome}</p>
-                <p className="!text-sm">{course.duration}</p>
-              </div>
-              <a href={`/sikh-bitcoin/course/${course.id}/`} aria-label={`Explore ${course.title}`}>
-                Explore course <span aria-hidden="true">→</span>
-              </a>
-            </article>
-          ))}
-        </div>
-        <h2>A useful way to learn</h2>
-        <ol className="steps">
-          <li>Choose a course and read one lesson. Follow a source when a claim is unfamiliar.</li>
-          <li>Try the exercise before revealing its answer. Explain the result in your own words.</li>
-          <li>Use the self-check questions, then optionally mark the lesson complete. Return whenever you need.</li>
-          <li>Finish the capstone with a friend or reviewer. A good question is progress too.</li>
-        </ol>
-        <p className="status-note">
-          All scenarios use paper or fictional records. Learning never requires sending money,
-          sharing recovery words, taking a loan or connecting a wallet. Completion is self-reported
-          practice, not certification, investment advice or authorization to operate a treasury.
-        </p>
-        <h2>Why “Sikh Bitcoin”?</h2>
-        <p>
-          The name draws on Sikh as a student or learner, while respecting Sikh as a living religious identity.
-          This community learning program welcomes all backgrounds. It does not claim religious endorsement
-          of Bitcoin, speak for Sikh institutions or require a shared belief.
-          {' '}<a href="https://www.worldsikh.org/sikh_faith">Read the World Sikh Organization’s explanation of Sikh identity.</a>
-        </p>
-        <h2 id="course-roadmap">Help the curriculum grow responsibly</h2>
-        <p>
-          The three courses are available to read now. Independent subject-matter review, translated editions,
-          audio formats and guided workshops are next steps. Teachers, technical reviewers, translators and
-          curious beginners can test an explanation and propose a correction. Punjabi and other translations
-          need knowledgeable human review before publication.
-        </p>
-        <a className="launch-button" href="/join/">Find a contribution <span aria-hidden="true">→</span></a>
-        <p className="source-notes">
-          AI-assisted educational material · Sources checked October 1, 2026. Each lesson links its references.
-          Independent curriculum review is still pending; no institutional endorsement or accreditation is claimed.
-        </p>
-      </section>
-    </main>
-  );
-}
+import { CourseVisual, LearningSubnav, courseStyle } from './components/LearningVisuals';
+import s from './learning.module.css';
+export const metadata: Metadata={title:'Sikh Bitcoin · A little curiosity goes a long way',description:'Three free courses, 63 lessons and a hands-on Bitcoin practice lab. Learn with visual explanations, quizzes and fictional experiments. No wallet or sign-in needed.'};
+export default function SikhBitcoinPage(){return <main className={s.school} data-learning-hub><div className={s.wrap}><LearningSubnav/>
+ <section className={s.hero}><div><span className={s.eyebrow}>Open minds. Open knowledge.</span><h1>A little curiosity.<br/><em>A lot of possibility.</em></h1><p>Bitcoin starts with a question. Follow yours—from your first satoshi to the systems behind self-custody. Read a little. Play with an idea. Make it your own.</p><div className={s.actions}><a className={s.button} href="/sikh-bitcoin/bitcoin-without-jargon/">Start your first lesson <span aria-hidden="true">↗</span></a><a className={s.secondary} href="#choose-course">Find my path ↓</a></div><p className={s.note}>Free. At your pace. No wallet or sign-in needed.</p></div><figure className={s.heroArt}><img src="/images/learning/open-road.jpg" width="1536" height="1024" alt="An illustrated orange path winds from an open book toward a sunlit doorway, with a key and connected stars overhead." fetchPriority="high"/><figcaption><span>THE OPEN SCHOOL</span><b>Learn. Try. Verify.</b></figcaption></figure></section>
+ <div className={s.facts}><div><b>3 paths</b><span>Choose where you begin</span></div><div><b>63 lessons</b><span>21 in each course</span></div><div><b>4 experiments</b><span>Practice with fictional examples</span></div><div><b>Always open</b><span>Learn without an account</span></div></div>
+ <div className={s.resume} data-learning-resume hidden><p data-resume-message/><a data-resume-link href="/sikh-bitcoin/bitcoin-without-jargon/">Continue learning →</a></div>
+ <section id="choose-course" className={s.section}><div className={s.sectionHead}><div><span className={s.eyebrow}>01 / Pick a path</span><h2>Start where<br/><em>your curiosity is.</em></h2></div><p>Newcomer, builder, or deep in the rabbit hole: there is room for you here. Every course is open. You can change paths at any time.</p></div>
+ <div className={s.recommender} data-path-picker><h3>What brings you here?</h3><p>Choose a goal for a starting suggestion. It stays on this page.</p><div className={s.choiceRow} data-path-controls hidden><button type="button" data-path="foundations" aria-pressed="false">I’m new to Bitcoin</button><button type="button" data-path="deep-dive" aria-pressed="false">I want the technical details</button><button type="button" data-path="sovereignty" aria-pressed="false">I’m thinking about self-custody</button></div><p className={s.recommendResult} data-path-result aria-live="polite" hidden/><noscript>Explore the three paths below. All lessons work without JavaScript.</noscript></div>
+ <div className={s.cards}>{courses.map((course,i)=><article className={s.card} key={course.id}><CourseVisual id={course.id}/><div className={s.cardBody}><span className={s.eyebrow}>0{i+1} / {courseStyle[course.id].verb}</span><h3>{course.title}</h3><p>{courseStyle[course.id].short} {course.description.replace('and Bitcoin maxis ','')}</p><p className={s.meta}>{course.level.toUpperCase()} · {getCourseLessons(course.id).length} LESSONS<br/>{course.duration.split(' · ')[1]}</p><a className={s.button} href={`/sikh-bitcoin/course/${course.id}/`}>Explore this path <span aria-hidden="true">→</span></a></div></article>)}</div></section>
+ <section id="practice-lab" className={s.section}><div className={s.labBanner}><div><span className={s.eyebrow}>02 / Get your hands on an idea</span><h2>Small experiments.<br/>Big “aha” moments.</h2><p>How many sats is that? Where does the change go? What does 2-of-3 mean? Try four short challenges. Change your answer. See why it works.</p><a className={s.button} href="/sikh-bitcoin/lab/">Enter the practice lab ↗</a><p className={s.note}>Fictional examples only. No money, credentials or wallet connections.</p></div><div className={s.labPreview} aria-hidden="true"><div className={s.miniTile}><strong>₿ → sats</strong><span>The satoshi challenge</span></div><div className={s.miniTile}><strong>in = out</strong><span>The change puzzle</span></div><div className={s.miniTile}><strong>2 of 3</strong><span>The signing room</span></div><div className={s.miniTile}><strong>Pause.</strong><span>The trust check</span></div></div></div></section>
+ <section id="how-to-learn" className={s.section}><div className={s.sectionHead}><div><span className={s.eyebrow}>03 / A rhythm you can keep</span><h2>One idea at a time.</h2></div><p>No streak to lose. No leaderboard to chase. Your next good question is a useful kind of progress.</p></div><div className={s.method}>{[['01','See the idea','Start with a visual map and a question.'],['02','Follow the story','Read a short explanation. Open its primary source.'],['03','Try it yourself','Experiment, choose an answer and read the feedback.'],['04','Take it with you','Mark your own progress and follow the next lesson.']].map(([n,t,p])=><article key={n}><b>{n}</b><h3>{t}</h3><p>{p}</p></article>)}</div></section>
+ <section className={s.closing}><div><h2>A school for every curious person.</h2><p>“Sikh Bitcoin” draws on Sikh as student or learner, while respecting Sikh as a living religious identity. Everyone is welcome. We do not speak for Sikh institutions or claim religious endorsement of Bitcoin. <a href="https://www.worldsikh.org/sikh_faith">Learn about Sikh identity ↗</a></p><p>Bring what you learn to <a href="/langar/">Langar</a>, <a href="/kalakar/">Kalakar.x</a> or the <a href="/ecosystem/">community open table</a>.</p></div><div id="course-roadmap"><h2>Learn it. Question it. Improve it.</h2><p>Teachers, translators and technical reviewers can help make each explanation clearer. Human subject-matter review, accessible audio and carefully reviewed translations are next.</p><p><a href="/join/">Help build the school →</a></p><p className={s.note}>AI-assisted curriculum · Original lesson sources checked October 1, 2026. Independent curriculum review is pending. Practice and self-reported completion are not certification or personalized financial advice.</p></div></section>
+ </div></main>}

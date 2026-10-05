@@ -1,4 +1,5 @@
 import type { Course, Lesson } from '../../data/courses';
+import s from '../learning.module.css';
 
 /** Server-rendered and usable without scripts; learning.js adds optional local tracking. */
 export function LearningProgress({ course, lessons, currentSlug }: {
@@ -6,7 +7,7 @@ export function LearningProgress({ course, lessons, currentSlug }: {
 }) {
   return (
     <section
-      className="my-8 rounded-xl border border-border p-5 sm:p-7"
+      className={s.progress}
       aria-label={`${course.title} learning progress`}
       data-learning-progress
       data-course-id={course.id}
@@ -20,6 +21,7 @@ export function LearningProgress({ course, lessons, currentSlug }: {
       </p>
       <div data-learning-controls hidden>
         <p data-learning-status aria-live="polite" aria-atomic="true" />
+        <p><a data-learning-continue href={`/sikh-bitcoin/${lessons[0].slug}/`}>Continue with your next unfinished lesson →</a></p>
         <progress data-learning-meter max={lessons.length} value={0} className="my-3 w-full accent-primary" aria-label="Lessons marked complete" />
         <div className="my-4 flex flex-wrap gap-3">
           {currentSlug && <button type="button" className="launch-button" data-learning-toggle aria-pressed="false">Mark this lesson complete</button>}
