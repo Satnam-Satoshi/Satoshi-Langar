@@ -222,3 +222,12 @@ body { background: var(--background); }
 
 /* Keep the expanded community navigation comfortable on tablet widths. */
 @media(min-width:701px) and (max-width:1200px){.header-row{flex-wrap:wrap}.desktop-nav{order:3;flex-basis:100%;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid #d9ddcf}.desktop-nav a{font-size:12px}.header-join{display:inline-flex;margin-left:auto}}
+
+/* Visible shortcuts appear in both header systems; no menu or scrolling required. */
+.project-shortcuts{background:#e9edf0;border-top:1px solid #c4cbd0;color:#233e58}
+.project-shortcuts>div{max-width:1240px;margin:auto;padding:9px 32px;display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:12px}
+.project-shortcuts a{display:flex;align-items:center;gap:11px;min-height:44px;padding:7px 15px;border:1px solid #bdc9d1;background:#f7f8f6;font-size:13px;text-underline-offset:4px;min-width:0}
+.project-shortcuts a>span{font:24px/1 Georgia,serif;color:#aa4628}.project-shortcuts strong{font-weight:700}.project-shortcuts small{font-size:11px;color:#506071;margin-left:auto}.project-shortcuts a.register-shortcut{background:#234f88;color:#fff;border-color:#234f88}.project-shortcuts .register-shortcut>span,.project-shortcuts .register-shortcut small{color:#fff}.project-shortcuts a:hover{text-decoration:underline}.project-shortcuts a:focus-visible{outline:3px solid #b74c26;outline-offset:3px}
+@media(max-width:800px){.project-shortcuts small{display:none}.project-shortcuts>div{padding:9px 22px;gap:8px;grid-template-columns:1fr 1fr 1.4fr}.project-shortcuts a{padding:9px 10px;gap:8px;font-size:12px}}
+@media(max-width:450px){.project-shortcuts>div{padding:8px 16px;gap:6px;grid-template-columns:.8fr .95fr 1.45fr}.project-shortcuts a{font-size:11px;padding:8px;line-height:1.4}.project-shortcuts a>span{display:none}.project-shortcuts strong{white-space:normal}}
+@media print{.project-shortcuts{display:none}}
