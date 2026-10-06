@@ -1,3 +1,4 @@
+import LtcNewsExtraCard from '../../../components/LtcNewsExtraCard';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ltcEditions, ltcPublicationDays, formatEditionDate, editionHref, editionDateHref, archiveMonthHref } from '../../../data/editions';
@@ -43,6 +44,7 @@ export default async function EditionPage({ params }: { params: Promise<{ id: st
   const unavailable = edition.sources.filter(source => source.status === 'unavailable').length;
   return <main className={styles.issue} data-reader-layout={edition.presentation?.artDirection?.layout ?? ['folio','atlas','dispatch'][Number(edition.date.slice(-2)) % 3]} data-reader-palette={edition.presentation?.cover.palette ?? 'ember'}>
     <div className={styles.issueLine}><span>The daily edition</span><span><time dateTime={edition.date}>{formatEditionDate(edition.date)}</time> · R{edition.revision}</span></div>
+    {id === '2026-10-06' && <LtcNewsExtraCard/>}
     <div className={styles.jacket} id="front-cover"><LtcEditionCover edition={edition}/></div>
 
     <nav className={styles.readerBar} aria-label="Issue contents"><a className={styles.readerBrand} href="#edition-record">LTC <span>/{edition.date.slice(5).replace('-', '.')}</span></a><ol className={styles.contentsRail}>{flagship ? [['network-pulse','Networks'],['open-money','Open money'],['policy-records','Policy'],['feature-desk','Features'],['community-table','Community'],['daily-briefings','Source briefs']].map(([anchor,label],index)=><li key={anchor}><a href={`#${anchor}`} aria-label={`Section ${index+1}: ${label}`}>{String(index+1).padStart(2,'0')}</a></li>) : briefs.map((brief, index) => <li key={brief.id}><a href={`#${brief.id}`} title={brief.headline} aria-label={`Section ${index + 1}: ${brief.headline}`}>{String(index + 1).padStart(2, '0')}</a></li>)}</ol><div className={styles.readerLinks}>{flagship && <><a href="#network-pulse">Networks</a><a href="#open-money">Rates</a><a href="#policy-records">Policy</a></>}{edition.coverage && <a href="#all-sections">29 sections</a>}<a href="#sourcebook">Sources</a><a href="#back-page">Back page</a><a href="/conversations/archive/">Archive ↗</a></div></nav>

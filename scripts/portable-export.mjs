@@ -75,3 +75,7 @@ for (const [filename, text] of Object.entries(buildSeoSitemaps(seoPages))) await
 await copyFile('LICENSE',path.join(target,'LICENSE.txt'));
 await copyFile('NOTICE',path.join(target,'NOTICE.txt'));
 console.log('Portable static release generated in dist/; allowlisted local enhancements, no application server.');
+
+// Owner-requested October 6 extra has its own record; daily records remain immutable.
+await mkdir(path.join(target,'data/ltc-extras'),{recursive:true});
+await copyFile('content/ltc-extras/2026-10-06-delorean-r1.json',path.join(target,'data/ltc-extras/2026-10-06-delorean-r1.json'));
