@@ -1,6 +1,6 @@
 # Optional community accounts · 0.1.26
 
-Status: integration implemented; provider activation and a real external-provider round trip are pending. No authentication service is configured on the existing Vercel project as of October 1, 2026. Guest reading, learning and local contribution planning do not require an account.
+Status: Google-only activation prepared October 5, 2026 at the founder’s request. Consult the private release receipt for live verification status. Guest reading, learning and local contribution planning do not require an account.
 
 ## Architecture
 
@@ -8,18 +8,19 @@ Static portable pages use the official Supabase JavaScript client for OAuth with
 
 Supabase Auth is open source and supports self-hosting. Hosted Auth, identity providers, browser storage and the main HTTPS hostname are explicit dependencies. IPFS mirrors retain guest tools; account redirects are restricted to the configured HTTPS origin. No wildcard redirect or arbitrary `next` URL is supported.
 
-## Founder steps
+## Google-only release configuration
 
-1. Sign in at [Supabase](https://supabase.com/dashboard) with the project-owning account. Create/select the Satnam Satoshi organization and project on an appropriate plan; the founder handles terms, recovery and any billing. Store the generated database password privately. It is not needed in the website or this chat.
-2. Name the account steward and backup. Choose a monitored private email for account/deletion requests. Test delivery before enabling accounts.
-3. In Auth URL Configuration, set the Site URL to the production HTTPS origin. Allow exactly `https://https-github-com-satnam-satoshi-sat.vercel.app/auth/callback/index.html`. Add a separate exact staging origin only when testing that deployment; do not use wildcard production redirects.
-4. Create Google and GitHub OAuth applications owned by the community steward. The provider callback is the exact Supabase Auth callback shown in the dashboard, normally `https://PROJECT.supabase.co/auth/v1/callback`. Keep client secrets in the provider dashboard only. Request basic identity/email, no repository write, payment or wallet scopes.
-5. Apple uses its developer-account configuration, a Services ID and a signing key. Its web OAuth client secret must be rotated at least every six months. Facebook must meet its current public-app requirements; development-role success is not proof that public users can sign in. Activate providers separately after testing.
-6. Supply the **public** project URL and `sb_publishable_…` key through Vercel project settings. Do not provide a service-role key, secret key, database password or provider client secret to the browser bundle.
-7. Set the six variables in `.env.example` for the intended deployment. Set `COMMUNITY_AUTH_ENABLED=true` only after the private contact, provider configuration and public privacy copy are ready. Update the static privacy/account-help/join copy to accurately describe the activated service and owner process.
-8. Add only the exact Auth origin to `connect-src` in `vercel.json`. The build refuses enabled configuration if this origin is missing; avoid broad `https:` or wildcard allowlists.
-9. Test each enabled provider with a consenting human test account: consent, success, cancellation, expired/wrong-tab callback, verified user, sign-out, storage blocked, provider outage and deletion request. Confirm no session/code is logged and no private record appears in public exports. Remove test accounts through the private admin dashboard.
-10. Publish the tested release. Record enabled providers and date. Others remain visibly unavailable. Offer guest access throughout.
+The existing Supabase project is `mfbazlqnypqjoqgbitys`, owned by the founder-selected Satnam Satoshi organization. Google is the first supported provider; GitHub, Apple and Facebook remain unavailable. Public help/privacy contact: eddiemalhotra@gmail.com. Do not recreate the project or OAuth client.
+
+The canonical Site URL is `https://satnamsatoshi.com` with the exact callback `https://satnamsatoshi.com/auth/callback/index.html`. The previously approved exact Vercel callback remains configured. No wildcard or arbitrary return URL is accepted. Google returns first to the existing Supabase provider callback. Requested Google scopes are OpenID, basic profile and email only.
+
+`config/community-auth.json` contains public client configuration only. The browser build validates it and generates `public/data/community-auth.json`. This preserves the accepted sign-in configuration during routine daily content builds. Environment overrides are optional; `COMMUNITY_AUTH_ENABLED=false` disables new frontend sign-in for a release. Empty/invalid enabled configuration fails closed. Never place a secret key, service-role key, database password or OAuth secret in either file or the site export.
+
+The CSP permits only the exact configured Supabase origin in addition to this site's own origin. Mirrors link back to the canonical account website before contacting Auth. The auth client uses PKCE and same-tab session storage. Tokens/callback codes are not put in analytics, public logs or release evidence. Reloading the cleaned callback re-verifies its existing session. Callback errors remove response parameters; server logout failures distinguish local removal from unconfirmed remote revocation. Guest drafts remain untouched.
+
+Before announcing activation, run the full export checks and simulated browser adapter suite, then verify real Google consent, successful return, callback refresh and sign-out in the canonical deployment with an authorized owner account. A candidate build and Google production setting alone do not prove the website login works. Record the observed outcome in the private release receipt; restore the previous deployment if the live round trip fails. Other providers require their own owner configuration and tests.
+
+The account identifies a returning member. It does not sync local learning/plans, create a public directory, grant treasury/program permissions or consent to magazine email. Newsletter enrollment remains a separate double-opt-in implementation and is currently disabled.
 
 ## Operator responsibilities
 
@@ -36,4 +37,4 @@ Stop switch: set `COMMUNITY_AUTH_ENABLED=false` and redeploy, and disable the af
 - [Facebook](https://supabase.com/docs/guides/auth/social-login/auth-facebook)
 - [Self-hosting](https://supabase.com/docs/guides/self-hosting)
 
-Reviewed October 1, 2026. This is an implementation and owner handoff, not evidence of provider activation.
+Updated October 5, 2026. Live activation is established by the dated release and OAuth-test receipt, not this document alone.

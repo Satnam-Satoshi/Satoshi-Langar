@@ -54,7 +54,7 @@ A local publishing workflow targets **10 a.m. America/New_York**, subject to hos
 
 **Open-source version 0.1.26 · status reviewed October 5, 2026.** The public websites are live. The combined application review remains [draft PR #52](https://github.com/Satnam-Satoshi/Satoshi-Langar/pull/52), on [agent/community-ecosystem-20260930](https://github.com/Satnam-Satoshi/Satoshi-Langar/tree/agent/community-ecosystem-20260930). **The deployed website is ahead of `main`.** Read the branch and its release evidence when reviewing current implementation; do not assume a documentation merge deploys application code.
 
-Guest reading, local learning and contribution planning work. Website sign-in and email delivery are not activated. Social accounts are official only when listed in the [verified channel directory](https://satnamsatoshi.com/connect/). Shop items remain concepts; there is no checkout. satnam.x publication is deferred.
+Guest reading, local learning and contribution planning work. Optional Google member sign-in is configured for satnamsatoshi.com. Email delivery remains inactive and separate from account registration. Release receipts distinguish preparation from verified live activation. Social accounts are official only when listed in the [verified channel directory](https://satnamsatoshi.com/connect/). Shop items remain concepts; there is no checkout. satnam.x publication is deferred.
 
 Humans retain ownership, governance, custody and spending authority. No managed treasury, autonomous portfolio or account-level liquidation monitoring is operating. The 1,000,000-sat figure is planning only. Donation details are published separately; no custody proof, automated receipt or balance-monitoring claim is made.
 

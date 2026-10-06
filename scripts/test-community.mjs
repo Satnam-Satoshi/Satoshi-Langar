@@ -1,9 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {normalizePath,createPlan,issueUrl,validateAuthConfig} from './community-core.mjs';
+import {normalizePath,createPlan,issueUrl,validateAuthConfig,resolveAuthConfig} from './community-core.mjs';
 test('untrusted path input never becomes a URL',()=>{for(const path of ['https://evil.example','//evil.example','constructor','__proto__','../../'])assert.equal(normalizePath(path),'learn');assert.equal(normalizePath('magazine'),'ltc');});
 test('public proposal is bounded, encoded and points only to the canonical repository',()=>{const plan=createPlan({path:'langar',time:'bad',note:'<script>alert(1)</script>\n'+ 'x'.repeat(1500)},new Date('2026-10-01'));assert.equal(plan.note.length,1200);assert.equal(plan.time,'15 minutes');const u=new URL(issueUrl(plan));assert.equal(u.origin,'https://github.com');assert.equal(u.pathname,'/Satnam-Satoshi/Satoshi-Langar/issues/new');assert.match(u.searchParams.get('body'),/personal draft/);});
 test('authentication is disabled by default',()=>assert.deepEqual(validateAuthConfig({enabled:false}),{enabled:false,providers:[]}));
 const valid={enabled:true,url:'https://project.supabase.co',siteOrigin:'https://community.example',publishableKey:'sb_publishable_test',providers:['google','github','google'],privacyEmail:'privacy@example.org'};
+test('saved public auth survives routine builds while the explicit stop switch fails closed',()=>{
+  assert.equal(resolveAuthConfig(valid,{}).enabled,true);
+  assert.deepEqual(resolveAuthConfig(valid,{COMMUNITY_AUTH_ENABLED:'false'}),{enabled:false,providers:[]});
+  assert.throws(()=>resolveAuthConfig(valid,{COMMUNITY_AUTH_ENABLED:'yes'}));
+  assert.throws(()=>resolveAuthConfig(valid,{COMMUNITY_AUTH_PUBLISHABLE_KEY:'sb_secret_no'}));
+});
 test('configuration restricts providers and deduplicates them',()=>{assert.deepEqual(validateAuthConfig(valid).providers,['google','github']);assert.throws(()=>validateAuthConfig({...valid,providers:['invalid']}));});
 test('secret keys, partial setup and ambiguous origins fail closed',()=>{for(const patch of [{publishableKey:'sb_secret_x'},{publishableKey:'eyJ.service.role'},{siteOrigin:'http://example.org'},{url:'https://evil.example/path'},{url:'https://user:pass@evil.example'},{siteOrigin:'https://example.org/?next=evil'},{privacyEmail:''},{providers:[]}])assert.throws(()=>validateAuthConfig({...valid,...patch}));});

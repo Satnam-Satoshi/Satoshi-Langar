@@ -50,7 +50,7 @@ before(async () => {
 });
 after(async () => { await browser?.close(); });
 
-async function fixture(t, { providers = ['google'], tokenFailure = false, userFailure = false } = {}) {
+async function fixture(t, { providers = ['google'], tokenFailure = false, userFailure = false, logoutFailure = false } = {}) {
   const context = await browser.newContext({ serviceWorkers: 'block' });
   const requests = [];
   const unexpected = [];
@@ -102,7 +102,11 @@ async function fixture(t, { providers = ['google'], tokenFailure = false, userFa
         return;
       }
       if (url.pathname === '/auth/v1/logout' && request.method() === 'POST') {
-        await route.fulfill({ status: 204, headers: cors });
+        if (logoutFailure) {
+          await jsonResponse(route, 500, { code: 'unexpected_failure', msg: 'Simulated logout service failure' });
+        } else {
+          await route.fulfill({ status: 204, headers: cors });
+        }
         return;
       }
     }
@@ -219,16 +223,88 @@ test('callback exchanges the original verifier, verifies the user, and signs out
   assert.equal(await f.page.evaluate(key => sessionStorage.getItem(key), authStorageKey), null);
 });
 
-test('canceled callback strips provider parameters and offers a direct retry', async t => {
+test('reloading a successful callback verifies the existing session without exchanging the code again', async t => {
   const f = await fixture(t);
-  await f.page.goto(`${siteOrigin}/auth/callback/index.html?error=access_denied&error_description=fixture-cancellation`);
-  await waitForStatus(f.page, 'Sign-in was canceled or declined');
-  assert.equal(new URL(f.page.url()).search, '');
-  assert.equal(f.requests.length, 0);
-  const retry = f.page.getByRole('link', { name: 'Return to sign-in', exact: true });
-  assert.equal(await retry.isVisible(), true);
-  await retry.click();
+  await startGoogle(f);
+  await f.page.goto(`${siteOrigin}/auth/callback/index.html?code=simulated-auth-code`);
+  await waitForStatus(f.page, 'Signed in as fixture-user@example.test');
+  const userRequests = f.requests.filter(request => request.pathname === '/auth/v1/user').length;
+  await f.page.reload();
+  await waitForStatus(f.page, 'Signed in as fixture-user@example.test');
+  assertExchange(f);
+  assert.ok(f.requests.filter(request => request.pathname === '/auth/v1/user').length > userRequests, 'Reload must verify the stored session against the account service');
+  assert.equal(await f.page.locator('[data-sign-out]').isVisible(), true);
+});
+
+for (const response of [
+  '?error=access_denied&error_description=fixture-cancellation',
+  '#error=access_denied&error_description=fixture-cancellation',
+  '?code=simulated-auth-code#error_code=unexpected_failure&error_description=fixture-service-failure',
+]) {
+  test(`failed callback ${response} clears its URL and offers a direct retry`, async t => {
+    const f = await fixture(t);
+    await f.page.goto(`${siteOrigin}/auth/callback/index.html${response}`);
+    await waitForStatus(f.page, 'Sign-in did not complete');
+    assert.equal(new URL(f.page.url()).search, '');
+    assert.equal(new URL(f.page.url()).hash, '');
+    assert.equal(f.requests.length, 0, 'An error response must not attempt a code exchange');
+    assert.doesNotMatch(await f.page.locator('[data-auth-status]').textContent(), /Nothing was submitted|fixture-/);
+    const retry = f.page.getByRole('link', { name: 'Return to sign-in', exact: true });
+    assert.equal(await retry.isVisible(), true);
+    await retry.click();
+    await waitForStatus(f.page, 'Choose a provider');
+  });
+}
+
+test('server logout failure clears only auth storage and reports uncertain remote sign-out', async t => {
+  const f = await fixture(t, { logoutFailure: true });
+  await startGoogle(f);
+  await f.page.goto(`${siteOrigin}/auth/callback/index.html?code=simulated-auth-code`);
+  await waitForStatus(f.page, 'Signed in as fixture-user@example.test');
+  await f.page.evaluate(() => {
+    sessionStorage.setItem('satnam-auth-v1-code-verifier', 'simulated-leftover-verifier');
+    sessionStorage.setItem('satnam-plan', 'guest draft');
+    localStorage.setItem('satnam-learning', 'guest progress');
+  });
+  await f.page.locator('[data-sign-out]').click();
+  await waitForStatus(f.page, 'Signed out of this tab. We could not confirm server sign-out');
+  assert.equal(await f.page.locator('[data-sign-out]').isVisible(), false);
+  assert.deepEqual(await f.page.evaluate(() => ({
+    session: sessionStorage.getItem('satnam-auth-v1'),
+    verifier: sessionStorage.getItem('satnam-auth-v1-code-verifier'),
+    draft: sessionStorage.getItem('satnam-plan'),
+    progress: localStorage.getItem('satnam-learning'),
+  })), { session: null, verifier: null, draft: 'guest draft', progress: 'guest progress' });
+  const logout = f.requests.filter(request => request.pathname === '/auth/v1/logout');
+  assert.equal(logout.length, 1);
+  assert.equal(logout[0].search.get('scope'), 'local');
+  await f.page.getByRole('link', { name: 'Return to sign-in', exact: true }).click();
   await waitForStatus(f.page, 'Choose a provider');
+});
+
+test('a rejected local cleanup never claims successful sign-out and supports retry', async t => {
+  const f = await fixture(t);
+  await startGoogle(f);
+  await f.page.goto(`${siteOrigin}/auth/callback/index.html?code=simulated-auth-code`);
+  await waitForStatus(f.page, 'Signed in as fixture-user@example.test');
+  await f.page.evaluate(() => {
+    window.fixtureRemoveItem = Storage.prototype.removeItem;
+    Storage.prototype.removeItem = function (key) {
+      if (key.startsWith('satnam-auth-v1')) throw new DOMException('Simulated storage failure', 'SecurityError');
+      return window.fixtureRemoveItem.call(this, key);
+    };
+  });
+  await f.page.locator('[data-sign-out]').click();
+  await waitForStatus(f.page, 'We could not clear this tab’s account session');
+  assert.equal(await f.page.locator('[data-sign-out]').isEnabled(), true);
+  assert.equal(await f.page.evaluate(key => Boolean(sessionStorage.getItem(key)), authStorageKey), true);
+  await f.page.evaluate(() => { Storage.prototype.removeItem = window.fixtureRemoveItem; delete window.fixtureRemoveItem; });
+  await Promise.all([
+    f.page.waitForURL(url => url.origin === siteOrigin && url.pathname === '/sign-in/index.html'),
+    f.page.locator('[data-sign-out]').click(),
+  ]);
+  await waitForStatus(f.page, 'Choose a provider');
+  assert.equal(await f.page.evaluate(key => sessionStorage.getItem(key), authStorageKey), null);
 });
 
 test('missing callback code recovers without attempting a token exchange', async t => {

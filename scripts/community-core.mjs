@@ -32,6 +32,18 @@ export function issueUrl(plan) {
   return url.href;
 }
 export const providerNames={google:'Google',github:'GitHub',apple:'Apple',facebook:'Facebook'};
+// These settings are public. A saved release must not lose sign-in on the next
+// daily magazine build; an explicit environment override remains the stop switch.
+export function resolveAuthConfig(saved, env={}) {
+  const input={...saved};
+  if(Object.hasOwn(env,'COMMUNITY_AUTH_ENABLED')) {
+    if(!['true','false'].includes(env.COMMUNITY_AUTH_ENABLED))throw new Error('COMMUNITY_AUTH_ENABLED must be true or false.');
+    input.enabled=env.COMMUNITY_AUTH_ENABLED==='true';
+  }
+  for(const [key,name] of Object.entries({url:'COMMUNITY_AUTH_URL',publishableKey:'COMMUNITY_AUTH_PUBLISHABLE_KEY',siteOrigin:'COMMUNITY_SITE_ORIGIN',privacyEmail:'COMMUNITY_PRIVACY_EMAIL'}))if(Object.hasOwn(env,name))input[key]=env[name];
+  if(Object.hasOwn(env,'COMMUNITY_AUTH_PROVIDERS'))input.providers=env.COMMUNITY_AUTH_PROVIDERS.split(',').filter(Boolean);
+  return validateAuthConfig(input);
+}
 export function validateAuthConfig(input) {
   if(!input || input.enabled!==true) return {enabled:false,providers:[]};
   const auth=new URL(input.url), site=new URL(input.siteOrigin);

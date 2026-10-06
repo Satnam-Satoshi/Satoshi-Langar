@@ -1,14 +1,13 @@
 import {build} from 'esbuild';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
-import {validateAuthConfig} from './community-core.mjs';
+import {resolveAuthConfig} from './community-core.mjs';
 import {validateLtcArchive} from './validate-ltc-archive.mjs';
 import {validateNewsletterConfig} from './lib/newsletter-config.mjs';
 await validateLtcArchive();
 validateNewsletterConfig(JSON.parse(await readFile('config/newsletter.json','utf8')));
 await mkdir('public/scripts',{recursive:true});
 await mkdir('public/data',{recursive:true});
-const enabled=process.env.COMMUNITY_AUTH_ENABLED==='true';
-const config=validateAuthConfig({enabled,url:process.env.COMMUNITY_AUTH_URL,publishableKey:process.env.COMMUNITY_AUTH_PUBLISHABLE_KEY,siteOrigin:process.env.COMMUNITY_SITE_ORIGIN,privacyEmail:process.env.COMMUNITY_PRIVACY_EMAIL,providers:(process.env.COMMUNITY_AUTH_PROVIDERS||'').split(',').filter(Boolean)});
+const config=resolveAuthConfig(JSON.parse(await readFile('config/community-auth.json','utf8')),process.env);
 if(config.enabled){
  const vercel=JSON.parse(await readFile('vercel.json','utf8'));
  const csp=vercel.headers?.flatMap(rule=>rule.headers).find(header=>header.key==='Content-Security-Policy')?.value||'';

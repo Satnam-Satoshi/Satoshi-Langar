@@ -5,8 +5,31 @@ const status=root.querySelector('[data-auth-status]');
 const buttons=[...root.querySelectorAll('[data-provider]')];
 const consent=root.querySelector('[data-auth-consent]');
 let client;
-const responseParams=new URL(location.href).searchParams;
-if(root.dataset.callback==='true') history.replaceState(null,'',location.pathname);
+const authStorageKey='satnam-auth-v1';
+const callback=root.dataset.callback==='true';
+const responseUrl=new URL(location.href);
+const responseParams=responseUrl.searchParams;
+const responseFragment=new URLSearchParams(responseUrl.hash.slice(1));
+if(callback) history.replaceState(null,'',location.pathname);
+async function signOut(signout){
+  signout.disabled=true;
+  let failure;
+  try {({error:failure}=await client.auth.signOut({scope:'local'}));}
+  catch {failure=true;}
+  if(!failure){location.assign(new URL(root.dataset.signIn,location.href));return;}
+  // A failed server request may already have cleared the SDK's local session.
+  // Also clear it when an earlier SDK operation rejected, without touching drafts.
+  try {
+    await client.auth.stopAutoRefresh();
+    const keys=Array.from({length:sessionStorage.length},(_,i)=>sessionStorage.key(i));
+    for(const key of keys)if(key===authStorageKey || key?.startsWith(authStorageKey+'-'))sessionStorage.removeItem(key);
+    signout.hidden=true;
+    status.textContent='Signed out of this tab. We could not confirm server sign-out. See account help if you need to revoke access.';
+  } catch {
+    status.textContent='We could not clear this tab’s account session. Try again, or clear this website’s browser data to remove it.';
+    signout.disabled=false;
+  }
+}
 async function start(){
   let config;
   try {const res=await fetch(new URL(root.dataset.config,location.href),{credentials:'omit'});if(!res.ok)throw new Error();config=validateAuthConfig(await res.json());}
@@ -15,25 +38,28 @@ async function start(){
   if(location.origin!==config.siteOrigin){status.textContent='Sign-in is available only on our configured community website. Your local draft stays on this browser.';const a=document.createElement('a');a.href=config.siteOrigin+'/sign-in/';a.textContent='Open community sign-in →';status.after(a);return;}
   try {sessionStorage.setItem('satnam-auth-storage-test','1');sessionStorage.removeItem('satnam-auth-storage-test');}
   catch {status.textContent='Sign-in needs session storage in this tab. Enable it or continue as a guest.';return;}
-  client=createClient(config.url,config.publishableKey,{auth:{flowType:'pkce',storage:sessionStorage,storageKey:'satnam-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+  client=createClient(config.url,config.publishableKey,{auth:{flowType:'pkce',storage:sessionStorage,storageKey:authStorageKey,persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
   const contact=root.querySelector('[data-privacy-contact]');if(contact){contact.href='mailto:'+config.privacyEmail;contact.textContent=config.privacyEmail;contact.hidden=false;}
   const params=responseParams;
   const code=params.get('code');
-  if(params.has('error') || params.has('error_code')){history.replaceState(null,'',location.pathname);status.textContent='Sign-in was canceled or declined. Nothing was submitted. You can try again or continue as a guest.';return;}
-  if(root.dataset.callback==='true'){
-    history.replaceState(null,'',location.pathname);
-    if(!code){status.textContent='No sign-in response was received. Start again from the sign-in page in this same tab.';return;}
-    const {error}=await client.auth.exchangeCodeForSession(code);
-    if(error){status.textContent='The sign-in link expired or belongs to a different browser tab. Please start again in this tab.';return;}
+  if([params,responseFragment].some(values=>values.has('error') || values.has('error_code'))){history.replaceState(null,'',location.pathname);status.textContent='Sign-in did not complete. You can try again or continue as a guest.';return;}
+  if(callback){
+    if(code){
+      const {error}=await client.auth.exchangeCodeForSession(code);
+      if(error){status.textContent='The sign-in link expired or belongs to a different browser tab. Please start again in this tab.';return;}
+    }else{
+      const {data:{session},error}=await client.auth.getSession();
+      if(!session && !error){status.textContent='No sign-in response was received. Start again from the sign-in page in this same tab.';return;}
+    }
   }
   const {data:{user},error}=await client.auth.getUser();
   if(user && !error){
     status.textContent='Signed in'+(user.email?' as '+user.email:'')+'. Your contribution plan and lesson progress are still stored only on this device.';
     buttons.forEach(b=>b.hidden=true);if(consent)consent.closest('label').hidden=true;
-    const signout=root.querySelector('[data-sign-out]');if(signout){signout.hidden=false;signout.addEventListener('click',async()=>{signout.disabled=true;const {error:failure}=await client.auth.signOut({scope:'local'});if(failure){status.textContent='Sign-out could not finish. Please try again.';signout.disabled=false;return;}location.assign(new URL(root.dataset.signIn,location.href));});}
+    const signout=root.querySelector('[data-sign-out]');if(signout){signout.hidden=false;signout.addEventListener('click',()=>signOut(signout));}
     return;
   }
-  if(root.dataset.callback==='true'){status.textContent='We could not verify your account session. Return to sign-in and try again in this tab.';return;}
+  if(callback){status.textContent='We could not verify your account session. Return to sign-in and try again in this tab.';return;}
   status.textContent='Choose a provider. It may ask you to sign in and approve sharing your basic profile and email. No wallet is needed.';
   const update=()=>buttons.forEach(b=>{b.disabled=!(consent?.checked&&config.providers.includes(b.dataset.provider));});
   consent?.addEventListener('change',update);update();
