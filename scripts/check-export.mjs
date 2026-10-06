@@ -1,3 +1,4 @@
+import {readCommunityArchive} from './lib/community-archive.mjs';
 import {readdir,readFile,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {validateLtcArchive} from './validate-ltc-archive.mjs';
@@ -49,6 +50,13 @@ await walk(root);
 for(const [name,expected] of Object.entries(buildSeoSitemaps(seoPages))){
  try{if(await readFile(path.join(root,name),'utf8')!==expected)failures.push(`${name}: differs from canonical indexed-page policy`);}catch{failures.push(`${name}: missing canonical discovery file`);}
 }
+for (const record of readCommunityArchive('content/ltc-community/archive')) {
+ const exported=await readFile(path.join(root,`data/ltc-community/${record.id}.json`));
+ const original=await readFile(`content/ltc-community/archive/${record.id}.json`);
+ if(!exported.equals(original)) failures.push(`Community record differs from archive: ${record.id}`);
+ await stat(path.join(root,`conversations/community/records/${record.id}/index.html`));
+}
+await stat(path.join(root,'conversations/community/index.html'));
 const exportedIndex=JSON.parse(await readFile(path.join(root,'data/ltc-editions/index.json'),'utf8'));
 if(JSON.stringify(exportedIndex)!==JSON.stringify(editions)) failures.push('Exported edition index differs from validated archive');
 const rss=await readFile(path.join(root,'conversations/feed.xml'),'utf8');

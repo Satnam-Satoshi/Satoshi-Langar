@@ -1,5 +1,6 @@
 import { readdir, readFile, mkdir, writeFile, rm, copyFile } from 'node:fs/promises';
 import path from 'node:path';
+import { readCommunityArchive } from './lib/community-archive.mjs';
 import { applySiteSeo, buildSeoSitemaps } from './lib/site-seo.mjs';
 const source = path.resolve('out'), target = path.resolve('dist');
 const editions = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
@@ -64,6 +65,10 @@ await mkdir(path.join(target,'data/ltc-editions'),{recursive:true});
 for(const entry of await readdir('content/ltc',{withFileTypes:true})) {
  if(entry.isFile() && /^(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(entry.name))
   await copyFile(path.join('content/ltc',entry.name),path.join(target,'data/ltc-editions',entry.name));
+}
+await mkdir(path.join(target,'data/ltc-community'),{recursive:true});
+for (const record of readCommunityArchive('content/ltc-community/archive')) {
+ await copyFile(`content/ltc-community/archive/${record.id}.json`,path.join(target,`data/ltc-community/${record.id}.json`));
 }
 // Canonical URLs use the two public brands; reading links remain portable.
 for (const [filename, text] of Object.entries(buildSeoSitemaps(seoPages))) await writeFile(path.join(target, filename), text);

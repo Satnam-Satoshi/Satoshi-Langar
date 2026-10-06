@@ -1,6 +1,6 @@
 import { ProgramJourney } from '../components/ProgramJourney';
 import { PageIntro } from '../components/PageIntro';
-export const metadata={title:'Bitcoin meetups'};
+export const metadata={title:'Bitcoin meetups',description:'Draft a Bitcoin learning-circle plan with a sample agenda and host checklist covering access, consent and venue permission. Event dates remain unconfirmed.'};
 const firstStep = {
   "path": "meetups",
   "title": "Sketch a gathering people can actually attend.",

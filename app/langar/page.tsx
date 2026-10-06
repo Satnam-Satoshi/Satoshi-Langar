@@ -1,6 +1,6 @@
 import { ProgramJourney } from '../components/ProgramJourney';
 import s from '../components/program-page.module.css';
-export const metadata={title:'Satoshi Langar · A meal shared with dignity'};
+export const metadata={title:'Satoshi Langar · A meal shared with dignity',description:'Explore Satoshi Langar, a proposed community kitchen inspired by Sikh seva, with planning tools for local hosts, access, food safety and service records.'};
 const steps=[['Listen locally','A named human host works with an existing kitchen or community venue. Agree on need, accessibility, food safety, dietary requirements and a realistic budget.'],['Prepare together','People approve the menu, buy ingredients and schedule volunteers. Agents can draft shopping lists, translate instructions and check the plan for missing information.'],['Serve with dignity','Sevadars cook, serve and clean. Guests are welcome without payment, a wallet, a religious test, a photograph or proof of need. Physical safety remains a human responsibility.'],['Review the work','Two designated human stewards check the event record, receipts and aggregate meal count. An agent can flag duplicates or discrepancies, but cannot approve its own evidence.'],['Share what we learned','Publish a redacted summary: what happened, approximate or verified counts, the budget, corrections and the next improvement. Preserve a private route for concerns.']];
 const firstStep = {
   "path": "langar",

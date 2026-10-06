@@ -1,5 +1,7 @@
 import { PageIntro } from '../components/PageIntro';
 
+export const metadata={title:'Website access · Satnam.x and preserved IPFS releases',description:'Learn how the HTTPS website, satnam.x domain and preserved IPFS releases differ, and how to check which publication version you are reading.'};
+
 const website = 'https://https-github-com-satnam-satoshi-sat.vercel.app/';
 const sections = [
   { title: 'Read the latest publication', body: 'Our HTTPS website receives verified daily magazine releases. Use the link below for the latest published issue and its date. Reading and learning do not require a wallet.' },

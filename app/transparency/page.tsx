@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { PageIntro } from "../components/PageIntro";
 
+export const metadata = { title: 'Transparency · Project status, authority and corrections', description: 'Review the project’s publication, learning, sign-in and channel status, with human decision roles, AI limitations and a record of remaining work.' };
+
 const status = [
-  ["Satnam Satoshi website", "SOFT LAUNCH", "The story and contribution paths are available here. Program services and the satnam.x domain connection are separate milestones."],
-  ["Sikh Bitcoin", "READABLE LESSONS", "Three introductory lessons and quizzes; further course modules are planned."],
-  ["Lunch Time Conversations", "FOUNDING MAGAZINE", "Original editorial pages, dated source snapshots and a tested collector; daily publication activation is separate."],
-  ["Community channels", "SETUP", "GitHub is available; Nostr, X, YouTube and Matrix accounts are planned."],
+  ["Satnam Satoshi website", "PUBLISHED", "The community website and LTC Magazine are published on their HTTPS domains. Program pilots and the satnam.x domain connection remain separate milestones."],
+  ["Sikh Bitcoin", "63 LESSONS", "Three courses with 21 lessons each, plus quizzes and browser-local progress. Independent educational review remains pending."],
+  ["Lunch Time Conversations", "LOCAL DAILY WORKFLOW", "The local daily publication workflow is active and depends on the host, network and authenticated services. The cloud scheduler is inactive; the latest successful issue keeps its original date."],
+  ["Member sign-in", "GOOGLE SIGN-IN", "Optional Google sign-in and session recovery were verified in the October 5 release. Accounts do not create public member profiles, synchronize learning progress or subscribe members to email."],
+  ["Community channels", "PROFILES LINKED", "X, Instagram and YouTube profiles are created and linked; GitHub is available. A first public narrated YouTube upload is not verified. Nostr and Matrix remain planned."],
+  ["Magazine email", "NOT OPEN", "Newsletter subscription is disabled. The site does not collect newsletter addresses; readers can follow the publication through its RSS feeds."],
   ["Donations", "ADDRESSES PUBLISHED", "Founder-supplied native BTC/LTC addresses and QR codes. No balance monitoring, test transfer or automated receipt service."],
   ["Bitcoin meetups", "HOST INVITATION", "No event date, venue or partner is confirmed."],
   ["Treasury Intelligence", "BUILDING", "Read-only research interface. No custody, trading, or autonomous execution."],
@@ -17,7 +21,7 @@ const status = [
 
 export default function TransparencyPage() {
   return <main>
-    <PageIntro eyebrow="Transparency · Public Alpha" title="See what is real, what is unfinished, and who has authority." description="Trust should come from inspectable work, explicit limitations, visible corrections, and clear human accountability—not from branding or promises." />
+    <PageIntro eyebrow="Transparency · Status record · October 5, 2026" title="See what is real, what is unfinished, and who has authority." description="Trust should come from inspectable work, explicit limitations, visible corrections, and clear human accountability—not from branding or promises." />
     <section className="mx-auto max-w-6xl px-5 py-16 lg:px-8 lg:py-24">
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         {status.map(([name, state, detail]) => <div key={name} className="grid gap-3 border-b border-border p-6 last:border-b-0 md:grid-cols-[1fr_140px_2fr] md:items-center"><strong>{name}</strong><span className="text-xs font-semibold tracking-[.16em] text-primary">{state}</span><span className="text-sm leading-6 text-muted-foreground">{detail}</span></div>)}

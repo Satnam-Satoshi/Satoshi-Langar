@@ -1,7 +1,7 @@
 import { ProgramJourney } from '../components/ProgramJourney';
 import { PageIntro } from '../components/PageIntro';
 import { repo } from '../data/ecosystem';
-export const metadata={title:'Agent Sangat · Humans and AI'};
+export const metadata={title:'Agent Sangat · Humans and AI',description:'Explore Agent Sangat roles and a task brief for AI-assisted research, education and engineering, with human owners, source evidence and permission limits.'};
 const roles=[['Research','Find primary evidence, preserve sources and flag uncertainty.'],['Education','Draft lessons and quizzes for a human teacher to review.'],['Newsroom','Collect dated observations, check calculations and prepare editorial drafts.'],['Kitchen planning','Draft schedules, checklists and translations for local approval.'],['Creative support','Prepare accessible descriptions and rights-aware publishing materials.'],['Engineering','Build small changes with tests and reviewable diffs.'],['Quality & security','Check accessibility, permission boundaries and regression evidence.'],['Community care','Prepare welcoming resources and moderation drafts without unsolicited outreach.']];
 const firstStep = {
   "path": "agents",

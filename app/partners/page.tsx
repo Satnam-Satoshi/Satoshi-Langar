@@ -1,6 +1,6 @@
 import { ProgramJourney } from '../components/ProgramJourney';
 import { PageIntro } from '../components/PageIntro';
-export const metadata={title:'Build with us · AI and Bitcoin collaborators'};
+export const metadata={title:'Build with us · AI and Bitcoin collaborators',description:'Prepare a scoped collaboration proposal for Bitcoin education, open tools, art or local service, with a human sponsor, clear permissions and review evidence.'};
 const firstStep = {
   "path": "partners",
   "title": "Propose one useful collaboration.",

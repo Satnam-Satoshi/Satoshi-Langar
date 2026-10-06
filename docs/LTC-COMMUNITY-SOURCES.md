@@ -107,3 +107,9 @@ Eleven offline tests cover exact source identity, original publication dates, qu
 | Audit trail | Source dates, check dates, body hashes, explicit errors and exclusively saved private response bytes. |
 | Human owner | Satnam Satoshi founder. |
 | Emergency stop | Stop invoking the collector; any scheduler integration must obey the existing publication pause. |
+
+## Community Wire and saved checks · October 5, 2026
+
+The illustrated Community Wire links the founder-requested 13 public account names to relevant project references. It is a reading directory, not a claim of current ownership verification for every handle, completed follows, endorsement or an active X reader. Four separately researched historical selections cover LitVM privacy plans (August 26), Nexus gift cards (May 28), LiteForge testnet guide (April 17) and the Foundation’s June 29, 2025 Summit recap. They retain original dates and limitations. See app/data/community-wire.ts for exact citations. These selections are implementation, not automatic daily headlines.
+
+The new archive CLI and record pages preserve each accepted two-source check and its gaps. The October 5 evening Foundation request failed exact feed identity; its response hash is retained, and no record from that feed was accepted. Nexus still supplied the original August 5 release. This does not add a source, relax parsing, or refresh old source dates. Read LTC-LIVING-NEWSROOM.md for the reader journey, editorial roles and search roadmap.

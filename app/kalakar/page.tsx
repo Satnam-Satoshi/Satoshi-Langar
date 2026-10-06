@@ -1,6 +1,6 @@
 import { ProgramJourney } from '../components/ProgramJourney';
 import s from '../components/program-page.module.css';
-export const metadata={title:'Kalakar.x · Art, paid in bitcoin'};
+export const metadata={title:'Kalakar.x · Art, paid in bitcoin',description:'Explore the Kalakar.x artist community proposal and creative brief: define scope, rights and fair terms while Bitcoin payment integration remains in planning.'};
 const firstStep = {
   "path": "kalakar",
   "title": "Turn one creative idea into a clear brief.",

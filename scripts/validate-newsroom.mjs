@@ -1,9 +1,13 @@
 import {readFile,readdir} from 'node:fs/promises';
 import {validateNewsroom} from './prepare-ltc-newsroom.mjs';
+import {fileURLToPath} from 'node:url';
+import {readCommunityArchive} from './lib/community-archive.mjs';
 import {validateCommunitySnapshot} from './lib/ltc-community.mjs';
 const dir=new URL('../content/ltc-newsroom/',import.meta.url);
 const files=(await readdir(dir)).filter(f=>f.endsWith('.json'));
 for(const name of files)validateNewsroom(JSON.parse(await readFile(new URL(name,dir),'utf8')));
 const community=JSON.parse(await readFile(new URL('../content/ltc-community/latest.json',import.meta.url),'utf8'));
 validateCommunitySnapshot(community,{now:community.collectedAt});
-console.log(`PASS: ${files.length} newsroom records and community snapshot at their saved validation clocks.`);
+const archive=readCommunityArchive(fileURLToPath(new URL('../content/ltc-community/archive/',import.meta.url)));
+if(!archive.length || JSON.stringify(archive[0].snapshot)!==JSON.stringify(community)) throw new Error('Latest community pointer must equal the newest immutable record');
+console.log(`PASS: ${files.length} newsroom records and ${archive.length} community archive records at their saved validation clocks.`);

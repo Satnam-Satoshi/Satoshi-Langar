@@ -30,14 +30,23 @@ export function routeSeoPolicy(file, editions = []) {
   const privateEntry = /^\/(?:auth|sign-in|welcome|account-help)(?:\/|\.html$)/.test(route);
   const excluded = privateEntry || /^\/(?:404|_not-found)(?:\/|\.html$)/.test(route) || route.endsWith('/print/') || route.startsWith('/conversations/specials/litecoin-at-15/');
   const editionMatch = /^\/conversations\/editions\/(\d{4}-\d{2}-\d{2})(?:-r([1-9]\d*))?\/$/.exec(route);
-  let edition = null; let canonicalRoute = route;
+  const aliases = { '/community/': '/connect/', '/support/': '/donate/', '/projects/': '/ecosystem/' };
+  let edition = null; let editionDates = null; let canonicalRoute = aliases[route] ?? route;
   if (editionMatch) {
     const [, date, revision] = editionMatch;
     const day = editions.filter(item => item.date === date && item.status === 'published').sort((a, b) => b.revision - a.revision);
     edition = revision ? day.find(item => item.id === `${date}-r${revision}`) : day[0];
     if (edition && (!revision || edition.id === day[0].id)) canonicalRoute = `/conversations/editions/${date}/`;
+    if (edition) {
+      const first = day.at(-1);
+      assert(instant(first.publishedAt) && instant(edition.publishedAt), `Invalid saved publication timestamp: ${edition.id}`);
+      assert(Date.parse(edition.publishedAt) >= Date.parse(first.publishedAt), `Revision precedes first publication: ${edition.id}`);
+      // A correction updates the day's story; it does not create a new first
+      // publication date. Exact archived revisions retain their own update time.
+      editionDates = { datePublished: first.publishedAt, ...(edition.revision > first.revision ? { dateModified: edition.publishedAt } : {}) };
+    }
   }
-  return { route, canonicalRoute, canonical: `${site.origin}${canonicalRoute}`, brand, site, privateEntry, excluded, edition };
+  return { route, canonicalRoute, canonical: `${site.origin}${canonicalRoute}`, brand, site, privateEntry, excluded, edition, editionDates };
 }
 
 function imageCandidate(value, site) {
@@ -74,7 +83,7 @@ export function safeSeoJson(value) {
 }
 
 export function structuredSeo(model) {
-  const { site, canonical, title, description, image, route, edition } = model;
+  const { site, canonical, title, description, image, route, edition, editionDates } = model;
   const website = `${site.origin}/#website`;
   const page = { '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical, name: title, ...(description ? { description } : {}), inLanguage: 'en', isPartOf: { '@id': website }, primaryImageOfPage: { '@type': 'ImageObject', url: image } };
   const graph = [page];
@@ -82,8 +91,7 @@ export function structuredSeo(model) {
     graph.push({ '@type': 'WebSite', '@id': website, url: `${site.origin}/`, name: site.name, ...(model.brand === 'magazine' ? { alternateName: ['LTC Media', 'Lunch Time Conversations'] } : {}) });
   }
   if (edition) {
-    assert(instant(edition.publishedAt), `Invalid saved publication timestamp: ${edition.id}`);
-    graph.push({ '@type': 'Article', '@id': `${canonical}#article`, url: canonical, mainEntityOfPage: { '@id': `${canonical}#webpage` }, headline: edition.title, description: edition.dek, image: [image], datePublished: edition.publishedAt, author: { '@type': 'Organization', name: 'LTC Media', url: 'https://ltcmagazine.org/conversations/about/' }, publisher: { '@type': 'Organization', name: 'LTC Media', url: 'https://ltcmagazine.org/conversations/' } });
+    graph.push({ '@type': 'Article', '@id': `${canonical}#article`, url: canonical, mainEntityOfPage: { '@id': `${canonical}#webpage` }, headline: edition.title, description: edition.dek, image: [image], ...editionDates, author: { '@type': 'Organization', name: 'LTC Media', url: 'https://ltcmagazine.org/conversations/about/' }, publisher: { '@type': 'Organization', name: 'LTC Media', url: 'https://ltcmagazine.org/conversations/' } });
   }
   // Generic pages and advance specials receive no invented publication date,
   // legal status, human author, endorsement, review or external social profile.
@@ -107,9 +115,15 @@ export function applySiteSeo(html, file, options = {}) {
 }
 
 export function buildSeoSitemaps(models) {
-  const urls = { community: new Set(), magazine: new Set() };
-  for (const model of models) if (!model.noindex) urls[model.brand].add(model.canonical);
-  const file = brand => `${XML_HEAD}<urlset xmlns="${SITE_SCHEMA}">${[...urls[brand]].sort().map(url => `<url><loc>${escapeSeoText(url)}</loc></url>`).join('')}</urlset>\n`;
+  const urls = { community: new Map(), magazine: new Map() };
+  for (const model of models) if (!model.noindex) {
+    // Only immutable edition records establish a content timestamp. A build or
+    // collection time is not a last modification date for a generic page.
+    const lastmod = model.editionDates?.dateModified ?? model.editionDates?.datePublished ?? null;
+    if (urls[model.brand].has(model.canonical)) assert(urls[model.brand].get(model.canonical) === lastmod, `Conflicting canonical modification dates: ${model.canonical}`);
+    urls[model.brand].set(model.canonical, lastmod);
+  }
+  const file = brand => `${XML_HEAD}<urlset xmlns="${SITE_SCHEMA}">${[...urls[brand].keys()].sort().map(url => { const lastmod = urls[brand].get(url); return `<url><loc>${escapeSeoText(url)}</loc>${lastmod ? `<lastmod>${escapeSeoText(lastmod)}</lastmod>` : ''}</url>`; }).join('')}</urlset>\n`;
   const named = [`${SEO_SITES.community.origin}/sitemap-community.xml`, `${SEO_SITES.magazine.origin}/sitemap-magazine.xml`];
   return {
     'sitemap-community.xml': file('community'),

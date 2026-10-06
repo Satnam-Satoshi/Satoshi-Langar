@@ -1,6 +1,6 @@
 import { PageIntro } from '../components/PageIntro';
 import { repo } from '../data/ecosystem';
-export const metadata={title:'The roadmap'};
+export const metadata={title:'The roadmap',description:'Read the proposed 90-day development phases for learning, publishing, art and community service, with readiness checks and human responsibilities.'};
 const phases=[
  ['01','Make the invitation useful','Days 1–14 after owners agree','Review the expanded site and three 21-lesson courses. Prepare official channels, contributor tasks and release continuity.','Gate A: a newcomer can find a useful action; mobile and sources pass review; a human intake owner and backup are named.'],
  ['02','Rehearse before operating','Days 15–30, subject to readiness','Plan a kitchen and meetup, rehearse service evidence and an artist invoice, and review three LTC editions.','Gate B: reviewers accept rehearsal evidence, including failures, disputes and privacy. Local events and payments need their own approval.'],

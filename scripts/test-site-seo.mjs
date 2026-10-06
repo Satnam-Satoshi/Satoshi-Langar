@@ -30,6 +30,22 @@ test('current revision aliases canonicalize to their day while older correction 
   assert.equal(JSON.stringify(editions), unchanged);
 });
 
+test('community content aliases share their destination canonical without changing their reading links', () => {
+  const models = [];
+  for (const [alias, destination] of [['community', 'connect'], ['support', 'donate'], ['projects', 'ecosystem']]) {
+    const input = doc({ main: `<a href="../${alias}/index.html">Existing alias link</a>` });
+    const { html, model } = render(`${alias}/index.html`, input);
+    models.push(model, render(`${destination}/index.html`).model);
+    assert.equal(model.canonical, `https://satnamsatoshi.com/${destination}/`);
+    assert.equal(model.noindex, false);
+    assert.equal(html.split('</head>')[1], input.split('</head>')[1]);
+    assert.deepEqual(validate(html, `${alias}/index.html`), []);
+  }
+  const sitemap = buildSeoSitemaps(models)['sitemap-community.xml'];
+  assert.equal((sitemap.match(/<url>/g) ?? []).length, 3);
+  for (const alias of ['community', 'support', 'projects']) assert.ok(!sitemap.includes(`/${alias}/`));
+});
+
 test('actual title/description become unique branded large share metadata, replacing inherited values', () => {
   const input = doc({ title: 'Proof of Birthday · Litecoin at 15', description: 'An 84-page advance edition.', head: '<link rel="canonical" href="https://old.example/"/><meta property="og:title" content="Wrong parent"/><meta name="twitter:title" content="Wrong parent"/><meta name="twitter:card" content="summary"/>' });
   const { html } = render('conversations/specials/proof-of-birthday/index.html', input);
@@ -77,7 +93,41 @@ test('named sitemaps contain only their canonical domains, de-duplicate aliases 
   assert.ok(result['sitemap.xml'].includes('<sitemapindex '));
   assert.ok(result['robots.txt'].includes('Sitemap: https://satnamsatoshi.com/sitemap-community.xml'));
   assert.ok(result['robots.txt'].includes('Sitemap: https://ltcmagazine.org/sitemap-magazine.xml'));
-  assert.ok(!JSON.stringify(result).includes('vercel.app')); assert.ok(!JSON.stringify(result).includes('lastmod'));
+  assert.ok(!JSON.stringify(result).includes('vercel.app'));
+  assert.ok(!result['sitemap-community.xml'].includes('lastmod'));
+  assert.ok(result['sitemap-magazine.xml'].includes('<loc>https://ltcmagazine.org/conversations/</loc></url>'));
+  assert.ok(result['sitemap-magazine.xml'].includes(`<loc>https://ltcmagazine.org/conversations/editions/2026-10-05/</loc><lastmod>${editions[0].publishedAt}</lastmod>`));
+  assert.ok(result['sitemap-magazine.xml'].includes(`<loc>https://ltcmagazine.org/conversations/editions/2026-10-05-r1/</loc><lastmod>${editions[1].publishedAt}</lastmod>`));
+  assert.equal((result['sitemap-magazine.xml'].match(/<lastmod>/g) ?? []).length, 2);
+  assert.deepEqual(buildSeoSitemaps([...models].reverse()), result);
+});
+
+test('corrections preserve first publication and each archived revision uses only its own recorded modification', () => {
+  const original = editions[1].publishedAt;
+  const newest = { ...editions[0], id: '2026-10-05-r3', revision: 3, publishedAt: '2026-10-06T09:00:00.000Z' };
+  const draft = { ...newest, id: '2026-10-05-r4', revision: 4, status: 'draft', publishedAt: '2099-01-01T00:00:00.000Z' };
+  const records = [draft, ...editions, newest];
+  const models = [];
+  for (const [id, modified] of [['2026-10-05', newest.publishedAt], ['2026-10-05-r3', newest.publishedAt], ['2026-10-05-r2', editions[0].publishedAt], ['2026-10-05-r1', null]]) {
+    const file = `conversations/editions/${id}/index.html`;
+    const { html, model } = applySiteSeo(doc(), file, { editions: records }); models.push(model);
+    const article = structured(html)['@graph'].find(node => node['@type'] === 'Article');
+    assert.equal(article.datePublished, original);
+    assert.equal(article.dateModified, modified ?? undefined);
+    assert.deepEqual(validatePageSeo(html, file, { editions: records, assetPaths: assets }).failures, []);
+  }
+  const xml = buildSeoSitemaps(models)['sitemap-magazine.xml'];
+  assert.ok(!xml.includes('2099'));
+  assert.ok(xml.includes(`<loc>https://ltcmagazine.org/conversations/editions/2026-10-05-r2/</loc><lastmod>${editions[0].publishedAt}</lastmod>`));
+});
+
+test('publication date metadata fails closed on invalid records or revisions preceding the original', () => {
+  const file = 'conversations/editions/2026-10-05/index.html';
+  for (const records of [
+    editions.map(item => item.revision === 1 && item.date === '2026-10-05' ? { ...item, publishedAt: 'not-a-date' } : item),
+    editions.map(item => item.revision === 2 ? { ...item, publishedAt: '2026-02-30T17:00:00.000Z' } : item),
+    editions.map(item => item.revision === 2 ? { ...item, publishedAt: '2026-10-04T17:00:00.000Z' } : item),
+  ]) assert.throws(() => applySiteSeo(doc(), file, { editions: records }), /publication|precedes/);
 });
 
 test('structured data uses actual saved publication fields without inventing author people or advance cover dates', () => {
@@ -119,7 +169,8 @@ test('export validator rejects wrong canonical, duplicated share tags, unsafe JS
     html.replace('rel="canonical" href="https://ltcmagazine.org', 'rel="canonical" href="https://evil.example'),
     html.replace('</head>', '<meta name="twitter:card" content="summary"/></head>'),
     html.replace('type="application/ld+json" data-site-seo="v1"', 'type="application/ld+json" data-site-seo="v1" src="https://evil.example/x.js"'),
-    html.replace('"datePublished":"2026-10-05T17:00:00.000Z"', '"datePublished":"2026-10-15T17:00:00.000Z"'),
+    html.replace('"datePublished":"2026-10-05T04:21:21.525Z"', '"datePublished":"2026-10-15T17:00:00.000Z"'),
+    html.replace('"dateModified":"2026-10-05T17:00:00.000Z"', '"dateModified":"2026-10-15T17:00:00.000Z"'),
     html.replace('"headline":"A corrected record"', '"headline":"Invented headline"'),
   ];
   for (const altered of cases) assert.ok(validate(altered, file).length > 0);

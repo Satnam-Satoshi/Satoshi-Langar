@@ -26,7 +26,7 @@ export default function CommunityPage(){return <main className={styles.hub}>
     </div>
     <div className={styles.heroFoot}><span>ROOTED IN SEVA. OPEN TO EVERYONE.</span><span>Original AI illustration · a vision, not an event</span></div>
   </section>
-  <nav className={styles.jumpNav} aria-label="Community sections"><a href="#ask-ma">Ask Ma</a><a href="#community-channels">Find your people</a><a href="#community-reading">On the reading table</a><a href="#contribute">Make a contribution</a><a href="#how-we-gather">How we gather</a></nav>
+  <nav className={styles.jumpNav} aria-label="Community sections"><a href="#ask-ma">Ask Ma</a><a href="#community-channels">Find your people</a><a href="#community-reading">On the reading table</a><a href="/conversations/community/">Community Wire ↗</a><a href="#contribute">Make a contribution</a><a href="#how-we-gather">How we gather</a></nav>
 
   <section id="choose-a-path" className={styles.section} aria-labelledby="path-title">
     <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>01 / YOU BELONG IN THE CONVERSATION</p><h2 id="path-title">Come as you are.<br/><em>Leave with a next step.</em></h2></div><p>You do not need a wallet, a membership or the right vocabulary. Start with curiosity. Find one useful thing to learn, make or share.</p></div>
