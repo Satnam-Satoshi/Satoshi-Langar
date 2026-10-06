@@ -79,3 +79,5 @@ console.log('Portable static release generated in dist/; allowlisted local enhan
 // Owner-requested October 6 extra has its own record; daily records remain immutable.
 await mkdir(path.join(target,'data/ltc-extras'),{recursive:true});
 await copyFile('content/ltc-extras/2026-10-06-delorean-r1.json',path.join(target,'data/ltc-extras/2026-10-06-delorean-r1.json'));
+
+await copyFile('content/ltc-extras/2026-10-06-delorean-r2.json',path.join(target,'data/ltc-extras/2026-10-06-delorean-r2.json'));
