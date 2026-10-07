@@ -36,7 +36,7 @@ Backup each accepted run as a content-addressed manifest/package; record bytes, 
 
 A network-enabled **local isolated** dry run passed on source `15b8d8e844a3a53eff4ab185ba563d3e067b0ae2`, implementation digest `7ac3dce806832654e9cb112d9f29372e042ed630abea2a7dcacbbe315df959ac`. It collected four fresh inputs, validated a fresh flagship candidate, preserved October 6 issue/snapshot bytes, created only community/newsroom clone records and passed checks/build. No GitHub write, candidate upload or public release occurred. Receipt and raw/normalized evidence are retained privately. It is not a GitHub-hosted cloud dry run. Later exit-2 gap handling and earlier scratch-path receipt persistence were verified by offline regression tests; semantic freshness gates remain unchanged. Publication is unconditionally withheld pending acceptance.
 
-The review package remains local: terminal Git has no authenticated GitHub session, and the connected branch-creation capability did not accept the explicit base arguments. No remote migration branch or PR was created. The founder approved push/draft PR; secure supported repository-write access remains the missing prerequisite. Do not export desktop credentials to satisfy it.
+The founder approved the migration branch push and draft PR. On October 7, GitHub CLI browser authorization completed as Satnam-Satoshi, and the repository API confirmed write access. Desktop authorization is for review work; it is not exported to GitHub Actions or treated as cloud service authorization. Protected merge and cloud activation remain pending engineering acceptance and founder approval.
 
 ## Required engineering acceptance before owner activation
 
