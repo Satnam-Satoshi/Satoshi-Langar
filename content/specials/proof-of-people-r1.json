@@ -1,0 +1,381 @@
+{
+  "id": "proof-of-people-2026-10-07-r1",
+  "slug": "proof-of-people",
+  "title": "Proof of People",
+  "subject": "Beyond the ticker",
+  "dek": "Five people. Different kinds of work. Meet the thinkers, maintainers, advocates and organizers shaping the Bitcoin and Litecoin conversation—and follow the evidence behind two new network announcements.",
+  "preparedAt": "2026-10-07T06:54:31.355Z",
+  "researchThrough": "2026-10-07",
+  "byline": "AI Satoshi Ma · LTC editorial desk",
+  "classification": "Independent, AI-prepared and source-checked community feature",
+  "intro": [
+    "The ticker is the easiest part of open money to watch. It is also the least complete portrait of the people doing the work. This special moves the lens toward research, maintenance, advocacy, ecosystem design and organizational responsibility.",
+    "Hidden talent is an editorial invitation, not a claim that these contributors are unknown. Some already have large public audiences. What can remain hidden is the patient work behind a visible title: a specification, a difficult explanation, a repair, a developer’s first useful question.",
+    "We chose these five profiles at the founder’s request. They are independently prepared from public records, not interviews or endorsements. Read a chapter, open its evidence and bring one better question back to the community table."
+  ],
+  "sections": [
+    {
+      "id": "jason-lowery",
+      "title": "Jason Lowery: change the question.",
+      "kicker": "Ideas / Proof of work",
+      "paragraphs": [
+        "What if a discussion about Bitcoin began with security rather than a price? Jason P. Lowery’s Softwar asks readers to try that change of frame. MIT’s repository records the thesis in February 2023, with Joan Rubin as advisor. Its full title is Softwar: A Novel Theory on Power Projection and the National Strategic Significance of Bitcoin. The argument treats proof of work as a possible electro-cyber security technology and offers a framework for developing hypotheses about its strategic significance.",
+        "That is a research proposition, not proof that a military strategy has been adopted. A useful reading starts by separating the author’s proposed model, the observable mechanics of proof of work and the further evidence needed to test a national-security claim. Agreeing with an ambitious question does not require treating every conclusion as settled.",
+        "Lowery’s own professional announcement identifies his role as Special Assistant to the Commander, U.S. Indo-Pacific Command. His X biography, checked October 7, describes him as a Space Force Guardian and engineer, lists Hawaii and explicitly separates personal views from his employer’s views. We did not establish a current Washington, D.C. appointment. His work belongs in a national policy conversation; that does not place his job in D.C.",
+        "The overlooked contribution here is a habit: examine the assumptions hiding inside a familiar category. For a community reader, the productive next step is to open the thesis abstract, write down the hypothesis in ordinary language and ask what evidence would support or challenge it. Curiosity becomes more useful when it can be tested."
+      ],
+      "takeaway": "Read Softwar as a proposed analytical framework. Keep the author’s job, location and personal arguments separate.",
+      "sourceIds": [
+        "JL1",
+        "JL2",
+        "JL3"
+      ]
+    },
+    {
+      "id": "david-burkett",
+      "title": "David Burkett: privacy has a maintenance crew.",
+      "kicker": "Software / Patient engineering",
+      "paragraphs": [
+        "Software work often becomes visible only when something breaks. David Burkett’s record offers a better way to see it: through a specification, implementation history and a candid repair account. LIP-0004, created February 28, 2020, names Burkett as author and describes one-sided transactions in Mimblewimble at the consensus layer. The historical proposal remains marked Draft in the repository; that label should not be mistaken for the entire network’s current activation status.",
+        "The Litecoin Foundation’s 2024 history describes Burkett’s background in Grin development and his work on MWEB, which activated in May 2022. It also credits other developers, wallet builders, testers and supporters. Burkett is an important figure in that story, but privacy infrastructure is collective work. A feature that users encounter through a simple interface can depend on years of less visible review and integration.",
+        "His April 28, 2026 postmortem explains a March validation vulnerability, an April failure involving mutated MWEB block data, and the coordinated response. It describes fixes and recovery, with limits on its scope. We do not turn that historical response into a present-day security guarantee. Including this record makes the profile more useful: engineering achievement and accountability belong on the same page.",
+        "A newcomer can contribute without pretending to audit cryptography. Read the introduction of a proposal, follow its stated scope and identify the question it solves. A more experienced reader can trace the implementation and review history. Both forms of attention help a community value maintenance alongside invention."
+      ],
+      "takeaway": "Credit the builder and the wider team. Read design history beside repair history.",
+      "sourceIds": [
+        "DB1",
+        "DB2",
+        "DB3"
+      ]
+    },
+    {
+      "id": "dennis-porter",
+      "title": "Dennis Porter: translate the protocol into public language.",
+      "kicker": "Advocacy / Institutions",
+      "paragraphs": [
+        "A decentralized network does not remove the need to explain it to people who write policy. Dennis Porter works in that translation space. Satoshi Action Education’s team page lists him as President and Founder and says he co-launched Satoshi Action Fund in June 2022. His current X biography describes policy, strategy and digital advocacy; its Washington, DC location is self-described and does not imply a government office.",
+        "The Fund describes its work through model policy development, education, grassroots advocacy, rights protection and research. Its emphasis includes financial privacy and self-custody. These are the organization’s stated aims, not a finding that each proposed protection is enacted everywhere. We have not independently verified its impact counters, and we do not repeat them as a scorecard.",
+        "The distinction between the Fund and Education matters. A policy campaign and a research organization can have related missions while doing different work. Likewise, a model bill, introduced bill, passed bill and effective law are separate stages. Readers should follow the original legislative record when evaluating a specific outcome.",
+        "The talent worth noticing is making a technical subject legible outside its home community. Our invitation is to understand that work, rather than adopt a party position: choose one policy term, find its actual definition and explain which institution can change it. A clear question is often a stronger starting point than a slogan."
+      ],
+      "takeaway": "Advocacy is a distinct contribution. Check the organization, document type and legislative stage before claiming an outcome.",
+      "sourceIds": [
+        "DP1",
+        "DP2",
+        "DP3"
+      ]
+    },
+    {
+      "id": "aztec-amaya",
+      "title": "Aztec Amaya: build a place for the next experiment.",
+      "kicker": "Ecosystem / New applications",
+      "paragraphs": [
+        "The handle circle_crypto belongs to the person introduced as Aztec Amaya in The 84 Million Podcast’s October 22, 2025 show notes. Those notes identify him as CSO at Lunar Assets, a co-host of The Aggregated and a LitVM co-founder. His live X biography retains those roles. The show also discloses Luxxfolio sponsorship, a relationship readers should know when weighing the surrounding commercial narrative.",
+        "LitVM’s current project website says the LiteForge testnet is live. It presents an application-layer design using Arbitrum Orbit and BitcoinOS. These are the project’s descriptions; this feature has not independently audited the implementation. Testnet availability does not establish a production mainnet, and an application layer is not evidence that Litecoin’s base chain has acquired native EVM execution.",
+        "Ecosystem work joins technical choices to the questions a developer asks before arriving: what can I build, where can I experiment and what assumptions am I accepting? That connective work can be less visible than a launch headline. It deserves attention without turning a roadmap into a completed product.",
+        "For readers, the first step is a vocabulary exercise rather than a transaction: distinguish a base chain, application layer, testnet and bridge. Write down which component is responsible for which promise. You do not need to connect a wallet or move money to begin understanding the design."
+      ],
+      "takeaway": "Give experiments room to grow while keeping testnet, mainnet and base-chain claims distinct.",
+      "sourceIds": [
+        "AA1",
+        "AA2",
+        "AA3"
+      ]
+    },
+    {
+      "id": "zayn-kalyan",
+      "title": "Zayn Kalyan: the company has a different job.",
+      "kicker": "Leadership / Accountable claims",
+      "paragraphs": [
+        "A public company operating around Litecoin is an organization with its own governance, strategy and disclosures. It is not the network itself. Luxxfolio’s August 22, 2025 issuer announcement appointed Zayn Kalyan Executive Chairman of its board. His current phillyjevs profile lists that role. The release names Tomek Antoniak as CEO; Kalyan’s separate CEO title at another company should not be transferred to Luxxfolio.",
+        "The announcement describes Kalyan’s expanded role in strategy, partnerships and product direction, and outlines wallet, stablecoin and ecosystem initiatives. The issuer also expressly labels future plans as forward-looking. An announcement of development or collaboration does not prove that a product is complete, a counterparty is using it or a treasury transaction has occurred.",
+        "This kind of leadership sits at an interface: translating a network opportunity into an organizational plan, while giving shareholders and users claims they can examine. The useful reading is therefore two-sided. Understand the stated ambition, then ask which public record shows the next milestone actually happened.",
+        "The community does not need to confuse a company’s success with the health of an open protocol. It can recognize a contributor, ask fair questions and retain its own judgment. We include Kalyan because governance and execution are parts of the ecosystem—not because a profile is an investment recommendation."
+      ],
+      "takeaway": "An issuer’s strategy is a dated claim. Read the disclosure and verify completed milestones separately.",
+      "sourceIds": [
+        "ZK1",
+        "ZK2"
+      ]
+    },
+    {
+      "id": "two-wrappers",
+      "title": "Two wrappers. Two routes. Read the verbs.",
+      "kicker": "Newsroom / September 25–October 1",
+      "paragraphs": [
+        "The two Luxxfolio posts supplied for this edition describe different representations of Litecoin on different networks. They should not be merged into one launch story. We checked the original posts and their quoted announcements on October 7; that research date does not make either event October 7 news.",
+        "On October 1, Luxxfolio described cLTC as added to Canton with Litecoin Foundation support. But the quoted Greywick Digital announcement says the launch is coming soon. We therefore describe cLTC on Canton as an announced project awaiting launch in the evidence inspected. Naming institutions associated with Canton does not establish that those institutions hold, trade or use cLTC.",
+        "On September 26, Luxxfolio said Coinbase Wrapped Litecoin, cbLTC, was bridged on Solana. It quoted Raydium’s September 25 announcement that cbLTC was live on Raydium via Sunrise. This is an attributed trading announcement for a bridged representation. It is not an independent LTC Magazine check of liquidity, reserves, contract identity or redemption.",
+        "Coinbase Exchange’s support documentation, checked October 7, lists cbLTC on Base. Direct issuer-supported deposits and withdrawals must be distinguished from a third-party route to another network. A bridge adds dependencies; matching ticker letters do not establish identical custody, redemption or security arrangements. We provide no contract-address recommendation or transaction instructions.",
+        "The practical newsroom lesson is simple: read the asset name, network, responsible issuer or bridge and exact launch verb before sharing a headline. Coming soon, bridged, trading and directly supported answer different questions. That small discipline makes community reporting clearer without diminishing anyone’s work."
+      ],
+      "takeaway": "cLTC on Canton is announced in the inspected evidence; bridged cbLTC trading on Solana is an attributed Raydium announcement. Neither establishes institutional adoption.",
+      "sourceIds": [
+        "NR1",
+        "NR2",
+        "NR3",
+        "NR4",
+        "NR5"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "date": "2020-02-28",
+      "label": "LIP-0004 records David Burkett’s Mimblewimble consensus proposal.",
+      "sourceIds": [
+        "DB1"
+      ]
+    },
+    {
+      "date": "2022-06",
+      "label": "Satoshi Action Education’s biography dates the Fund’s co-launch to June 2022.",
+      "sourceIds": [
+        "DP2"
+      ]
+    },
+    {
+      "date": "2023-02",
+      "label": "MIT records Jason Lowery’s Softwar thesis.",
+      "sourceIds": [
+        "JL1"
+      ]
+    },
+    {
+      "date": "2025-08-22",
+      "label": "Luxxfolio announces Zayn Kalyan as Executive Chairman.",
+      "sourceIds": [
+        "ZK1"
+      ]
+    },
+    {
+      "date": "2025-10-22",
+      "label": "The 84 Million show notes identify Aztec Amaya and his roles.",
+      "sourceIds": [
+        "AA1"
+      ]
+    },
+    {
+      "date": "2026-04-28",
+      "label": "David Burkett’s MWEB postmortem is published.",
+      "sourceIds": [
+        "DB3"
+      ]
+    },
+    {
+      "date": "2026-09-25",
+      "label": "Raydium announces bridged cbLTC trading via Sunrise.",
+      "sourceIds": [
+        "NR4"
+      ]
+    },
+    {
+      "date": "2026-09-26",
+      "label": "Luxxfolio shares the cbLTC/Solana announcement.",
+      "sourceIds": [
+        "NR3"
+      ]
+    },
+    {
+      "date": "2026-10-01",
+      "label": "Luxxfolio shares Greywick’s cLTC/Canton announcement, which says launch coming soon.",
+      "sourceIds": [
+        "NR1",
+        "NR2"
+      ]
+    },
+    {
+      "date": "2026-10-07",
+      "label": "Research checkpoint: profiles and project pages inspected; this is not a new appointment or launch date.",
+      "sourceIds": [
+        "JL3",
+        "AA2",
+        "AA3",
+        "ZK2",
+        "NR5"
+      ]
+    }
+  ],
+  "quotes": [],
+  "sources": [
+    {
+      "id": "JL1",
+      "title": "Softwar: A Novel Theory on Power Projection and the National Strategic Significance of Bitcoin",
+      "publisher": "MIT DSpace",
+      "url": "https://dspace.mit.edu/entities/publication/8ac6037b-efd6-4ecd-a57f-2b75c965c889",
+      "publishedAt": "2023-02",
+      "checkedAt": "2026-10-07",
+      "note": "Repository metadata and abstract inspected; this overview does not claim a complete review of the thesis."
+    },
+    {
+      "id": "JL2",
+      "title": "Jason Lowery: professional profile and appointment announcement",
+      "publisher": "Jason Lowery",
+      "url": "https://www.linkedin.com/in/jasonplowery",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Own announcement identifies Special Assistant to the Commander, U.S. Indo-Pacific Command. Relative post age does not establish an exact appointment date."
+    },
+    {
+      "id": "JL3",
+      "title": "Jason Lowery: current public X biography",
+      "publisher": "Jason Lowery",
+      "url": "https://x.com/JasonPLowery",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Read the live public profile October 7: Space Force Guardian and Engineer; location Hawaii; personal views disclaimer. No current Washington, D.C. appointment established."
+    },
+    {
+      "id": "DB1",
+      "title": "LIP-0004: One-Sided Transactions in Mimblewimble",
+      "publisher": "Litecoin project / David Burkett",
+      "url": "https://github.com/litecoin-project/lips/blob/master/lip-0004.mediawiki",
+      "publishedAt": "2020-02-28",
+      "checkedAt": "2026-10-07",
+      "note": "Authorship and specification inspected. The document is marked Draft; it is a historical design record, not a current deployment-status checklist."
+    },
+    {
+      "id": "DB2",
+      "title": "Bitcoin & Litecoin’s 13 Year Symbiotic Relationship",
+      "publisher": "Litecoin Foundation / Robbie Coleman",
+      "url": "https://litecoin.com/news/bitcoin-litecoin-a-13-year-symbiotic-relationship",
+      "publishedAt": "2024-10-13",
+      "checkedAt": "2026-10-07",
+      "note": "Foundation account identifies Burkett’s Grin background and MWEB work, while crediting a wider group of developers and contributors."
+    },
+    {
+      "id": "DB3",
+      "title": "Litecoin MWEB Security Incident Postmortem",
+      "publisher": "Litecoin Foundation / David Burkett",
+      "url": "https://litecoin.com/news/litecoin-mweb-security-incident-postmortem",
+      "publishedAt": "2026-04-28",
+      "checkedAt": "2026-10-07",
+      "note": "Author’s account of the March and April incidents and repair response. Historical report; no independent security certification is inferred."
+    },
+    {
+      "id": "DP1",
+      "title": "Satoshi Action Fund: mission and impact areas",
+      "publisher": "Satoshi Action Fund",
+      "url": "https://www.satoshiaction.io/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Organization’s description of model policy, education and advocacy. Its self-reported impact counters are not independently validated here."
+    },
+    {
+      "id": "DP2",
+      "title": "Satoshi Action Education: team biography",
+      "publisher": "Satoshi Action Education",
+      "url": "https://www.satoshiaction.org/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Lists Dennis Porter as President and Founder and dates the co-launch of Satoshi Action Fund to June 2022. Undated page; old impact totals are not treated as current."
+    },
+    {
+      "id": "DP3",
+      "title": "Dennis Porter: current public X biography",
+      "publisher": "Dennis Porter",
+      "url": "https://x.com/Dennis_Porter_",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Live profile describes policy, strategy and digital advocacy, and lists Washington, DC. An X location is self-described, not evidence of public office."
+    },
+    {
+      "id": "AA1",
+      "title": "Aztec Amaya on the Silver Standard, LitVM & the Litecoin Meta",
+      "publisher": "The 84 Million Podcast",
+      "url": "https://eightyfourmillion.podbean.com/e/ep-48-ep-48-aztec-amaya-on-the-silver-standard-litvm-the-litecoin-meta/",
+      "publishedAt": "2025-10-22",
+      "checkedAt": "2026-10-07",
+      "note": "Host’s show notes identify Aztec Amaya and link circle_crypto. Show discloses Luxxfolio sponsorship; not independent verification of commercial claims. Audio was not independently transcribed for this feature."
+    },
+    {
+      "id": "AA2",
+      "title": "Aztec LitVM Seer: current public X biography",
+      "publisher": "Aztec Amaya",
+      "url": "https://x.com/circle_crypto",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Live profile identifies LitVM co-founder, CSO at Lunar Assets and co-host of The Aggregated. Roles are attributed to the profile."
+    },
+    {
+      "id": "AA3",
+      "title": "LitVM: official project and testnet notice",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Website says LiteForge testnet is live. Design and bridge descriptions are project claims; no mainnet launch, independent audit or bridge-security guarantee is asserted."
+    },
+    {
+      "id": "ZK1",
+      "title": "Luxxfolio Appoints Executive Chairman",
+      "publisher": "Luxxfolio via Newsfile / Nasdaq",
+      "url": "https://www.nasdaq.com/press-release/luxxfolio-appoints-executive-chairman-2025-08-22",
+      "publishedAt": "2025-08-22",
+      "checkedAt": "2026-10-07",
+      "note": "Issuer release appoints Zayn Kalyan Executive Chairman; names Tomek Antoniak CEO. Business aims and products in development remain forward-looking statements."
+    },
+    {
+      "id": "ZK2",
+      "title": "Zayn Kalyan: current public X biography",
+      "publisher": "Zayn Kalyan",
+      "url": "https://x.com/phillyjevs",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Live profile lists Executive Chairman of Luxxfolio. Separate CEO role at Scorpio Gold is not confused with Luxxfolio leadership."
+    },
+    {
+      "id": "NR1",
+      "title": "Luxxfolio on cLTC and Canton",
+      "publisher": "Luxxfolio",
+      "url": "https://x.com/LuxxfolioH/status/2105645720267317481",
+      "publishedAt": "2026-10-01",
+      "checkedAt": "2026-10-07",
+      "note": "Read the original post and its quoted Greywick announcement. Luxxfolio says added, while Greywick says launch coming soon; the earlier launch stage is retained."
+    },
+    {
+      "id": "NR2",
+      "title": "Greywick Digital: cLTC announcement",
+      "publisher": "Greywick Digital",
+      "url": "https://x.com/greywickdigital/status/2105629635979387305",
+      "publishedAt": "2026-10-01",
+      "checkedAt": "2026-10-07",
+      "note": "Quoted original announcement was visible in the Luxxfolio post: launch coming soon. Institutional network participation does not establish cLTC adoption by those institutions."
+    },
+    {
+      "id": "NR3",
+      "title": "Luxxfolio on bridged cbLTC on Solana",
+      "publisher": "Luxxfolio",
+      "url": "https://x.com/LuxxfolioH/status/2103841596588343645",
+      "publishedAt": "2026-09-26",
+      "checkedAt": "2026-10-07",
+      "note": "Original post quotes Raydium’s September 25 announcement. No independent on-chain liquidity, address or redemption verification was performed."
+    },
+    {
+      "id": "NR4",
+      "title": "Raydium: cbLTC trading announcement",
+      "publisher": "Raydium",
+      "url": "https://x.com/Raydium/status/2103540589283406276",
+      "publishedAt": "2026-09-25",
+      "checkedAt": "2026-10-07",
+      "note": "Raydium’s announcement, quoted in Luxxfolio’s original post, says cbLTC is live on Raydium via Sunrise. Attributed project statement, not an LTC Magazine execution test."
+    },
+    {
+      "id": "NR5",
+      "title": "Coinbase Wrapped Assets on Coinbase Exchange",
+      "publisher": "Coinbase Help",
+      "url": "https://help.coinbase.com/en/exchange/crypto-transfers/wrapped-assets",
+      "publishedAt": null,
+      "checkedAt": "2026-10-07",
+      "note": "Current support table lists cbLTC on Base. Direct Coinbase network support is distinguished from a third-party bridged representation."
+    }
+  ],
+  "limits": [
+    "No interviews, private personnel records, independent human fact-check or endorsements are claimed. Current roles are attributed to public profiles and original announcements.",
+    "Jason Lowery’s current Washington, D.C. role was not established. His own announcement identifies an Indo-Pacific Command role, and his X biography lists Hawaii.",
+    "The Softwar discussion uses MIT metadata and its abstract; it does not claim a full thesis review or adoption as U.S. policy.",
+    "Company ambitions, project architecture and launch statements are attributed. No institutional cLTC adoption, executed investment, audited bridge security or present-day wallet safety is certified.",
+    "The sourcebook keeps source dates separate from research dates. Undated pages can contain older material. No follower lists, private messages or personal contact details were collected for the feature.",
+    "Original editorial interpretation and suggested reading exercises are not claims of new events. This edition offers general education and no individualized financial advice."
+  ]
+}
