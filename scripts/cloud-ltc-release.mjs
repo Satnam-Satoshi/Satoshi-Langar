@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFile, writeFile, mkdir, mkdtemp, lstat } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, mkdtemp, lstat, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -9,12 +9,13 @@ import { pathToFileURL } from 'node:url';
 export const TARGET = Object.freeze({
   repository: 'Satnam-Satoshi/Satoshi-Langar', branch: 'agent/community-ecosystem-20260930',
   project: 'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx', team: 'team_yc5ZBvCbWT2M7iGyj3vQDOzk',
+  domains: ['https://satnamsatoshi.com', 'https://ltcmagazine.org'],
   scope: 'baba-g-s-projects', canonical: 'https://https-github-com-satnam-satoshi-sat.vercel.app',
 });
 const requireThat = (value, code) => { if (!value) throw new Error(code); };
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const time = () => new Date().toISOString();
-export const isEditionData = file => /^content\/ltc\/(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(file) || file === 'public/data/ltc-snapshot.json';
+export const isEditionData = file => /^content\/ltc\/(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(file) || /^(?:content\/ltc-community\/(?:latest|archive\/\d{8}T\d{6}Z)|content\/ltc-newsroom\/(?:latest|newsroom-\d{8}T\d{6}Z))\.json$/.test(file) || file === 'public/data/ltc-snapshot.json';
 export const cleanEnvironment = env => Object.fromEntries(Object.entries(env).filter(([key]) => ['PATH', 'HOME', 'USERPROFILE', 'SystemRoot', 'TMPDIR', 'TMP', 'TEMP', 'CI', 'LANG', 'LC_ALL'].includes(key)));
 function command(binary, args, cwd, env = cleanEnvironment(process.env)) {
   try { return execFileSync(binary, args, { cwd, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 900_000, maxBuffer: 32 * 1024 * 1024 }); }
@@ -45,7 +46,10 @@ export function assertChanges(changes, editionId) {
   requireThat(/^\d{4}-\d{2}-\d{2}-r1$/.test(editionId), 'routine_revision_required');
   const allowed = new Set(['content/ltc/index.json', `content/ltc/${editionId}.json`, 'public/data/ltc-snapshot.json']);
   for (const change of changes) {
-    requireThat(allowed.has(change.file) && ['A', 'M', '??'].includes(change.status), 'release_changes_outside_allowlist');
+    const pointer = ['content/ltc-community/latest.json', 'content/ltc-newsroom/latest.json'].includes(change.file);
+    const archive = /^(?:content\/ltc-community\/archive\/\d{8}T\d{6}Z|content\/ltc-newsroom\/newsroom-\d{8}T\d{6}Z)\.json$/.test(change.file);
+    requireThat((allowed.has(change.file) || pointer || archive) && ['A', 'M', '??'].includes(change.status), 'release_changes_outside_allowlist');
+    if (archive) requireThat(change.status !== 'M', 'immutable_edition_changed');
     if (change.file === `content/ltc/${editionId}.json`) requireThat(change.status !== 'M', 'immutable_edition_changed');
   }
 }
@@ -81,8 +85,8 @@ function routeFor(file) {
 }
 export async function verifyProtectedCandidate(deploymentId, editionId, manifest, readWithCli) {
   requireThat(/^dpl_[A-Za-z0-9]+$/.test(deploymentId), 'candidate_identity_failed');
-  const allowed = new Set(pathsFor(editionId));
-  requireThat(manifest.length === allowed.size && new Set(manifest.map(record => record.file)).size === allowed.size && manifest.every(record => allowed.has(record.file) && /^[a-f0-9]{64}$/.test(record.sha256)), 'invalid_candidate_manifest');
+  const required = pathsFor(editionId);
+  requireThat(required.every(file => manifest.some(record => record.file === file)) && new Set(manifest.map(record => record.file)).size === manifest.length && manifest.every(record => /^[a-zA-Z0-9_.-]+(?:\/[a-zA-Z0-9_.-]+)*$/.test(record.file) && !record.file.split('/').some(part => part === '.' || part === '..') && /^[a-f0-9]{64}$/.test(record.sha256)), 'invalid_candidate_manifest');
   for (const record of manifest) {
     const bytes = await readWithCli(['curl', routeFor(record.file), '--deployment', deploymentId, '--', '--silent', '--show-error', '--location', '--fail', '--max-time', '30', '--max-redirs', '3', '--proto', '=https', '--proto-redir', '=https']);
     requireThat(sha(bytes) === record.sha256, 'deployed_artifact_mismatch');
@@ -97,9 +101,18 @@ async function responseBytes(url, options = {}) {
   requireThat(bytes.length <= 12 * 1024 * 1024, 'response_too_large');
   return bytes;
 }
+export function publicReadbackRecord(base, record, manifest) {
+  if (base === 'https://ltcmagazine.org' && record.file === 'index.html') {
+    const magazineHome = manifest.find(item => item.file === 'conversations/index.html');
+    requireThat(magazineHome, 'invalid_candidate_manifest');
+    return { route: '/conversations/', sha256: magazineHome.sha256 };
+  }
+  return { route: routeFor(record.file), sha256: record.sha256 };
+}
 async function verifySite(base, manifest) {
   for (const record of manifest) {
-    requireThat(sha(await responseBytes(`${base}${routeFor(record.file)}`)) === record.sha256, 'deployed_artifact_mismatch');
+    const expected = publicReadbackRecord(base, record, manifest);
+    requireThat(sha(await responseBytes(`${base}${expected.route}`)) === expected.sha256, 'deployed_artifact_mismatch');
   }
 }
 function apiClients(env) {
@@ -171,6 +184,7 @@ export async function runRelease(options, env = process.env) {
   try {
     const { github, vercel } = apiClients(env);
     if (options.publish) {
+      assertMigrationAcceptance();
       requireThat(env.GITHUB_ACTIONS === 'true' && env.GITHUB_REPOSITORY === TARGET.repository && env.GITHUB_REF === 'refs/heads/main', 'approved_actions_context_required');
       requireThat(env.LTC_CLOUD_PUBLISH === 'true', 'cloud_publication_disabled');
       await controls(github, source);
@@ -183,24 +197,14 @@ export async function runRelease(options, env = process.env) {
     const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
     const archive = JSON.parse(await readFile(path.join(clone, 'content/ltc/index.json'), 'utf8'));
     let edition = archive.filter(item => item.date === date).sort((a, b) => b.revision - a.revision)[0];
-    if (options.publish && archive.length) {
-      const latestSaved = [...archive].sort((a, b) => b.date.localeCompare(a.date) || b.revision - a.revision)[0];
-      const liveArchive = JSON.parse(await responseBytes(`${TARGET.canonical}/data/ltc-editions/index.json`));
-      requireThat(Array.isArray(liveArchive), 'invalid_live_archive');
-      const liveSaved = liveArchive.find(item => item.id === latestSaved.id);
-      if (!liveSaved || sha(JSON.stringify(liveSaved)) !== sha(JSON.stringify(latestSaved))) edition = latestSaved;
-    }
-    // Retry a committed but unpromoted issue using its saved evidence; never silently regenerate its bytes.
-    if (!edition) {
-      const snapshot = command(process.execPath, ['scripts/collect-ltc.mjs', '--stdout'], clone);
-      const snapshotFile = path.join(scratch, 'snapshot.json');
-      JSON.parse(snapshot);
-      await writeFile(snapshotFile, snapshot);
-      const candidate = path.join(scratch, 'candidate.json');
-      command(process.execPath, ['scripts/prepare-ltc-edition.mjs', '--snapshot', snapshotFile, '--output', candidate, '--publish'], clone);
-      await writeFile(path.join(clone, 'public/data/ltc-snapshot.json'), snapshot);
-      edition = JSON.parse(await readFile(path.join(clone, `content/ltc/${date}-r1.json`), 'utf8'));
-    }
+    // Private observations are always refreshed, even when today's immutable issue exists.
+    const evidence = path.join(scratch, 'evidence');
+    await mkdir(evidence, { mode: 0o700 });
+    record.evidenceDirectory = evidence;
+    const inputs = Object.fromEntries(['base', 'intelligence', 'policy', 'community'].map(name => [name, path.join(evidence, `${name}.json`)]));
+    await prepareObservations({ clone, evidence, inputs, existingEdition: Boolean(edition) });
+    record.evidence = await Promise.all(Object.entries(inputs).map(async ([kind, file]) => ({ kind, sha256: sha(await readFile(file)) })));
+    if (!edition) edition = JSON.parse(await readFile(path.join(clone, `content/ltc/${date}-r1.json`), 'utf8'));
     record.edition = edition.id;
     record.snapshotSha256 = sha(await readFile(path.join(clone, 'public/data/ltc-snapshot.json')));
     const initialChanges = await changesIn(clone);
@@ -211,7 +215,8 @@ export async function runRelease(options, env = process.env) {
     await verifyImplementation(clone, options.expected);
     const changes = await changesIn(clone);
     if (changes.length) assertChanges(changes, edition.id);
-    const manifest = await Promise.all(pathsFor(edition.id).map(async file => ({ file, sha256: sha(await readFile(path.join(clone, 'dist', file))) })));
+    const manifest = await builtManifest(path.join(clone, 'dist'));
+    requireThat(pathsFor(edition.id).every(file => manifest.some(record => record.file === file)), 'invalid_candidate_manifest');
     record.artifacts = manifest;
     record.artifactManifestSha256 = sha(JSON.stringify(manifest));
     record.changedFiles = changes.map(item => item.file);
@@ -220,7 +225,7 @@ export async function runRelease(options, env = process.env) {
       return { status: record.status, receipt: receiptPath, published: false };
     }
     // If the exact issue is already live, reruns are read-only no-ops.
-    try { await verifySite(TARGET.canonical, manifest); record.status = 'already-live'; record.completedAt = time(); await save(); return { status: record.status, receipt: receiptPath, published: false }; } catch { /* a saved but unpromoted issue continues */ }
+    try { await verifyPublicDomains(manifest); record.status = 'already-live'; record.completedAt = time(); await save(); return { status: record.status, receipt: receiptPath, published: false }; } catch { /* a saved but unpromoted issue continues */ }
     await controls(github, source);
     const project = await vercel(`/v9/projects/${TARGET.project}`);
     requireThat(project.id === TARGET.project && project.accountId === TARGET.team, 'wrong_vercel_project');
@@ -252,7 +257,7 @@ export async function runRelease(options, env = process.env) {
     record.status = 'promoting'; await save();
     try {
       vercelCommand(['promote', candidate, '--yes']);
-      await verifySite(TARGET.canonical, manifest);
+      await verifyPublicDomains(manifest);
       const promoted = await vercel(`/v13/deployments/${new URL(TARGET.canonical).hostname}`);
       requireThat(promoted.id === deployment.id, 'promotion_identity_failed');
       record.status = 'published'; record.published = true;
@@ -275,9 +280,48 @@ export async function runRelease(options, env = process.env) {
     throw new Error(record.failure);
   }
 }
+// Activation requires reviewed durable leases, crash reconciliation, evidence restore,
+// dual-domain promotion/rollback proof and coordinated local-writer cutover.
+// An environment switch cannot substitute for those unimplemented acceptance controls.
+export async function prepareObservations({ clone, evidence, inputs, existingEdition }, execute = command, save = writeFile) {
+  const run = args => execute(process.execPath, args, clone);
+  const baseSnapshot = await run(['scripts/collect-ltc.mjs', '--stdout']);
+  JSON.parse(baseSnapshot);
+  await save(inputs.base, baseSnapshot, { flag: 'wx', mode: 0o600 });
+  await run(['scripts/collect-ltc-intelligence.mjs', '--output', inputs.intelligence, '--evidence-dir', path.join(evidence, 'intelligence-raw')]);
+  await run(['scripts/collect-ltc-policy.mjs', '--output', inputs.policy]);
+  await run(['scripts/collect-ltc-community.mjs', '--output', inputs.community, '--evidence-dir', path.join(evidence, 'community-raw')]);
+  const observationArgs = ['--snapshot', inputs.base, '--intelligence', inputs.intelligence, '--policy', inputs.policy];
+  const flagship = ['scripts/prepare-ltc-flagship.mjs', ...observationArgs];
+  // Validate fresh, complete observations before mutating any accepted data.
+  await run([...flagship, '--output', path.join(evidence, 'flagship-candidate.json')]);
+  if (!existingEdition) {
+    await run([...flagship, '--publish']);
+    await save(path.join(clone, 'public/data/ltc-snapshot.json'), baseSnapshot);
+  }
+  await run(['scripts/archive-ltc-community.mjs', '--snapshot', inputs.community]);
+  await run(['scripts/prepare-ltc-newsroom.mjs', ...observationArgs, '--output', path.join(evidence, 'newsroom-candidate.json'), '--apply']);
+}
+export function assertMigrationAcceptance() { throw new Error('migration_acceptance_pending'); }
+export async function builtManifest(directory) {
+  const records = [];
+  async function walk(relative = '') {
+    for (const entry of await readdir(path.join(directory, relative), { withFileTypes: true })) {
+      const file = relative ? `${relative}/${entry.name}` : entry.name;
+      requireThat(!entry.isSymbolicLink(), 'non_regular_tracked_file');
+      if (entry.isDirectory()) await walk(file);
+      else { requireThat(entry.isFile(), 'non_regular_tracked_file'); records.push({ file, sha256: sha(await readFile(path.join(directory, file))) }); }
+    }
+  }
+  await walk();
+  return records.sort((a, b) => a.file.localeCompare(b.file));
+}
+export async function verifyPublicDomains(manifest, verify = verifySite) {
+  for (const domain of TARGET.domains) await verify(domain, manifest);
+}
 export function safeFailure(error) {
   const message = typeof error?.message === 'string' ? error.message : '';
-  const known = new Set(['accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'invalid_deployment_output', 'invalid_candidate_manifest', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
+  const known = new Set(['migration_acceptance_pending', 'accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'invalid_deployment_output', 'invalid_candidate_manifest', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
   return known.has(message) || /^http_[1-5]\d{2}$/.test(message) || /^command_failed_(?:node|git|pnpm|vercel)$/.test(message) ? message : 'release_failed_details_withheld';
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

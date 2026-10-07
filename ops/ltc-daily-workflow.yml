@@ -1,9 +1,9 @@
 # DRAFT ONLY: GitHub does not execute workflows in ops/. Do not call this active.
-# A separate reviewed scheduler-only PR must place this on main, after setup.
+# Scheduler foundation is already merged through PR #54. This file is the reviewed update template.
 name: LTC bounded daily publication
 on:
   schedule:
-    - cron: '7,27 10 * * *'
+    - cron: '0,20 10 * * *'
       timezone: America/New_York
   workflow_dispatch:
     inputs:
@@ -20,7 +20,7 @@ jobs:
   release:
     if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && (vars.LTC_CLOUD_PUBLISH == 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run))
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     environment: ltc-production
     permissions:
       contents: write
@@ -48,7 +48,7 @@ jobs:
           const hash=createHash('sha256');
           for(const file of files){
             if(!lstatSync(file).isFile()||lstatSync(file).isSymbolicLink())throw Error('Non-regular tracked file');
-            if(/^content\/ltc\/(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(file)||file==='public/data/ltc-snapshot.json')continue;
+            if(/^content\/ltc\/(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(file)||/^content\/ltc-newsroom\/(?:latest|newsroom-\d{8}T\d{6}Z)\.json$/.test(file)||/^content\/ltc-community\/(?:latest|archive\/\d{8}T\d{6}Z)\.json$/.test(file)||file==='public/data/ltc-snapshot.json')continue;
             hash.update(file+'\0');hash.update(readFileSync(file));hash.update('\0');
           }
           if(hash.digest('hex')!==expected)throw Error('Implementation changed; publication withheld');
