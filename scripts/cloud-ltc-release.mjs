@@ -21,6 +21,19 @@ function command(binary, args, cwd, env = cleanEnvironment(process.env)) {
   try { return execFileSync(binary, args, { cwd, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 900_000, maxBuffer: 32 * 1024 * 1024 }); }
   catch { throw new Error(`command_failed_${path.basename(binary).replace(/[^a-zA-Z0-9_-]/g, '_')}`); }
 }
+export async function collectorCommand(binary, args, cwd, normalizedFile, execute = execFileSync, readNormalized = readFile) {
+  let output;
+  try { output = execute(binary, args, { cwd, env: cleanEnvironment(process.env), encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 900_000, maxBuffer: 32 * 1024 * 1024 }); }
+  catch (error) {
+    // Exit 2 is the documented complete-unavailability result, not permission
+    // to ignore crashes. A normalized snapshot must exist before gap handling.
+    if (error.status !== 2) throw new Error('collector_failed');
+    output = '';
+  }
+  try { JSON.parse(await readNormalized(normalizedFile, 'utf8')); }
+  catch { throw new Error('invalid_collector_snapshot'); }
+  return output;
+}
 const git = (root, args) => command('git', args, root).trim();
 export async function implementationDigest(root) {
   const files = command('git', ['ls-files', '-z'], root).split('\0').filter(Boolean).sort();
@@ -176,6 +189,7 @@ export async function runRelease(options, env = process.env) {
   const source = git(root, ['rev-parse', 'HEAD']);
   const record = { schemaVersion: 1, mode: options.publish ? 'publish' : 'dry-run', startedAt: time(), status: 'started', source, implementationSha256: options.expected, published: false };
   const scratch = await mkdtemp(path.join(tmpdir(), 'ltc-cloud-'));
+  record.scratchDirectory = scratch;
   const clone = path.join(scratch, 'source');
   const receiptPath = path.resolve(options.receipt || path.join(scratch, 'receipt.json'));
   await mkdir(path.dirname(receiptPath), { recursive: true });
@@ -200,7 +214,7 @@ export async function runRelease(options, env = process.env) {
     // Private observations are always refreshed, even when today's immutable issue exists.
     const evidence = path.join(scratch, 'evidence');
     await mkdir(evidence, { mode: 0o700 });
-    record.evidenceDirectory = evidence;
+    record.evidenceDirectory = evidence; await save();
     const inputs = Object.fromEntries(['base', 'intelligence', 'policy', 'community'].map(name => [name, path.join(evidence, `${name}.json`)]));
     await prepareObservations({ clone, evidence, inputs, existingEdition: Boolean(edition) });
     record.evidence = await Promise.all(Object.entries(inputs).map(async ([kind, file]) => ({ kind, sha256: sha(await readFile(file)) })));
@@ -285,12 +299,13 @@ export async function runRelease(options, env = process.env) {
 // An environment switch cannot substitute for those unimplemented acceptance controls.
 export async function prepareObservations({ clone, evidence, inputs, existingEdition }, execute = command, save = writeFile) {
   const run = args => execute(process.execPath, args, clone);
+  const collect = async (args, file) => execute === command ? collectorCommand(process.execPath, args, clone, file) : run(args);
   const baseSnapshot = await run(['scripts/collect-ltc.mjs', '--stdout']);
   JSON.parse(baseSnapshot);
   await save(inputs.base, baseSnapshot, { flag: 'wx', mode: 0o600 });
-  await run(['scripts/collect-ltc-intelligence.mjs', '--output', inputs.intelligence, '--evidence-dir', path.join(evidence, 'intelligence-raw')]);
-  await run(['scripts/collect-ltc-policy.mjs', '--output', inputs.policy]);
-  await run(['scripts/collect-ltc-community.mjs', '--output', inputs.community, '--evidence-dir', path.join(evidence, 'community-raw')]);
+  await collect(['scripts/collect-ltc-intelligence.mjs', '--output', inputs.intelligence, '--evidence-dir', path.join(evidence, 'intelligence-raw')], inputs.intelligence);
+  await collect(['scripts/collect-ltc-policy.mjs', '--output', inputs.policy], inputs.policy);
+  await collect(['scripts/collect-ltc-community.mjs', '--output', inputs.community, '--evidence-dir', path.join(evidence, 'community-raw')], inputs.community);
   const observationArgs = ['--snapshot', inputs.base, '--intelligence', inputs.intelligence, '--policy', inputs.policy];
   const flagship = ['scripts/prepare-ltc-flagship.mjs', ...observationArgs];
   // Validate fresh, complete observations before mutating any accepted data.
@@ -321,7 +336,7 @@ export async function verifyPublicDomains(manifest, verify = verifySite) {
 }
 export function safeFailure(error) {
   const message = typeof error?.message === 'string' ? error.message : '';
-  const known = new Set(['migration_acceptance_pending', 'accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'invalid_deployment_output', 'invalid_candidate_manifest', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
+  const known = new Set(['collector_failed', 'invalid_collector_snapshot', 'migration_acceptance_pending', 'accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'invalid_deployment_output', 'invalid_candidate_manifest', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
   return known.has(message) || /^http_[1-5]\d{2}$/.test(message) || /^command_failed_(?:node|git|pnpm|vercel)$/.test(message) ? message : 'release_failed_details_withheld';
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

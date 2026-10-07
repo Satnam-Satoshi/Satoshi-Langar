@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate, assertMigrationAcceptance, builtManifest, verifyPublicDomains, TARGET, prepareObservations, publicReadbackRecord } from './cloud-ltc-release.mjs';
+import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate, assertMigrationAcceptance, builtManifest, verifyPublicDomains, TARGET, prepareObservations, publicReadbackRecord, collectorCommand } from './cloud-ltc-release.mjs';
 
 const id = '2026-10-02-r1';
 const head = 'a'.repeat(40);
@@ -167,4 +167,15 @@ test('magazine root readback maps to its conversations homepage without followin
   assert.deepEqual(publicReadbackRecord(TARGET.domains[1], manifest[0], manifest), { route: '/conversations/', sha256: 'magazine' });
   assert.deepEqual(publicReadbackRecord(TARGET.domains[0], manifest[0], manifest), { route: '/', sha256: 'community' });
   assert.throws(() => publicReadbackRecord(TARGET.domains[1], manifest[0], []), /invalid_candidate_manifest/);
+});
+
+test('collector exit 2 permits normalized gap snapshots but rejects missing/malformed snapshots and arbitrary failures', async () => {
+  const exited = status => () => { const error = Error('private provider details'); error.status = status; throw error; };
+  const readGap = async () => JSON.stringify({ sources: [{ status: 'unavailable' }] });
+  assert.equal(await collectorCommand('node', [], '/clone', '/private/snapshot', exited(2), readGap), '');
+  await assert.rejects(collectorCommand('node', [], '/clone', '/private/snapshot', exited(2), async () => '{bad'), /invalid_collector_snapshot/);
+  await assert.rejects(collectorCommand('node', [], '/clone', '/private/snapshot', exited(2), async () => { throw Error('ENOENT'); }), /invalid_collector_snapshot/);
+  for (const status of [1, 3, null]) await assert.rejects(collectorCommand('node', [], '/clone', '/private/snapshot', exited(status), readGap), /collector_failed/);
+  assert.equal(await collectorCommand('node', [], '/clone', '/private/snapshot', () => 'collected', readGap), 'collected');
+  await assert.rejects(collectorCommand('node', [], '/clone', '/private/snapshot', () => 'collected', async () => ''), /invalid_collector_snapshot/);
 });

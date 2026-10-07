@@ -32,6 +32,12 @@ Durable states: admitted, collecting, candidate-prepared, checked, source-commit
 
 Backup each accepted run as a content-addressed manifest/package; record bytes, SHA-256, store object/version, owner-only access and readback. Retain accepted release/rollback manifests and normalized evidence permanently unless the owner adopts a documented retention change; retain diagnostic/raw bodies for a proposed 90 days subject to rights review. A 30-day workflow artifact is diagnostic transport only, not the permanent archive. Require restore to a fresh directory, hash verification, archived issue/export checks and recovery of the durable ledger before enabling publication. Reconcile the known uncertain Drive upload by exact name/hash/size before any retry.
 
+## Preparation validation
+
+A network-enabled **local isolated** dry run passed on source `15b8d8e844a3a53eff4ab185ba563d3e067b0ae2`, implementation digest `7ac3dce806832654e9cb112d9f29372e042ed630abea2a7dcacbbe315df959ac`. It collected four fresh inputs, validated a fresh flagship candidate, preserved October 6 issue/snapshot bytes, created only community/newsroom clone records and passed checks/build. No GitHub write, candidate upload or public release occurred. Receipt and raw/normalized evidence are retained privately. It is not a GitHub-hosted cloud dry run. Later exit-2 gap handling and earlier scratch-path receipt persistence were verified by offline regression tests; semantic freshness gates remain unchanged. Publication is unconditionally withheld pending acceptance.
+
+The review package remains local: terminal Git has no authenticated GitHub session, and the connected branch-creation capability did not accept the explicit base arguments. No remote migration branch or PR was created. The founder approved push/draft PR; secure supported repository-write access remains the missing prerequisite. Do not export desktop credentials to satisfy it.
+
 ## Required engineering acceptance before owner activation
 
 1. Test complete new-day collection using the unchanged registries from the actual GitHub runner. Withhold stale fields and preserve partial gaps. Save fresh inputs and hashes privately. Same-day builds are not this test.
