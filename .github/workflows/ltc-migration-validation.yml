@@ -1,0 +1,50 @@
+# PR-only validation: no deployment credentials, schedules, remote writes or retained private evidence.
+name: LTC migration cloud dry run
+on:
+  pull_request:
+    branches: [agent/community-ecosystem-20260930]
+    paths:
+      - scripts/cloud-ltc-*.mjs
+      - scripts/test-cloud-ltc-*.mjs
+      - .github/workflows/ltc-migration-validation.yml
+permissions:
+  contents: read
+concurrency:
+  group: ltc-migration-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  dry-run:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.23.2
+      - name: Install locked package manager
+        run: npm install --global pnpm@11.19.0
+      - name: Exercise durable state and runner contracts
+        run: node --test scripts/test-cloud-ltc-release.mjs scripts/test-cloud-ltc-state.mjs
+      - name: Fresh isolated collection and build without service credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This self-computed digest identifies PR validation only. It is NOT production acceptance.
+          test_digest="$(node scripts/ltc-release-guard.mjs)"
+          node scripts/cloud-ltc-release.mjs --dry-run --expected-digest "$test_digest" --receipt "$RUNNER_TEMP/ltc-migration-receipt.json"
+      - name: Report sanitized validation result
+        if: always()
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync,appendFileSync,existsSync} from 'node:fs';
+          const file=process.env.RUNNER_TEMP+'/ltc-migration-receipt.json';
+          if(!existsSync(file))process.exit(0);
+          const r=JSON.parse(readFileSync(file,'utf8'));
+          const summary={mode:r.mode,status:r.status,source:r.source,implementationSha256:r.implementationSha256,edition:r.edition,published:r.published,failure:r.failure,artifacts:r.artifacts?.length};
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,'```json\n'+JSON.stringify(summary,null,2)+'\n```\n');
+          NODE

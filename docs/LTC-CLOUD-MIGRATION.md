@@ -60,3 +60,14 @@ The founder approved the migration branch push and draft PR. On October 7, GitHu
 ## Concrete owner setup still required
 
 After engineering gates pass: approve the reviewed implementation/protected merge, privately provision scoped Vercel access in protected environment, accept the reviewed native-linkage/cost arrangements and authorize coordinated cutover. A durable storage identity/access grant may require owner setup once the existing supported store is selected and restore tested. Buffer cloud authorization is a separate later gate. Do not request mission, donation addresses, Google activation, desktop Buffer connection, ElevenLabs payment or PR #54 approval again.
+
+
+## October 7 cloud preparation update
+
+GitHub environment `ltc-production` now exists with exact main branch restriction, founder required review, prevention of self-review and a one-minute wait. The stronger initial protections were used after automatic review rejected less restrictive defaults. `LTC_CLOUD_PUBLISH=false` is explicitly set. These are acceptance-test protections; after implementation acceptance, a separately reviewed environment policy must allow bounded routine publication without a new human approval each day. A founder-initiated manual deployment cannot be self-approved under the initial policy; use a distinct authorized reviewer or a separately approved acceptance policy, never bypass it.
+
+Vercel dashboard confirms production `9pX8ouoie4iqUDVmmRMtdpUzqAr6`, both public domains and the old native link to `Khlnayak/https-github.com-Satnam-Satoshi-Satoshi-Langar`. No disconnect, DNS, account, credential, deployment-protection or billing change has been made. Existing usage shown: Hobby, 515.47 MB deployment storage of 10 GB; 29K CDN requests of 1M; 1.77 GB fast transfer of 100 GB. This observed usage is not a forecast or permission to upgrade.
+
+The new PR-only cloud dry-run workflow uses pinned actions, Node 22.23.2 and pnpm 11.19.0, no service credentials, no remote publication and no retained private evidence artifacts. Its self-computed digest identifies validation bytes; it does not approve a production implementation. Only a sanitized summary enters GitHub job output. Raw evidence remains temporary until private storage integration is accepted.
+
+A durable state contract now tests CAS fencing, paused admission, immutable receipts, uncertain external-operation intents, explicit reconciliation, verified backup/restore and a mandatory restore hold. It is not yet integrated with the publication runner or a live owner-approved private store. The optional private GitHub adapter is unused: the founder selected existing private storage instead of creating a private repository. The initial cloud gate therefore stays unconditional.
