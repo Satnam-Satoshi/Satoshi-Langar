@@ -6,9 +6,11 @@ Satnam Satoshi begins with a portable public home and a reviewable contribution 
 
 | Layer | What exists | Limits / next evidence |
 |---|---|---|
-| Public community site | Next.js-authored content exported as static HTML/CSS in PR #46; HTTPS and an IPFS review copy | Main still has earlier app code; static release merge and founder acceptance remain separate |
+| Public community site | Next.js-authored content exported as static HTML/CSS with allowlisted local enhancements in PR #52; HTTPS and an IPFS review copy | Main still has earlier app code; static release merge and founder acceptance remain separate |
 | Source and public decisions | This GitHub repository, issues, PRs and Markdown | Need independent source and issue export/restore |
-| Contribution intake | GitHub issue templates and review process | Requires a GitHub account to post; non-GitHub intake and backup stewardship remain open |
+| Contribution planning | Local, downloadable personal drafts and program starter kits | No submission or membership claim; no backend storage |
+| Contribution intake | Visitor-reviewed GitHub drafts and templates | Requires a GitHub account to post; private intake and backup stewardship remain open |
+| Optional community identity | Supabase OAuth/PKCE adapter, inactive by default | Provider activation, private contact and real end-to-end testing pending |
 | Agent participation | Human-governed task rules and a contribution brief | No public registry API or autonomous production executor |
 | Private records | Separately access-controlled project records | Never required to understand a public starter task; complete remote restore remains to be verified |
 | Research prototypes | Separate Treasury and editorial work | Not community identity, custody or financial execution |

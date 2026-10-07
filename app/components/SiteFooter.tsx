@@ -1,23 +1,22 @@
-import Link from "next/link";
+import { SocialLinks } from './SocialLinks';
+const groups = [
+  { id: 'footer-read', title: 'Read & learn', links: [['Sikh Bitcoin', '/sikh-bitcoin/'], ['MiiKey · self-custody', '/miikey/'], ['LTC magazine', '/conversations/'], ['Community Wire · builders & sources', '/conversations/community/'], ['Litecoin Register ↗', 'https://litecoinregister.com/?c=table'], ['Proof of Birthday special', '/conversations/specials/proof-of-birthday/'], ['Past issues', '/conversations/archive/'], ['Get the daily magazine', '/subscribe/'], ['Follow LTC by RSS', '/conversations/feed.xml'], ['About LTC Media', '/conversations/about/']] },
+  { id: 'footer-participate', title: 'Take part', links: [['The community open table', '/ecosystem/'], ['Ask AI Satoshi Ma', '/ecosystem/#ask-ma'], ['Find your first task', '/join/'], ['Satoshi Langar', '/langar/'], ['Kalakar.x', '/kalakar/'], ['Bitcoin meetups', '/meetups/'], ['Humans + AI', '/agents/']] },
+  { id: 'footer-build', title: 'Build together', links: [['Collaborate', '/partners/'], ['Open technology', '/technology/'], ['Community channels', '/connect/'], ['Press & share kit', '/press/'], ['Roadmap', '/roadmap/'], ['GitHub ↗', 'https://github.com/Satnam-Satoshi/Satoshi-Langar']] },
+  { id: 'footer-project', title: 'Project & help', links: [['Our story', '/mission/'], ['Transparency', '/transparency/'], ['Shop · concept collection', '/shop/'], ['Donate BTC / LTC', '/donate/'], ['My contribution plan', '/welcome/'], ['Member sign-in', 'https://satnamsatoshi.com/sign-in/'], ['Privacy', '/privacy/']] },
+];
 
 export function SiteFooter() {
-  return (
-    <footer className="border-t border-border">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 md:grid-cols-[1.2fr_1fr] lg:px-8">
-        <div>
-          <div className="mb-4 flex items-center gap-3"><span className="grid size-8 place-items-center rounded-full border border-primary/40 text-xs text-primary">ਸ</span><strong className="font-medium">Satnam Satoshi</strong></div>
-          <p className="max-w-md text-sm leading-6 text-muted-foreground">An open-source Human + AI community project for service, education, evidence-led research, and transparent collaboration.</p>
-        </div>
-        <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground sm:grid-cols-3">
-          <Link href="/mission" className="hover:text-foreground">Mission</Link>
-          <Link href="/projects" className="hover:text-foreground">Projects</Link>
-          <Link href="/open-source" className="hover:text-foreground">GitHub</Link>
-          <Link href="/community" className="hover:text-foreground">Contribute</Link>
-          <Link href="/transparency" className="hover:text-foreground">Transparency</Link>
-          <Link href="/conversations" className="hover:text-foreground">LTC</Link>
-        </div>
-      </div>
-      <div className="border-t border-border px-5 py-5 text-center text-xs text-muted-foreground">© 2026 Satnam Satoshi project · Humans govern. AI assists. · Public Alpha</div>
-    </footer>
-  );
+  return <footer className="launch-footer"><div className="launch-wrap">
+    <div className="footer-main">
+      <div className="footer-identity"><strong>Satnam Satoshi</strong><p>Open tools. Shared knowledge.<br />Human dignity.</p><small>Rooted in seva. Built in the open.</small><SocialLinks mode="footer"/></div>
+      <nav className="footer-groups" aria-label="Footer navigation">
+        {groups.map(group => <section key={group.id} aria-labelledby={group.id}>
+          <h2 id={group.id}>{group.title}</h2>
+          <ul>{group.links.map(([label, href]) => <li key={href}><a href={href}>{label}</a></li>)}</ul>
+        </section>)}
+      </nav>
+    </div>
+    <div className="footer-bottom"><span>© 2026 Satnam Satoshi contributors · v0.1.26</span><a href="/domain/">Website access &amp; mirrors</a><span>Humans govern. AI assists.</span></div>
+  </div></footer>;
 }
