@@ -2,7 +2,7 @@
 
 Proposed team design · September 30, 2026. The founder requested parallel agent help for the ecosystem build. Delegation during that build is task-scoped; this document does not mean an unattended workforce, executive team or public agent service is operating. Every persistent role below is **unassigned** until its human operator and reviewer accept responsibility.
 
-AI Satoshi Ma is the project assistance identity for coordination, research and delivery. It does not hold a legal office, own community assets or authorize payments. [AGENTS.md](../AGENTS.md) and the [contribution brief](AGENT-CONTRIBUTION.md) apply to every worker and provider.
+AI Satoshi Ma is the project's AI chief editor and operating lead. Her AI CEO role coordinates priorities and delivery; CTO covers engineering and technical verification; CMO covers community storytelling and campaign preparation. She coordinates Agent Sangat, focused AI helpers working with human contributors. These are operating responsibilities, not legal corporate appointments. The human founder retains final mission, account, publication and financial authority. Ma does not own community assets or authorize payments. [AGENTS.md](../AGENTS.md) and the [contribution brief](AGENT-CONTRIBUTION.md) apply to every worker and provider.
 
 ## A small team with clear handoffs
 

@@ -15,7 +15,7 @@ const choices = [
 const benefits = [
   ['01', '63 lessons. Your own pace.', 'Three free Bitcoin courses with exercises and self-checks, from foundations to self-custody.', '/sikh-bitcoin/', 'Choose a course'],
   ['02', 'A reading table that grows.', 'Read LTC’s latest published issue, original features and the dated archive.', '/conversations/', 'Open LTC Media'],
-  ['03', 'Understand your keys.', 'Explore MiiKey’s explanations of wallets, recovery, multisig and custody choices.', '/miikey/', 'Explore MiiKey'],
+  ['03', 'Find your wallet path.', 'Learn Bitcoin and Lightning wallet basics, compare custody choices and explore our planned Fedi federation.', '/wallets/', 'Explore community wallets'],
   ['04', 'A first step you can keep.', 'Build a personal contribution plan, download it and decide when you want to share.', '#make-a-plan', 'Make a guest plan'],
   ['05', 'Useful work in the open.', 'Find community destinations and public ways to contribute questions, sources, art or code.', '/ecosystem/#contribute', 'Find a contribution'],
 ] as const;
@@ -67,7 +67,7 @@ export default function JoinPage() {
       <aside className={styles.aside}>
         <div className={styles.invitation}><img src="/images/community/open-table.jpg" width="1672" height="941" alt="An imagined open table for learning, creative work and shared service."/><div><p className={styles.eyebrow}>YOUR PLACE IS ALREADY OPEN</p><h2>Belong through<br/><em>what you bring.</em></h2><p>A question. A source check. A clearer explanation. A generous hour. You can contribute before you create an account.</p><a href="#member-benefits">Explore the free community benefits</a></div></div>
         <section className={styles.accountCard} aria-labelledby="account-title"><span className={styles.status}>FREE / OPTIONAL ACCOUNT</span><h3 id="account-title">Your place at the table.</h3><p>Join with Google to create your community account. Your lesson progress and plans stay on this device. Email delivery is a separate opt-in when available.</p><a className={styles.primary} href="https://satnamsatoshi.com/sign-in/">Join or sign in with Google</a><a className={styles.textLink} href="#make-a-plan">Continue as a guest</a></section>
-        <section className={styles.helpCard}><span className={styles.ma}>Ma</span><div><h3>A little help choosing?</h3><p>AI Satoshi Ma’s prepared guide can point you toward a lesson, community or first contribution.</p><a className={styles.textLink} href="/ecosystem/#ask-ma">Open the free community guide</a></div></section>
+        <section className={styles.helpCard}><span className={styles.ma}>Ma</span><div><h3>Meet AI Satoshi Ma.</h3><p>Our AI chief editor and Agent Sangat coordinator welcomes you with a prepared guide to lessons, community and first contributions.</p><a className={styles.textLink} href="/ecosystem/#ask-ma">Open the free community guide</a></div></section>
         <p className={styles.asideNote}>You choose what becomes public. A GitHub proposal requires a separate account and your own submission. <a href="/privacy/">Read how drafts are handled.</a></p>
       </aside>
     </section>
