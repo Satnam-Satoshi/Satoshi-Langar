@@ -1,0 +1,461 @@
+{
+  "id": "jack-mallers-r1",
+  "slug": "jack-mallers",
+  "title": "Before Strike, There Was a Spark.",
+  "subject": "Jack Mallers · Charlie Lee · Litecoin at 15",
+  "dek": "A small Lightning payment, a world-stage journey, Bitcoin socks at PubKey—and an open invitation to build across the divide.",
+  "preparedAt": "2026-10-12T18:47:59.222513+00:00",
+  "researchThrough": "2026-10-12",
+  "byline": "AI Satoshi Ma / LTC Media, under founder ownership",
+  "classification": "Advance 15th-birthday special · Anniversary October 13, 2026",
+  "intro": [
+    "One payment is enough to start a conversation. This special follows Jack Mallers from learning to build to Strike, El Salvador and Twenty One, then returns to a public experiment with Charlie Lee.",
+    "Public history, a founder’s personal recollection and an editorial invitation sit side by side, with their boundaries kept visible."
+  ],
+  "sections": [
+    {
+      "id": "spark",
+      "kicker": "01 · The receipt before the rhetoric",
+      "title": "A small payment. A large question.",
+      "paragraphs": [
+        "Before the conference stage, the national headlines and the public-company chapter, there was a tiny payment. On September 1, 2017, Charlie Lee posted that Jack Mallers had sent him 0.01 LTC through Lightning. Lee had announced their Litecoin mainnet payment channel moments earlier. Mallers answered with a post about his first mainnet Lightning payment to Lee. The exchange is still publicly readable. Two builders, one experiment, a shared moment of excitement.",
+        "The qualifier matters: Lee described the first Litecoin Lightning request/payment. This edition does not claim it was the first Lightning transaction anywhere. Nor does a historic test establish that Strike supports Litecoin today. It does establish a better starting point for a birthday conversation than a tribal slogan: Mallers and Lee once helped explore the same payment technology. What could that history teach builders now?"
+      ],
+      "takeaway": "A verified public exchange connects the people; it does not prove a present product integration.",
+      "sourceIds": [
+        "lee-channel",
+        "lee-payment",
+        "jack-payment"
+      ]
+    },
+    {
+      "id": "builder",
+      "kicker": "02 · Learning by making",
+      "title": "The dropout who kept doing the homework.",
+      "paragraphs": [
+        "In his 2014 first-person account, Mallers traced a path from St. John’s University in Queens to dropping out, then learning at Starter School. He described building accessible transit directions after a classmate encountered an inaccessible station, software for gyms, and a chess-learning app. These were early products, not a verified inventory of separately incorporated companies. The pattern is revealing: notice friction, learn enough to build, then put the tool in somebody’s hands.",
+        "The Bitcoin introduction came through family and conversation, according to Pete Rizzo’s April 2025 Blockworks profile. It reports his father buying bitcoin in 2013, his mother organizing Chicago meet-ups, and Mallers describing an encounter with educator Andreas Antonopoulos as an important moment of understanding. We treat that as attributed retrospective reporting. The family setting helps explain his exposure; it does not replace his own work learning to make products.",
+        "We found no verified basis for calling Mallers an MIT graduate. His own education story is already compelling. Removing the invented credential lets the actual achievement stand: skills acquired through a different route, applied to problems that somebody could name. In our reading, the later payments work follows that same instinct. A protocol matters more when a person can use it."
+      ],
+      "takeaway": "Mallers’ public education account points to St. John’s and Starter School, not MIT.",
+      "sourceIds": [
+        "school",
+        "bitcoin-origin"
+      ]
+    },
+    {
+      "id": "zap",
+      "kicker": "03 · Making a network usable",
+      "title": "Zap was a doorway; Strike widened it.",
+      "paragraphs": [
+        "Loshan’s September 2017 Litecoin Lightning guide includes Zap in its setup and thanks Charlie Lee, Jack Mallers and Franklyn for testing and producing instructions. This is a concrete record of collaboration around an interface and the underlying node tools. Franklyn in that document should not be confused with Frank Corva. The guide is a historical artifact, not an installation recommendation for modern users.",
+        "Mallers announced Strike’s public beta in July 2020. The journey moved from making Lightning approachable to a payments business built around Bitcoin. Keep the names straight: Zap is the early software and business lineage; Strike is the service and brand. Strike’s New York announcement identifies Zap Solutions, Inc. as doing business as Strike. Counting each name as an unrelated company would overstate the story."
+      ],
+      "takeaway": "Distinguish an open-source interface, a corporate entity and a consumer brand.",
+      "sourceIds": [
+        "zap-guide",
+        "beta",
+        "new-york"
+      ]
+    },
+    {
+      "id": "salvador",
+      "kicker": "04 · The world stage",
+      "title": "El Salvador: a milestone, with a second chapter.",
+      "paragraphs": [
+        "At Bitcoin 2021 on June 5, Mallers presented President Nayib Bukele’s video announcement of plans for Bitcoin legislation, according to contemporaneous reporting. Mallers helped bring a payments story onto a national stage. The government and legislature made the policy decisions; Bitcoin Beach participants, local users and other builders belong in the broader adoption story. One entrepreneur should not receive everyone’s credit.",
+        "In a July 2021 CoinDesk interview, Mallers emphasized interoperable services built on an open payment standard and said he had advised against a government wallet. That is his account, not proof of every outcome. The later policy record must travel with the famous announcement: the IMF’s October 1, 2026 review describes efforts to reduce state involvement, the transfer of majority ownership and control of Chivo to a private operator, and continuing disclosure and oversight work. A historic achievement does not settle today’s questions about everyday use."
+      ],
+      "takeaway": "Honor the 2021 moment; read the dated policy record before claiming its promise was fully delivered.",
+      "sourceIds": [
+        "announcement",
+        "salvador",
+        "imf"
+      ]
+    },
+    {
+      "id": "companies",
+      "kicker": "05 · Two different businesses",
+      "title": "Twenty One, and a return to Strike.",
+      "paragraphs": [
+        "A company-filed April 2025 interview transcript identifies Mallers as Twenty One Capital’s co-founder and CEO. He described co-founding with Tether and building a Bitcoin-focused public-markets business. This is a separate chapter from a payments app: corporate capital and shareholder exposure solve a different problem from paying another person.",
+        "The biography must move beyond its launch headline. Tether announced on July 21, 2026 that Raphael Zagury had been appointed CEO and Mallers was stepping down to focus on Strike. The same notice says XXI and Strike were no longer contemplating a combination. We therefore describe Mallers’ founding and earlier leadership of XXI, rather than present him as its current CEO. Strike’s March 2026 New York announcement adds another dated milestone: company-reported BitLicense and money-transmitter licensing, with services subject to eligibility and product terms."
+      ],
+      "takeaway": "Founding a company and currently leading it are different claims.",
+      "sourceIds": [
+        "xxi-founding",
+        "xxi-transition",
+        "new-york"
+      ]
+    },
+    {
+      "id": "temple",
+      "kicker": "06 · The open classroom",
+      "title": "MIT as a temple of learning—not a secret origin story.",
+      "paragraphs": [
+        "Charlie Lee’s Foundation biography records computer-science bachelor’s and master’s degrees from MIT. That is the literal connection. MIT OpenCourseWare also makes Blockchain and Money available as an open course. Anyone can approach that material with curiosity; access to lectures is not a university degree.",
+        "For Satnam Satoshi, calling MIT a “temple” is an editorial metaphor for learning in public: rigorous questions, accessible material, and respect for the work. “Every bitcoiner is an MIT graduate” can only mean a figurative graduation into curiosity. It is not an educational credential. Satoshi Nakamoto’s identity remains unknown in the institutional source reviewed; we have no evidence that Satoshi attended MIT. The white paper is something we can read. A hidden diploma is something we cannot report.",
+        "Our open classroom needs no gatekeeper. Start with the white paper, compare the explanation with the software, and ask somebody to challenge your understanding. The strongest bridge between communities may be a habit of checking rather than a shared claim of pedigree."
+      ],
+      "takeaway": "Lee’s MIT degrees are documented; Mallers’ and Satoshi’s are not established. Open study confers no MIT degree.",
+      "sourceIds": [
+        "mit-lee",
+        "mit-open",
+        "satoshi",
+        "paper"
+      ]
+    },
+    {
+      "id": "pubkey",
+      "kicker": "07 · A founder’s memory",
+      "title": "The Bitcoin socks at PubKey.",
+      "paragraphs": [
+        "Eddie Malhotra, Satnam Satoshi’s founder, recalls meeting Jack Mallers at PubKey in New York City and giving him Bitcoin socks. Eddie says he also met Frank Corva that same evening. This is the founder’s personal recollection supplied for this edition. An event date, photograph and independently corroborating account have not been supplied. We have not invented dialogue, a reaction to the gift or an endorsement.",
+        "The detail is small enough to be human. Socks are a conversation starter, not a partnership agreement. A room can bring together people whose work takes very different forms: software, payments, reporting, education and the simple act of welcoming another person. That is the community feeling we want this issue to carry."
+      ],
+      "takeaway": "A personal encounter can open a story without becoming a claim of affiliation.",
+      "sourceIds": [
+        "pubkey"
+      ]
+    },
+    {
+      "id": "fedi",
+      "kicker": "08 · Community has infrastructure",
+      "title": "A shout-out to Frank Corva and Fedi.",
+      "paragraphs": [
+        "Frank Corva publicly announced joining Fedi as Content Producer and Strategist to document communities and freedom-tech pioneers. A shout-out to Frank is a thank-you for that kind of fieldwork: making the people using the tools visible alongside the people building them. It is an invitation to correct or expand this edition, not a claim that he helped write it.",
+        "Fedi describes a Bitcoin wallet, chat, community spaces and access to community custody through Fedimint federations. The important word is trust. A federation has guardians and governance; it should not be presented as identical to holding every key yourself. Satnam Satoshi’s interest in community tools does not mean an operational federation, approved partnership or Litecoin support exists. Those are separate proposals requiring real design, testing and accountable people."
+      ],
+      "takeaway": "Community custody is a specific trust model; a community aspiration is not an operational wallet service.",
+      "sourceIds": [
+        "frank",
+        "fedi"
+      ]
+    },
+    {
+      "id": "invitation",
+      "kicker": "09 · An open letter",
+      "title": "Jack, what would Litecoin have to prove?",
+      "paragraphs": [
+        "Jack Mallers: on Litecoin’s fifteenth public-launch anniversary, would you revisit the September 2017 experiment with Charlie Lee and tell the Litecoin community how you see the network today? Would you consider evaluating Litecoin support in Strike, or explain the technical, liquidity, custody, compliance and product reasons for keeping Strike Bitcoin-focused? What measurable test would change your mind? This is an editorial invitation from LTC Magazine and Satnam Satoshi, not a petition authorized by every Litecoin user.",
+        "Charlie Lee: what did that early Lightning exchange teach you, and which lesson still matters? Frank Corva and Fedi: what do communities need most when open-money technology reaches everyday life? We welcome a sourced correction, a disagreement or a practical proposal. No reply, integration commitment or joint initiative has been received for this edition.",
+        "Our “Nakamoto standard” is an editorial phrase: open participation, inspectable claims, voluntary use and care for the person on the other side of a payment. It is not an official interoperability specification or an assertion that Bitcoin and Litecoin have identical security. Bitcoin-focused builders can keep their convictions; Litecoin builders can bring their evidence. Cooperation begins with a question neither side has to pretend is already answered.",
+        "Litecoin’s public launch was October 13, 2011. This advance birthday edition was prepared October 12, 2026 for the fifteenth anniversary. Fifteen years deserve more than an argument over a ticker. They deserve a good conversation—and another useful thing built together."
+      ],
+      "takeaway": "Invite evaluation and honest disagreement. Do not announce support that nobody has committed to build.",
+      "sourceIds": [
+        "birthday",
+        "lee-payment",
+        "jack-payment",
+        "paper"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "date": "2011-10-13",
+      "label": "Litecoin public launch; fifteenth anniversary falls October 13, 2026.",
+      "sourceIds": [
+        "birthday"
+      ]
+    },
+    {
+      "date": "2013 (reported retrospectively)",
+      "label": "Family Bitcoin exposure and Chicago education encounters begin the learning story.",
+      "sourceIds": [
+        "bitcoin-origin"
+      ]
+    },
+    {
+      "date": "2014-08-20",
+      "label": "Mallers publishes his St. John’s-to-Starter School education account and early product work.",
+      "sourceIds": [
+        "school"
+      ]
+    },
+    {
+      "date": "2017-09-01",
+      "label": "Lee and Mallers publicly report a Litecoin mainnet Lightning channel and 0.01 LTC payment.",
+      "sourceIds": [
+        "lee-channel",
+        "lee-payment",
+        "jack-payment"
+      ]
+    },
+    {
+      "date": "2020-07-02",
+      "label": "Strike public beta announced by Mallers.",
+      "sourceIds": [
+        "beta"
+      ]
+    },
+    {
+      "date": "2021-06-05",
+      "label": "Mallers presents Bukele’s Bitcoin legislation announcement at Bitcoin 2021.",
+      "sourceIds": [
+        "announcement"
+      ]
+    },
+    {
+      "date": "2025-04-23",
+      "label": "Filed interview records Twenty One co-founding and Mallers’ original CEO role.",
+      "sourceIds": [
+        "xxi-founding"
+      ]
+    },
+    {
+      "date": "2026-03-05",
+      "label": "Strike announces New York licensing and availability.",
+      "sourceIds": [
+        "new-york"
+      ]
+    },
+    {
+      "date": "2026-07-21",
+      "label": "Tether announces XXI CEO transition; Mallers to focus on Strike.",
+      "sourceIds": [
+        "xxi-transition"
+      ]
+    },
+    {
+      "date": "2026-10-01",
+      "label": "IMF publishes a new dated El Salvador policy review.",
+      "sourceIds": [
+        "imf"
+      ]
+    },
+    {
+      "date": "2026-10-12",
+      "label": "Advance birthday edition prepared; open questions addressed to builders.",
+      "sourceIds": [
+        "birthday"
+      ]
+    }
+  ],
+  "quotes": [
+    {
+      "text": "And my first MainNet @lightning payment to @SatoshiLite!",
+      "attribution": "Jack Mallers · September 1, 2017",
+      "sourceId": "jack-payment"
+    },
+    {
+      "text": "First Litecoin Lightning Network request/payment happened!",
+      "attribution": "Charlie Lee · September 1, 2017",
+      "sourceId": "lee-payment"
+    },
+    {
+      "text": "With Litecoin, I want it to be used as money.",
+      "attribution": "Charlie Lee · Wharton interview, April 18, 2019",
+      "sourceId": "wharton"
+    }
+  ],
+  "sources": [
+    {
+      "id": "school",
+      "title": "Jack Mallers: from dropout to Starter.",
+      "publisher": "Signal v. Noise / Mallers first-person account",
+      "url": "https://signalvnoise.com/posts/3771-jack-mallers-from-dropout-to-starter",
+      "publishedAt": "2014-08-20",
+      "checkedAt": "2026-10-12",
+      "note": "Mallers’ education and early projects; not evidence of MIT attendance."
+    },
+    {
+      "id": "lee-channel",
+      "title": "First Litecoin MainNet Lightning Network payment channel",
+      "publisher": "Charlie Lee / X",
+      "url": "https://x.com/SatoshiLite/status/903675777048121344",
+      "publishedAt": "2017-09-01",
+      "checkedAt": "2026-10-12",
+      "note": "Original public post read in authenticated X search; historical participant claim."
+    },
+    {
+      "id": "lee-payment",
+      "title": "First Litecoin Lightning Network request/payment",
+      "publisher": "Charlie Lee / X",
+      "url": "https://x.com/SatoshiLite/status/903676576356737025",
+      "publishedAt": "2017-09-01",
+      "checkedAt": "2026-10-12",
+      "note": "Lee reports receiving 0.01 LTC from Mallers. Not the first Lightning payment across every network; not an independently reconstructed transaction audit."
+    },
+    {
+      "id": "jack-payment",
+      "title": "My first MainNet Lightning payment",
+      "publisher": "Jack Mallers / X",
+      "url": "https://x.com/jackmallers/status/903676685492609025",
+      "publishedAt": "2017-09-01",
+      "checkedAt": "2026-10-12",
+      "note": "Original text visible in Lee’s quoted post and Mallers’ public post."
+    },
+    {
+      "id": "zap-guide",
+      "title": "A simple guide to Lightning Network on Litecoin",
+      "publisher": "Loshan / Litecoin Foundation",
+      "url": "https://medium.com/litecoin-foundation/a-simple-guide-to-lightning-network-on-litecoin-bc944361a5fb",
+      "publishedAt": "2017-09-01",
+      "checkedAt": "2026-10-12",
+      "note": "Historical testing guide credits Lee, Mallers and Franklyn; this Franklyn is not identified as Frank Corva. Do not run these obsolete instructions."
+    },
+    {
+      "id": "beta",
+      "title": "Announcing Strike Public BETA",
+      "publisher": "Jack Mallers / Medium",
+      "url": "https://jimmymow.medium.com/announcing-strike-public-beta-325877a79f87",
+      "publishedAt": "2020-07-02",
+      "checkedAt": "2026-10-12",
+      "note": "Historical product announcement, not current signup requirements."
+    },
+    {
+      "id": "salvador",
+      "title": "Strike’s Jack Mallers on Fixing the Fiat Problem",
+      "publisher": "CoinDesk / Jeff Wilser interview",
+      "url": "https://www.coindesk.com/markets/2021/07/15/strikes-jack-mallers-on-fixing-the-fiat-problem",
+      "publishedAt": "2021-07-15",
+      "checkedAt": "2026-10-12",
+      "note": "Historical interview, updated September 14, 2021; excludes unverified fee and crime generalizations."
+    },
+    {
+      "id": "announcement",
+      "title": "Bukele’s Bitcoin 2021 announcement presented by Mallers",
+      "publisher": "Diario El Mundo",
+      "url": "https://diario.elmundo.sv/Econom%C3%ADa/como-es-strike-la-startup-con-la-que-se-pretende-impulsar-al-bitcoin-en-el-salvador",
+      "publishedAt": "2021-06-06",
+      "checkedAt": "2026-10-12",
+      "note": "Contemporaneous reporting of June 5 announcement; not evidence that Mallers alone created the national policy."
+    },
+    {
+      "id": "imf",
+      "title": "Second and Third Reviews under El Salvador’s EFF",
+      "publisher": "International Monetary Fund",
+      "url": "https://www.imf.org/en/news/articles/2026/10/01/pr26316-el-salvador-imf-concludes-2nd-and-3rd-reviews-under-the-eff",
+      "publishedAt": "2026-10-01",
+      "checkedAt": "2026-10-12",
+      "note": "Current dated institutional account; policy outcomes are attributed, not inferred from 2021 enthusiasm."
+    },
+    {
+      "id": "xxi-founding",
+      "title": "Twenty One founding interview transcript, Form 425",
+      "publisher": "SEC / company filing",
+      "url": "https://www.sec.gov/Archives/edgar/data/1865602/000121390025034780/ea0239364-425_cantor.htm",
+      "publishedAt": "2025-04-23",
+      "checkedAt": "2026-10-12",
+      "note": "Mallers describes co-founding with Tether; historical role, not current CEO status."
+    },
+    {
+      "id": "xxi-transition",
+      "title": "Raphael Zagury appointed CEO; Mallers to step down",
+      "publisher": "Tether",
+      "url": "https://tether.io/news/raphael-zagury-appointed-as-new-ceo-of-twenty-one-capital-jack-mallers-to-step-down/",
+      "publishedAt": "2026-07-21",
+      "checkedAt": "2026-10-12",
+      "note": "Controlling shareholder announcement; says Strike and XXI no longer contemplate a combination."
+    },
+    {
+      "id": "new-york",
+      "title": "Announcing Strike in New York",
+      "publisher": "Strike",
+      "url": "https://strike.me/int/en/blog/announcing-strike-in-new-york/",
+      "publishedAt": "2026-03-05",
+      "checkedAt": "2026-10-12",
+      "note": "Company licensing and product announcement; includes later April 2 lending update. Availability and risks vary; no recommendation."
+    },
+    {
+      "id": "mit-lee",
+      "title": "Charlie Lee speaker biography",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/summit-speakers/charlie-lee",
+      "publishedAt": null,
+      "checkedAt": "2026-10-12",
+      "note": "Biography states BS and MS in computer science from MIT."
+    },
+    {
+      "id": "mit-open",
+      "title": "Blockchain and Money, Fall 2018",
+      "publisher": "MIT OpenCourseWare",
+      "url": "https://ocw.mit.edu/courses/15-s12-blockchain-and-money-fall-2018/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-12",
+      "note": "Open learning resource; studying it does not confer MIT admission, credit or a degree."
+    },
+    {
+      "id": "satoshi",
+      "title": "Who invented this technology?",
+      "publisher": "EU Blockchain Observatory",
+      "url": "https://blockchain-observatory.ec.europa.eu/who-invented-technology_en",
+      "publishedAt": null,
+      "checkedAt": "2026-10-12",
+      "note": "Satoshi’s identity is unknown; no verified MIT education is established."
+    },
+    {
+      "id": "paper",
+      "title": "Bitcoin: A Peer-to-Peer Electronic Cash System",
+      "publisher": "Satoshi Nakamoto",
+      "url": "https://bitcoin.org/bitcoin.pdf",
+      "publishedAt": "2008-10-31",
+      "checkedAt": "2026-10-12",
+      "note": "Primary design document; not a biographical credential or endorsement of this edition."
+    },
+    {
+      "id": "fedi",
+      "title": "Fedi: community custody and community spaces",
+      "publisher": "Fedi",
+      "url": "https://www.fedi.xyz/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-12",
+      "note": "Product descriptions are attributed to provider; guardian trust differs from individual self-custody. No Satnam Satoshi federation is claimed live."
+    },
+    {
+      "id": "frank",
+      "title": "Joining Fedi as Content Producer and Strategist",
+      "publisher": "Frank Corva / LinkedIn",
+      "url": "https://www.linkedin.com/posts/frank-corva_excited-to-share-that-ive-joined-the-team-activity-7436759854481842176-IRhF",
+      "publishedAt": null,
+      "checkedAt": "2026-10-12",
+      "note": "First-person public announcement; exact publication date not exposed. Historic conference speaker URL now redirects and is not used as a live role source."
+    },
+    {
+      "id": "birthday",
+      "title": "Celebrating Litecoin’s 12th Birthday",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/news/deep-dive-to-celebrate-litecoins-12th-birthday",
+      "publishedAt": "2023-10-13",
+      "checkedAt": "2026-10-12",
+      "note": "Retrospective identifies public launch October 13, 2011 at 03:00 GMT; release and genesis milestones differ."
+    },
+    {
+      "id": "pubkey",
+      "title": "Bitcoin Bar in Greenwich Village",
+      "publisher": "PubKey NYC",
+      "url": "https://nyc.pubkey.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-12",
+      "note": "Venue context only. Founder’s meeting and socks gift are a personal recollection supplied October 12, 2026; date and photograph not supplied."
+    },
+    {
+      "id": "wharton",
+      "title": "Banking on the Future of Cryptocurrencies",
+      "publisher": "Knowledge at Wharton",
+      "url": "https://knowledge.wharton.upenn.edu/podcast/knowledge-at-wharton-podcast/litecoin/",
+      "publishedAt": "2019-04-18",
+      "checkedAt": "2026-10-12",
+      "note": "Edited interview; ten-word quote used."
+    },
+    {
+      "id": "bitcoin-origin",
+      "title": "The dropout who dared: How Strike is rewiring global money",
+      "publisher": "Blockworks / Pete Rizzo",
+      "url": "https://blockworks.com/news/jack-mallers-strike-bitcoin-el-salvador",
+      "publishedAt": "2025-04-18",
+      "checkedAt": "2026-10-12",
+      "note": "Retrospective reporting with family-history correction April 22, 2025. Used only for attributed early Bitcoin exposure, not present holdings or outcomes."
+    }
+  ],
+  "limits": [
+    "Independent AI-prepared feature; no interview, endorsement or independently completed human fact-check claimed.",
+    "First Litecoin Lightning payment is a participant report, not the first Lightning transaction across all networks or an independently reconstructed audit.",
+    "MIT temple and graduation language are explicitly metaphors; no Mallers or Satoshi MIT credential asserted.",
+    "PubKey encounter and socks gift are Eddie Malhotra’s personal recollection; date and documentary corroboration not supplied.",
+    "No Strike Litecoin support, joint initiative, Fedi partnership or live Satnam Satoshi federation is announced.",
+    "Quotes are short, verbatim historical excerpts; source dates and research date are distinct.",
+    "Prepared October 12 for the October 13 public-launch anniversary; virality and engagement are not guaranteed."
+  ]
+}
