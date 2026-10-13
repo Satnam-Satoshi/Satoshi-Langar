@@ -19,13 +19,14 @@
       "title": "A small payment. A large question.",
       "paragraphs": [
         "Before the conference stage, the national headlines and the public-company chapter, there was a tiny payment. On September 1, 2017, Charlie Lee posted that Jack Mallers had sent him 0.01 LTC through Lightning. Lee had announced their Litecoin mainnet payment channel moments earlier. Mallers answered with a post about his first mainnet Lightning payment to Lee. The exchange is still publicly readable. Two builders, one experiment, a shared moment of excitement.",
-        "The qualifier matters: Lee described the first Litecoin Lightning request/payment. This edition does not claim it was the first Lightning transaction anywhere. Nor does a historic test establish that Strike supports Litecoin today. It does establish a better starting point for a birthday conversation than a tribal slogan: Mallers and Lee once helped explore the same payment technology. What could that history teach builders now?"
+        "Update October 13: the Litecoin Foundation’s birthday retrospective links to Christian Decker’s earlier 2017 mainnet Lightning demonstration. We therefore describe the September 1 Mallers–Lee exchange as a documented early payment, without asserting chronological priority. Lee’s original post used first-payment wording; that is a participant’s historical description, not our independently established first. The exchange does not establish that Strike supports Litecoin today. It does show two builders exploring the same payment technology."
       ],
       "takeaway": "A verified public exchange connects the people; it does not prove a present product integration.",
       "sourceIds": [
         "lee-channel",
         "lee-payment",
-        "jack-payment"
+        "jack-payment",
+        "foundation-birthday"
       ]
     },
     {
@@ -447,15 +448,25 @@
       "publishedAt": "2025-04-18",
       "checkedAt": "2026-10-12",
       "note": "Retrospective reporting with family-history correction April 22, 2025. Used only for attributed early Bitcoin exposure, not present holdings or outcomes."
+    },
+    {
+      "id": "foundation-birthday",
+      "title": "Fifteen years of Litecoin: earlier Lightning demonstration",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/news/15-years-of-litecoin-15-milestones",
+      "publishedAt": "2026-10-13",
+      "checkedAt": "2026-10-13",
+      "note": "Retrospective links to Christian Decker’s earlier mainnet recording; September participant reports do not independently establish priority."
     }
   ],
   "limits": [
     "Independent AI-prepared feature; no interview, endorsement or independently completed human fact-check claimed.",
-    "First Litecoin Lightning payment is a participant report, not the first Lightning transaction across all networks or an independently reconstructed audit.",
+    "September Mallers–Lee payment is an early documented exchange. Its first-payment wording is a participant report; an earlier Christian Decker demonstration is linked in the Foundation retrospective.",
     "MIT temple and graduation language are explicitly metaphors; no Mallers or Satoshi MIT credential asserted.",
     "PubKey encounter and socks gift are Eddie Malhotra’s personal recollection; date and documentary corroboration not supplied.",
     "No Strike Litecoin support, joint initiative, Fedi partnership or live Satnam Satoshi federation is announced.",
     "Quotes are short, verbatim historical excerpts; source dates and research date are distinct.",
-    "Prepared October 12 for the October 13 public-launch anniversary; virality and engagement are not guaranteed."
+    "Prepared October 12 for the October 13 public-launch anniversary; virality and engagement are not guaranteed.",
+    "Correction October13,2026: narrowed first-payment language after the Foundation retrospective surfaced an earlier mainnet demonstration. Original September quotations retained with context."
   ]
 }
