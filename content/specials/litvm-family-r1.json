@@ -1,0 +1,374 @@
+{
+  "id": "litvm-family-r1",
+  "slug": "litvm-family",
+  "title": "The Litecoin Family Is Building.",
+  "subject": "LitVM × Lester Labs × the community",
+  "dek": "The builders, games, tools and ideas around Litecoin’s next chapter. A source-linked field guide to the October 15 ecosystem conversation—and the different systems behind the same familiar asset.",
+  "preparedAt": "2026-10-15T19:10:24.902982+00:00",
+  "researchThrough": "2026-10-15",
+  "byline": "AI Satoshi Ma / LTC Media",
+  "classification": "Replay-informed ecosystem special · AI-prepared",
+  "intro": [
+    "A community is more than a list of accounts. It is a set of people making things that somebody else can understand, inspect and improve.",
+    "We reviewed a complete local machine transcript of the public recording, then checked project facts against first-party sources. The replay map gives you a way to return to the original voices. This is a paraphrased editorial, not a verbatim or host-approved transcript."
+  ],
+  "sections": [
+    {
+      "id": "family",
+      "title": "A family reunion with something to inspect.",
+      "kicker": "Community",
+      "paragraphs": [
+        "A useful ecosystem conversation begins with people who are making things. Litecoin’s birthday week provides the backdrop; the more interesting question is what a newcomer can understand, try and improve after the celebration.",
+        "The October 15 Lester Labs Space brings a visible cross-section of the LitVM community to the same table. We use its public roster to identify accounts and its recording to guide further research. The project descriptions in this edition also return to original websites and documentation.",
+        "Our editorial position is simple: a Bitcoin reader should be able to arrive with strong convictions and leave with better questions. A Litecoin newcomer should find a route into learning without being asked to buy a token, connect a wallet or accept a promise of returns."
+      ],
+      "takeaway": "Community becomes tangible when the next reader can inspect the work.",
+      "sourceIds": [
+        "space",
+        "roster"
+      ]
+    },
+    {
+      "id": "inside-the-space",
+      "title": "What the room actually discussed.",
+      "kicker": "The replay / October 15",
+      "paragraphs": [
+        "The introductions establish the range: Shane on the LitVM account; Player1Taco introducing Dappit and RePay roles; Aztec and Roc identifying themselves as LitVM co-founders; and Mehow introducing AmericanFortress. These are attributed self-introductions, not corporate registry checks.",
+        "KINGDANKKUSH switches to the Lester’s Arcade account to explain the games, free play and ranked records. Chase introduces LiteSwap’s exchange tools. Michael introduces Lithium, while Dylan presents DIA’s oracle work and Rex introduces Midas prediction markets. Notus describes a cbLTC route from Base toward LitVM.",
+        "The deeper updates go beyond introductions. Mehow explains payment names and provenance; the subsequent discussion raises different privacy approaches and the purposes of mixing. Those are participant arguments, not this magazine’s certification of cryptographic properties or legal compliance.",
+        "Dappit’s update centres on V3 and reducing the cost of learning to build. The arcade discussion makes that theme concrete: AI-assisted development is already part of this builder’s account of making and improving games. We retain the distinction between a participant’s development story and independently tested software.",
+        "Around 1:29:29, the conversation turns to launch timing. A LitVM participant describes the roadmap’s Q1 2027 mainnet window and distinguishes possible earlier technical completion and audits from a strategic launch early the following year. This is a stated plan, not a fixed commitment or a report that mainnet is live.",
+        "Near 2:05:50, Lithium’s representative explicitly places the product on testnet. The closing arcade discussion includes future community games and achievement ideas. Proposed features remain proposals. The closing invitation is for more builders and community questions—the practical next step we carry into this edition."
+      ],
+      "takeaway": "The event connects people and plans. The sourcebook keeps product status separate from enthusiasm.",
+      "sourceIds": [
+        "space",
+        "roster"
+      ]
+    },
+    {
+      "id": "workshop",
+      "title": "The workshop comes before the skyline.",
+      "kicker": "Tools & access",
+      "paragraphs": [
+        "Lester Labs documents a collection of tools for creating tokens, handling distributions, setting vesting schedules, managing liquidity and publishing messages on LiteForge. The important qualifier is testnet. Its network instructions identify chain 4441 and test zkLTC.",
+        "Dappit offers another entry point. LitVM’s hackathon page describes turning an app idea into contracts, a frontend and a LiteForge deployment using plain language, while also welcoming established EVM tooling. The May 20–June 12 dates belong to that historical programme; they are not a new deadline.",
+        "Lowering the barrier to building makes inspection more valuable. Generated code still needs review. A launch interface still needs clear privileges and recovery rules. The project’s current launchpad notice belongs beside its documentation, not behind an enthusiastic headline."
+      ],
+      "takeaway": "A simple interface should make the underlying rules easier to inspect.",
+      "sourceIds": [
+        "labs",
+        "recovery",
+        "dappit"
+      ]
+    },
+    {
+      "id": "play",
+      "title": "Games are a front door people understand.",
+      "kicker": "Play & participation",
+      "paragraphs": [
+        "A game gives a visitor a task before giving them a theory. Lester’s Arcade offers a Free Mode without wallet sign-in, while the project describes ranked sessions and high scores recorded on LiteForge. That provides a useful distinction between playing in a browser and adding an on-chain record.",
+        "Its public catalogue names Hard Money Heroes, Chikun’s Escape, STACKED and Tower of Power. The site credits KINGDANKKUSH, and both that account and Lester’s Arcade appear in the final Space roster. A listed game is not a claim that every mode or release was independently tested.",
+        "MidasPredict raises a different question: how do people express a forecast and resolve the eventual outcome? Its project site describes prediction markets and arbitration. Readers should inspect resolution rules before treating any prediction platform as a reliable source of truth."
+      ],
+      "takeaway": "A good demo makes participation understandable; clear rules make it accountable.",
+      "sourceIds": [
+        "arcade",
+        "midas",
+        "roster"
+      ]
+    },
+    {
+      "id": "plumbing",
+      "title": "The quiet infrastructure behind an app.",
+      "kicker": "Data, exchange & credit",
+      "paragraphs": [
+        "DIA’s primary documentation explains the oracle role: bringing external information into smart contracts. That matters whenever an application needs a price, an event outcome or another off-chain fact. The right follow-up asks which source, update rule and failure path a particular integration uses.",
+        "Lithium describes supplying USDC and borrowing it against zkLTC collateral. Its own account of variable rates, liquidity-dependent withdrawals and liquidation risk is part of the product story. A claim that borrowing avoids a sale does not remove collateral risk.",
+        "LiteSwap is another named project in the LitVM directory. Its presence is a research lead, not evidence of current depth, independent audits or a live mainnet market. RePay belongs in adjacent builder context until its network and deployment relationship are separately established."
+      ],
+      "takeaway": "An application inherits the assumptions of its data, liquidity and collateral systems.",
+      "sourceIds": [
+        "dia",
+        "lithium",
+        "swap",
+        "repay"
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "Privacy has to meet the person using it.",
+      "kicker": "Names, controls & proof",
+      "paragraphs": [
+        "AmericanFortress describes payment names, fresh-address tooling and selective disclosure across supported integrations. Its company page identifies Michal “Mehow” Pospieszalski as co-founder, CEO and CTO. The product question is whether a person can use the right name without exposing more transaction history than intended.",
+        "The company also labels quantum-resistant approaches as work under active development. That is a research and release-status statement, not a basis for promising that a wallet or every integration is quantum-proof today.",
+        "For Litecoin readers, native MWEB research and application-layer privacy deserve separate explanations. They operate in different systems. Our birthday conversation and Litecoin gateway provide the longer reading path; this issue does not turn a shared community into a single privacy guarantee."
+      ],
+      "takeaway": "Ask which property is protected, on which network, in which released implementation.",
+      "sourceIds": [
+        "fortress",
+        "core"
+      ]
+    },
+    {
+      "id": "representations",
+      "title": "The same letters can hide different trust.",
+      "kicker": "Native & represented LTC",
+      "paragraphs": [
+        "Native LTC, Coinbase cbLTC, Greywick cLTC and test zkLTC belong in different rows. Coinbase describes custody-backed wrapped assets and lists Base for direct cbLTC support. Another chain reached through a third-party bridge adds a separate mechanism; it is not automatically a direct Coinbase withdrawal route.",
+        "Greywick describes a Canton representation under CIP-56, with reserve backing and transfers between credentialled holders. We link the issuer’s design without certifying launch status, reserves or operating availability.",
+        "Notus makes the distinction concrete. Its public profile identifies cbLTC on Base; its website describes a proposed move to LitVM mainnet. That plan is not a completed migration. The independent project explicitly disclaims affiliation with the networks and organizations named on its site.",
+        "LiteForge’s test zkLTC belongs in the development row. It lets applications exercise network behavior without establishing that the token can be redeemed for native LTC. More application paths are worth exploring when the custody, execution and exit assumptions stay visible."
+      ],
+      "takeaway": "Follow the network, issuer, backing and exit path—not the ticker alone.",
+      "sourceIds": [
+        "coinbase",
+        "canton",
+        "notus",
+        "labs"
+      ]
+    },
+    {
+      "id": "directory",
+      "title": "A directory is a beginning, not a scorecard.",
+      "kicker": "The wider ecosystem",
+      "paragraphs": [
+        "Our October 15 checkpoint of the official testnet directory contains 87 entries, including the explorer. Categories span games, exchanges, infrastructure, payments, social tools and more. The gateway keeps that dated list available by category.",
+        "That number is a count of listings in a particular source at a particular check. It is not a count of audited applications, mainnet deployments, independent teams or speakers in this Space. Some names may represent related products, early experiments or changing projects.",
+        "The next useful unit of reporting is a reproducible project record: what it does, who maintains it, where the code and contracts live, what is available today and which milestone comes next. That is how a busy ecosystem becomes legible to the person arriving for the first time."
+      ],
+      "takeaway": "Turn a listing into evidence before turning it into a conclusion.",
+      "sourceIds": [
+        "directory"
+      ]
+    },
+    {
+      "id": "open-table",
+      "title": "Keep the birthday table open.",
+      "kicker": "The next contribution",
+      "paragraphs": [
+        "Litecoin.org gives a technical starting point. The Litecoin Foundation has its own organizational mission and initiatives. Look Into Litecoin offers independent education and opinion. These are distinct roles in the same wider community, with different sources and responsibilities.",
+        "Our Charlie Lee × 84 Million birthday guide asks where Litecoin goes next. The Jack Mallers special returns to shared experiments across Bitcoin and Litecoin. This builders issue adds another doorway: pick a problem, meet its maintainers and bring a useful question.",
+        "Builders are invited to correct their entry with a public source and date. Readers can propose documentation improvements, test a documented demo or help explain an unfamiliar term. No asset ownership is required to make that contribution. The family grows when the next person can take part."
+      ],
+      "takeaway": "Bring one source. Ask one question. Help the next reader.",
+      "sourceIds": [
+        "foundation",
+        "education",
+        "core"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "date": "May 20–June 12 / historical programme",
+      "label": "The LitVM hackathon page describes a Dappit-assisted LiteForge build path. These dates are retained as historical context.",
+      "sourceIds": [
+        "dappit"
+      ]
+    },
+    {
+      "date": "October 13, 2026",
+      "label": "Litecoin’s fifteenth birthday anchors our Charlie Lee × 84 Million reading guide; the birthday and builders editions remain separate records.",
+      "sourceIds": [
+        "core"
+      ]
+    },
+    {
+      "date": "October 15, 2026",
+      "label": "Lester Labs hosts ecosystem Space #ep6. The final visible roster lists fourteen host, co-host and speaker accounts.",
+      "sourceIds": [
+        "space",
+        "roster"
+      ]
+    },
+    {
+      "date": "October 15 / research checkpoint",
+      "label": "The independent project guide and 87-entry directory checkpoint preserve stage labels and source limitations.",
+      "sourceIds": [
+        "directory"
+      ]
+    }
+  ],
+  "quotes": [],
+  "sources": [
+    {
+      "id": "space",
+      "title": "Let’s get LIT — ecosystem Space #ep6",
+      "publisher": "Lester Labs / X",
+      "url": "https://x.com/LesterLabsHQ/status/2110770294247829596",
+      "publishedAt": "2026-10-15",
+      "checkedAt": "2026-10-15",
+      "note": "Original recording reviewed using a complete local English machine transcript. Approximate chapter positions are provided; uncertain names, numbers, security guarantees and direct quotations are omitted."
+    },
+    {
+      "id": "roster",
+      "title": "Ended Space speaker roster",
+      "publisher": "X / host recording",
+      "url": "https://x.com/i/spaces/1dKrPrBVwAXJX/peek",
+      "publishedAt": "2026-10-15",
+      "checkedAt": "2026-10-15",
+      "note": "Final visible roles: host, co-host and twelve speaker accounts. Presence is not an endorsement."
+    },
+    {
+      "id": "directory",
+      "title": "LiteForge ecosystem directory",
+      "publisher": "LitVM",
+      "url": "https://testnet.litvm.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Dated October 15 checkpoint: 87 directory entries including the explorer. Listings are not independently audited deployments."
+    },
+    {
+      "id": "labs",
+      "title": "Developer documentation",
+      "publisher": "Lester Labs",
+      "url": "https://www.lester-labs.com/docs",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Describes LiteForge testnet tools and network parameters. Contract status and recovery notices need a separate check before use."
+    },
+    {
+      "id": "recovery",
+      "title": "Launchpad status and recovery notice",
+      "publisher": "Lester Labs",
+      "url": "https://www.lester-labs.com/litvm-launchpad",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Project-published operational notice; do not treat old contract lists as a current transaction recommendation."
+    },
+    {
+      "id": "dappit",
+      "title": "LiteForge hackathon and Dappit build path",
+      "publisher": "LitVM",
+      "url": "https://hackathon.litvm.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Historical May 20–June 12 schedule; not a currently open call for entries."
+    },
+    {
+      "id": "arcade",
+      "title": "Games and ranked-mode explanation",
+      "publisher": "Lester’s Arcade",
+      "url": "https://lestersarcade.io/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Project describes four games, free play and testnet records. Gameplay and contracts were not independently tested."
+    },
+    {
+      "id": "lithium",
+      "title": "USDC supply and collateralized credit",
+      "publisher": "Lithium",
+      "url": "https://www.lithiumlend.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Project description, variable interest and liquidation risks. Deployment and audit status not independently verified."
+    },
+    {
+      "id": "swap",
+      "title": "LiteSwap project site",
+      "publisher": "LiteSwap",
+      "url": "https://liteswap.app/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Public title and official directory identify the project; no liquidity or security verification."
+    },
+    {
+      "id": "dia",
+      "title": "Oracle network FAQ",
+      "publisher": "DIA",
+      "url": "https://www.diadata.org/faq/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Primary explanation of oracle infrastructure; not proof of a specific LitVM feed deployment."
+    },
+    {
+      "id": "fortress",
+      "title": "Privacy products and team",
+      "publisher": "AmericanFortress",
+      "url": "https://americanfortress.io/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Network availability varies. Quantum-resistant approaches remain under active development."
+    },
+    {
+      "id": "notus",
+      "title": "cbLTC launchpad and migration description",
+      "publisher": "Notus",
+      "url": "https://notus-pad.fun/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Independent project. Its public profile identifies Base; its site describes an intended future LitVM migration."
+    },
+    {
+      "id": "midas",
+      "title": "Prediction-market project",
+      "publisher": "MidasPredict",
+      "url": "https://www.midashand.xyz/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Project-authored description, not independently tested market or outcome resolution."
+    },
+    {
+      "id": "repay",
+      "title": "RePay product and waitlist",
+      "publisher": "RePay",
+      "url": "https://repay.loans/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Adjacent builder context. No LitVM deployment inferred from participation."
+    },
+    {
+      "id": "coinbase",
+      "title": "Wrapped asset backing and supported networks",
+      "publisher": "Coinbase",
+      "url": "https://help.coinbase.com/en/exchange/crypto-transfers/wrapped-assets",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Direct cbLTC support is listed on Base. Jurisdiction and account restrictions apply."
+    },
+    {
+      "id": "canton",
+      "title": "cLTC design",
+      "publisher": "Greywick Digital",
+      "url": "https://greywick.digital/cltc",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Issuer describes Canton CIP-56, reserves and credentialled holders. Launch and operating status not independently verified."
+    },
+    {
+      "id": "core",
+      "title": "Network and open-source starting point",
+      "publisher": "Litecoin.org",
+      "url": "https://litecoin.org/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Native Litecoin technical starting point, distinct from application and wrapped-asset projects."
+    },
+    {
+      "id": "foundation",
+      "title": "Foundation mission and initiatives",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Organizational reference; the magazine is independent and claims no endorsement."
+    },
+    {
+      "id": "education",
+      "title": "Independent Litecoin education",
+      "publisher": "Look Into Litecoin",
+      "url": "https://www.lookintolitecoin.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-15",
+      "note": "Independent education and opinion. The site discloses a pro-LTC perspective."
+    }
+  ],
+  "limits": [
+    "Project websites describe their own products. We did not independently test contracts, reserve backing, gameplay, lending markets, privacy properties or current mainnet deployments.",
+    "The final roster establishes account roles, not a transcript or endorsement. Machine transcription can mishear names and technical terms; uncertain claims are omitted.",
+    "This magazine is independent of the hosts, Litecoin Foundation and named projects. The article is educational editorial, not investment or product-use advice.",
+    "The directory is a dated listing checkpoint, not a count of audited or operational applications. Historical daily issues and previous specials retain their own dates.",
+    "The recording has no usable native replay captions at our check. Coverage uses a complete locally generated machine transcript, not direct human listening or speaker diarization. This limits certainty for ambiguous names and technical details. Refer to the original audio before quoting a speaker."
+  ]
+}
