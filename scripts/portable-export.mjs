@@ -13,7 +13,7 @@ async function walk(directory) {
   if(entry.isDirectory()) { await walk(input); continue; }
   const publicExtras=['data/litecoin-distribution-20261011.json','data/litecoin-distribution-20261013.json','data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','scripts/ecosystem-help.js','conversations/feed.xml','conversations/daily.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
   if(relative==='magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf') continue;
-  if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
+  if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^data\/litecoin-distribution-\d{8}\.json$/.test(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
   await mkdir(path.dirname(output),{recursive:true});
   if(entry.name.endsWith('.html')) {
    let html=await readFile(input,'utf8');
