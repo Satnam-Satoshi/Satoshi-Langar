@@ -13,6 +13,6 @@ export default function AnniversarySpotlight({ community = false }: { community?
    <p className={styles.record}>{edition.sections.length} chapters · 14 roster accounts · Public sourcebook<br/>Testnets, privacy, wrapped assets and a community invitation</p>
   </div>
   <a className={styles.art} href={href} aria-label={`Open ${edition.title}`}><img src="/magazine/litvm-family/cover.svg" width="1080" height="1350" fetchPriority="high" alt="Original silver and midnight-blue typographic cover, Fifteen Years. Still the People’s Money. LitVM × Lester Labs × the community. Litecoin’s birthday, October 13, 2026. Conceptual concentric signal rings."/><span>THE INDEPENDENT BUILDERS SPECIAL <b>OPEN THE CONVERSATION ↗</b></span></a>
-  <nav className={styles.next} aria-label="Continue from the birthday spotlight"><span>KEEP THE CONVERSATION GOING</span><a href="/conversations/specials/jack-mallers/">Jack Mallers × Charlie Lee ↗</a><a href="/conversations/daily/">Read the latest daily ↗</a><a href="/conversations/specials/charlie-84million/">Charlie Lee × 84 Million birthday special ↗</a></nav>
+  <nav className={styles.next} aria-label="Continue from the builders spotlight"><span>KEEP THE CONVERSATION GOING</span><a href="/conversations/specials/jack-mallers/">Jack Mallers × Charlie Lee ↗</a><a href="/conversations/daily/">Read the latest daily ↗</a><a href="/conversations/specials/charlie-84million/">Charlie Lee × 84 Million birthday special ↗</a></nav>
  </section>;
 }
