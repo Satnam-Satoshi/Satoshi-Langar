@@ -1,0 +1,239 @@
+{
+  "checkedOn": "2026-10-15",
+  "scope": "Primary-source research; pool support is not an exhaustive census of every Scrypt auxiliary chain.",
+  "publishableHeading": "One Scrypt engine. Several independent chains.",
+  "explanation": "Compatible auxiliary chains can reuse a miner's Scrypt proof of work. The chains keep separate rules, balances and blocks; shared work does not merge their ledgers or make security identical.",
+  "currentlyConfirmedAuxiliaryCoins": [
+    {
+      "ticker": "DOGE",
+      "name": "Dogecoin",
+      "pools": [
+        "ViaBTC",
+        "F2Pool",
+        "Litecoinpool"
+      ],
+      "sourceIds": [
+        "viabtc-current",
+        "f2pool-current",
+        "litecoinpool-help"
+      ]
+    },
+    {
+      "ticker": "BELLS",
+      "name": "Bellscoin",
+      "pools": [
+        "ViaBTC",
+        "F2Pool"
+      ],
+      "sourceIds": [
+        "viabtc-current",
+        "f2pool-current"
+      ]
+    },
+    {
+      "ticker": "LKY",
+      "name": "Luckycoin",
+      "pools": [
+        "F2Pool"
+      ],
+      "sourceIds": [
+        "f2pool-current"
+      ]
+    },
+    {
+      "ticker": "PEP",
+      "name": "Pepecoin",
+      "pools": [
+        "ViaBTC",
+        "F2Pool"
+      ],
+      "sourceIds": [
+        "viabtc-current",
+        "f2pool-current"
+      ],
+      "identityNote": "Independent PEP chain; do not substitute PEPE or similarly named tokens."
+    },
+    {
+      "ticker": "DINGO",
+      "name": "Dingocoin",
+      "pools": [
+        "ViaBTC",
+        "F2Pool"
+      ],
+      "sourceIds": [
+        "viabtc-current",
+        "f2pool-current",
+        "dingocoin-guide"
+      ]
+    }
+  ],
+  "historicallyDocumentedCurrentStatusUnconfirmed": [
+    {
+      "ticker": "JKC",
+      "name": "Junkcoin",
+      "sourceIds": [
+        "f2pool-history",
+        "viabtc-discontinued"
+      ],
+      "note": "F2Pool's historical basket lists JKC, but its June 2026 current FAQ omits it. ViaBTC discontinued JKC asset management May 19, 2026. Do not show as currently paid there."
+    },
+    {
+      "ticker": "SHIC",
+      "name": "Shibacoin",
+      "sourceIds": [
+        "f2pool-history",
+        "viabtc-discontinued"
+      ],
+      "note": "Historical F2Pool launch documentation exists; current FAQ omits it. ViaBTC discontinued SHIC asset management May 19, 2026."
+    },
+    {
+      "ticker": "CRC",
+      "name": "CraftCoin",
+      "sourceIds": [
+        "f2pool-history"
+      ],
+      "note": "Historical F2Pool launch basket includes CRC; current support FAQ omits it. Treat current pool availability as unconfirmed."
+    }
+  ],
+  "poolPayoutDistinctions": [
+    {
+      "pool": "ViaBTC",
+      "coins": [
+        "DOGE",
+        "BELLS",
+        "PEP",
+        "DINGO"
+      ],
+      "note": "Eligible LTC PPS+ or PPLNS miners receive auxiliary rewards under PPLNS. Amounts vary. Current official guide dated September 15, 2026.",
+      "sourceId": "viabtc-current"
+    },
+    {
+      "pool": "F2Pool",
+      "coins": [
+        "DOGE",
+        "BELLS",
+        "LKY",
+        "PEP",
+        "DINGO"
+      ],
+      "note": "Current FAQ dated June 29, 2026 requires activated payout addresses. Unconfigured rewards are waived; thresholds apply.",
+      "sourceId": "f2pool-current"
+    },
+    {
+      "pool": "Litecoinpool",
+      "coins": [
+        "LTC",
+        "DOGE"
+      ],
+      "note": "Direct payouts are LTC and DOGE. Other profitable auxiliary coins contribute to its PPS rate; its FAQ does not provide a definitive current auxiliary-chain roster.",
+      "sourceId": "litecoinpool-help"
+    },
+    {
+      "pool": "Kryptex",
+      "coins": [
+        "LTC"
+      ],
+      "note": "Official pool page says merge-mined coins are converted to LTC. A payout asset is not proof that the corresponding chain was mined.",
+      "sourceId": "kryptex-current"
+    }
+  ],
+  "economics": {
+    "publishable": "DOGE and other auxiliary rewards can diversify mining revenue. A miner may choose to sell those rewards toward electricity costs and retain LTC, but whether that covers the bill depends on output, prices, pool rules and operating costs.",
+    "formula": "Operating margin = LTC revenue + auxiliary-coin revenue + fees earned - electricity - pool fees - hosting and maintenance.",
+    "illustrativeEnergyFormula": "Daily electricity cost = device kilowatts \u00d7 24 \u00d7 electricity price per kWh; label any example assumptions.",
+    "avoid": [
+      "DOGE always pays the energy bill",
+      "miners never need to sell LTC",
+      "merged mining guarantees profitability",
+      "same Scrypt algorithm alone makes a coin merge-mineable",
+      "all auxiliary tokens are directly paid to every miner",
+      "zero electricity consumption"
+    ]
+  },
+  "digitalSilver": {
+    "publishable": "Digital silver is Litecoin's long-running analogy: a limited issuance schedule and faster target blocks alongside Bitcoin's digital-gold narrative. It is a community description, not metal backing, a fixed BTC/LTC price ratio or a promise of investment returns.",
+    "comparison": {
+      "LTC": {
+        "nominalSupplyCap": 84000000,
+        "targetBlockSeconds": 150,
+        "subsidyHalvingBlocks": 840000
+      },
+      "BTC": {
+        "nominalSupplyCap": 21000000,
+        "targetBlockSeconds": 600,
+        "subsidyHalvingBlocks": 210000
+      }
+    },
+    "sourceIds": [
+      "litecoin-learning",
+      "fidelity-litecoin"
+    ]
+  },
+  "refreshRules": [
+    "Recheck official support documents daily, preserve actual update dates and checked dates separately.",
+    "Do not promote historical launch announcements into current support without a current source.",
+    "An automated changed-document alert should trigger review; it must not silently add a new coin.",
+    "No global exhaustive-list claim: label this a source-checked pool support snapshot."
+  ],
+  "sources": [
+    {
+      "id": "viabtc-current",
+      "title": "ViaBTC LTC Merged Mining Coins Mining Tutorial",
+      "url": "https://support.viabtc.com/hc/en-us/articles/11477430615439-LTC-Merged-Mining-Coins-Mining-Tutorial",
+      "sourceUpdated": "2026-09-15"
+    },
+    {
+      "id": "f2pool-current",
+      "title": "F2Pool: Which coins does the pool support for merged mining with LTC?",
+      "url": "https://f2pool.zendesk.com/hc/en-us/articles/360060018891-Which-coins-does-the-pool-support-for-merged-mining-with-LTC",
+      "sourceUpdated": "2026-06-29"
+    },
+    {
+      "id": "litecoinpool-help",
+      "title": "Litecoinpool Help and FAQ",
+      "url": "https://www.litecoinpool.org/help"
+    },
+    {
+      "id": "kryptex-current",
+      "title": "Kryptex Litecoin Mining Pool",
+      "url": "https://pool.kryptex.com/ltc"
+    },
+    {
+      "id": "f2pool-history",
+      "title": "F2Pool mining updates, historical CRC / SHIC / JKC launch baskets",
+      "url": "https://f2pool.io/mining/updates/"
+    },
+    {
+      "id": "viabtc-discontinued",
+      "title": "ViaBTC: Discontinuation of SHIC and JKC Asset Management",
+      "url": "https://support.viabtc.com/hc/en-us/articles/16019244278671-Announcement-on-the-Discontinuation-of-SHIC-and-JKC-Asset-Management",
+      "sourceUpdated": "2026-05-05"
+    },
+    {
+      "id": "dogecoin-mining",
+      "title": "Dogecoin Mining",
+      "url": "https://dogecoin.com/dogepedia/how-tos/mining-dogecoin/"
+    },
+    {
+      "id": "dingocoin-guide",
+      "title": "Dingocoin merged mining guide",
+      "url": "https://dingocoin.com/mining/merge-mining-guide//"
+    },
+    {
+      "id": "litecoin-learning",
+      "title": "Litecoin Learning Center",
+      "url": "https://litecoin.com/learningcenter"
+    },
+    {
+      "id": "fidelity-litecoin",
+      "title": "Fidelity Digital Assets Litecoin Report",
+      "url": "https://www.fidelitydigitalassets.com/sites/g/files/djuvja3256/files/acquiadam/FDA_CoinReport_Litecoin_1151451.3.0_V6.pdf"
+    },
+    {
+      "id": "litecoin-15-years",
+      "title": "Litecoin: 15 Years and 15 Milestones",
+      "url": "https://litecoin.com/news/15-years-of-litecoin-15-milestones",
+      "note": "Contemporary Foundation account dates Dogecoin AuxPoW adoption September 11, 2014. Prefer this to older inconsistent August/2015 descriptions."
+    }
+  ]
+}

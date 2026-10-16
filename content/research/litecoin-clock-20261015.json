@@ -1,0 +1,14 @@
+{
+  "height": 3195664,
+  "hash": "8c930405550b5a09facec48c0259a26b8036cc109e6392bd052b4f8705f93867",
+  "blockTimestamp": "2026-10-15T23:29:05Z",
+  "checkedAt": "2026-10-15T23:33:29.774271Z",
+  "source": "https://api.blockcypher.com/v1/ltc/main",
+  "provider": "BlockCypher Litecoin mainnet API; provider observation, not our own full node",
+  "blockSource": "https://api.blockcypher.com/v1/ltc/main/blocks/8c930405550b5a09facec48c0259a26b8036cc109e6392bd052b4f8705f93867",
+  "status": "dated-checkpoint",
+  "ruleSources": [
+    "https://github.com/litecoin-project/litecoin/blob/master/src/chainparams.cpp",
+    "https://github.com/litecoin-project/litecoin/blob/master/src/validation.cpp"
+  ]
+}

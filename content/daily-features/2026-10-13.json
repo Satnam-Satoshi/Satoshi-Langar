@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-10-13",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-10-13T17:44:56Z",
+  "checkedAt": "2026-10-13",
+  "title": "Fifteen years. New work.",
+  "theme": "Proof of Work",
+  "dek": "A birthday conversation, a new infrastructure investment and the sources behind today’s market checkpoint.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma · LTC Media editorial desk under founder governance; no independent human fact-check claimed.",
+  "freshnessPolicy": "New market observations retain source times; news publication dates remain separate from today’s research.",
+  "independence": "Independent Satnam Satoshi publication. Links and mentions do not establish endorsement.",
+  "stories": [
+    {
+      "id": "luxx-litvm-20261013",
+      "title": "Luxxfolio announces a strategic investment in LitVM",
+      "desk": "Litecoin / Infrastructure investment",
+      "classification": "Issuer announcement · Development outcomes uncertain",
+      "dek": "Luxxfolio says it has made a strategic investment in LitVM, an EVM-compatible Layer 2 project developing smart contracts and applications for Litecoin. The release gives no investment amount or ownership percentage.",
+      "status": "Source checked October13 · Original publication date 2026-10-13",
+      "eventDates": [
+        {
+          "date": "2026-10-13",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "Luxxfolio says it has made a strategic investment in LitVM, an EVM-compatible Layer 2 project developing smart contracts and applications for Litecoin. The release gives no investment amount or ownership percentage.",
+        "An investment announcement is distinct from a mainnet launch or proven application adoption. The issuer explicitly warns that development objectives and positive returns are not assured."
+      ],
+      "takeaway": "An investment announcement is distinct from a mainnet launch or proven application adoption. The issuer explicitly warns that development objectives and positive returns are not assured.",
+      "discussionPrompt": "Which original source or beginner question should our next explainer include?",
+      "sourceIds": [
+        "luxx-litvm-20261013"
+      ]
+    },
+    {
+      "id": "foundation-birthday-20261013",
+      "title": "The Foundation marks fifteen years with fifteen milestones",
+      "desk": "Litecoin / Fifteen-year retrospective",
+      "classification": "Foundation retrospective · Attributed historical account",
+      "dek": "Robbie Coleman’s anniversary article follows Litecoin’s public launch, merged mining, halvings, SegWit, Lightning, payments and later infrastructure. Its history links to original records, including an earlier Christian Decker Lightning demonstration.",
+      "status": "Source checked October13 · Original publication date 2026-10-13",
+      "eventDates": [
+        {
+          "date": "2026-10-13",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "Robbie Coleman’s anniversary article follows Litecoin’s public launch, merged mining, halvings, SegWit, Lightning, payments and later infrastructure. Its history links to original records, including an earlier Christian Decker Lightning demonstration.",
+        "Use the linked originals to distinguish demonstrations from later participant reports. Forecasts and promotional judgments in a retrospective are not fresh network measurements."
+      ],
+      "takeaway": "Use the linked originals to distinguish demonstrations from later participant reports. Forecasts and promotional judgments in a retrospective are not fresh network measurements.",
+      "discussionPrompt": "Which original source or beginner question should our next explainer include?",
+      "sourceIds": [
+        "foundation-birthday-20261013"
+      ]
+    },
+    {
+      "id": "cftc-events-20261009",
+      "title": "CFTC proposes expressly including certain event contracts as swaps",
+      "desk": "Policy / Proposed rule",
+      "classification": "Official proposal · Not a final rule",
+      "dek": "The CFTC’s October 9 notice proposes further defining swap to include event contracts involving sports, politics, cultural and weather-related events. It requests written comments within 30 days of Federal Register publication.",
+      "status": "Source checked October13 · Original publication date 2026-10-09",
+      "eventDates": [
+        {
+          "date": "2026-10-09",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "The CFTC’s October 9 notice proposes further defining swap to include event contracts involving sports, politics, cultural and weather-related events. It requests written comments within 30 days of Federal Register publication.",
+        "This is the agency’s proposal and stated position. The release date alone does not establish the comment deadline or a final legal outcome."
+      ],
+      "takeaway": "This is the agency’s proposal and stated position. The release date alone does not establish the comment deadline or a final legal outcome.",
+      "discussionPrompt": "Which original source or beginner question should our next explainer include?",
+      "sourceIds": [
+        "cftc-events-20261009"
+      ]
+    },
+    {
+      "id": "cftc-exclusion-20261009",
+      "title": "CFTC announces a casino-style gambling exclusion from swaps",
+      "desk": "Policy / Interim final rule",
+      "classification": "Official interim final rule · Publication conditions apply",
+      "dek": "The CFTC says its interim final rule codifies an exclusion for casino-style gambling products, including sportsbook and casino-game wagers. Its release states effectiveness begins on Federal Register publication, with a 30-day comment period.",
+      "status": "Source checked October13 · Original publication date 2026-10-09",
+      "eventDates": [
+        {
+          "date": "2026-10-09",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "The CFTC says its interim final rule codifies an exclusion for casino-style gambling products, including sportsbook and casino-game wagers. Its release states effectiveness begins on Federal Register publication, with a 30-day comment period.",
+        "Keep this action separate from the event-contract proposal announced the same day. These releases do not announce a Litecoin fund approval or a crypto-wide exemption."
+      ],
+      "takeaway": "Keep this action separate from the event-contract proposal announced the same day. These releases do not announce a Litecoin fund approval or a crypto-wide exemption.",
+      "discussionPrompt": "Which original source or beginner question should our next explainer include?",
+      "sourceIds": [
+        "cftc-exclusion-20261009"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "luxx-litvm-20261013",
+      "title": "Luxxfolio announces a strategic investment in LitVM",
+      "publisher": "Luxxfolio / Newsfile issuer release",
+      "url": "https://www.newsfilecorp.com/release/318719",
+      "publishedAt": "2026-10-13",
+      "checkedAt": "2026-10-13",
+      "note": "Original record read; summary attributed to its producer."
+    },
+    {
+      "id": "foundation-birthday-20261013",
+      "title": "The Foundation marks fifteen years with fifteen milestones",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/news/15-years-of-litecoin-15-milestones",
+      "publishedAt": "2026-10-13",
+      "checkedAt": "2026-10-13",
+      "note": "Original record read; summary attributed to its producer."
+    },
+    {
+      "id": "cftc-events-20261009",
+      "title": "CFTC proposes expressly including certain event contracts as swaps",
+      "publisher": "Commodity Futures Trading Commission",
+      "url": "https://www.cftc.gov/PressRoom/PressReleases/9310-26",
+      "publishedAt": "2026-10-09",
+      "checkedAt": "2026-10-13",
+      "note": "Original record read; summary attributed to its producer."
+    },
+    {
+      "id": "cftc-exclusion-20261009",
+      "title": "CFTC announces a casino-style gambling exclusion from swaps",
+      "publisher": "Commodity Futures Trading Commission",
+      "url": "https://www.cftc.gov/PressRoom/PressReleases/9309-26",
+      "publishedAt": "2026-10-09",
+      "checkedAt": "2026-10-13",
+      "note": "Original record read; summary attributed to its producer."
+    }
+  ]
+}
