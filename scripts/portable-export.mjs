@@ -11,7 +11,7 @@ async function walk(directory) {
   const input=path.join(directory,entry.name), relative=path.relative(source,input), output=path.join(target,relative);
   if(relative==='conversations/specials/litecoin-at-15') continue;
   if(entry.isDirectory()) { await walk(input); continue; }
-  const publicExtras=['data/litecoin-distribution-20261011.json','data/litecoin-distribution-20261013.json','data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','scripts/ecosystem-help.js','scripts/open-money.js','conversations/feed.xml','conversations/daily.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
+  const publicExtras=['data/litecoin-distribution-20261011.json','data/litecoin-distribution-20261013.json','data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','scripts/ecosystem-help.js','scripts/open-money.js','scripts/timechain-live.js','scripts/market-live.js','conversations/feed.xml','conversations/daily.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
   if(relative==='magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf') continue;
   if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^data\/litecoin-distribution-\d{8}\.json$/.test(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
   await mkdir(path.dirname(output),{recursive:true});
@@ -26,6 +26,8 @@ async function walk(directory) {
    html = seo.html; seoPages.push(seo.model);
    const scripts=[];
    if(/\bdata-open-money="(?:learning|timechain|finance)"/.test(html)) scripts.push('open-money');
+   if(html.includes('data-live-timechain="true"')) scripts.push('timechain-live');
+   if(html.includes('data-live-market="true"')) scripts.push('market-live');
    if(/\bdata-community="/.test(html)) scripts.push('community');
    if(/\bdata-community-auth="/.test(html)) scripts.push('auth');
    if(/\bdata-learning-(?:progress|hub|lab)(?:=|\s|>)/.test(html)) scripts.push('learning');

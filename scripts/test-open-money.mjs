@@ -38,3 +38,36 @@ test('enhancement is local-only and cannot silently connect a wallet or send fun
  assert(!/\bfetch\s*\(|XMLHttpRequest|window\.ethereum|wallet_request|eth_send|localStorage|sessionStorage/.test(script));
  assert.match(script,/value\.trim\(\)===''/);assert.match(script,/Invalid inputs/);
 });
+
+test('issuance sums each subsidy era including the observed block, without rounding subsidy upward',()=>{
+ assert.equal(blockClock(0).issuedSats,'5000000000');
+ assert.equal(blockClock(839999).issued,42_000_000);
+ assert.equal(blockClock(840000).issued,42_000_025);
+ assert.equal(blockClock(2519999).issued,73_500_000);
+ assert.equal(blockClock(2520000).issued,73_500_006.25);
+ assert.equal(blockClock(3359999).issued,78_750_000);
+ const terminal=blockClock(33*840000);
+ assert.equal(terminal.issuedSats,'8399999990760000');
+ assert.equal(blockClock(64*840000).issuedSats,terminal.issuedSats);
+ assert.equal(blockClock(3195769).issued+blockClock(3195769).remainingSupply,84_000_000);
+});
+test('client acceptance rejects stale cached fetch times, wrong chain and invalid timestamps',async()=>{
+ const {acceptChainObservation}=await import('../app/data/timechain-observation.ts');
+ const now=Date.parse('2026-10-15T20:00:00Z');
+ const observation={schemaVersion:1,status:'fresh',chain:'LTC.main',height:3195769,hash:'a'.repeat(64),observedAt:new Date(now-60000).toISOString(),checkedAt:new Date(now-10000).toISOString(),blockTimestamp:new Date(now-180000).toISOString()};
+ assert.equal(acceptChainObservation(observation,now).height,observation.height);
+ for(const delta of [{chain:'BTC.main'},{height:0},{hash:'bad'},{checkedAt:new Date(now-180001).toISOString()},{observedAt:new Date(now-1200001).toISOString()},{blockTimestamp:new Date(now-7200001).toISOString()},{observedAt:new Date(now+60001).toISOString()},{checkedAt:'not-a-date'}])assert.throws(()=>acceptChainObservation({...observation,...delta},now));
+ assert.throws(()=>acceptChainObservation(observation,now+180000));
+});
+test('timechain polling resumes after browser back-forward cache restoration',async()=>{
+ const {runInNewContext}=await import('node:vm');
+ const source=(await readFile('scripts/browser/timechain-live.mjs','utf8')).replace(/^import .*;\n/gm,'');
+ const events={},timers=new Set();let next=0;
+ const root={dataset:{},querySelectorAll:()=>[],querySelector:()=>null};
+ runInNewContext(source,{document:{querySelector:()=>root,hidden:false,addEventListener(){}},window:{addEventListener:(name,fn)=>{events[name]=fn;}},location:{hostname:'portable.invalid'},Date,Event,AbortController,setInterval:()=>{const id=++next;timers.add(id);return id;},clearInterval:id=>timers.delete(id),setTimeout,clearTimeout,blockClock,acceptChainObservation(){throw Error('No observation');}});
+ assert.equal(timers.size,2);
+ events.pagehide();assert.equal(timers.size,0);
+ events.pageshow({persisted:true});assert.equal(timers.size,2);
+ events.pageshow({persisted:true});assert.equal(timers.size,2);
+ events.pagehide();assert.equal(timers.size,0);
+});
