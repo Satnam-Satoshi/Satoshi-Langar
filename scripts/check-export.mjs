@@ -25,11 +25,14 @@ async function walk(dir){
    // validatePageSeo checks its keys, values, serialization and complete schema.
    if(/^\s+type="application\/ld\+json" data-site-seo="v1"\s*$/.test(attrs))continue;
    const src=attrs.match(/\bsrc="([^"]+)"/)?.[1];
-   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js','ecosystem-help.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
+   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js','ecosystem-help.js','open-money.js','timechain-live.js','market-live.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
    if(src && path.basename(src)==='copy-address.js' && !/\bdata-address-copy(?:=|\s|>)/.test(html))failures.push(`${file}: address-copy script without its scoped marker`);
    if(src && path.basename(src)==='ecosystem-help.js' && !/\bdata-ecosystem-help(?:=|\s|>)/.test(html))failures.push(`${file}: ecosystem-help script without its scoped marker`);
   }
   if(/\bdata-ecosystem-help(?:=|\s|>)/.test(html) && !/<script\b[^>]*src="[^"]*\/ecosystem-help\.js"/.test(html))failures.push(`${file}: community guide is missing its browser enhancement`);
+  if(/\bdata-open-money="(?:learning|timechain|finance)"/.test(html) !== /<script\b[^>]*src="[^"]*\/open-money\.js"/.test(html))failures.push(`${file}: open-money enhancement marker mismatch`);
+  if(html.includes('data-live-timechain="true"') !== /<script\b[^>]*src="[^"]*\/timechain-live\.js"/.test(html))failures.push(`${file}: live timechain enhancement marker mismatch`);
+  if(html.includes('data-live-market="true"') !== /<script\b[^>]*src="[^"]*\/market-live\.js"/.test(html))failures.push(`${file}: live market enhancement marker mismatch`);
   for(const [tag] of html.matchAll(/<form\b[^>]*>/gi))if(!/\bdata-(?:plan|guide)-form(?:=|\s|>)/.test(tag)||/\baction=/.test(tag)||(/\bdata-guide-form(?:=|\s|>)/.test(tag)&&!/\bhidden(?:=|\s|>)/.test(tag)))failures.push(`${file}: unexpected network form`);
   for(const [,attr,url] of html.matchAll(/\b(href|src)="([^"]+)"/g)){
    if(/^(https?:|mailto:|data:)/.test(url))continue;

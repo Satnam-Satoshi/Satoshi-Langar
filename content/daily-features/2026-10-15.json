@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-10-15",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-10-15T18:02:21Z",
+  "checkedAt": "2026-10-15",
+  "title": "After the birthday. Back to the work.",
+  "theme": "Proof of Work",
+  "dek": "New capital-formation discussions, the dates inside treasury trackers, and a fresh Litecoin distribution checkpoint.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma · LTC Media editorial desk under founder governance; no independent human fact-check claimed.",
+  "freshnessPolicy": "Prices and network data retain source-effective times; later checks do not re-date old announcements.",
+  "independence": "Independent Satnam Satoshi publication. No source endorsement or partnership is implied.",
+  "stories": [
+    {
+      "id": "sec-smallbusiness-20261014",
+      "title": "SEC committee schedules an IPO and crowdfunding discussion",
+      "desk": "Policy / Capital formation",
+      "classification": "Official meeting announcement · Not a rule change",
+      "dek": "The SEC announced an October 27 public meeting of its Small Business Capital Formation Advisory Committee. The agenda covers IPO modernization and potential changes to Regulation Crowdfunding; the meeting is scheduled to begin at 10 a.m. and be streamed on SEC.gov.",
+      "status": "Checked October15 · Source published 2026-10-14",
+      "eventDates": [
+        {
+          "date": "2026-10-14",
+          "label": "Source publication"
+        }
+      ],
+      "paragraphs": [
+        "The SEC announced an October 27 public meeting of its Small Business Capital Formation Advisory Committee. The agenda covers IPO modernization and potential changes to Regulation Crowdfunding; the meeting is scheduled to begin at 10 a.m. and be streamed on SEC.gov.",
+        "An advisory discussion does not enact a regulatory change. Follow the agency’s agenda and later recommendations separately from any future Commission rulemaking."
+      ],
+      "takeaway": "An advisory discussion does not enact a regulatory change. Follow the agency’s agenda and later recommendations separately from any future Commission rulemaking.",
+      "discussionPrompt": "Which original record would help make this topic clearer?",
+      "sourceIds": [
+        "sec-smallbusiness-20261014"
+      ]
+    },
+    {
+      "id": "bitbo-date-added-20261014",
+      "title": "Bitbo’s October14 additions include historical holding periods",
+      "desk": "Bitcoin / Treasury evidence",
+      "classification": "Secondary tracker · Discovery, not issuer verification",
+      "dek": "The latest-changes table includes October14 additions for older quarterly holding periods alongside same-day fund records. A recent addition can describe an earlier period; a displayed record difference does not establish a new purchase on the date added.",
+      "status": "Checked October15 · Source published 2026-10-14",
+      "eventDates": [
+        {
+          "date": "2026-10-14",
+          "label": "Source publication"
+        }
+      ],
+      "paragraphs": [
+        "The latest-changes table includes October14 additions for older quarterly holding periods alongside same-day fund records. A recent addition can describe an earlier period; a displayed record difference does not establish a new purchase on the date added.",
+        "Check the period in the original filing before turning a tracker change into a buying or selling headline. Our directly collected IBIT file carries its own October13 source date."
+      ],
+      "takeaway": "Check the period in the original filing before turning a tracker change into a buying or selling headline. Our directly collected IBIT file carries its own October13 source date.",
+      "discussionPrompt": "Which original record would help make this topic clearer?",
+      "sourceIds": [
+        "bitbo-date-added-20261014"
+      ]
+    },
+    {
+      "id": "distribution-20261015",
+      "title": "A fresh map, with the old dates still attached.",
+      "desk": "Litecoin / Data desk",
+      "classification": "Register-derived observation · Secondary compilation",
+      "dek": "The new 30-day view covers September15 through October15, with source records preserved.",
+      "status": "Prepared October15 · Not a live balance",
+      "eventDates": [
+        {
+          "date": "2026-10-15",
+          "label": "Derivative preparation"
+        }
+      ],
+      "paragraphs": [
+        "The downloaded Register dataset adds to 16,501,812.94 LTC across 72 eligible numerical records. The chart carries each last eligible observation forward; seven additional records have no eligible numerical balance.",
+        "This is a sum of unlike, potentially overlapping custody and treasury records. Comparable changes exclude unknown baselines; the headline difference also includes coverage changes. Neither is a measured fund-flow series."
+      ],
+      "takeaway": "Read the row’s observation date before comparing its balance.",
+      "discussionPrompt": "Which issuer record would improve this compiled map?",
+      "sourceIds": [
+        "distribution"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "sec-smallbusiness-20261014",
+      "title": "SEC committee schedules an IPO and crowdfunding discussion",
+      "publisher": "US Securities and Exchange Commission",
+      "url": "https://www.sec.gov/newsroom/press-releases/2026-105-sec-small-business-advisory-committee-discuss-ipo-modernization-regulation-crowdfunding",
+      "publishedAt": "2026-10-14",
+      "checkedAt": "2026-10-15",
+      "note": "Original page read; reporting is attributed to the producer."
+    },
+    {
+      "id": "bitbo-date-added-20261014",
+      "title": "Bitbo’s October14 additions include historical holding periods",
+      "publisher": "Bitbo treasury tracker",
+      "url": "https://bitbo.io/treasuries/latest-changes/",
+      "publishedAt": "2026-10-14",
+      "checkedAt": "2026-10-15",
+      "note": "Original page read; reporting is attributed to the producer."
+    },
+    {
+      "id": "distribution",
+      "title": "October15 distribution derivative and methodology",
+      "publisher": "Litecoin Register / LTC Magazine derivative",
+      "url": "https://ltcmagazine.org/data/litecoin-distribution-20261015.json",
+      "publishedAt": "2026-10-15",
+      "checkedAt": "2026-10-15",
+      "note": "CC BY 4.0 derivative of the compiled Register dataset, with raw-source hash and 30-day cutoffs. Not an independent wallet or issuer audit."
+    }
+  ]
+}
