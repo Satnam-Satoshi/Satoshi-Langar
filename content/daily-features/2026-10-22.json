@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-10-22",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-10-23T01:52:09Z",
+  "checkedAt": "2026-10-22",
+  "title": "The family is building. Show the work.",
+  "theme": "Proof of Work",
+  "dek": "A testnet cross-chain launch, an accelerator proposal, mining infrastructure and public policy: the dates and deployment stages stay visible.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma · LTC Media editorial desk under founder governance; no independent human fact-check claimed.",
+  "freshnessPolicy": "Source publication dates, observation times and editorial checks are separate. Testnet is not mainnet.",
+  "independence": "Independent Satnam Satoshi publication. Coverage does not imply source endorsement or partnership.",
+  "stories": [
+    {
+      "id": "via-liteforge-20261022",
+      "title": "VIA brings cross-chain messaging to LiteForge testnet",
+      "desk": "Builders / Cross-chain",
+      "classification": "Project announcement · Testnet",
+      "dek": "VIA Labs says its network is live on LitVM’s LiteForge testnet. Its announcement describes access to testnet USDC from CCTP-connected test networks.",
+      "status": "Source published 2026-10-22 · Checked October 22",
+      "eventDates": [
+        {
+          "date": "2026-10-22",
+          "label": "Source publication (America/New_York for X posts)"
+        }
+      ],
+      "paragraphs": [
+        "VIA Labs announced on October 22 that its network is live on LiteForge, LitVM’s testnet. LitVM’s own account confirmed the cross-chain launch partnership. The partner describes contract-to-contract messaging for tokens and data, including testnet USDC access from CCTP-enabled networks.",
+        "This is a project-reported testnet deployment. The reviewed posts do not establish Circle endorsement, mainnet availability, independently audited backing, or production usage. Test assets are for experimentation; do not send real funds to testnet addresses."
+      ],
+      "takeaway": "The deployment stage matters: this announcement does not establish mainnet USDC availability or native Litecoin smart contracts.",
+      "discussionPrompt": "What evidence or practical question should our next update address?",
+      "sourceIds": [
+        "via-liteforge-20261022"
+      ]
+    },
+    {
+      "id": "tesseract-20261020",
+      "title": "Aztec outlines a Tesseract accelerator for Litecoin builders",
+      "desk": "Builders / Community",
+      "classification": "Founder proposal · Details pending",
+      "dek": "Aztec Amaya says he plans to revive Tesseract for the Litecoin ecosystem, starting with a small cohort building on LiteForge.",
+      "status": "Source published 2026-10-20 · Checked October 22",
+      "eventDates": [
+        {
+          "date": "2026-10-20",
+          "label": "Source publication (America/New_York for X posts)"
+        }
+      ],
+      "paragraphs": [
+        "In an October 20 New York-time post, Aztec Amaya described plans to resurrect the Tesseract accelerator for Litecoin’s ecosystem. He said the first small cohort would focus on teams building on LiteForge, with advisory, marketing and business-development support.",
+        "The post says more information is coming. This is an attributed plan, not evidence of an open application round, accepted teams, funding commitments or delivered results. Builders should wait for official criteria before submitting private information."
+      ],
+      "takeaway": "An announced accelerator is a development intention; applications, selection criteria and a launch date were not provided in the reviewed post.",
+      "discussionPrompt": "What evidence or practical question should our next update address?",
+      "sourceIds": [
+        "tesseract-20261020"
+      ]
+    },
+    {
+      "id": "luxxpool-beta-20261020",
+      "title": "LuxxPool opens its public beta to Scrypt miners",
+      "desk": "Mining / Infrastructure",
+      "classification": "Issuer announcement · Public beta",
+      "dek": "Luxxfolio’s issuer release describes a public beta supporting Litecoin, Dogecoin and compatible auxiliary coins through one mining connection.",
+      "status": "Source published 2026-10-20 · Checked October 22",
+      "eventDates": [
+        {
+          "date": "2026-10-20",
+          "label": "Source publication (America/New_York for X posts)"
+        }
+      ],
+      "paragraphs": [
+        "Luxxfolio’s October 20 release says its in-house LuxxPool is opening to external Scrypt miners. The issuer describes merged mining of Litecoin, Dogecoin and compatible auxiliary coins using one connection. This report attributes the offering to its operator; LTC Magazine has not independently tested payouts or audited the pool.",
+        "The release lists conversion, expanded wallet support, automatic payouts and LuxxBuxx as continuing development priorities. A roadmap item is not a delivered feature. Pool fees, payment methods and supported assets can change; check current operator terms before choosing a pool."
+      ],
+      "takeaway": "Conversion, expanded wallets, automatic payouts and LuxxBuxx remain development priorities in the reviewed release.",
+      "discussionPrompt": "What evidence or practical question should our next update address?",
+      "sourceIds": [
+        "luxxpool-beta-20261020"
+      ]
+    },
+    {
+      "id": "dappit-cruise-20261021",
+      "title": "Dappit joins LiteForge Cruise on Sweep",
+      "desk": "Builders / Onboarding",
+      "classification": "Project participation announcement",
+      "dek": "Dappit announced its participation in the LiteForge Cruise discovery programme, also shared by LitVM.",
+      "status": "Source published 2026-10-21 · Checked October 22",
+      "eventDates": [
+        {
+          "date": "2026-10-21",
+          "label": "Source publication (America/New_York for X posts)"
+        }
+      ],
+      "paragraphs": [
+        "Dappit’s October 21 account post says it is joining LiteForge Cruise on Sweep. LitVM separately shared the discovery programme. The announcement offers a route to explore participating projects rather than evidence of a new mainnet deployment.",
+        "We have not independently verified eligibility, reward distribution or campaign contracts. Read the programme’s current terms, keep testnet experiments separate from real funds, and never provide a recovery phrase to join a quest."
+      ],
+      "takeaway": "A discovery campaign can introduce tools; participation does not demonstrate production adoption or guarantee rewards.",
+      "discussionPrompt": "What evidence or practical question should our next update address?",
+      "sourceIds": [
+        "dappit-cruise-20261021"
+      ]
+    },
+    {
+      "id": "grassland-20261016",
+      "title": "Grassland Forest puts the game loop before the token",
+      "desk": "Builders / Games",
+      "classification": "Project litepaper · Development build",
+      "dek": "Its dated English litepaper describes farming, exploration and pet battles, with test data and development-build labels.",
+      "status": "Source published 2026-10-16 · Checked October 22",
+      "eventDates": [
+        {
+          "date": "2026-10-16",
+          "label": "Source publication (America/New_York for X posts)"
+        }
+      ],
+      "paragraphs": [
+        "Grassland Forest’s illustrated English litepaper is dated October 16. It describes a farming, exploration and pet-battle game and explains platform-specific clients and a LitVM testnet roadmap.",
+        "The source labels screenshots as test data and the reviewed software as a development build. Those boundaries matter: the document does not independently establish a production launch, real-money market or investment return."
+      ],
+      "takeaway": "A game prototype can make learning approachable without establishing an audited economy or production launch.",
+      "discussionPrompt": "What evidence or practical question should our next update address?",
+      "sourceIds": [
+        "grassland-20261016"
+      ]
+    },
+    {
+      "id": "afref-20261020",
+      "title": "A public comment challenges the SEC crypto proposal",
+      "desk": "Policy / Public debate",
+      "classification": "Stakeholder comment · Not a final rule",
+      "dek": "Americans for Financial Reform Education Fund submitted objections concerning disclosure and investor protection under proposed Regulation Crypto Assets.",
+      "status": "Source published 2026-10-20 · Checked October 22",
+      "eventDates": [
+        {
+          "date": "2026-10-20",
+          "label": "Source publication (America/New_York for X posts)"
+        }
+      ],
+      "paragraphs": [
+        "Americans for Financial Reform Education Fund submitted an October 20 comment opposing aspects of the SEC’s proposed Regulation Crypto Assets. Its concerns include disclosure, safe-harbour provisions and investor protection. These are the commenter’s arguments, attributed to that organisation.",
+        "A public comment is part of rulemaking debate, not a final Commission decision or a Litecoin-specific approval. This brief does not restate disputed numerical thresholds; readers can compare the original comment with the Commission’s proposing materials."
+      ],
+      "takeaway": "The comment records the organisation’s position. It is neither a Commission decision nor enacted law.",
+      "discussionPrompt": "What evidence or practical question should our next update address?",
+      "sourceIds": [
+        "afref-20261020"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "via-liteforge-20261022",
+      "title": "VIA brings cross-chain messaging to LiteForge testnet",
+      "publisher": "VIA Labs",
+      "url": "https://x.com/VIA_Labs/status/2113285024875225539",
+      "publishedAt": "2026-10-22",
+      "checkedAt": "2026-10-22",
+      "note": "Primary source reviewed. Project claims are attributed; deployment stage and unknowns remain explicit."
+    },
+    {
+      "id": "tesseract-20261020",
+      "title": "Aztec outlines a Tesseract accelerator for Litecoin builders",
+      "publisher": "Aztec Amaya",
+      "url": "https://x.com/circle_crypto/status/2112738578035806234",
+      "publishedAt": "2026-10-20",
+      "checkedAt": "2026-10-22",
+      "note": "Primary source reviewed. Project claims are attributed; deployment stage and unknowns remain explicit."
+    },
+    {
+      "id": "luxxpool-beta-20261020",
+      "title": "LuxxPool opens its public beta to Scrypt miners",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
+      "publishedAt": "2026-10-20",
+      "checkedAt": "2026-10-22",
+      "note": "Primary source reviewed. Project claims are attributed; deployment stage and unknowns remain explicit."
+    },
+    {
+      "id": "dappit-cruise-20261021",
+      "title": "Dappit joins LiteForge Cruise on Sweep",
+      "publisher": "Dappit",
+      "url": "https://x.com/Dappitdotio/status/2112983148124361029",
+      "publishedAt": "2026-10-21",
+      "checkedAt": "2026-10-22",
+      "note": "Primary source reviewed. Project claims are attributed; deployment stage and unknowns remain explicit."
+    },
+    {
+      "id": "grassland-20261016",
+      "title": "Grassland Forest puts the game loop before the token",
+      "publisher": "Grassland Forest",
+      "url": "https://grasslandforest.com/litepaper/litepaper_ingles.html",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-22",
+      "note": "Primary source reviewed. Project claims are attributed; deployment stage and unknowns remain explicit."
+    },
+    {
+      "id": "afref-20261020",
+      "title": "A public comment challenges the SEC crypto proposal",
+      "publisher": "SEC public comment / AFREF",
+      "url": "https://www.sec.gov/comments/S7-2026-27/s7202627-1103739-3883526.pdf",
+      "publishedAt": "2026-10-20",
+      "checkedAt": "2026-10-22",
+      "note": "Primary source reviewed. Project claims are attributed; deployment stage and unknowns remain explicit."
+    }
+  ]
+}
