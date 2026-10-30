@@ -12,7 +12,7 @@ const output = path.join(root, '.vercel/output');
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(path.join(root, 'dist'), path.join(output, 'static'), { recursive: true });
-for(const name of ['litecoin-chain','market-prices','litecoin-register']){
+for(const name of ['litecoin-chain','market-prices','litecoin-register','morpho-markets']){
 const functionDir=path.join(output,`functions/api/${name}.func`);
 await mkdir(functionDir,{recursive:true});
 await build({entryPoints:[`scripts/functions/${name}.mjs`],outfile:path.join(functionDir,'bundle.cjs'),bundle:true,platform:'node',format:'cjs',target:'node22'});
@@ -31,6 +31,7 @@ await writeFile(path.join(output, 'config.json'), JSON.stringify({
     { src: '/api/litecoin-chain', dest: '/api/litecoin-chain' },
     { src: '/api/market-prices', dest: '/api/market-prices' },
     { src: '/api/litecoin-register', dest: '/api/litecoin-register' },
+    { src: '/api/morpho-markets', dest: '/api/morpho-markets' },
     { handle: 'filesystem' },
     { src: '/(.*)', dest: '/404.html', status: 404 },
   ],
