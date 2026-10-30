@@ -25,7 +25,7 @@ async function walk(dir){
    // validatePageSeo checks its keys, values, serialization and complete schema.
    if(/^\s+type="application\/ld\+json" data-site-seo="v1"\s*$/.test(attrs))continue;
    const src=attrs.match(/\bsrc="([^"]+)"/)?.[1];
-   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js','ecosystem-help.js','open-money.js','timechain-live.js','market-live.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
+   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js','ecosystem-help.js','open-money.js','timechain-live.js','market-live.js','register-live.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
    if(src && path.basename(src)==='copy-address.js' && !/\bdata-address-copy(?:=|\s|>)/.test(html))failures.push(`${file}: address-copy script without its scoped marker`);
    if(src && path.basename(src)==='ecosystem-help.js' && !/\bdata-ecosystem-help(?:=|\s|>)/.test(html))failures.push(`${file}: ecosystem-help script without its scoped marker`);
   }
@@ -111,3 +111,6 @@ for(let p=1;p<=84;p++) {
 }
 if(failures.length){console.error(failures.join('\n'));process.exit(1);}
 console.log(`PASS: ${count} static pages; internal links/assets resolve; scripts allowlisted and no network forms; links remain inside a subpath or IPFS directory.`);
+
+const newsletterRss=await readFile(path.join(root,'conversations/newsletter.xml'),'utf8');
+if(!newsletterRss.includes('https://ltcmagazine.org/conversations/newsletter.xml')||!newsletterRss.includes('ltc:edition:')||newsletterRss.includes('ltc:feature:'))throw Error('Invalid newsletter feed export');

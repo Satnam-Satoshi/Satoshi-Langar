@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-10-30",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-10-30T20:43:55.566Z",
+  "checkedAt": "2026-10-30",
+  "title": "Litecoin to the Moon. Read the flight plan.",
+  "theme": "Proof of Work",
+  "dek": "Canton and DTCC, cLTC, LitVM V2, treasury work and the road to Rome: an ambitious community deserves a precise flight plan.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma · LTC Media under founder governance; no independent human fact-check claimed.",
+  "freshnessPolicy": "Separate source dates, check dates, proposals and deployed services.",
+  "independence": "Independent Satnam Satoshi publication; coverage is not an endorsement.",
+  "stories": [
+    {
+      "id": "dtcc-20261030",
+      "title": "DTCC launches its Canton-connected tokenization service",
+      "desk": "Institutions / Securities",
+      "classification": "Live issuer service",
+      "dek": "DTS is connected to Canton and private Besu. The announcement concerns DTC-held securities, not a cLTC integration.",
+      "status": "Source 2026-10-28 · Checked October30",
+      "eventDates": [
+        {
+          "date": "2026-10-28",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "DTS is connected to Canton and private Besu. The announcement concerns DTC-held securities, not a cLTC integration.",
+        "Do not infer a Litecoin partnership from shared infrastructure. Read the linked original and the special edition sourcebook for context."
+      ],
+      "takeaway": "Do not infer a Litecoin partnership from shared infrastructure.",
+      "discussionPrompt": "What evidence should the next checkpoint include?",
+      "sourceIds": [
+        "dtcc"
+      ]
+    },
+    {
+      "id": "luxx-20261030",
+      "title": "Luxxfolio explores cLTC liquidity with Greywick",
+      "desk": "Treasury / Proposed collaboration",
+      "classification": "Non-binding LOI",
+      "dek": "The October29 release proposes seed liquidity and borrowing research; commercial terms and any treasury allocation remain conditional.",
+      "status": "Source 2026-10-29 · Checked October30",
+      "eventDates": [
+        {
+          "date": "2026-10-29",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "The October29 release proposes seed liquidity and borrowing research; commercial terms and any treasury allocation remain conditional.",
+        "No completed reserve transfer or guaranteed yield is established. Read the linked original and the special edition sourcebook for context."
+      ],
+      "takeaway": "No completed reserve transfer or guaranteed yield is established.",
+      "discussionPrompt": "What evidence should the next checkpoint include?",
+      "sourceIds": [
+        "luxx"
+      ]
+    },
+    {
+      "id": "v2-20261030",
+      "title": "LitVM V2 outlines Charms work and a Zeeve migration",
+      "desk": "Builders / Infrastructure",
+      "classification": "Announced architecture",
+      "dek": "The project describes a wider interoperability route. Current docs continue to distinguish LiteForge testnet from future mainnet details.",
+      "status": "Source 2026-10-27 · Checked October30",
+      "eventDates": [
+        {
+          "date": "2026-10-27",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "The project describes a wider interoperability route. Current docs continue to distinguish LiteForge testnet from future mainnet details.",
+        "A design announcement is not proof every component is live. Read the linked original and the special edition sourcebook for context."
+      ],
+      "takeaway": "A design announcement is not proof every component is live.",
+      "discussionPrompt": "What evidence should the next checkpoint include?",
+      "sourceIds": [
+        "v2"
+      ]
+    },
+    {
+      "id": "rome-20261030",
+      "title": "Rome prepares its November4 Litecoin programme",
+      "desk": "Europe / Community",
+      "classification": "Upcoming organizer programme",
+      "dek": "AIBC lists Charlie Lee sessions at Fiera Roma. The event runs November2–5; the Litecoin programme is on November4.",
+      "status": "Source 2026-09-30 · Checked October30",
+      "eventDates": [
+        {
+          "date": "2026-09-30",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "AIBC lists Charlie Lee sessions at Fiera Roma. The event runs November2–5; the Litecoin programme is on November4.",
+        "Check the organizer schedule before travel. Read the linked original and the special edition sourcebook for context."
+      ],
+      "takeaway": "Check the organizer schedule before travel.",
+      "discussionPrompt": "What evidence should the next checkpoint include?",
+      "sourceIds": [
+        "rome"
+      ]
+    },
+    {
+      "id": "fidelity-20261030",
+      "title": "Read Fidelity’s Litecoin report with its original date",
+      "desk": "Research / Context",
+      "classification": "Historical research / August2025",
+      "dek": "Fidelity examines payment uses alongside competition and valuation challenges. This is background research, not a fresh endorsement.",
+      "status": "Source 2025-08-21 · Checked October30",
+      "eventDates": [
+        {
+          "date": "2025-08-21",
+          "label": "Original source publication"
+        }
+      ],
+      "paragraphs": [
+        "Fidelity examines payment uses alongside competition and valuation challenges. This is background research, not a fresh endorsement.",
+        "Read criticism alongside opportunity. Read the linked original and the special edition sourcebook for context."
+      ],
+      "takeaway": "Read criticism alongside opportunity.",
+      "discussionPrompt": "What evidence should the next checkpoint include?",
+      "sourceIds": [
+        "fidelity"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "dtcc",
+      "title": "DTCC Tokenization Service goes live",
+      "publisher": "DTCC",
+      "url": "https://www.dtcc.com/press-releases/2026/dtcc-tokenization-service-goes-live",
+      "publishedAt": "2026-10-28",
+      "checkedAt": "2026-10-30",
+      "note": "Primary announcement: securities tokenization, not a cLTC deployment."
+    },
+    {
+      "id": "luxx",
+      "title": "Luxxfolio explores cLTC liquidity",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
+      "publishedAt": "2026-10-29",
+      "checkedAt": "2026-10-30",
+      "note": "October27 non-binding LOI; commercial commitments conditional."
+    },
+    {
+      "id": "v2",
+      "title": "Introducing LitVM V2",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/blog/introducing-litvm-v2",
+      "publishedAt": "2026-10-27",
+      "checkedAt": "2026-10-30",
+      "note": "Announced architecture and infrastructure work; promotional transaction counts withheld."
+    },
+    {
+      "id": "fidelity",
+      "title": "Coin Report: Litecoin (LTC)",
+      "publisher": "Fidelity Digital Assets",
+      "url": "https://www.fidelitydigitalassets.com/research-and-insights/coin-report-litecoin-ltc",
+      "publishedAt": "2025-08-21",
+      "checkedAt": "2026-10-30",
+      "note": "Historical research; critical conclusions included; not a new endorsement."
+    },
+    {
+      "id": "rome",
+      "title": "Charlie Lee brings Litecoin’s long view to AIBC World",
+      "publisher": "AIBC World",
+      "url": "https://aibc.world/news/charlie-lee-brings-litecoins-long-view-to-aibc-world/",
+      "publishedAt": "2026-09-30",
+      "checkedAt": "2026-10-30",
+      "note": "Organizer programme: Rome November4; schedule can change."
+    }
+  ]
+}

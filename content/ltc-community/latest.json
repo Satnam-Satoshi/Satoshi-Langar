@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "collectedAt": "2026-10-23T01:47:25.646Z",
+  "collectedAt": "2026-10-30T20:42:36.883Z",
   "sourceStatus": [
     {
       "id": "litecoin-foundation-news",
       "sourceName": "Litecoin Foundation news",
       "url": "https://litecoin.com/news/rss.xml",
       "status": "unavailable",
-      "checkedAt": "2026-10-23T01:47:25.579Z",
-      "sha256": "2577da91ae413c110fdc34beb0c282fc50efda7f3efb745196ab96e9324a327b",
+      "checkedAt": "2026-10-30T20:42:36.882Z",
+      "sha256": "4ca7a3048a2944703686e844514c2d30c14c15b7420a0671e9030bcd6445acfb",
       "errorCode": "invalid_feed_identity"
     },
     {
@@ -16,8 +16,8 @@
       "sourceName": "Litecoin Foundation · Nexus releases",
       "url": "https://api.github.com/repos/litecoin-foundation/nexus/releases?per_page=10",
       "status": "collected",
-      "checkedAt": "2026-10-23T01:47:25.645Z",
-      "sha256": "2374d80dbac3fbdc3fec62ee975d8bbf145dc6cb074dd386fc87cdeb86eef200",
+      "checkedAt": "2026-10-30T20:42:36.875Z",
+      "sha256": "cc0d782fb786d8cca733678c16aec792dd9274703366f1823f38f4f3e0aebcae",
       "errorCode": null
     }
   ],

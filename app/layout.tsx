@@ -18,5 +18,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { colorScheme: "light", themeColor: "#f7f3e8" };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return <html lang="en"><body><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">Skip to content</a><SiteHeader /><MarketCheckpoint /><div id="main-content">{children}</div><SiteFooter /></body></html>;
+  return <html lang="en"><body><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">Skip to content</a><SiteHeader /><aside aria-label="Latest independent special" style={{padding:"10px 20px",background:"#15243e",color:"#f5f3e9",fontSize:13,textAlign:"center"}}><a href="/conversations/specials/litecoin-to-the-moon/" style={{color:"inherit"}}>October30 special · Litecoin to the Moon. Canton, LitVM V2 and the road to Rome →</a></aside><MarketCheckpoint /><div id="main-content">{children}</div><SiteFooter /></body></html>;
 }
