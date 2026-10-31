@@ -13,3 +13,7 @@ body:has([data-ltc-publication]),.publication-shell{background:#f5f2e9;color:#25
 .publication-wordmark{flex-shrink:0}.publication-wordmark img{display:block;width:132px;height:auto}.publication-footer-brand img{display:block;width:225px;height:auto}.publication-footer-brand span{letter-spacing:.08em;margin-top:17px}.publication-header-inner{gap:25px}.publication-desktop-nav{gap:23px}
 @media(min-width:801px) and (max-width:1120px){.publication-header-inner{flex-wrap:wrap;gap:12px;padding-inline:28px}.publication-community{margin-left:auto}.publication-desktop-nav{order:3;flex-basis:100%;justify-content:space-between;gap:14px;border-top:1px solid #c9c5b8;margin:0;padding-top:4px}}
 @media(max-width:800px){.publication-wordmark img{width:122px}.publication-footer-brand img{width:210px}}
+
+/* Publication chrome shares the Nakamoto reading-room palette. */
+body:has([data-ltc-publication]),.publication-shell{background:#f6f1e7;color:#252520}.publication-header{background:#f6f1e7;border-top:4px solid #252520;border-bottom:1px solid #252520}.publication-header-inner{min-height:74px;padding-block:11px}.publication-desktop-nav{font-weight:600}.publication-desktop-nav a:hover{color:#a5411e}.publication-header .header-utility{max-width:1440px}.publication-menu nav{background:#fffcf5;border-color:#8e887b}.publication-footer{background:#252520}.publication-footer nav strong{color:#edb68c}
+@media(max-width:600px){.publication-header-inner{min-height:67px;padding-block:10px}.publication-header .header-utility{padding-inline:20px}}
