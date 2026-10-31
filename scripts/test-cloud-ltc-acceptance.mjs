@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, chmod, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
-import { acceptanceHash, assertAcceptanceContext, prepareStageAcceptance, runStageAcceptance, recoverStageAcceptance, persistedAcceptancePlan, verifyRecoveryController } from './cloud-ltc-acceptance.mjs';
+import { acceptanceHash, assertAcceptanceContext, prepareStageAcceptance, runStageAcceptance, recoverStageAcceptance, persistedAcceptancePlan, verifyRecoveryController, safeAcceptanceFailure } from './cloud-ltc-acceptance.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 import { TARGET, pathsFor, implementationDigest, builtManifest } from './cloud-ltc-release.mjs';
 
@@ -173,4 +173,12 @@ test('actual SIGKILL after provider effect leaves durable uncertainty and no ter
   const result = spawnSync(process.execPath, ['--input-type=module', '-e', script, JSON.stringify(input)], { encoding: 'utf8' });
   assert.equal(result.signal, 'SIGKILL', result.stderr); const record = JSON.parse(await readFile(ledger, 'utf8')).value;
   const applied = JSON.parse(await readFile(effect, 'utf8')); assert.equal(record.intents[applied.operationId].status, 'uncertain'); assert.equal(record.receipts[applied.operationId], undefined); assert.ok(record.lease); assert.ok(Object.values(record.intents).some(intent => intent.payload.kind === 'vercel-stage' && intent.status === 'pending'));
+});
+
+test('acceptance diagnostics expose fixed failure codes and redact arbitrary provider details', () => {
+  assert.equal(safeAcceptanceFailure(Error('acceptance_public_pointer_changed')), 'acceptance_public_pointer_changed');
+  assert.equal(safeAcceptanceFailure(Error('deployed_artifact_mismatch')), 'deployed_artifact_mismatch');
+  assert.equal(safeAcceptanceFailure(Error('http_403')), 'http_403');
+  assert.equal(safeAcceptanceFailure(Error('Bearer private-token account@example.invalid')), 'release_failed_details_withheld');
+  assert.equal(safeAcceptanceFailure(Error('acceptance_private_secret_value')), 'release_failed_details_withheld');
 });

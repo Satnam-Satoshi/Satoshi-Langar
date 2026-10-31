@@ -90,3 +90,5 @@ node --test scripts/test-cloud-ltc-acceptance.mjs
 ```
 
 Tests exercise real packaging/restoration and binary hashes with fake remote transport, concurrent CAS admission, lost upload/stage confirmations, recovery after deleting original source, unknown holds, wrong fence/active origin, corrupt evidence, and an actual SIGKILL subprocess with a filesystem-backed test ledger. They are not live Google/Vercel acceptance receipts.
+
+The first live stage attempt (41154821171) stopped before admission: the checker rejected the existing legacy birthday URL's configured 308 redirect. The private website ledger remained paused at fence 0 with no lease, intents or receipts. A separate public audit verified all 596 accepted entries per domain using the explicit existing redirect targets. This failed attempt is not staging or recovery acceptance. The revised checker verifies exact configured redirects and their canonical destination hashes; arbitrary redirects remain errors.
