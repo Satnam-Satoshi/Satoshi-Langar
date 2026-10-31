@@ -108,7 +108,9 @@ test('actual workflow summary writes false defaults and fails until all five pro
   const root = fileURLToPath(new URL('..', import.meta.url));
   const workflow = await readFile(path.join(root, 'ops/ltc-daily-workflow.yml'), 'utf8');
   const marker = "          node --input-type=module <<'NODE'\n";
-  const start = workflow.lastIndexOf(marker) + marker.length;
+  const summaryStep = workflow.indexOf('      - name: Report only safe protocol shapes and access outcomes');
+  assert.ok(summaryStep >= 0);
+  const start = workflow.indexOf(marker, summaryStep) + marker.length;
   const script = workflow.slice(start, workflow.indexOf('          NODE', start)).split('\n').map(line => line.replace(/^          /, '')).join('\n');
   const good = { 'ltc-google-folder-probe.json': { folderPrivateVerified: true }, 'ltc-paused-ledgers-probe.json': { allLedgersVerified: true }, 'ltc-vercel-project-probe.json': { projectMetadataVerified: true }, 'ltc-buffer-cloud-probe.json': { identityVerified: true, queueReadComplete: true, queue: [] } };
   const cases = [

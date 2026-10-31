@@ -133,7 +133,27 @@ export function publicReadbackRecord(base, record, manifest) {
   }
   return { route: routeFor(record.file), sha256: record.sha256 };
 }
+export async function verifyPublicRootRouting(base, manifest, { fetchImpl = fetch } = {}) {
+  requireThat(TARGET.domains.includes(base) && Array.isArray(manifest), 'invalid_candidate_manifest');
+  const expected = manifest.find(record => record.file === (base === TARGET.domains[1] ? 'conversations/index.html' : 'index.html'));
+  requireThat(expected && /^[a-f0-9]{64}$/.test(expected.sha256), 'invalid_candidate_manifest');
+  const read = async url => {
+    try { return await fetchImpl(url, { redirect: 'manual', signal: AbortSignal.timeout(30_000) }); }
+    catch { throw new Error('network_request_failed'); }
+  };
+  let response = await read(base + '/'); const rootStatus = response.status;
+  if (response.status !== 200) {
+    requireThat(base === TARGET.domains[1] && [301,302,307,308].includes(response.status) && response.headers.get('location') === '/conversations/', 'public_root_routing_changed');
+    await response.body?.cancel().catch(() => {});
+    response = await read(base + '/conversations/');
+  }
+  requireThat(response.status === 200 && !response.redirected, 'public_root_routing_changed');
+  const bytes = Buffer.from(await response.arrayBuffer());
+  requireThat(bytes.length <= 12 * 1024 * 1024 && sha(bytes) === expected.sha256, 'deployed_artifact_mismatch');
+  return { rootStatus, destination: base === TARGET.domains[1] ? '/conversations/' : '/', bytesVerified: true };
+}
 async function verifySite(base, manifest) {
+  await verifyPublicRootRouting(base, manifest);
   for (const record of manifest) {
     const expected = publicReadbackRecord(base, record, manifest);
     requireThat(sha(await responseBytes(`${base}${expected.route}`)) === expected.sha256, 'deployed_artifact_mismatch');

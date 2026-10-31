@@ -33,8 +33,28 @@ jobs:
           node-version: 22.23.2
       - name: Install pinned validation tools without service credentials
         run: npm install --global pnpm@11.19.0 vercel@61.1.0
+      - name: Install locked application dependencies without credentials
+        run: pnpm install --frozen-lockfile
       - name: Offline provider and recovery contracts
         run: pnpm cloud:check
+      - name: Build exact committed acceptance artifact without provider credentials
+        run: |
+          pnpm check
+          pnpm release:prepare
+      - name: Offline stage recipe plan using explicit fixture resources only
+        run: |
+          node --input-type=module <<'NODE'
+          import {mkdirSync,writeFileSync} from 'node:fs';import {execFileSync} from 'node:child_process';import {builtManifest} from './scripts/cloud-ltc-release.mjs';
+          const d=process.env.RUNNER_TEMP+'/ltc-offline-acceptance';mkdirSync(d,{mode:0o700});mkdirSync(d+'/evidence',{mode:0o700});
+          const save=(name,value)=>writeFileSync(d+'/'+name,JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});
+          save('website.json',{schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId:'offline_folder_fixture',documentId:'offline_website_fixture'});
+          save('social.json',{schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId:'offline_folder_fixture',documentId:'offline_social_fixture',ledgerKey:'social'});
+          save('evidence.json',{folderId:'offline_folder_fixture',ownerPermissionId:'offline_owner_fixture'});
+          save('previous.json',await builtManifest(process.cwd()+'/dist'));save('evidence/build.json',{mode:'offline-fixture-plan-only'});
+          const edition=JSON.parse((await import('node:fs')).readFileSync('content/ltc/index.json','utf8')).sort((a,b)=>b.date.localeCompare(a.date)||b.revision-a.revision)[0].id;
+          const digest=execFileSync(process.execPath,['scripts/ltc-release-guard.mjs'],{encoding:'utf8'}).trim();
+          execFileSync(process.execPath,['scripts/cloud-ltc-acceptance.mjs','--mode','plan','--root',process.cwd(),'--evidence-dir',d+'/evidence','--state-config',d+'/website.json','--social-state-config',d+'/social.json','--evidence-config',d+'/evidence.json','--edition-id',edition,'--acceptance-id','offline-recipe','--previous-deployment','dpl_OfflineFixture','--previous-manifest',d+'/previous.json','--receipt',d+'/plan.json'],{stdio:'inherit',env:{...process.env,LTC_ACCEPTED_IMPLEMENTATION_SHA256:digest}});
+          NODE
       - name: Independent cloud collection and complete build
         shell: bash
         run: |
