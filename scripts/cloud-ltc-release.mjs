@@ -150,10 +150,14 @@ function protectedHttpResponse(raw) {
   return { status: Number(status[1]), location, redirected: false, bytes: async () => bytes.subarray(boundary + 4) };
 }
 export async function verifyProtectedCandidate(deploymentId, editionId, manifest, readWithCli) {
-  requireThat(/^dpl_[A-Za-z0-9]+$/.test(deploymentId), 'candidate_identity_failed');
   const required = pathsFor(editionId);
-  requireThat(required.every(file => manifest.some(record => record.file === file)) && new Set(manifest.map(record => record.file)).size === manifest.length && manifest.every(record => /^[a-zA-Z0-9_.-]+(?:\/[a-zA-Z0-9_.-]+)*$/.test(record.file) && !record.file.split('/').some(part => part === '.' || part === '..') && /^[a-f0-9]{64}$/.test(record.sha256)), 'invalid_candidate_manifest');
-  for (const record of manifest) {
+  requireThat(required.every(file => manifest.some(record => record.file === file)), 'invalid_candidate_manifest');
+  return verifyProtectedManifestRecords(deploymentId, manifest, manifest, readWithCli);
+}
+export async function verifyProtectedManifestRecords(deploymentId, records, manifest, readWithCli) {
+  requireThat(/^dpl_[A-Za-z0-9]+$/.test(deploymentId), 'candidate_identity_failed');
+  requireThat(Array.isArray(manifest) && Array.isArray(records) && records.length > 0 && new Set(records.map(record => record.file)).size === records.length && new Set(manifest.map(record => record.file)).size === manifest.length && manifest.every(record => /^[a-zA-Z0-9_.-]+(?:\/[a-zA-Z0-9_.-]+)*$/.test(record.file) && !record.file.split('/').some(part => part === '.' || part === '..') && /^[a-f0-9]{64}$/.test(record.sha256)) && records.every(record => manifest.some(item => item.file === record.file && item.sha256 === record.sha256)), 'invalid_candidate_manifest');
+  for (const record of records) {
     const expected = intendedReadbackRecord(record, manifest);
     await verifyIntendedReadback(expected, async route => protectedHttpResponse(await readWithCli(['curl', route, '--deployment', deploymentId, '--', '--include', '--silent', '--show-error', '--max-time', '30', '--max-redirs', '0', '--proto', '=https'])));
   }

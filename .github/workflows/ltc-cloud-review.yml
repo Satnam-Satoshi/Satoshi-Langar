@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: 22.23.2
       - name: Install pinned validation tools without service credentials
-        run: npm install --global pnpm@11.19.0 vercel@61.1.0
+        run: npm install --global pnpm@11.19.0 vercel@65.9.0
       - name: Install locked application dependencies without credentials
         run: pnpm install --frozen-lockfile
       - name: Offline provider and recovery contracts
