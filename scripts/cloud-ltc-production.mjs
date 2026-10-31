@@ -108,7 +108,7 @@ export async function performCoordinatedRelease(options) {
 
 // Shared post-stage tail. It has no source/upload-artifacts/deploy operation:
 // only first promotion, bounded rollback, final private summary and checkpoint.
-export async function finishConfirmedStagedRelease({ admission, editionId, releaseCommit, candidate, previousDeployment, manifest, rollbackManifest, artifactPackageManifestSha256, publicationProvenance, target, vercel, cli, beforeMutation, verifyProtected, verifyPublic, evidenceConfig, allocate, providerFactory, token, operationReceipts, saveReceipt, continuation = null, completeCheckpoint, fetchImpl = fetch }) {
+export async function finishConfirmedStagedRelease({ admission, editionId, releaseCommit, candidate, previousDeployment, manifest, rollbackManifest, artifactPackageManifestSha256, publicationProvenance, target, vercel, cli, beforeMutation, verifyProtected, verifyPublic, evidenceConfig, allocate, providerFactory, token, operationReceipts, saveReceipt, continuation = null, completeCheckpoint, beforeSummary, verifyBackup, fetchImpl = fetch }) {
   const coordinator = new ReleaseOperationCoordinator(admission);
   const execute = async operation => {
     if(continuation)await saveReceipt({status:operation.payload.kind==='drive-evidence'?'applying-final-private-summary':operation.payload.kind==='vercel-promote'?'applying-first-promotion':'applying-verified-rollback'});
@@ -139,7 +139,9 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   // terminal checkpoint. Failure here leaves the lease held for reconciliation.
   const publicVerifiedAt = new Date().toISOString();
   if (continuation) await beforeMutation(releaseCommit);
+  await beforeSummary?.();
   const backup = await admission.state.backup();
+  await verifyBackup?.(backup);
   const summary = packageEvidence([
     { path: 'artifact-manifest.json', bytes: Buffer.from(JSON.stringify(manifest)) },
     { path: 'release-receipt.json', bytes: Buffer.from(JSON.stringify({ source: releaseCommit, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, operationReceipts, publicationProvenance, ...(continuation ? { continuation } : {}), artifactPackageManifestSha256: artifactPackageManifestSha256 })) },

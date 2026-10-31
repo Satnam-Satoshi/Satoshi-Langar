@@ -555,7 +555,7 @@ jobs:
           const f=process.env.RUNNER_TEMP+'/ltc-stage-acceptance-receipt.json';
           if(existsSync(f)){
             const r=JSON.parse(readFileSync(f,'utf8'));
-            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,failure:r.failure,failurePhase:r.failurePhase,providerFailure:r.providerFailure,planSha256:r.planSha256,fence:r.lease?.fence,leaseReleased:r.leaseReleased,incidentSha256:r.incidentSha256,newFence:r.newFence,originalOutcome:r.originalOutcome,accepted:r.accepted,productionAuthorized:r.productionAuthorized,retiredFence:r.retiredFence,paused:r.paused,receiptSha256:r.receiptSha256,effectsReissued:r.effectsReissued,publicationPerformed:r.publicationPerformed,socialActivationPerformed:r.socialActivationPerformed,aliasesRestored:r.aliasesRestored,publicationEnabled:false})+'\n');
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,failure:r.failure,failurePhase:r.failurePhase,providerFailure:r.providerFailure,planSha256:r.planSha256,fence:r.lease?.fence??r.fence,leaseReleased:r.leaseReleased,incidentSha256:r.incidentSha256,newFence:r.newFence,originalOutcome:r.originalOutcome,accepted:r.accepted,productionAuthorized:r.productionAuthorized,retiredFence:r.retiredFence,paused:r.paused,receiptSha256:r.receiptSha256,effectsReissued:r.effectsReissued,publicationPerformed:r.publicationPerformed,socialActivationPerformed:r.socialActivationPerformed,aliasesRestored:r.aliasesRestored,publicationEnabled:false})+'\n');
           }
           NODE
       # No private artifacts, plans, source evidence or ledger snapshots are uploaded to GitHub artifacts.

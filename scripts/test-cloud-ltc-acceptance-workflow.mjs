@@ -83,3 +83,5 @@ test('existing-stage continuation remains a single manual protected job with sep
  assert(step('Validate explicit acceptance scope before credentials').includes("['promotion-reconcile','promotion-rollback','pre-effect-retire','continue-staged']"));
  assert(step('Build exact committed source without preparing new daily data').includes("if: inputs.acceptance_mode == 'stage'"));
 });
+
+test('finite receipt summary reports actual publication with scalar-fence fallback while routine remains disabled',()=>{const summary=step('Safe acceptance result; preserve held fences after any failure');assert(summary.includes('fence:r.lease?.fence??r.fence'));assert(summary.includes('publicationPerformed:r.publicationPerformed'));assert(summary.includes('publicationEnabled:false'));});
