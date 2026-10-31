@@ -107,13 +107,55 @@ export function withVercelAuth(args, token) {
 function routeFor(file) {
   return '/' + (file.endsWith('/index.html') ? file.slice(0, -10) : file === 'index.html' ? '' : file);
 }
+// Exact reviewed Build Output redirect policy from prepare-vercel-output.mjs.
+// Archived alias bytes remain in the backup; their HTTP routes intentionally
+// resolve to these canonical records, whose bytes must also be in the manifest.
+export function intendedReadbackRecord(record, manifest) {
+  requireThat(/^[a-zA-Z0-9_.-]+(?:\/[a-zA-Z0-9_.-]+)*$/.test(record?.file ?? '') && !record.file.split('/').some(part => part === '.' || part === '..') && /^[a-f0-9]{64}$/.test(record.sha256 ?? ''), 'invalid_candidate_manifest');
+  const route = routeFor(record.file);
+  let location;
+  if (/^\/conversations\/specials\/litecoin-at-15(?:\/.*)?$/.test(route)) location = '/conversations/specials/proof-of-birthday/';
+  if (['/magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf', '/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r2.pdf'].includes(route)) location = '/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf';
+  if (!location) return { route, sha256: record.sha256 };
+  const canonicalFile = location.endsWith('/') ? `${location.slice(1)}index.html` : location.slice(1);
+  const target = manifest.find(item => item.file === canonicalFile);
+  requireThat(target && /^[a-f0-9]{64}$/.test(target.sha256), 'redirect_target_missing_from_manifest');
+  return { route, sha256: target.sha256, redirect: { status: 308, location } };
+}
+async function verifyIntendedReadback(expected, read) {
+  let response = await read(expected.route);
+  if (expected.redirect) {
+    requireThat(response.status === expected.redirect.status && response.location === expected.redirect.location && !response.redirected, 'reviewed_redirect_changed');
+    await response.cancel?.();
+    response = await read(expected.redirect.location);
+  }
+  requireThat(response.status === 200 && !response.redirected, 'unexpected_artifact_status');
+  const bytes = Buffer.from(await response.bytes());
+  requireThat(bytes.length <= 12 * 1024 * 1024, 'response_too_large');
+  requireThat(sha(bytes) === expected.sha256, 'deployed_artifact_mismatch');
+}
+function protectedHttpResponse(raw) {
+  const bytes = Buffer.isBuffer(raw) ? raw : Buffer.from(raw);
+  const boundary = bytes.indexOf('\r\n\r\n');
+  requireThat(boundary > 0 && boundary <= 65_536, 'invalid_protected_http_response');
+  const lines = bytes.subarray(0, boundary).toString('latin1').split('\r\n');
+  const status = /^HTTP\/(?:1\.[01]|2|3) ([1-5]\d\d)(?: [^\r\n]*)?$/.exec(lines.shift());
+  requireThat(status, 'invalid_protected_http_response');
+  let location = null;
+  for (const line of lines) {
+    const header = /^([!#$%&'*+.^_`|~0-9A-Za-z-]+):[ \t]*([^\r\n]*)$/.exec(line);
+    requireThat(header, 'invalid_protected_http_response');
+    if (header[1].toLowerCase() === 'location') { requireThat(location === null, 'invalid_protected_http_response'); location = header[2]; }
+  }
+  return { status: Number(status[1]), location, redirected: false, bytes: async () => bytes.subarray(boundary + 4) };
+}
 export async function verifyProtectedCandidate(deploymentId, editionId, manifest, readWithCli) {
   requireThat(/^dpl_[A-Za-z0-9]+$/.test(deploymentId), 'candidate_identity_failed');
   const required = pathsFor(editionId);
   requireThat(required.every(file => manifest.some(record => record.file === file)) && new Set(manifest.map(record => record.file)).size === manifest.length && manifest.every(record => /^[a-zA-Z0-9_.-]+(?:\/[a-zA-Z0-9_.-]+)*$/.test(record.file) && !record.file.split('/').some(part => part === '.' || part === '..') && /^[a-f0-9]{64}$/.test(record.sha256)), 'invalid_candidate_manifest');
   for (const record of manifest) {
-    const bytes = await readWithCli(['curl', routeFor(record.file), '--deployment', deploymentId, '--', '--silent', '--show-error', '--location', '--fail', '--max-time', '30', '--max-redirs', '3', '--proto', '=https', '--proto-redir', '=https']);
-    requireThat(sha(bytes) === record.sha256, 'deployed_artifact_mismatch');
+    const expected = intendedReadbackRecord(record, manifest);
+    await verifyIntendedReadback(expected, async route => protectedHttpResponse(await readWithCli(['curl', route, '--deployment', deploymentId, '--', '--include', '--silent', '--show-error', '--max-time', '30', '--max-redirs', '0', '--proto', '=https'])));
   }
 }
 async function responseBytes(url, options = {}) {
@@ -128,10 +170,20 @@ async function responseBytes(url, options = {}) {
 export function publicReadbackRecord(base, record, manifest) {
   if (base === 'https://ltcmagazine.org' && record.file === 'index.html') {
     const magazineHome = manifest.find(item => item.file === 'conversations/index.html');
-    requireThat(magazineHome, 'invalid_candidate_manifest');
+    requireThat(magazineHome && /^[a-f0-9]{64}$/.test(magazineHome.sha256), 'invalid_candidate_manifest');
     return { route: '/conversations/', sha256: magazineHome.sha256 };
   }
-  return { route: routeFor(record.file), sha256: record.sha256 };
+  return intendedReadbackRecord(record, manifest);
+}
+export async function verifyPublicManifestRecord(base, record, manifest, { fetchImpl = fetch } = {}) {
+  requireThat(TARGET.domains.includes(base), 'invalid_candidate_manifest');
+  const expected = publicReadbackRecord(base, record, manifest);
+  await verifyIntendedReadback(expected, async route => {
+    let response;
+    try { response = await fetchImpl(base + route, { redirect: 'manual', signal: AbortSignal.timeout(30_000) }); }
+    catch { throw Error('network_request_failed'); }
+    return { status: response.status, location: response.headers.get('location'), redirected: response.redirected, bytes: () => response.arrayBuffer(), cancel: () => response.body?.cancel() };
+  });
 }
 export async function verifyPublicRootRouting(base, manifest, { fetchImpl = fetch } = {}) {
   requireThat(TARGET.domains.includes(base) && Array.isArray(manifest), 'invalid_candidate_manifest');
@@ -155,8 +207,7 @@ export async function verifyPublicRootRouting(base, manifest, { fetchImpl = fetc
 async function verifySite(base, manifest) {
   await verifyPublicRootRouting(base, manifest);
   for (const record of manifest) {
-    const expected = publicReadbackRecord(base, record, manifest);
-    requireThat(sha(await responseBytes(`${base}${expected.route}`)) === expected.sha256, 'deployed_artifact_mismatch');
+    await verifyPublicManifestRecord(base, record, manifest);
   }
 }
 function apiClients(env) {
@@ -390,6 +441,7 @@ export async function verifyPublicDomains(manifest, verify = verifySite) {
 export function safeFailure(error) {
   const message = typeof error?.message === 'string' ? error.message : '';
   const known = new Set(['operation_outcome_uncertain', 'operation_reconciliation_required', 'reconciliation_required', 'release_operation_not_confirmed', 'state_conflict', 'lease_held', 'lease_fenced', 'lease_expired', 'storage_read_failed', 'storage_write_uncertain', 'google_refresh_credentials_required', 'google_refresh_failed', 'google_refresh_scope_mismatch', 'bootstrap_rollback_manifest_required', 'rollback_manifest_unavailable', 'rollback_manifest_changed', 'evidence_file_ids_required', 'evidence_too_large', 'artifact_source_set_too_large', 'state_capacity_exceeded', 'incomplete_release_artifact_backup', 'protected_candidate_read_failed', 'pinned_cli_version_required', 'pinned_cli_version_mismatch', 'production_recovery_configuration_required', 'collector_failed', 'invalid_collector_snapshot', 'migration_acceptance_pending', 'accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'invalid_accepted_source', 'durable_adapter_required', 'invalid_cloud_run_id', 'built_output_changed', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'invalid_deployment_output', 'invalid_candidate_manifest', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
+  for (const code of ['redirect_target_missing_from_manifest', 'reviewed_redirect_changed', 'unexpected_artifact_status', 'invalid_protected_http_response']) known.add(code);
   return known.has(message) || /^http_[1-5]\d{2}$/.test(message) || /^command_failed_(?:node|git|pnpm|vercel)$/.test(message) ? message : 'release_failed_details_withheld';
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

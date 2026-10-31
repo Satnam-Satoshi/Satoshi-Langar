@@ -12,8 +12,12 @@ import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
 import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
 import { createReadOnlyReleaseClients } from './cloud-ltc-reconcile.mjs';
 import { createVercelReleaseProviders, assertVercelDeploymentIdentity, assertVercelProjectPolicy } from './cloud-ltc-release-providers.mjs';
-import { TARGET, builtManifest, builtOutputManifest, verifyImplementation, verifyProtectedCandidate, verifyPublicDomains, cleanEnvironment, withVercelAuth, pathsFor } from './cloud-ltc-release.mjs';
+import { TARGET, builtManifest, builtOutputManifest, verifyImplementation, verifyProtectedCandidate, verifyPublicDomains, cleanEnvironment, withVercelAuth, pathsFor, safeFailure } from './cloud-ltc-release.mjs';
 
+const acceptanceFailureCodes = new Set(['acceptance_artifact_binding_changed', 'acceptance_artifacts_incomplete', 'acceptance_build_output_changed', 'acceptance_completion_invalid', 'acceptance_configuration_changed', 'acceptance_context_required', 'acceptance_deliberate_crash', 'acceptance_download_unknown', 'acceptance_durable_state_required', 'acceptance_effect_forbidden', 'acceptance_executable_missing', 'acceptance_file_ids_invalid', 'acceptance_initialized_ledger_required', 'acceptance_invalid_crash_boundary', 'acceptance_ledger_not_idle', 'acceptance_origin_still_running', 'acceptance_package_changed', 'acceptance_previous_manifest_changed', 'acceptance_previous_manifest_required', 'acceptance_promotion_forbidden', 'acceptance_public_pointer_changed', 'acceptance_recovery_context_missing', 'acceptance_recovery_fence_required', 'acceptance_recovery_unknown', 'acceptance_restored_artifact_mismatch', 'acceptance_social_ledger_invalid', 'acceptance_social_not_paused', 'acceptance_source_changed', 'acceptance_source_not_clean', 'acceptance_stage_unconfirmed', 'acceptance_static_incomplete', 'acceptance_static_output_mismatch', 'acceptance_wrong_ledger']);
+export function safeAcceptanceFailure(error) {
+  return acceptanceFailureCodes.has(error?.message) ? error.message : safeFailure(error);
+}
 const check = (condition, code) => { if (!condition) throw Error(code); };
 export const acceptanceHash = value => createHash('sha256').update(typeof value === 'string' || Buffer.isBuffer(value) ? value : JSON.stringify(value)).digest('hex');
 const digest = value => /^[a-f0-9]{64}$/.test(value ?? '');
@@ -303,5 +307,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
       const result = options.mode === 'stage' ? await runStageAcceptance({ plan, packed: prepared.packed, previousManifest: prepared.previousManifest, env, state, dependencies, crashAfter: options.crashAfter ?? null }) : await recoverStageAcceptance({ plan, env, state, dependencies, expectedFence: Number(options.expectedFence) });
       console.log(JSON.stringify({ mode: result.mode, status: result.status, publicationEnabled: false, leaseReleased: result.leaseReleased }));
     }
-  } catch { console.error('stage_acceptance_withheld_or_requires_recovery'); process.exitCode = 1; }
+  } catch (error) { console.error(`stage_acceptance_withheld_or_requires_recovery: ${safeAcceptanceFailure(error)}`); process.exitCode = 1; }
 }

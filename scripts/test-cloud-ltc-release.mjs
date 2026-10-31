@@ -7,10 +7,11 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
-import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate, assertMigrationAcceptance, builtManifest, verifyPublicDomains, verifyPublicRootRouting, TARGET, prepareObservations, publicReadbackRecord, collectorCommand, acceptedSourceConfig, builtOutputManifest, releaseUnusedAdmission } from './cloud-ltc-release.mjs';
+import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate, assertMigrationAcceptance, builtManifest, verifyPublicDomains, verifyPublicRootRouting, verifyPublicManifestRecord, intendedReadbackRecord, TARGET, prepareObservations, publicReadbackRecord, collectorCommand, acceptedSourceConfig, builtOutputManifest, releaseUnusedAdmission } from './cloud-ltc-release.mjs';
 
 const id = '2026-10-02-r1';
 const head = 'a'.repeat(40);
+const httpBytes = (body, { status = 200, location = null } = {}) => Buffer.concat([Buffer.from(`HTTP/2 ${status}\r\ncontent-type: application/octet-stream\r\n${location === null ? '' : `location: ${location}\r\n`}\r\n`), Buffer.from(body)]);
 test('routine release permits only one new issue, index and snapshot; rejects edits, deletes, traversal and unrelated code', () => {
   assertChanges([{ status: '??', file: `content/ltc/${id}.json` }, { status: 'M', file: 'content/ltc/index.json' }, { status: 'M', file: 'public/data/ltc-snapshot.json' }], id);
   for (const change of [
@@ -33,6 +34,7 @@ test('child process environment and errors never expose provider tokens', () => 
   for (const value of [...Object.values(secrets), 'command_failed_ghp_thisisprivate', 'url https://example.com?token=private']) assert.equal(safeFailure(new Error(value)), 'release_failed_details_withheld');
   assert.equal(safeFailure(new Error('publication_paused')), 'publication_paused');
   assert.equal(safeFailure(new Error('http_403')), 'http_403');
+  for (const code of ['redirect_target_missing_from_manifest', 'reviewed_redirect_changed', 'unexpected_artifact_status', 'invalid_protected_http_response']) { assert.equal(safeFailure(new Error(code)), code); assert.equal(safeFailure(new Error(code + ': private response')), 'release_failed_details_withheld'); }
 });
 test('release verification covers date, exact revision, month, archive, RSS and JSON', () => {
   const files = pathsFor(id);
@@ -52,7 +54,7 @@ test('authenticated protected-candidate reads are restricted to manifest paths, 
   const hash = createHash('sha256').update(body).digest('hex');
   const manifest = pathsFor(id).map(file => ({ file, sha256: hash }));
   const calls = [];
-  await verifyProtectedCandidate('dpl_Fixture123', id, manifest, args => { calls.push(args); return body; });
+  await verifyProtectedCandidate('dpl_Fixture123', id, manifest, args => { calls.push(args); return httpBytes(body); });
   assert.equal(calls.length, 10);
   assert.equal(calls[0][1], '/');
   for (const args of calls) {
@@ -65,7 +67,7 @@ test('authenticated protected-candidate reads are restricted to manifest paths, 
   let forbiddenCalls = 0;
   await assert.rejects(verifyProtectedCandidate('dpl_Fixture123', id, [{ file: '../../secret', sha256: hash }], () => { forbiddenCalls++; return body; }), /invalid_candidate_manifest/);
   assert.equal(forbiddenCalls, 0);
-  await assert.rejects(verifyProtectedCandidate('dpl_Fixture123', id, manifest, () => 'Login required'), /deployed_artifact_mismatch/);
+  await assert.rejects(verifyProtectedCandidate('dpl_Fixture123', id, manifest, () => httpBytes('Login required')), /deployed_artifact_mismatch/);
   await assert.rejects(verifyProtectedCandidate('https://example.com', id, manifest, () => body), /candidate_identity_failed/);
 });
 test('implementation digest rejects changed code before execution but permits dated data changes', async () => {
@@ -174,9 +176,9 @@ test('stale/partial candidate rejection prevents archive, newsroom and accepted 
   }
 });
 test('magazine root readback maps to its conversations homepage without following a redirect', () => {
-  const manifest = [{ file: 'index.html', sha256: 'community' }, { file: 'conversations/index.html', sha256: 'magazine' }];
-  assert.deepEqual(publicReadbackRecord(TARGET.domains[1], manifest[0], manifest), { route: '/conversations/', sha256: 'magazine' });
-  assert.deepEqual(publicReadbackRecord(TARGET.domains[0], manifest[0], manifest), { route: '/', sha256: 'community' });
+  const manifest = [{ file: 'index.html', sha256: 'a'.repeat(64) }, { file: 'conversations/index.html', sha256: 'b'.repeat(64) }];
+  assert.deepEqual(publicReadbackRecord(TARGET.domains[1], manifest[0], manifest), { route: '/conversations/', sha256: 'b'.repeat(64) });
+  assert.deepEqual(publicReadbackRecord(TARGET.domains[0], manifest[0], manifest), { route: '/', sha256: 'a'.repeat(64) });
   assert.throws(() => publicReadbackRecord(TARGET.domains[1], manifest[0], []), /invalid_candidate_manifest/);
 });
 
@@ -245,8 +247,8 @@ test('protected readback preserves binary assets as bytes rather than UTF8 text'
   const bytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x00, 0xff, 0xfe]);
   const manifest = pathsFor(id).map(file => ({ file, sha256: createHash('sha256').update(bytes).digest('hex') }));
   manifest.push({ file: 'images/cover.png', sha256: createHash('sha256').update(bytes).digest('hex') });
-  await verifyProtectedCandidate('dpl_BinaryFixture', id, manifest, () => bytes);
-  await assert.rejects(verifyProtectedCandidate('dpl_BinaryFixture', id, manifest, () => bytes.toString('utf8')), /deployed_artifact_mismatch/);
+  await verifyProtectedCandidate('dpl_BinaryFixture', id, manifest, () => httpBytes(bytes));
+  await assert.rejects(verifyProtectedCandidate('dpl_BinaryFixture', id, manifest, () => httpBytes(bytes.toString('utf8'))), /deployed_artifact_mismatch/);
 });
 
 test('pre-effect collection failure can release unused lease, but any current intent retains fencing', async () => {
@@ -282,4 +284,64 @@ test('both public roots verify their real entry flow and exact homepage bytes wi
   assert.deepEqual(calls,[TARGET.domains[0]+'/',TARGET.domains[1]+'/',TARGET.domains[1]+'/conversations/']);
   await assert.rejects(verifyPublicRootRouting(TARGET.domains[1],manifest,{fetchImpl:async()=>new Response(null,{status:307,headers:{location:'https://other.invalid/'}})}),/public_root_routing_changed/);
   await assert.rejects(verifyPublicRootRouting(TARGET.domains[0],manifest,{fetchImpl:async()=>new Response(magazine)}),/deployed_artifact_mismatch/);
+});
+
+const birthdayRoute = '/conversations/specials/proof-of-birthday/';
+const birthdayPdf = '/magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf';
+const reviewedAliases = [
+  { file: 'conversations/specials/litecoin-at-15/1/index.html', location: birthdayRoute },
+  { file: 'magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf', location: birthdayPdf },
+  { file: 'magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r2.pdf', location: birthdayPdf },
+];
+function redirectFixture() {
+  const ordinary = Buffer.from('ordinary accepted bytes'), canonical = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x00, 0xff, 0xfe]);
+  const digest = bytes => createHash('sha256').update(bytes).digest('hex');
+  const manifest = [...pathsFor(id).map(file => ({ file, sha256: digest(ordinary) })), { file: birthdayRoute.slice(1) + 'index.html', sha256: digest(canonical) }, { file: birthdayPdf.slice(1), sha256: digest(canonical) }, ...reviewedAliases.map(({ file }) => ({ file, sha256: digest('retained archived alias bytes') }))];
+  return { ordinary, canonical, manifest };
+}
+test('public verifier enforces all three reviewed 308 rules and exact canonical bytes instead of archived alias bytes', async () => {
+  const { canonical, manifest } = redirectFixture();
+  const birthday = JSON.parse(await readFile(new URL('../content/specials/proof-of-birthday-r3.json', import.meta.url), 'utf8'));
+  assert.equal(birthday.pdf, birthdayPdf);
+  for (const alias of reviewedAliases) {
+    const record = manifest.find(item => item.file === alias.file), expected = intendedReadbackRecord(record, manifest), calls = [];
+    assert.notEqual(expected.sha256, record.sha256); assert.deepEqual(expected.redirect, { status: 308, location: alias.location });
+    await verifyPublicManifestRecord(TARGET.domains[0], record, manifest, { fetchImpl: async (url, options) => { assert.equal(options.redirect, 'manual'); calls.push(url); return calls.length === 1 ? new Response('redirect explanation', { status: 308, headers: { location: alias.location } }) : new Response(canonical); } });
+    assert.deepEqual(calls, [TARGET.domains[0] + expected.route, TARGET.domains[0] + alias.location]);
+  }
+  assert.equal(intendedReadbackRecord({ file: 'conversations/specials/litecoin-at-15-other/index.html', sha256: 'a'.repeat(64) }, manifest).redirect, undefined);
+});
+test('public aliases reject wrong status, wrong/external target, chained redirect, wrong target bytes and missing manifest target', async () => {
+  const { canonical, manifest } = redirectFixture(), alias = reviewedAliases[0], record = manifest.find(item => item.file === alias.file);
+  for (const [status, location] of [[301, alias.location], [307, alias.location], [200, alias.location], [308, '/wrong/'], [308, 'https://other.invalid' + alias.location], [308, TARGET.domains[0] + alias.location]]) {
+    let calls = 0; await assert.rejects(verifyPublicManifestRecord(TARGET.domains[0], record, manifest, { fetchImpl: async () => { calls++; return new Response(null, { status, headers: { location } }); } }), /reviewed_redirect_changed/); assert.equal(calls, 1);
+  }
+  for (const response of [() => new Response('wrong target bytes'), () => new Response(null, { status: 308, headers: { location: '/another/' } })]) {
+    let calls = 0; await assert.rejects(verifyPublicManifestRecord(TARGET.domains[0], record, manifest, { fetchImpl: async () => ++calls === 1 ? new Response(null, { status: 308, headers: { location: alias.location } }) : response() }), /deployed_artifact_mismatch|unexpected_artifact_status/); assert.equal(calls, 2);
+  }
+  await assert.rejects(verifyPublicManifestRecord(TARGET.domains[0], record, manifest.filter(item => item.file !== birthdayRoute.slice(1) + 'index.html'), { fetchImpl: async () => { assert.fail('missing target must fail before network'); } }), /redirect_target_missing_from_manifest/);
+  const ordinary = manifest[0]; await assert.rejects(verifyPublicManifestRecord(TARGET.domains[0], ordinary, manifest, { fetchImpl: async () => new Response(null, { status: 308, headers: { location: birthdayRoute } }) }), /unexpected_artifact_status/);
+  assert.ok(canonical.length);
+});
+test('protected verifier reads status/headers without following redirects and verifies canonical binary payload', async () => {
+  const { ordinary, canonical, manifest } = redirectFixture(), calls = [];
+  await verifyProtectedCandidate('dpl_RedirectFixture', id, manifest, args => {
+    calls.push(args); assert.ok(args.includes('--include')); assert.ok(!args.includes('--location')); assert.ok(!args.includes('--fail')); assert.equal(args[args.indexOf('--max-redirs') + 1], '0');
+    const alias = reviewedAliases.find(item => intendedReadbackRecord(manifest.find(record => record.file === item.file), manifest).route === args[1]);
+    return alias ? httpBytes('redirect body', { status: 308, location: alias.location }) : httpBytes([birthdayRoute, birthdayPdf].includes(args[1]) ? canonical : ordinary);
+  });
+  for (const alias of reviewedAliases) assert.ok(calls.some(args => args[1] === alias.location));
+  for (const invalid of [httpBytes('wrong', { status: 307, location: birthdayRoute }), httpBytes('wrong', { status: 308, location: '/wrong/' }), httpBytes('wrong', { status: 308, location: 'https://other.invalid/' }), httpBytes('wrong', { status: 200 })]) {
+    await assert.rejects(verifyProtectedCandidate('dpl_RedirectFixture', id, manifest, args => args[1].startsWith('/conversations/specials/litecoin-at-15/') ? invalid : httpBytes([birthdayRoute, birthdayPdf].includes(args[1]) ? canonical : ordinary)), /reviewed_redirect_changed/);
+  }
+  for (const target of [httpBytes('wrong canonical bytes'), httpBytes('', { status: 308, location: '/another/' })]) {
+    let aliasSeen = false;
+    await assert.rejects(verifyProtectedCandidate('dpl_RedirectFixture', id, manifest, args => {
+      if (args[1].startsWith('/conversations/specials/litecoin-at-15/')) { aliasSeen = true; return httpBytes('', { status: 308, location: birthdayRoute }); }
+      if (aliasSeen && args[1] === birthdayRoute) return target;
+      return httpBytes([birthdayRoute, birthdayPdf].includes(args[1]) ? canonical : ordinary);
+    }), /deployed_artifact_mismatch|unexpected_artifact_status/);
+  }
+  await assert.rejects(verifyProtectedCandidate('dpl_RedirectFixture', id, manifest, () => ordinary), /invalid_protected_http_response/);
+  await assert.rejects(verifyProtectedCandidate('dpl_RedirectFixture', id, manifest, () => Buffer.from('HTTP/2 308\r\nlocation: /first/\r\nlocation: /second/\r\n\r\n')), /invalid_protected_http_response/);
 });
