@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
-import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate, assertMigrationAcceptance, builtManifest, verifyPublicDomains, TARGET, prepareObservations, publicReadbackRecord, collectorCommand, acceptedSourceConfig, builtOutputManifest, releaseUnusedAdmission } from './cloud-ltc-release.mjs';
+import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate, assertMigrationAcceptance, builtManifest, verifyPublicDomains, verifyPublicRootRouting, TARGET, prepareObservations, publicReadbackRecord, collectorCommand, acceptedSourceConfig, builtOutputManifest, releaseUnusedAdmission } from './cloud-ltc-release.mjs';
 
 const id = '2026-10-02-r1';
 const head = 'a'.repeat(40);
@@ -269,4 +269,17 @@ test('source-desk dated selection is explicitly add-only and trusted inline clas
   const classify = new Function(inline + '\nreturn isRoutineData;')();
   const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean);
   for (const name of [...tracked, file, 'content/ltc-newsroom-selections/source-desk-2026-02-30-r1.json', 'content/ltc-community/archive/20261002T250000Z.json', '../config/private.json']) assert.equal(classify(name), isEditionData(name), name);
+});
+
+
+test('both public roots verify their real entry flow and exact homepage bytes without following arbitrary redirects', async () => {
+  const community=Buffer.from('community home'), magazine=Buffer.from('magazine home');
+  const digest=value=>createHash('sha256').update(value).digest('hex');
+  const manifest=[{file:'index.html',sha256:digest(community)},{file:'conversations/index.html',sha256:digest(magazine)}];
+  const calls=[];const fetchImpl=async(url,options)=>{calls.push(url);assert.equal(options.redirect,'manual');if(url===TARGET.domains[0]+'/')return new Response(community);if(url===TARGET.domains[1]+'/')return new Response(null,{status:307,headers:{location:'/conversations/'}});return new Response(magazine)};
+  assert.equal((await verifyPublicRootRouting(TARGET.domains[0],manifest,{fetchImpl})).bytesVerified,true);
+  assert.equal((await verifyPublicRootRouting(TARGET.domains[1],manifest,{fetchImpl})).rootStatus,307);
+  assert.deepEqual(calls,[TARGET.domains[0]+'/',TARGET.domains[1]+'/',TARGET.domains[1]+'/conversations/']);
+  await assert.rejects(verifyPublicRootRouting(TARGET.domains[1],manifest,{fetchImpl:async()=>new Response(null,{status:307,headers:{location:'https://other.invalid/'}})}),/public_root_routing_changed/);
+  await assert.rejects(verifyPublicRootRouting(TARGET.domains[0],manifest,{fetchImpl:async()=>new Response(magazine)}),/deployed_artifact_mismatch/);
 });
