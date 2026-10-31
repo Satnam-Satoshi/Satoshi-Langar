@@ -237,6 +237,7 @@ async function restorePackage(plan, operations, dependencies) {
   await writeFile(path.join(workspace, '.vercel/project.json'), JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team, projectName: ACCEPTANCE_PROJECT_NAME }), { flag: 'wx', mode: 0o600 });
   return { workspace, manifest, previousManifest, restored };
 }
+export { restorePackage as restoreAcceptanceArtifactPackage };
 
 function stageOperation(plan, dependencies, manifest, workspace) {
   const payload = { kind: 'vercel-stage', acceptancePlanSha256: acceptanceHash(plan), editionId: plan.editionId, artifactPackageManifestSha256: plan.artifactPackageManifestSha256, commit: plan.source, buildOutputSha256: plan.buildOutputSha256, artifactManifestSha256: plan.staticManifestSha256 };

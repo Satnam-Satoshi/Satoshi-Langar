@@ -38,7 +38,7 @@ export async function performCoordinatedRelease(options) {
   };
   const beforeMutation = async commit => {
     await admission.state.renew(admission.lease, 3_600_000);
-    await verifyImplementation(); await verifyBuildOutput(); await controls(commit);
+    await verifyImplementation(); await verifyBuildOutput(); await options.verifyMigration?.(); await controls(commit);
   };
   await beforeMutation(source);
   const previous = [];

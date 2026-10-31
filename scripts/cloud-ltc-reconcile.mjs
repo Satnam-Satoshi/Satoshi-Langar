@@ -1,5 +1,4 @@
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
 import { readFile, writeFile, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -9,7 +8,7 @@ import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
 import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
 import { downloadEvidence, restoreArtifactEvidence } from './cloud-ltc-evidence.mjs';
 import { createVercelReleaseProviders } from './cloud-ltc-release-providers.mjs';
-import { TARGET, cleanEnvironment, withVercelAuth, verifyProtectedCandidate, verifyPublicDomains } from './cloud-ltc-release.mjs';
+import { TARGET, verifyPublicDomains } from './cloud-ltc-release.mjs';
 const check = (value, code) => { if (!value) throw Error(code); };
 const hash = value => createHash('sha256').update(value).digest('hex');
 const gitSha = (kind, bytes) => createHash('sha1').update(`${kind} ${bytes.length}\0`).update(bytes).digest('hex');
@@ -122,13 +121,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     const runtime = await createGoogleStateRuntime({ config });
     const state = new DurableCloudState(runtime.stateAdapter, 'website'); const clients = createReadOnlyReleaseClients({});
     const directory = await mkdtemp(path.join(tmpdir(), 'ltc-reconciliation-'));
-    const readProtected = async (deployment, editionId, manifest) => {
-      const version = process.env.LTC_VERCEL_CLI_VERSION; check(/^[0-9]+\.[0-9]+\.[0-9]+$/.test(version ?? ''), 'pinned_cli_version_required');
-      const cli = process.env.LTC_VERCEL_CLI || 'vercel';
-      const installed = execFileSync(cli, ['--version'], { encoding: 'utf8', env: cleanEnvironment(process.env), stdio: ['ignore', 'pipe', 'pipe'] }).trim();
-      check([version, `Vercel CLI ${version}`].includes(installed), 'pinned_cli_version_mismatch');
-      await verifyProtectedCandidate(deployment.id, editionId, manifest, args => execFileSync(cli, withVercelAuth(args, process.env.VERCEL_TOKEN), { env: cleanEnvironment(process.env), stdio: ['ignore', 'pipe', 'pipe'], timeout: 60_000, maxBuffer: 32 * 1024 * 1024 }));
-    };
+    const { createAcceptanceLinkedClient } = await import('./cloud-ltc-acceptance.mjs');
+    const linked = createAcceptanceLinkedClient({ env: process.env, vercel: clients.vercel, directory, report: async () => {} });
+    await linked.verifyVersion();
+    const readProtected = (deployment, editionId, manifest) => linked.readProtected(deployment, manifest, manifest);
     const receipt = await inspectPersistedOperations({ state, ...clients, evidenceConfig, directory, getAccessToken: () => withGoogleCloudAuthorization({}, access => access.LTC_GOOGLE_ACCESS_TOKEN), readProtected, readPublic: verifyPublicDomains });
     await writeFile(options.receipt, JSON.stringify({ ...receipt, recoveryDirectory: directory }, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
     console.log(JSON.stringify({ mode: receipt.mode, stateChanged: false, effectsReissued: false, unknown: receipt.results.filter(record => record.observed === 'unknown').length, requiresExplicitReview: true }));
