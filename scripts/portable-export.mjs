@@ -2,6 +2,7 @@ import { readdir, readFile, mkdir, writeFile, rm, copyFile } from 'node:fs/promi
 import path from 'node:path';
 import { readCommunityArchive } from './lib/community-archive.mjs';
 import { applySiteSeo, buildSeoSitemaps } from './lib/site-seo.mjs';
+import { routineDataRecord } from './lib/ltc-routine-data.mjs';
 const source = path.resolve('out'), target = path.resolve('dist');
 const editions = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
 const seoPages = [];
@@ -13,7 +14,8 @@ async function walk(directory) {
   if(entry.isDirectory()) { await walk(input); continue; }
   const publicExtras=['data/litecoin-distribution-20261011.json','data/litecoin-distribution-20261013.json','data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','scripts/ecosystem-help.js','scripts/open-money.js','scripts/timechain-live.js','scripts/market-live.js','scripts/register-live.js','scripts/morpho-live.js','conversations/feed.xml','conversations/daily.xml','conversations/newsletter.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
   if(relative==='magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf') continue;
-  if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^data\/litecoin-distribution-\d{8}\.json$/.test(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative)) continue;
+  const dailyGraphicMetadata = entry.name === 'graphic.json' && routineDataRecord(`public/${relative}`)?.kind === 'graphic';
+  if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^data\/litecoin-distribution-\d{8}\.json$/.test(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative) && !dailyGraphicMetadata) continue;
   await mkdir(path.dirname(output),{recursive:true});
   if(entry.name.endsWith('.html')) {
    let html=await readFile(input,'utf8');
