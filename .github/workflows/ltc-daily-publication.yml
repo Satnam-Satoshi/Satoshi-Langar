@@ -20,9 +20,9 @@ on:
         type: boolean
         default: false
       acceptance_mode:
-        description: Explicit stage-only acceptance, recovery or owner incident quarantine; never promotes
+        description: Explicit reviewed acceptance action; promotion proof temporarily changes public aliases
         type: choice
-        options: [none, stage, recover, quarantine]
+        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft]
         default: none
       acceptance_source_commit:
         description: Exact reviewed acceptance source commit
@@ -168,6 +168,8 @@ jobs:
       - name: Bounded publication through durable provider operations
         if: vars.LTC_CLOUD_PUBLISH == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
         env:
+          LTC_MIGRATION_ACCEPTANCE_JSON: ${{ secrets.LTC_MIGRATION_ACCEPTANCE_JSON }}
+          LTC_MIGRATION_ACCEPTANCE_SHA256: ${{ vars.LTC_MIGRATION_ACCEPTANCE_SHA256 }}
           GITHUB_TOKEN: ${{ github.token }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
@@ -310,7 +312,7 @@ jobs:
 
 
   stage-acceptance:
-    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine')
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine' || inputs.acceptance_mode == 'promotion-proof' || inputs.acceptance_mode == 'promotion-reconcile' || inputs.acceptance_mode == 'promotion-rollback' || inputs.acceptance_mode == 'activate-cloud' || inputs.acceptance_mode == 'social-inspect' || inputs.acceptance_mode == 'social-bootstrap' || inputs.acceptance_mode == 'social-private-draft' || inputs.acceptance_mode == 'social-reconcile-private-draft')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: ltc-production
@@ -394,12 +396,15 @@ jobs:
           node --input-type=module <<'NODE'
           import {execFileSync} from 'node:child_process';
           const e=process.env;
-          if(e.LTC_CLOUD_PUBLISH!=='false'||! /^[a-f0-9]{40}$/.test(e.LTC_ACCEPTANCE_SOURCE_COMMIT||'')||! /^\d+\.\d+\.\d+$/.test(e.LTC_VERCEL_CLI_VERSION||''))throw Error('Explicit reviewed acceptance context required');
+          if(e.LTC_CLOUD_PUBLISH!==(e.LTC_ACCEPTANCE_MODE==='activate-cloud'?'true':'false')||! /^[a-f0-9]{40}$/.test(e.LTC_ACCEPTANCE_SOURCE_COMMIT||'')||! /^\d+\.\d+\.\d+$/.test(e.LTC_VERCEL_CLI_VERSION||''))throw Error('Explicit reviewed acceptance context required');
           if(e.LTC_ACCEPTANCE_MODE==='stage'){
             if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||! /^[a-z0-9][a-z0-9_-]{0,47}$/.test(e.LTC_ACCEPTANCE_ID||'')||! /^dpl_[A-Za-z0-9]+$/.test(e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||'')||! ['none','first-effect','stage-effect'].includes(e.LTC_ACCEPTANCE_CRASH_AFTER))throw Error('Stage scope mismatch');
           }else if(['recover','quarantine'].includes(e.LTC_ACCEPTANCE_MODE)){
             if(! /^[a-f0-9]{64}$/.test(e.LTC_ACCEPTANCE_PLAN_SHA256||'')||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Recovery scope mismatch');
             if(e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT)throw Error('Unexpected recovery/quarantine inputs');
+          }else if(['promotion-proof','promotion-reconcile','promotion-rollback','activate-cloud','social-inspect','social-bootstrap','social-private-draft','social-reconcile-private-draft'].includes(e.LTC_ACCEPTANCE_MODE)){
+            if(e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Unexpected controlled proof inputs');
+            if(['promotion-reconcile','promotion-rollback'].includes(e.LTC_ACCEPTANCE_MODE)&&! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||''))throw Error('Exact controlled fence required');
           }else throw Error('Unknown acceptance mode');
           NODE
       - name: Install pinned tools and test without service credentials
@@ -460,6 +465,16 @@ jobs:
           NODE
       - name: Explicitly approved stage-only effect or fresh-proof recovery
         env:
+          LTC_BUFFER_API_KEY: ${{ startsWith(inputs.acceptance_mode, 'social-') && secrets.LTC_BUFFER_API_KEY || '' }}
+          LTC_SOCIAL_SETUP_BUNDLE_GZIP_BASE64: ${{ startsWith(inputs.acceptance_mode, 'social-') && secrets.LTC_SOCIAL_SETUP_BUNDLE_GZIP_BASE64 || '' }}
+          LTC_SOCIAL_ACCEPTANCE_POLICY_SHA256: ${{ vars.LTC_SOCIAL_ACCEPTANCE_POLICY_SHA256 }}
+          LTC_CLOUD_SOCIAL_PUBLISH: 'false'
+          LTC_SOCIAL_CLOUD_PUBLISH: 'false'
+          LTC_SOCIAL_PUBLISH: 'false'
+          LTC_CONTROLLED_PROMOTION_REVIEW_JSON: ${{ secrets.LTC_CONTROLLED_PROMOTION_REVIEW_JSON }}
+          LTC_CONTROLLED_PROMOTION_REVIEW_SHA256: ${{ vars.LTC_CONTROLLED_PROMOTION_REVIEW_SHA256 }}
+          LTC_MIGRATION_ACCEPTANCE_JSON: ${{ secrets.LTC_MIGRATION_ACCEPTANCE_JSON }}
+          LTC_MIGRATION_ACCEPTANCE_SHA256: ${{ vars.LTC_MIGRATION_ACCEPTANCE_SHA256 }}
           LTC_SETUP_QUARANTINE_REVIEW_JSON: ${{ secrets.LTC_SETUP_QUARANTINE_REVIEW_JSON }}
           GITHUB_TOKEN: ${{ github.token }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -479,7 +494,39 @@ jobs:
               set -- "$@" --review-file "$RUNNER_TEMP/ltc-setup-quarantine-review.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json"
             fi
           fi
-          node scripts/cloud-ltc-acceptance.mjs "$@"
+          if [[ "$LTC_ACCEPTANCE_MODE" == activate-cloud ]]; then
+            node scripts/cloud-ltc-activate.mjs --state-config "$RUNNER_TEMP/ltc-accept-website.json" --social-state-config "$RUNNER_TEMP/ltc-accept-social.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == social-* ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';import {gunzipSync} from 'node:zlib';
+          const encoded=process.env.LTC_SOCIAL_SETUP_BUNDLE_GZIP_BASE64;
+          if(typeof encoded!=='string'||encoded.length>65536||! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded))throw Error('Protected social setup bundle required');
+          const bundle=JSON.parse(gunzipSync(Buffer.from(encoded,'base64'),{maxOutputLength:1800000}).toString('utf8'));
+          for(const [key,file] of [['policyJson','ltc-social-policy.json'],['canonicalLedgerJson','ltc-social-canonical.json'],['historicalCopyEvidenceJson','ltc-social-historical.json']]){
+            if(typeof bundle[key]!=='string'||Buffer.byteLength(bundle[key])>600000)throw Error('Invalid private social bundle');
+            JSON.parse(bundle[key]);writeFileSync(process.env.RUNNER_TEMP+'/'+file,bundle[key],{flag:'wx',mode:0o600});
+          }
+          NODE
+            MODE="${LTC_ACCEPTANCE_MODE#social-}"
+            set -- --mode "$MODE" --social-state-config "$RUNNER_TEMP/ltc-accept-social.json" --policy "$RUNNER_TEMP/ltc-social-policy.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+            if [[ "$MODE" == bootstrap ]]; then set -- "$@" --canonical-ledger "$RUNNER_TEMP/ltc-social-canonical.json" --historical-copy-evidence "$RUNNER_TEMP/ltc-social-historical.json"; fi
+            node scripts/cloud-ltc-social-acceptance.mjs "$@"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == promotion-* ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_CONTROLLED_PROMOTION_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>131072)throw Error('Protected controlled review required');
+          writeFileSync(process.env.RUNNER_TEMP+'/ltc-controlled-review.json',value,{flag:'wx',mode:0o600});
+          NODE
+            MODE=exercise
+            if [[ "$LTC_ACCEPTANCE_MODE" == promotion-reconcile ]]; then MODE=reconcile; fi
+            if [[ "$LTC_ACCEPTANCE_MODE" == promotion-rollback ]]; then MODE=complete-rollback; fi
+            set -- --mode "$MODE" --review "$RUNNER_TEMP/ltc-controlled-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --social-state-config "$RUNNER_TEMP/ltc-accept-social.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+            if [[ "$MODE" != exercise ]]; then set -- "$@" --expected-fence "$LTC_ACCEPTANCE_FENCE"; fi
+            node scripts/cloud-ltc-controlled-promotion.mjs "$@"
+          else
+            node scripts/cloud-ltc-acceptance.mjs "$@"
+          fi
       - name: Safe acceptance result; preserve held fences after any failure
         if: always()
         run: |
@@ -488,7 +535,7 @@ jobs:
           const f=process.env.RUNNER_TEMP+'/ltc-stage-acceptance-receipt.json';
           if(existsSync(f)){
             const r=JSON.parse(readFileSync(f,'utf8'));
-            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,planSha256:r.planSha256,fence:r.lease?.fence,leaseReleased:r.leaseReleased,incidentSha256:r.incidentSha256,newFence:r.newFence,originalOutcome:r.originalOutcome,accepted:r.accepted,productionAuthorized:r.productionAuthorized,publicationEnabled:false,aliasesChanged:false})+'\n');
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,planSha256:r.planSha256,fence:r.lease?.fence,leaseReleased:r.leaseReleased,incidentSha256:r.incidentSha256,newFence:r.newFence,originalOutcome:r.originalOutcome,accepted:r.accepted,productionAuthorized:r.productionAuthorized,publicationPerformed:r.publicationPerformed,socialActivationPerformed:r.socialActivationPerformed,aliasesRestored:r.aliasesRestored,publicationEnabled:false})+'\n');
           }
           NODE
       # No private artifacts, plans, source evidence or ledger snapshots are uploaded to GitHub artifacts.
