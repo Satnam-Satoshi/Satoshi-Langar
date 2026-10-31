@@ -231,3 +231,33 @@ body { background: var(--background); }
 @media(max-width:800px){.project-shortcuts small{display:none}.project-shortcuts>div{padding:9px 22px;gap:8px;grid-template-columns:1fr 1fr 1.4fr}.project-shortcuts a{padding:9px 10px;gap:8px;font-size:12px}}
 @media(max-width:450px){.project-shortcuts>div{padding:8px 16px;gap:6px;grid-template-columns:.8fr .95fr 1.45fr}.project-shortcuts a{font-size:11px;padding:8px;line-height:1.4}.project-shortcuts a>span{display:none}.project-shortcuts strong{white-space:normal}}
 @media print{.project-shortcuts{display:none}}
+
+/* Nakamoto reading room: shared paper, ink and open-network accents. */
+:root{--background:#f6f1e7;--foreground:#22221f;--card:#fffcf5;--card-foreground:#22221f;--primary:#a5411e;--primary-foreground:#fffaf0;--secondary:#ebe6da;--secondary-foreground:#22221f;--muted:#ece8de;--muted-foreground:#5b5a52;--accent:#e9e4d9;--accent-foreground:#22221f;--border:#cec8bb;--ring:#a5411e}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--background);color:var(--foreground)}
+h1,h2,h3{font-feature-settings:"kern";text-wrap:balance}
+a,button,summary{touch-action:manipulation}
+.launch-header{background:#f6f1e7;border-top:4px solid #242420;border-bottom:1px solid #242420}
+.header-row{min-height:80px;gap:22px}.launch-wrap{max-width:1376px;padding-inline:42px}
+.launch-brand{gap:10px;flex-shrink:0}.launch-brand>span{width:39px;height:39px;background:#262622;border-radius:50%}
+.launch-brand strong{font:600 22px/1.1 Georgia,serif;letter-spacing:-.6px}.launch-brand small{font:10px/1.4 Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#605e54;margin-top:5px}
+.desktop-nav{gap:22px;font-size:12px;font-weight:600}.desktop-nav a{padding-block:14px;text-underline-offset:7px}.desktop-nav a:hover{color:#a5411e;text-decoration:underline}
+.header-join{border-radius:0;border-color:#242420;padding:12px 14px;min-height:44px;font-size:12px}
+.header-utility{max-width:1376px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border-top:1px solid #cec8bb;padding-inline:42px}
+.header-utility .project-shortcuts{background:transparent;border:0;color:#34342f}.header-utility .project-shortcuts>div{padding:0;display:flex;gap:20px;flex-wrap:wrap}
+.header-utility .project-shortcuts a{padding:8px 0;min-height:44px;background:transparent;border:0;gap:8px;font-size:11px;color:#34342f}
+.header-utility .project-shortcuts a>span{font-size:19px;color:#a5411e}.header-utility .project-shortcuts small{display:none}.header-utility .project-shortcuts .register-shortcut>span{color:#a5411e}
+.header-utility>div{background:transparent;border:0}.header-utility>div>div{padding:0}.header-utility>div>div>span{display:none}
+.edition-notice{padding:10px 24px;background:#252521;color:#fffaf0;font-size:12px;line-height:1.6;text-align:center;letter-spacing:.01em}.edition-notice a{color:inherit;text-underline-offset:4px}.edition-notice a:hover{text-decoration:underline}
+.launch-button{background:#282823;border-radius:0}.launch-button:hover{background:#a5411e}.launch-text-link{border-color:#8e897c}
+.reading-content{max-width:850px}.reading-content h2{font-family:Georgia,serif;font-weight:400}.reading-content p,.reading-content li{color:#4f5048;line-height:1.9}
+.launch-footer{background:#ece6d9;border-top:3px solid #252521}.footer-main strong{font-family:Georgia,serif}.footer-main p,.footer-main small,.footer-bottom{color:#55554b}
+@media(max-width:1100px){.desktop-nav{gap:13px}.header-row{gap:14px}.header-utility{padding-inline:28px}.launch-wrap{padding-inline:28px}.header-utility .project-shortcuts>div{gap:16px}}
+@media(max-width:850px){.desktop-nav{display:none}.mobile-menu{display:block}.header-row{min-height:74px}.mobile-menu summary{cursor:pointer;padding:12px 17px;border:1px solid #817d70;font-size:13px}.mobile-menu nav{position:absolute;top:auto;left:20px;right:20px;z-index:50;display:grid;padding:16px;background:#fffcf5;border:1px solid #817d70;box-shadow:0 16px 40px #2223;max-height:75vh;overflow:auto}.mobile-menu nav a{padding:12px;font-size:15px}.header-join{display:none}}
+@media(max-width:620px){.launch-wrap{padding-inline:20px}.launch-brand strong{font-size:21px}.launch-brand small{font-size:9px}.header-utility{padding-inline:20px;grid-template-columns:1fr}.header-utility .project-shortcuts>div{justify-content:space-between;gap:8px}.header-utility>div>div{justify-content:center;border-top:1px solid #d8d2c5}.header-utility>div>div nav{width:100%;justify-content:space-between}.edition-notice{font-size:11px;padding:9px 20px;text-align:left}}
+/* Keep every market clock legible while matching the silver data rail. */
+aside[aria-label="Current market observations with source times"]{background:#e5e5df;color:#292a26;border-bottom:1px solid #bdbeb5}
+aside[aria-label="Current market observations with source times"] b{color:#343c42}
+aside[aria-label="Current market observations with source times"] small{color:#555b57}
+aside[aria-label="Current market observations with source times"] a:focus-visible{outline-color:#a5411e}
+@media(max-width:620px){.header-utility nav[aria-label="LTC Magazine social channels"]{flex-wrap:nowrap;gap:4px}.header-utility nav[aria-label="LTC Magazine social channels"] a{padding:7px 4px;font-size:11px;gap:5px;min-width:0}.header-utility>div>div nav svg{width:15px;height:15px}}
