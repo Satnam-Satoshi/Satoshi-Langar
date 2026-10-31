@@ -11,8 +11,9 @@ import { rehearseReleaseOperations } from './cloud-ltc-rehearsal.mjs';
 import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
 import { performCoordinatedRelease, loadPreviousReleaseManifest } from './cloud-ltc-production.mjs';
 import { assertVercelProjectPolicy } from './cloud-ltc-release-providers.mjs';
+import { assertReviewedMigrationAcceptance } from './cloud-ltc-migration-gate.mjs';
 
-// DRAFT: nothing schedules this file. Default mode never commits or deploys.
+// Default mode never commits or deploys. Publication requires protected evidence/policy and durable admission.
 export const TARGET = Object.freeze({
   repository: 'Satnam-Satoshi/Satoshi-Langar',
   project: 'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx', team: 'team_yc5ZBvCbWT2M7iGyj3vQDOzk',
@@ -250,8 +251,8 @@ function parseArgs(argv) {
   }
   return options;
 }
-// Admission seam only. Per-effect durable intents/recovery must be integrated and
-// accepted before assertMigrationAcceptance can be changed. No memory fallback.
+// Only the real private revision-CAS adapter may admit a publication lease.
+// Historical proof and owner policy are validated separately; no memory fallback.
 export function requireDurableAdapter(adapter) {
   requireThat(adapter instanceof GoogleDocsStateAdapter, 'durable_adapter_required');
 }
@@ -292,20 +293,25 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
   try {
     const { github, vercel } = apiClients(env);
     if (options.publish) {
-      assertMigrationAcceptance();
       requireThat(env.GITHUB_ACTIONS === 'true' && env.GITHUB_REPOSITORY === TARGET.repository && env.GITHUB_REF === 'refs/heads/main', 'approved_actions_context_required');
       requireThat(env.LTC_CLOUD_PUBLISH === 'true', 'cloud_publication_disabled');
+      const migration = readReviewedMigrationConfiguration(env);
+      if (!migration) assertMigrationAcceptance(); // Missing proof/policy stays closed before any private read.
       await controls(github, source, acceptedSource);
       let stateAdapter = dependencies.stateAdapter;
       if (options.stateConfig) {
         stateConfig = JSON.parse(await readFile(path.resolve(options.stateConfig), 'utf8'));
         ({ stateAdapter } = await createGoogleStateRuntime({ config: stateConfig, env }));
       }
+      const bindings = migration.pins.stagePins.bindings;
+      requireThat(stateConfig?.documentId === bindings.websiteDocumentId && stateConfig.folderId === bindings.folderId && env.LTC_ACCEPTED_IMPLEMENTATION_SHA256 === options.expected, 'private_storage_required');
+      record.migrationProof = assertMigrationAcceptance({ document: await new DurableCloudState(stateAdapter, 'website').inspect(), configuration: migration, currentControllerImplementationSha256: options.expected });
+      record.migrationConfigurationSha256 = sha(JSON.stringify(migration));
       admission = await admitDurablePublication({adapter:stateAdapter, runId:`gha-${env.GITHUB_RUN_ID}-${env.GITHUB_RUN_ATTEMPT}`});
       record.durableAdmission = {key:'website', ...admission.lease};
       await save();
-      // Lease intentionally remains held on any interruption. Until per-effect
-      // reconciliation is implemented, migration_acceptance_pending stays closed.
+      // An interrupted external intent retains its fence; owner-reviewed proof
+      // does not authorize replay, lease stealing or removing a retained UNKNOWN.
     }
     command('git', ['clone', '--local', '--no-hardlinks', '--no-checkout', root, clone], scratch);
     command('git', ['checkout', '--detach', source], clone);
@@ -354,22 +360,23 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     requireThat(options.evidenceConfig, 'production_recovery_configuration_required');
     const evidenceConfig = JSON.parse(await readFile(path.resolve(options.evidenceConfig), 'utf8'));
     const rollbackManifest = options.rollbackManifest ? JSON.parse(await readFile(path.resolve(options.rollbackManifest), 'utf8')) : await loadPreviousReleaseManifest({ state: admission.state, evidenceConfig, env });
-    requireThat(stateConfig && evidenceConfig.folderId === stateConfig.folderId, 'private_storage_required');
-    await mkdir(path.join(clone, '.vercel'), { recursive: true });
-    await writeFile(path.join(clone, '.vercel/project.json'), JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team }));
-    const cli = env.LTC_VERCEL_CLI || 'vercel';
-    requireThat(!cli.includes('\n') && !cli.includes('\0'), 'invalid_cli_path');
-    requireThat(/^[0-9]+\.[0-9]+\.[0-9]+$/.test(env.LTC_VERCEL_CLI_VERSION ?? ''), 'pinned_cli_version_required');
-    const installedVersion = command(cli, ['--version'], clone).trim();
-    requireThat([env.LTC_VERCEL_CLI_VERSION, `Vercel CLI ${env.LTC_VERCEL_CLI_VERSION}`].includes(installedVersion), 'pinned_cli_version_mismatch');
-    const vercelCommand = args => args[0] === 'curl' ? commandBytes(cli, withVercelAuth(args, env.VERCEL_TOKEN), clone) : command(cli, withVercelAuth(args, env.VERCEL_TOKEN), clone);
+    requireThat(stateConfig && evidenceConfig.folderId === stateConfig.folderId && evidenceConfig.ownerPermissionId === readReviewedMigrationConfiguration(env).pins.stagePins.bindings.ownerPermissionId, 'private_storage_required');
+    const { createAcceptanceLinkedClient } = await import('./cloud-ltc-acceptance.mjs');
+    const { createDurableVercelCommand, createPortableDeploymentWorkspace } = await import('./cloud-ltc-promotion-runtime.mjs');
+    const portable = await createPortableDeploymentWorkspace({ sourceRoot: clone, directory: path.join(scratch, 'portable-deployment'), buildOutput: record.buildOutput });
+    record.portableArtifact = { buildOutputSha256: portable.buildOutputSha256, vercelConfigSha256: portable.vercelConfigSha256, gitless: true };
+    await save();
+    const linked = createAcceptanceLinkedClient({ env, vercel, directory: portable.root, report: async diagnostic => { record.safeCliFailure = diagnostic; await save(); } });
+    await linked.verifyVersion();
+    const vercelCommand = createDurableVercelCommand({ env, state: admission.state, lease: admission.lease, vercel, linked, root: portable.root });
     const result = await performCoordinatedRelease({
       admission, root: clone, source, changes, editionId: edition.id, acceptedSource,
       startedAt: record.startedAt, target: TARGET, github, vercel, cli: vercelCommand,
       controls: commit => controls(github, commit, acceptedSource),
       verifyImplementation: () => verifyImplementation(clone, options.expected),
-      verifyBuildOutput: async () => requireThat(sha(JSON.stringify(await builtOutputManifest(path.join(clone, '.vercel/output')))) === record.buildOutputSha256, 'built_output_changed'),
-      verifyProtected: deployment => verifyProtectedCandidate(deployment.id, edition.id, manifest, vercelCommand),
+      verifyMigration: async () => assertMigrationAcceptance({ document: await admission.state.inspect(), configuration: readReviewedMigrationConfiguration(env), currentControllerImplementationSha256: options.expected }),
+      verifyBuildOutput: async () => { requireThat(sha(JSON.stringify(await builtOutputManifest(path.join(clone, '.vercel/output')))) === record.buildOutputSha256, 'built_output_changed'); await portable.verify(); },
+      verifyProtected: deployment => linked.readProtected(deployment, manifest, manifest),
       verifyPublic: expected => verifyPublicDomains(expected),
       manifest, buildOutput: record.buildOutput, rollbackManifest, evidenceDirectory: evidence,
       evidenceConfig, publicationProvenance: record.publicationProvenance, env, saveReceipt: async update => { Object.assign(record, update); await save(); },
@@ -417,7 +424,14 @@ export async function prepareObservations({ clone, evidence, inputs, existingEdi
   await run(['scripts/prepare-ltc-newsroom.mjs', ...observationArgs, '--output', path.join(evidence, 'newsroom-candidate.json'), '--apply']);
   await run(['scripts/prepare-ltc-source-desk.mjs', '--notebook', path.join(clone, 'content/ltc-newsroom/latest.json'), '--builders', builders, '--apply']);
 }
-export function assertMigrationAcceptance() { throw new Error('migration_acceptance_pending'); }
+export function readReviewedMigrationConfiguration(env) {
+  const raw = env.LTC_MIGRATION_ACCEPTANCE_JSON, expected = env.LTC_MIGRATION_ACCEPTANCE_SHA256;
+  if (raw === undefined && expected === undefined) return null;
+  requireThat(typeof raw === 'string' && Buffer.byteLength(raw) <= 128_000 && /^[a-f0-9]{64}$/.test(expected ?? ''), 'migration_acceptance_pending');
+  let value; try { value = JSON.parse(raw); } catch { throw Error('migration_acceptance_pending'); }
+  requireThat(sha(JSON.stringify(value)) === expected, 'migration_acceptance_pending'); return value;
+}
+export function assertMigrationAcceptance(input) { return assertReviewedMigrationAcceptance(input ?? {}); }
 export async function builtManifest(directory) {
   const records = [];
   async function walk(relative = '') {

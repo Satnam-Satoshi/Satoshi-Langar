@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
+import { mkdtemp, mkdir, writeFile, readFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { performCoordinatedRelease } from './cloud-ltc-production.mjs';
@@ -81,6 +81,17 @@ test('uncertain stage leaves fenced lease and intent; no promotion, rollback or 
     assert.equal(Object.values(document.intents).find(intent => intent.payload.kind === 'vercel-stage' && intent.operationId.startsWith('stage-')).status, 'uncertain');
     assert.equal(document.latestRelease, undefined);
   } finally { await rm(f.scratch, { recursive: true, force: true }); }
+});
+
+test('source implementation guard remains on the original checkout and is rechecked before deployment',async()=>{
+ const f=await fixture();try{
+  let checks=0;
+  f.options.verifyImplementation=async()=>{checks++;assert.equal(await readFile(path.join(f.root,'package.json'),'utf8'),'{}','source implementation changed');};
+  const factory=f.options.evidenceProviderFactory;
+  f.options.evidenceProviderFactory=options=>{const provider=factory(options);return{...provider,apply:async context=>{await provider.apply(context);await writeFile(path.join(f.root,'package.json'),'{"changed":true}');}};};
+  await assert.rejects(performCoordinatedRelease(f.options),/operation_outcome_uncertain/);
+  assert(checks>=2);assert.equal(f.events.includes('deploy'),false);assert.equal(f.events.includes('promote'),false);
+ }finally{await rm(f.scratch,{recursive:true,force:true});}
 });
 
 test('confirmed promotion with failed public bytes invokes separately fenced rollback', async () => {

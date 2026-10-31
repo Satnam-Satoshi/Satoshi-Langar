@@ -7,7 +7,7 @@ const step=name=>{const start=stage.indexOf('      - name: '+name);assert(start>
 test('acceptance workflow isolates manual main-only stage/recovery from routine publication',()=>{
  assert.match(stage,/github\.ref == 'refs\/heads\/main'/);assert.match(stage,/github\.event_name == 'workflow_dispatch'/);
  assert.match(stage,/github\.event\.sender\.id == 268053325/);assert.match(stage,/environment: ltc-production/);assert.match(stage,/contents: read\n      actions: read/);assert(!stage.includes('contents: write'));
- assert.match(stage,/e\.LTC_CLOUD_PUBLISH!=='false'/);assert.match(stage,/Unknown acceptance mode/);
+ assert.match(stage,/e\.LTC_CLOUD_PUBLISH!==\(e\.LTC_ACCEPTANCE_MODE==='activate-cloud'\?'true':'false'\)/);assert.match(stage,/Unknown acceptance mode/);
  assert(stage.indexOf('Verify reviewed source and exact implementation')<stage.indexOf('secrets.'));
  assert(!/vercel\s+(?:promote|rollback|alias)|--force|--publish/.test(stage));
  assert.match(workflow,/!inputs\.acceptance_probe && \(inputs\.acceptance_mode == '' \|\| inputs\.acceptance_mode == 'none'\)/);
@@ -18,7 +18,7 @@ test('service credentials exist only in the acceptance effect/recovery step and 
   assert.match(effect,new RegExp('\\b'+name+':'));
   const outside=stage.replace(effect,'');assert(!new RegExp('\\b'+name+':').test(outside));
  }
- assert(!stage.includes('LTC_BUFFER_API_KEY'));assert(!stage.includes('upload-artifact'));
+ assert(!stage.replace(effect,'').includes('LTC_BUFFER_API_KEY')); assert(!stage.includes('upload-artifact'));
  assert.match(step('Bind exact prepared artifact plan before any provider effect'),/acceptanceHash\(plan\)/);
  assert.match(effect,/--skip-domain|--mode/);assert.match(effect,/--expected-fence/);assert.match(effect,/--previous-manifest/);
 });
@@ -31,7 +31,7 @@ test('recovery skips rebuild, pins original plan/fence and retains safe admitted
 });
 
 test('owner incident quarantine requires a private protected review packet and preserves the original outcome',()=>{
- assert.match(workflow,/options: \[none, stage, recover, quarantine\]/);
+ assert.match(workflow,/options: \[none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft\]/);
  assert.match(stage,/inputs\.acceptance_mode == 'quarantine'/);
  assert.match(stage,/github\.event\.sender\.id == 268053325/);
  assert.match(step('Validate explicit acceptance scope before credentials'),/\['recover','quarantine'\]\.includes/);
@@ -47,4 +47,24 @@ test('owner incident quarantine requires a private protected review packet and p
  const summary=step('Safe acceptance result; preserve held fences after any failure');
  assert.match(summary,/incidentSha256:r\.incidentSha256/);assert.match(summary,/originalOutcome:r\.originalOutcome/);assert.match(summary,/productionAuthorized:r\.productionAuthorized/);
  assert(!summary.includes('LTC_SETUP_QUARANTINE_REVIEW_JSON'));
+});
+
+test('controlled proof and activation share the existing manual job and ten inputs, with isolated protected review pins',()=>{
+ const inputs=workflow.slice(workflow.indexOf('    inputs:'),workflow.indexOf('permissions:'));
+ assert.equal((inputs.match(/^      [a-z_0-9]+:/gm)||[]).length,10);
+ assert.equal((workflow.match(/cron:/g)||[]).length,1);
+ const effect=step('Explicitly approved stage-only effect or fresh-proof recovery');
+ for(const mode of ['promotion-proof','promotion-reconcile','promotion-rollback','activate-cloud'])assert(stage.includes(mode));
+ for(const name of ['LTC_CONTROLLED_PROMOTION_REVIEW_SHA256','LTC_MIGRATION_ACCEPTANCE_SHA256'])assert(effect.includes(name));
+ assert(effect.includes('cloud-ltc-controlled-promotion.mjs'));assert(effect.includes('cloud-ltc-activate.mjs'));
+ assert(!step('Install pinned tools and test without service credentials').includes('secrets.'));
+});
+
+test('finite social modes use the same protected manual job, exact raw JSON bundle and closed daily switches',()=>{
+ const effect=step('Explicitly approved stage-only effect or fresh-proof recovery');
+ for(const mode of ['social-inspect','social-bootstrap','social-private-draft','social-reconcile-private-draft'])assert(stage.includes(mode));
+ assert(effect.includes('cloud-ltc-social-acceptance.mjs'));assert(effect.includes('LTC_SOCIAL_ACCEPTANCE_POLICY_SHA256'));
+ assert(effect.includes('maxOutputLength:1800000'));assert(effect.includes('writeFileSync(process.env.RUNNER_TEMP'));assert(effect.includes('bundle[key],{flag:'));
+ assert(effect.includes('--historical-copy-evidence'));assert(effect.includes("LTC_SOCIAL_PUBLISH: 'false'"));
+ assert(!step('Build exact committed source without preparing new daily data').includes('LTC_BUFFER_API_KEY'));
 });
