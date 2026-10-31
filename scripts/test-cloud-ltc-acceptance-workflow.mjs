@@ -31,7 +31,7 @@ test('recovery skips rebuild, pins original plan/fence and retains safe admitted
 });
 
 test('owner incident quarantine requires a private protected review packet and preserves the original outcome',()=>{
- assert.match(workflow,/options: \[none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft\]/);
+ assert.match(workflow,/options: \[none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire\]/);
  assert.match(stage,/inputs\.acceptance_mode == 'quarantine'/);
  assert.match(stage,/github\.event\.sender\.id == 268053325/);
  assert.match(step('Validate explicit acceptance scope before credentials'),/\['recover','quarantine'\]\.includes/);
@@ -67,4 +67,13 @@ test('finite social modes use the same protected manual job, exact raw JSON bund
  assert(effect.includes('maxOutputLength:1800000'));assert(effect.includes('writeFileSync(process.env.RUNNER_TEMP'));assert(effect.includes('bundle[key],{flag:'));
  assert(effect.includes('--historical-copy-evidence'));assert(effect.includes("LTC_SOCIAL_PUBLISH: 'false'"));
  assert(!step('Build exact committed source without preparing new daily data').includes('LTC_BUFFER_API_KEY'));
+});
+
+test('pre-effect retirement is manual founder-only with separate protected review and full previous baseline',()=>{
+ const effect=step('Explicitly approved stage-only effect or fresh-proof recovery');
+ assert(stage.includes("inputs.acceptance_mode == 'pre-effect-retire'"));assert(effect.includes('LTC_PRE_EFFECT_RECOVERY_REVIEW_JSON'));assert(effect.includes('LTC_PRE_EFFECT_RECOVERY_REVIEW_SHA256'));
+ assert(effect.includes('cloud-ltc-pre-effect-recovery.mjs'));assert(effect.includes('--previous-manifest'));
+ assert(step('Select exact private resources and accepted public hash baseline').includes("['stage','quarantine','pre-effect-retire']"));
+ assert(step('Validate explicit acceptance scope before credentials').includes("['promotion-reconcile','promotion-rollback','pre-effect-retire']"));
+ assert(!effect.includes('LTC_CLOUD_PUBLISH:'));assert(!effect.includes('conditionalWrite'));
 });
