@@ -9,6 +9,18 @@ import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 const check = (value, code) => { if (!value) throw new Error(code); };
 const hash = value => createHash('sha256').update(value).digest('hex');
 
+// The coordinator already confirmed full stage identity/protected byte readback.
+// Reuse that exact immutable receipt instead of starting a second discovery and
+// full protected crawl. Promotion still checks fresh identity and old pointers.
+export async function confirmedStageFromState({ state, lease, operation }) {
+  const document = await state.inspect(), intent = document.intents[operation.operationId], receipt = document.receipts[operation.operationId];
+  check(document.lease?.runId === lease.runId && document.lease.fence === lease.fence && document.fence === lease.fence && intent?.runId === lease.runId && intent.fence === lease.fence && intent.operationId === operation.operationId && intent.status === 'confirmed', 'confirmed_stage_receipt_invalid');
+  check(intent.payloadSha256 === hash(JSON.stringify(operation.payload)) && JSON.stringify(intent.payload) === JSON.stringify(operation.payload) && intent.payload.kind === 'vercel-stage' && receipt?.sha256 === hash(JSON.stringify(intent)) && JSON.stringify(receipt.receipt) === JSON.stringify(intent), 'confirmed_stage_receipt_invalid');
+  const proof = intent.proof, leaf = proof?.proof;
+  check(proof?.operationId === intent.operationId && proof.payloadSha256 === intent.payloadSha256 && proof.status === 'applied' && intent.evidenceSha256 === hash(JSON.stringify(proof)) && leaf?.kind === 'vercel-stage' && /^dpl_[A-Za-z0-9]+$/.test(leaf.deployment ?? '') && /^[a-z0-9-]+\.vercel\.app$/.test(leaf.url ?? '') && leaf.source === operation.payload.commit && leaf.buildOutputSha256 === operation.payload.buildOutputSha256 && leaf.artifactManifestSha256 === operation.payload.artifactManifestSha256, 'confirmed_stage_receipt_invalid');
+  return structuredClone(leaf);
+}
+
 export async function selectedEvidenceFiles(directory) {
   const files = [];
   async function visit(relative = '') {
@@ -88,18 +100,36 @@ export async function performCoordinatedRelease(options) {
   });
   const stage = { operationId: `stage-${editionId}-${hash(JSON.stringify(manifest)).slice(0, 24)}`, payload: { kind: 'vercel-stage', editionId, artifactPackageManifestSha256: artifactPackage.manifestSha256, commit: plan.commitSha, buildOutputSha256: hash(JSON.stringify(buildOutput)), artifactManifestSha256: hash(JSON.stringify(manifest)) } };
   await execute({ ...stage, provider: providers.stage(stage.payload) });
-  const candidate = await providers.discoverStage(stage);
+  const candidate = await confirmedStageFromState({ state: admission.state, lease: admission.lease, operation: stage });
   await saveReceipt({ candidateDeployment: candidate.deployment, candidateUrl: `https://${candidate.url}` });
-  const payload = { kind: 'vercel-promote', editionId, artifactPackageManifestSha256: artifactPackage.manifestSha256, artifactManifestSha256: hash(JSON.stringify(manifest)), deployment: candidate.deployment, previous: previous[0], commit: plan.commitSha };
+  return finishConfirmedStagedRelease({ admission, editionId, releaseCommit: plan.commitSha, candidate, previousDeployment: previous[0], manifest, rollbackManifest, artifactPackageManifestSha256: artifactPackage.manifestSha256, publicationProvenance, target, vercel, cli, beforeMutation, verifyProtected, verifyPublic, evidenceConfig, allocate, providerFactory, token, operationReceipts, saveReceipt, fetchImpl });
+}
+
+
+// Shared post-stage tail. It has no source/upload-artifacts/deploy operation:
+// only first promotion, bounded rollback, final private summary and checkpoint.
+export async function finishConfirmedStagedRelease({ admission, editionId, releaseCommit, candidate, previousDeployment, manifest, rollbackManifest, artifactPackageManifestSha256, publicationProvenance, target, vercel, cli, beforeMutation, verifyProtected, verifyPublic, evidenceConfig, allocate, providerFactory, token, operationReceipts, saveReceipt, continuation = null, completeCheckpoint, fetchImpl = fetch }) {
+  const coordinator = new ReleaseOperationCoordinator(admission);
+  const execute = async operation => {
+    if(continuation)await saveReceipt({status:operation.payload.kind==='drive-evidence'?'applying-final-private-summary':operation.payload.kind==='vercel-promote'?'applying-first-promotion':'applying-verified-rollback'});
+    const receipt = await executeReleaseOperation(coordinator, operation);
+    operationReceipts.push({ operationId: operation.operationId, payload: operation.payload, ...receipt });
+    await saveReceipt({ operationReceipts }); return receipt;
+  };
+  const providers = createVercelReleaseProviders({ target, vercel, cli, beforeMutation,
+    verifyProtected, verifyPublic: async expected => { check(expected === hash(JSON.stringify(rollbackManifest)), 'rollback_manifest_changed'); await verifyPublic(rollbackManifest); },
+  });
+  const payload = { kind: 'vercel-promote', editionId, artifactPackageManifestSha256: artifactPackageManifestSha256, artifactManifestSha256: hash(JSON.stringify(manifest)), deployment: candidate.deployment, previous: previousDeployment, commit: releaseCommit };
   let promotion;
   try {
     promotion = await execute({ operationId: `promote-${hash(candidate.deployment).slice(0, 40)}`, payload, provider: providers.promote(payload) });
     await verifyPublic(manifest);
   } catch (error) {
     // An uncertain promotion is NOT permission to roll back a potentially running
-    // request. Rollback only follows positively confirmed promotion + bad bytes.
+    // request. Rollback follows confirmed promotion + failed public verification;
+    // its provider freshly requires both pointers still belong to this candidate.
     if (promotion?.status === 'confirmed') {
-      const rollback = { kind: 'vercel-rollback', artifactPackageManifestSha256: artifactPackage.manifestSha256, failed: candidate.deployment, restore: previous[0], commit: plan.commitSha, previousManifestSha256: hash(JSON.stringify(rollbackManifest)) };
+      const rollback = { kind: 'vercel-rollback', artifactPackageManifestSha256: artifactPackageManifestSha256, failed: candidate.deployment, restore: previousDeployment, commit: releaseCommit, previousManifestSha256: hash(JSON.stringify(rollbackManifest)) };
       await execute({ operationId: `rollback-${hash(candidate.deployment).slice(0, 40)}`, payload: rollback, provider: providers.rollback(rollback) });
       await saveReceipt({ status: 'rolled-back' });
     }
@@ -108,10 +138,11 @@ export async function performCoordinatedRelease(options) {
   // Archive final receipts + an exact next-run rollback manifest before the
   // terminal checkpoint. Failure here leaves the lease held for reconciliation.
   const publicVerifiedAt = new Date().toISOString();
+  if (continuation) await beforeMutation(releaseCommit);
   const backup = await admission.state.backup();
   const summary = packageEvidence([
     { path: 'artifact-manifest.json', bytes: Buffer.from(JSON.stringify(manifest)) },
-    { path: 'release-receipt.json', bytes: Buffer.from(JSON.stringify({ source: plan.commitSha, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, operationReceipts, publicationProvenance, artifactPackageManifestSha256: artifactPackage.manifestSha256 })) },
+    { path: 'release-receipt.json', bytes: Buffer.from(JSON.stringify({ source: releaseCommit, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, operationReceipts, publicationProvenance, ...(continuation ? { continuation } : {}), artifactPackageManifestSha256: artifactPackageManifestSha256 })) },
     { path: 'ledger-backup.json', bytes: Buffer.from(JSON.stringify(backup)) },
   ]);
   const summaryId = `summary-${summary.sha256}`;
@@ -119,10 +150,11 @@ export async function performCoordinatedRelease(options) {
   const [newId] = knownSummary ? [] : await allocate({ count: 1, config: evidenceConfig, getAccessToken: token, fetcher: fetchImpl });
   const summaryPayload = { kind: 'drive-evidence', role: 'release-summary', archivedStateSha256: backup.sha256, fileId: knownSummary?.fileId ?? newId, folderId: evidenceConfig.folderId, sha256: summary.sha256, bytes: summary.length };
   await execute({ operationId: summaryId, payload: summaryPayload, provider: providerFactory({ bundle: summary, config: { ...evidenceConfig, fileId: summaryPayload.fileId }, getAccessToken: token, fetcher: fetchImpl }) });
-  await admission.state.recordLatestRelease(admission.lease, { source: plan.commitSha, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, publicationProvenance, artifactManifestSha256: hash(JSON.stringify(manifest)), artifactPackageManifestSha256: artifactPackage.manifestSha256, summary: { archivedStateSha256: backup.sha256, operationId: summaryId, payloadSha256: hash(JSON.stringify(summaryPayload)), fileId: summaryPayload.fileId, folderId: evidenceConfig.folderId, sha256: summary.sha256, length: summary.length } });
+  await admission.state.recordLatestRelease(admission.lease, { source: releaseCommit, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, publicationProvenance, artifactManifestSha256: hash(JSON.stringify(manifest)), artifactPackageManifestSha256: artifactPackageManifestSha256, ...(continuation ? { continuation } : {}), summary: { archivedStateSha256: backup.sha256, operationId: summaryId, payloadSha256: hash(JSON.stringify(summaryPayload)), fileId: summaryPayload.fileId, folderId: evidenceConfig.folderId, sha256: summary.sha256, length: summary.length } });
   await admission.state.compactArchivedState(admission.lease, { backup, summaryBundle: summary, summaryOperationId: summaryId });
-  await admission.state.release(admission.lease);
-  return { published: true, releaseCommit: plan.commitSha, candidateDeployment: candidate.deployment, operationReceipts };
+  if (completeCheckpoint) await completeCheckpoint({ summaryId, summaryPayload, backup, publicVerifiedAt });
+  else await admission.state.release(admission.lease);
+  return { published: true, releaseCommit: releaseCommit, candidateDeployment: candidate.deployment, operationReceipts };
 }
 
 export async function loadPreviousReleaseManifest({ state, evidenceConfig, publicationProvenance, env = process.env, fetchImpl = fetch }) {
