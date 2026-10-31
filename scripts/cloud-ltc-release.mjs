@@ -244,7 +244,7 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     const evidence = path.join(scratch, 'evidence');
     await mkdir(evidence, { mode: 0o700 });
     record.evidenceDirectory = evidence; await save();
-    const inputs = Object.fromEntries(['base', 'intelligence', 'policy', 'community'].map(name => [name, path.join(evidence, `${name}.json`)]));
+    const inputs = Object.fromEntries(['base', 'intelligence', 'policy', 'community', 'builders'].map(name => [name, path.join(evidence, `${name}.json`)]));
     await prepareObservations({ clone, evidence, inputs, existingEdition: Boolean(edition) });
     record.evidence = await Promise.all(Object.entries(inputs).map(async ([kind, file]) => ({ kind, sha256: sha(await readFile(file)) })));
     if (!edition) edition = JSON.parse(await readFile(path.join(clone, `content/ltc/${date}-r1.json`), 'utf8'));
@@ -254,6 +254,8 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     const initialChanges = await changesIn(clone);
     if (initialChanges.length) assertChanges(initialChanges, edition.id);
     command('pnpm', ['install', '--frozen-lockfile'], clone);
+    command(process.execPath, ['scripts/prepare-ltc-daily-graphic.mjs', '--edition', `content/ltc/${edition.id}.json`, '--publish'], clone);
+    record.publicationProvenance = { editionSha256: sha(await readFile(path.join(clone, `content/ltc/${edition.id}.json`))), sourceDeskSha256: sha(await readFile(path.join(clone, 'content/ltc-newsroom-selections/latest.json'))), dailyGraphicSha256: sha(await readFile(path.join(clone, `public/magazine/daily/${edition.id}/social.png`))) };
     command('pnpm', ['check'], clone);
     command('pnpm', ['release:prepare'], clone);
     await verifyImplementation(clone, options.expected);
@@ -263,6 +265,7 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     requireThat(pathsFor(edition.id).every(file => manifest.some(record => record.file === file)), 'invalid_candidate_manifest');
     record.buildOutput = await builtOutputManifest(path.join(clone, '.vercel/output'));
     record.buildOutputSha256 = sha(JSON.stringify(record.buildOutput));
+    requireThat(manifest.some(item => item.file === `magazine/daily/${edition.id}/social.png` && item.sha256 === record.publicationProvenance.dailyGraphicSha256) && manifest.some(item => item.file === `magazine/daily/${edition.id}/graphic.json`), 'invalid_candidate_manifest');
     record.artifacts = manifest;
     record.artifactManifestSha256 = sha(JSON.stringify(manifest));
     record.changedFiles = changes.map(item => item.file);
@@ -294,7 +297,7 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
       verifyProtected: deployment => verifyProtectedCandidate(deployment.id, edition.id, manifest, vercelCommand),
       verifyPublic: expected => verifyPublicDomains(expected),
       manifest, buildOutput: record.buildOutput, rollbackManifest, evidenceDirectory: evidence,
-      evidenceConfig, env, saveReceipt: async update => { Object.assign(record, update); await save(); },
+      evidenceConfig, publicationProvenance: record.publicationProvenance, env, saveReceipt: async update => { Object.assign(record, update); await save(); },
     });
     Object.assign(record, result, { status: result.status ?? 'published', completedAt: time() }); await save();
     return { status: record.status, receipt: receiptPath, published: record.published };
@@ -319,9 +322,13 @@ export async function prepareObservations({ clone, evidence, inputs, existingEdi
   await collect(['scripts/collect-ltc-community.mjs', '--output', inputs.community, '--evidence-dir', path.join(evidence, 'community-raw')], inputs.community);
   const observationArgs = ['--snapshot', inputs.base, '--intelligence', inputs.intelligence, '--policy', inputs.policy];
   const flagship = ['scripts/prepare-ltc-flagship.mjs', ...observationArgs];
+  const builders = inputs.builders ?? path.join(evidence, 'builders.json');
+  await run(['scripts/collect-ltc-builder-news.mjs', '--output', builders, '--evidence-dir', path.join(evidence, 'builders-raw')]);
   const distribution = path.join(evidence, 'litecoin-distribution-raw.json');
   await run(['scripts/collect-litecoin-distribution.mjs', '--output', distribution]);
-  // Validate fresh, complete observations before mutating any accepted data.
+  // Validate all observations before accepted feature/edition writes.
+  await run(['scripts/check-ltc-observations.mjs', ...observationArgs, '--builders', builders]);
+  await run(['scripts/prepare-ltc-daily-features.mjs', '--builders', builders, '--policy', inputs.policy, '--publish']);
   await run([...flagship, '--output', path.join(evidence, 'flagship-candidate.json')]);
   await run(['scripts/prepare-litecoin-distribution.mjs', '--snapshot', distribution, '--publish']);
   if (!existingEdition) {
@@ -333,7 +340,7 @@ export async function prepareObservations({ clone, evidence, inputs, existingEdi
   await save(path.join(clone, 'public/data/ltc-snapshot.json'), baseSnapshot);
   await run(['scripts/archive-ltc-community.mjs', '--snapshot', inputs.community]);
   await run(['scripts/prepare-ltc-newsroom.mjs', ...observationArgs, '--output', path.join(evidence, 'newsroom-candidate.json'), '--apply']);
-  await run(['scripts/prepare-ltc-source-desk.mjs', '--notebook', path.join(clone, 'content/ltc-newsroom/latest.json'), '--apply']);
+  await run(['scripts/prepare-ltc-source-desk.mjs', '--notebook', path.join(clone, 'content/ltc-newsroom/latest.json'), '--builders', builders, '--apply']);
 }
 export function assertMigrationAcceptance() { throw new Error('migration_acceptance_pending'); }
 export async function builtManifest(directory) {

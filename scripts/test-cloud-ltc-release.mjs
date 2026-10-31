@@ -145,10 +145,13 @@ test('fresh full pipeline validates candidate before any accepted-data write and
       ['scripts/collect-ltc-policy.mjs', '--output', inputs.policy],
       ['scripts/collect-ltc-community.mjs', '--output', inputs.community, '--evidence-dir', '/private/community-raw'],
     ]);
-    assert.deepEqual(calls[4], ['scripts/collect-litecoin-distribution.mjs', '--output', '/private/litecoin-distribution-raw.json']);
-    assert.equal(calls[5][0], 'scripts/prepare-ltc-flagship.mjs');
-    assert.ok(calls[5].includes('--output')); assert.ok(!calls[5].includes('--publish'));
-    assert.equal(calls.filter(args => args.includes('--publish')).length, existingEdition ? 1 : 2);
+    assert.deepEqual(calls[4], ['scripts/collect-ltc-builder-news.mjs', '--output', '/private/builders.json', '--evidence-dir', '/private/builders-raw']);
+    assert.equal(calls[5][0], 'scripts/collect-litecoin-distribution.mjs');
+    assert.equal(calls[6][0], 'scripts/check-ltc-observations.mjs');
+    assert.equal(calls[7][0], 'scripts/prepare-ltc-daily-features.mjs');
+    assert.equal(calls[8][0], 'scripts/prepare-ltc-flagship.mjs');
+    assert.ok(calls[8].includes('--output')); assert.ok(!calls[8].includes('--publish'));
+    assert.equal(calls.filter(args => args.includes('--publish')).length, existingEdition ? 2 : 3);
     assert.equal(writes.filter(write => write.file.startsWith('/clone')).length, 1);
     const snapshot = writes.find(write => write.file === '/clone/public/data/ltc-snapshot.json');
     assert.deepEqual(JSON.parse(snapshot.body),{fetchedAt:'2026-10-15T12:34:56Z',observations:[{sourceTimestamp:'2026-10-15T12:34:00Z',value:123}]});
@@ -156,7 +159,7 @@ test('fresh full pipeline validates candidate before any accepted-data write and
     assert.deepEqual(writes[0].options, { flag: 'wx', mode: 0o600 });
     assert.equal(calls.at(-3)[0], 'scripts/archive-ltc-community.mjs');
     assert.equal(calls.at(-2)[0], 'scripts/prepare-ltc-newsroom.mjs');
-    assert.deepEqual(calls.at(-1), ['scripts/prepare-ltc-source-desk.mjs', '--notebook', '/clone/content/ltc-newsroom/latest.json', '--apply']);
+    assert.deepEqual(calls.at(-1), ['scripts/prepare-ltc-source-desk.mjs', '--notebook', '/clone/content/ltc-newsroom/latest.json', '--builders', '/private/builders.json', '--apply']);
     assert.ok(calls.at(-2).includes('--apply'));
   }
 });
@@ -164,7 +167,7 @@ test('stale/partial candidate rejection prevents archive, newsroom and accepted 
   for (const existingEdition of [false,true]) {
   const calls = []; const writes = [];
   await assert.rejects(prepareObservations({ clone: '/clone', evidence: '/private', inputs: { base: '/private/base', intelligence: '/private/intelligence', policy: '/private/policy', community: '/private/community' }, existingEdition }, async (_, args) => {
-    calls.push(args); if (args[0] === 'scripts/prepare-ltc-flagship.mjs') throw Error('stale_or_partial'); return '{}';
+    calls.push(args); if (args[0] === 'scripts/check-ltc-observations.mjs') throw Error('stale_or_partial'); return '{}';
   }, async file => writes.push(file)), /stale_or_partial/);
   assert.ok(!calls.some(args => args.includes('--publish') || args.includes('--apply') || args[0] === 'scripts/archive-ltc-community.mjs'));
   assert.ok(writes.every(file => file.startsWith('/private')));

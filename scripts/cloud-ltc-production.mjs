@@ -25,8 +25,8 @@ export async function selectedEvidenceFiles(directory) {
 // This function is only reachable after the runner's closed acceptance gate.
 // Each effect has a separate durable intent; no provider mutation bypasses it.
 export async function performCoordinatedRelease(options) {
-  const { admission, root, source, changes, editionId, acceptedSource, startedAt, target, github, vercel, cli, controls, verifyProtected, verifyPublic, verifyImplementation, verifyBuildOutput, manifest, buildOutput, rollbackManifest, evidenceDirectory, evidenceConfig, env = process.env, fetchImpl = fetch, saveReceipt } = options;
-  check(admission?.state && admission?.lease && Array.isArray(rollbackManifest) && rollbackManifest.length > 0 && rollbackManifest.every(record => typeof record.file === 'string' && /^[a-f0-9]{64}$/.test(record.sha256 ?? '')) && typeof saveReceipt === 'function', 'invalid_production_release_configuration');
+  const { admission, root, source, changes, editionId, acceptedSource, startedAt, target, github, vercel, cli, controls, verifyProtected, verifyPublic, verifyImplementation, verifyBuildOutput, manifest, buildOutput, rollbackManifest, evidenceDirectory, evidenceConfig, publicationProvenance, env = process.env, fetchImpl = fetch, saveReceipt } = options;
+  check(admission?.state && admission?.lease && Array.isArray(rollbackManifest) && rollbackManifest.length > 0 && rollbackManifest.every(record => typeof record.file === 'string' && /^[a-f0-9]{64}$/.test(record.sha256 ?? '')) && typeof saveReceipt === 'function' && publicationProvenance && ['editionSha256', 'sourceDeskSha256', 'dailyGraphicSha256'].every(key => /^[a-f0-9]{64}$/.test(publicationProvenance[key] ?? '')), 'invalid_production_release_configuration');
   check(evidenceConfig && typeof evidenceConfig.folderId === 'string' && typeof evidenceConfig.ownerPermissionId === 'string' && (!evidenceConfig.fileIds || (Array.isArray(evidenceConfig.fileIds) && new Set(evidenceConfig.fileIds).size === evidenceConfig.fileIds.length)), 'invalid_evidence_configuration');
   const coordinator = new ReleaseOperationCoordinator(admission);
   const operationReceipts = [];
@@ -107,10 +107,11 @@ export async function performCoordinatedRelease(options) {
   }
   // Archive final receipts + an exact next-run rollback manifest before the
   // terminal checkpoint. Failure here leaves the lease held for reconciliation.
+  const publicVerifiedAt = new Date().toISOString();
   const backup = await admission.state.backup();
   const summary = packageEvidence([
     { path: 'artifact-manifest.json', bytes: Buffer.from(JSON.stringify(manifest)) },
-    { path: 'release-receipt.json', bytes: Buffer.from(JSON.stringify({ source: plan.commitSha, deployment: candidate.deployment, operationReceipts, artifactPackageManifestSha256: artifactPackage.manifestSha256 })) },
+    { path: 'release-receipt.json', bytes: Buffer.from(JSON.stringify({ source: plan.commitSha, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, operationReceipts, publicationProvenance, artifactPackageManifestSha256: artifactPackage.manifestSha256 })) },
     { path: 'ledger-backup.json', bytes: Buffer.from(JSON.stringify(backup)) },
   ]);
   const summaryId = `summary-${summary.sha256}`;
@@ -118,13 +119,13 @@ export async function performCoordinatedRelease(options) {
   const [newId] = knownSummary ? [] : await allocate({ count: 1, config: evidenceConfig, getAccessToken: token, fetcher: fetchImpl });
   const summaryPayload = { kind: 'drive-evidence', role: 'release-summary', archivedStateSha256: backup.sha256, fileId: knownSummary?.fileId ?? newId, folderId: evidenceConfig.folderId, sha256: summary.sha256, bytes: summary.length };
   await execute({ operationId: summaryId, payload: summaryPayload, provider: providerFactory({ bundle: summary, config: { ...evidenceConfig, fileId: summaryPayload.fileId }, getAccessToken: token, fetcher: fetchImpl }) });
-  await admission.state.recordLatestRelease(admission.lease, { source: plan.commitSha, deployment: candidate.deployment, artifactManifestSha256: hash(JSON.stringify(manifest)), artifactPackageManifestSha256: artifactPackage.manifestSha256, summary: { archivedStateSha256: backup.sha256, operationId: summaryId, payloadSha256: hash(JSON.stringify(summaryPayload)), fileId: summaryPayload.fileId, folderId: evidenceConfig.folderId, sha256: summary.sha256, length: summary.length } });
+  await admission.state.recordLatestRelease(admission.lease, { source: plan.commitSha, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, publicationProvenance, artifactManifestSha256: hash(JSON.stringify(manifest)), artifactPackageManifestSha256: artifactPackage.manifestSha256, summary: { archivedStateSha256: backup.sha256, operationId: summaryId, payloadSha256: hash(JSON.stringify(summaryPayload)), fileId: summaryPayload.fileId, folderId: evidenceConfig.folderId, sha256: summary.sha256, length: summary.length } });
   await admission.state.compactArchivedState(admission.lease, { backup, summaryBundle: summary, summaryOperationId: summaryId });
   await admission.state.release(admission.lease);
   return { published: true, releaseCommit: plan.commitSha, candidateDeployment: candidate.deployment, operationReceipts };
 }
 
-export async function loadPreviousReleaseManifest({ state, evidenceConfig, env = process.env, fetchImpl = fetch }) {
+export async function loadPreviousReleaseManifest({ state, evidenceConfig, publicationProvenance, env = process.env, fetchImpl = fetch }) {
   const previous = (await state.inspect()).latestRelease;
   check(previous?.summary && /^[a-f0-9]{64}$/.test(previous.artifactManifestSha256 ?? '') && previous.summary.folderId === evidenceConfig.folderId, 'bootstrap_rollback_manifest_required');
   const getAccessToken = () => withGoogleCloudAuthorization({ env, fetchImpl }, access => access.LTC_GOOGLE_ACCESS_TOKEN);

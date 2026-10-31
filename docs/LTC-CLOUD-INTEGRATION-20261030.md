@@ -37,7 +37,7 @@ State is capped at900KB; artifact bounds/quotas are explicit. After the final pr
 
 ## Final secure setup and acceptance gates
 
-1. Review/accept the exact new source/digest and narrow UPDATE of the existing main workflow. Keep `LTC_CLOUD_PUBLISH=false` and the unconditional gate until real acceptance. Existing per-run environment founder-review policy must be deliberately reconciled with accepted routine autonomy; never bypass it.
+1. Review/accept the exact new source/digest and narrow UPDATE of the existing main workflow. Keep `LTC_CLOUD_PUBLISH=false` and the unconditional gate until real acceptance. The owner has approved removal of per-run review while retaining main-only environment admission and its wait; this policy change does not open either code gate or establish live service acceptance.
 2. Select/provision the exact private production ledger in the already selected owner-only Drive folder. Do not silently adopt the disposable concurrency-test Doc. Configure exact folder/document/owner-permission IDs privately; null example IDs intentionally fail.
 3. Complete supported owner Google offline consent and privately provision the existing client's usable secret plus refresh token in the protected runner environment. Existing desktop OAuth is not exported. Establish durable consent/scopes and test refresh; an access token alone expires. Existing Vercel scoped deployment authorization and repository job permissions must also be provisioned/verified without printing values.
 4. Execute actual cloud resource privacy/revision-CAS/ambiguous-write tests, full private artifact upload/download/hash/fresh-directory restore, first rollback-manifest bootstrap and durable checkpoint recovery. Reconcile uncertain legacy uploads before replacements. Confirm quotas/costs; no subscription or spending is authorized by this code.
@@ -67,3 +67,12 @@ Never paste credentials in commands, chat or files. The output receipt is new mo
 ## Protocol references
 
 [Google Drive files.get](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/get), [Docs documents.get](https://developers.google.com/workspace/docs/api/reference/rest/v1/documents/get), [Docs batchUpdate](https://developers.google.com/workspace/docs/api/reference/rest/v1/documents/batchUpdate), [GitHub commit objects](https://docs.github.com/en/rest/git/commits), [Vercel deployment metadata flags](https://vercel.com/docs/cli/deploy) and [deployment discovery](https://vercel.com/docs/rest-api/deployments/list-deployments) ground request shapes. The separate evidence/auth documents contain Drive upload/ID and OAuth references. Documentation and mocks do not establish possession of cloud credentials or live provider success.
+
+
+## Daily news/creative extension
+
+The isolated proposal now also collects the explicitly approved bounded builder-publisher watch with raw evidence, validates all observations before feature writes, prepares source-dated daily features before flagship generation, and passes builders into the dated source desk. Dated manually prepared files remain immutable. Original source publication dates and historical gaps remain visible.
+
+After the locked install and before the build, an immutable1200×630 daily news-map PNG/SVG/manifest is rendered from the edition's actual feature titles/source dates with explicit repository fonts. Exact date/revision-scoped assets are add-only; the portable exporter admits only their reviewed metadata path. Complete protected/public manifests include these bytes. Final private summaries/checkpoints bind exact edition JSON SHA, source-desk JSON SHA, PNG SHA, edition ID and public verification time for the separate social consumer. This is content-specific artwork, not merely a palette rotation.
+
+The new manual acceptance-probe input in the ops update template permits protected read-only Google-folder and official Buffer schema/account checks while both publication gates remain closed. No schedule is activated. Separate daily social runtime, namespace, caps and remaining acceptance are documented in LTC-CLOUD-SOCIAL.md.

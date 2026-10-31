@@ -97,3 +97,18 @@ test('timeouts, malformed/oversized/redirected responses sanitize failures and w
     await assert.rejects(client.batchUpdateDocument(config.documentId, batch), error => error.message === 'storage_write_uncertain');
   }
 });
+
+test('explicit social ledger namespace is compatible but cannot edit a website ledger or arbitrary key', async () => {
+  const calls = [];
+  const client = createGoogleStateClient({ config: { ...config, ledgerKey: 'social' }, env, allowWrites: true, fetchImpl: async (url, request) => {
+    calls.push({ url, request });
+    if (url.includes('/drive/v3/files/')) return json(metadata(new URL(url).pathname.split('/').at(-1)));
+    return json({ documentId: config.documentId, writeControl: { requiredRevisionId: 'revision-social-2' } });
+  } });
+  await client.verifySelectedResources();
+  const socialBatch = structuredClone(batch); socialBatch.requests[0].insertText.text = JSON.stringify({ schemaVersion: 1, key: 'social', value: { kind: 'ltc-cloud-social' } });
+  await client.batchUpdateDocument(config.documentId, socialBatch);
+  assert.equal(JSON.parse(calls.at(-1).request.body).requests[0].insertText.text, socialBatch.requests[0].insertText.text);
+  await assert.rejects(client.batchUpdateDocument(config.documentId, batch), /invalid_google_state_batch/);
+  assert.throws(() => createGoogleStateClient({ config: { ...config, ledgerKey: 'unknown' }, env }), /invalid_cloud_state_configuration/);
+});

@@ -7,7 +7,7 @@ const metadataFields = 'id,mimeType,trashed,ownedByMe,shared,parents,driveId,cap
 const plain = value => value && Object.getPrototypeOf(value) === Object.prototype;
 
 export function validateCloudStateConfig(config) {
-  check(plain(config) && Object.keys(config).sort().join(',') === 'documentId,folderId,provider,publicationEnabled,schemaVersion' && config.schemaVersion === 1 && config.provider === 'google-docs' && config.publicationEnabled === false && idPattern.test(config.folderId ?? '') && idPattern.test(config.documentId ?? '') && config.folderId !== config.documentId, 'invalid_cloud_state_configuration');
+  check(plain(config) && ['documentId,folderId,provider,publicationEnabled,schemaVersion', 'documentId,folderId,ledgerKey,provider,publicationEnabled,schemaVersion'].includes(Object.keys(config).sort().join(',')) && ['website', 'social'].includes(config.ledgerKey ?? 'website') && config.schemaVersion === 1 && config.provider === 'google-docs' && config.publicationEnabled === false && idPattern.test(config.folderId ?? '') && idPattern.test(config.documentId ?? '') && config.folderId !== config.documentId, 'invalid_cloud_state_configuration');
   return Object.freeze({ ...config });
 }
 
@@ -67,7 +67,7 @@ export function createGoogleStateClient({ config, env = process.env, fetchImpl =
     async batchUpdateDocument(id, body) {
       selectedId(id, true);
       check(allowWrites, 'google_state_writes_disabled');
-      validateStateBatch(body);
+      validateStateBatch(body, selected.ledgerKey ?? 'website');
       check(privateResourcesVerified, 'google_resources_unverified');
       return request(`https://docs.googleapis.com/v1/documents/${encodeURIComponent(id)}:batchUpdate`, 'POST', body);
     },
@@ -83,12 +83,12 @@ export function createGoogleStateClient({ config, env = process.env, fetchImpl =
   return Object.freeze(client); // Token is closure-only; no serialization accessor.
 }
 
-function validateStateBatch(body) {
+function validateStateBatch(body, ledgerKey) {
   check(plain(body) && Object.keys(body).sort().join(',') === 'requests,writeControl' && plain(body.writeControl) && Object.keys(body.writeControl).join(',') === 'requiredRevisionId' && typeof body.writeControl.requiredRevisionId === 'string' && body.writeControl.requiredRevisionId.length > 0 && body.writeControl.requiredRevisionId.length <= 2048 && Array.isArray(body.requests) && [1, 2].includes(body.requests.length), 'invalid_google_state_batch');
   const insert = body.requests.at(-1)?.insertText;
   check(plain(insert) && Object.keys(body.requests.at(-1)).join(',') === 'insertText' && Object.keys(insert).sort().join(',') === 'location,text' && plain(insert.location) && Object.keys(insert.location).sort().join(',') === 'index,tabId' && insert.location.index === 1 && typeof insert.location.tabId === 'string' && insert.location.tabId.length > 0 && typeof insert.text === 'string' && insert.text.length <= 900_000 && !insert.text.includes('\n'), 'invalid_google_state_batch');
   let envelope; try { envelope = JSON.parse(insert.text); } catch { throw new Error('invalid_google_state_batch'); }
-  check(plain(envelope) && Object.keys(envelope).sort().join(',') === 'key,schemaVersion,value' && envelope.schemaVersion === 1 && envelope.key === 'website' && plain(envelope.value) && JSON.stringify(envelope) === insert.text, 'invalid_google_state_batch');
+  check(plain(envelope) && Object.keys(envelope).sort().join(',') === 'key,schemaVersion,value' && envelope.schemaVersion === 1 && envelope.key === ledgerKey && plain(envelope.value) && JSON.stringify(envelope) === insert.text, 'invalid_google_state_batch');
   if (body.requests.length === 2) {
     const remove = body.requests[0]?.deleteContentRange;
     check(plain(remove) && Object.keys(body.requests[0]).join(',') === 'deleteContentRange' && Object.keys(remove).join(',') === 'range' && plain(remove.range) && Object.keys(remove.range).sort().join(',') === 'endIndex,startIndex,tabId' && remove.range.startIndex === 1 && Number.isSafeInteger(remove.range.endIndex) && remove.range.endIndex > 1 && remove.range.endIndex <= 900_001 && remove.range.tabId === insert.location.tabId, 'invalid_google_state_batch');

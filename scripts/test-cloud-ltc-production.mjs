@@ -37,7 +37,7 @@ async function fixture({ uncertainStage = false, badPublishedBytes = false, unce
     controls: async expected => assert.equal(expected, source), verifyImplementation: async () => {}, verifyBuildOutput: async () => {},
     verifyProtected: async () => events.push('protected-readback'),
     verifyPublic: async expected => { const fresh = expected[0].sha256 === manifest[0].sha256; events.push(fresh ? 'new-public-readback' : 'old-public-readback'); if (fresh && badPublishedBytes) throw Error('deployed_artifact_mismatch'); },
-    manifest, buildOutput: [{ file: 'config.json', sha256: hash('{}') }, { file: 'static/index.html', sha256: hash('new html') }], rollbackManifest, evidenceDirectory,
+    manifest, publicationProvenance: { editionSha256: hash('edition'), sourceDeskSha256: hash('desk'), dailyGraphicSha256: hash('graphic') }, buildOutput: [{ file: 'config.json', sha256: hash('{}') }, { file: 'static/index.html', sha256: hash('new html') }], rollbackManifest, evidenceDirectory,
     evidenceConfig: { folderId: 'fixture-folder', ownerPermissionId: 'fixture-owner' }, env: {},
     preallocateIds: async ({ count }) => Array.from({ length: count }, () => `file-fixture-${++allocated}`),
     evidenceProviderFactory: ({ bundle, config }) => {
