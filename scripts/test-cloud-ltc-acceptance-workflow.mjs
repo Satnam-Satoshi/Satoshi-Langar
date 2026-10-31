@@ -29,3 +29,22 @@ test('recovery skips rebuild, pins original plan/fence and retains safe admitted
  const summary=step('Safe acceptance result; preserve held fences after any failure');assert.match(summary,/if: always\(\)/);assert.match(summary,/fence:r\.lease\?\.fence/);
  assert(!/setPaused|conditionalWrite|release|reconcile|delete/.test(summary));
 });
+
+test('owner incident quarantine requires a private protected review packet and preserves the original outcome',()=>{
+ assert.match(workflow,/options: \[none, stage, recover, quarantine\]/);
+ assert.match(stage,/inputs\.acceptance_mode == 'quarantine'/);
+ assert.match(stage,/github\.event\.sender\.id == 268053325/);
+ assert.match(step('Validate explicit acceptance scope before credentials'),/\['recover','quarantine'\]\.includes/);
+ assert.match(step('Validate explicit acceptance scope before credentials'),/Unexpected recovery\/quarantine inputs/);
+ const resources=step('Select exact private resources and accepted public hash baseline');
+ assert.match(resources,/LTC_SETUP_QUARANTINE_REVIEW_JSON: \$\{\{ secrets\.LTC_SETUP_QUARANTINE_REVIEW_JSON \}\}/);
+ assert.match(resources,/save\('ltc-setup-quarantine-review.json',JSON\.parse\(review\)\)/);
+ const effect=step('Explicitly approved stage-only effect or fresh-proof recovery');
+ assert.match(effect,/LTC_ACCEPTANCE_MODE\" == quarantine/);
+ assert.match(effect,/--review-file.*ltc-setup-quarantine-review.json.*--previous-manifest/);
+ for(const name of ['Install pinned tools and test without service credentials','Build exact committed source without preparing new daily data','Bind exact prepared artifact plan before any provider effect']) assert(!step(name).includes('LTC_SETUP_QUARANTINE_REVIEW_JSON'));
+ assert.match(stage,/LTC_SETUP_INCIDENT_SHA256: \$\{\{ vars\.LTC_SETUP_INCIDENT_SHA256 \}\}/);
+ const summary=step('Safe acceptance result; preserve held fences after any failure');
+ assert.match(summary,/incidentSha256:r\.incidentSha256/);assert.match(summary,/originalOutcome:r\.originalOutcome/);assert.match(summary,/productionAuthorized:r\.productionAuthorized/);
+ assert(!summary.includes('LTC_SETUP_QUARANTINE_REVIEW_JSON'));
+});

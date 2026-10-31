@@ -33,7 +33,7 @@ export function configuredLedgerTargets(env) {
 export async function probePausedLedgers({ env = process.env, fetchImpl = fetch }) {
   const configs = configuredLedgerTargets(env); const ledgers = {};
   for (const config of configs) {
-    const result = { privateResourcesVerified: false, initialized: false, schemaVerified: false, pausedReadVerified: false, leaseAbsentVerified: false, unresolvedEffectsAbsentVerified: false, restoreHoldAbsentVerified: false, readOnlyReady: false };
+    const result = { privateResourcesVerified: false, initialized: false, schemaVerified: false, pausedReadVerified: false, leaseAbsentVerified: false, unresolvedEffectsAbsentVerified: false, restoreHoldAbsentVerified: false, setupIncidentAbsentVerified: false, readOnlyReady: false };
     try {
       const runtime = await createGoogleStateRuntime({ config, env, fetchImpl });
       result.privateResourcesVerified = true;
@@ -54,7 +54,8 @@ export async function probePausedLedgers({ env = process.env, fetchImpl = fetch 
       result.schemaVerified = true;
       result.pausedReadVerified = state.paused === true;
       result.leaseAbsentVerified = state.lease === null;
-      result.unresolvedEffectsAbsentVerified = config.ledgerKey === 'website' ? Object.values(state.intents).every(intent => ['confirmed', 'not-applied'].includes(intent.status)) : !Object.values(state.records).some(record => ['create-uncertain', 'schedule-uncertain', 'sending'].includes(record.status));
+      result.setupIncidentAbsentVerified = !state.unresolvedSetupIncident && (state.retiredSetupIncidents === undefined || (plain(state.retiredSetupIncidents) && Object.keys(state.retiredSetupIncidents).length === 0));
+      result.unresolvedEffectsAbsentVerified = result.setupIncidentAbsentVerified && (config.ledgerKey === 'website' ? Object.values(state.intents).every(intent => ['confirmed', 'not-applied'].includes(intent.status)) : !Object.values(state.records).some(record => ['create-uncertain', 'schedule-uncertain', 'sending'].includes(record.status)));
       result.restoreHoldAbsentVerified = config.ledgerKey === 'website' ? state.restoreHold === false : true;
       result.readOnlyReady = Object.entries(result).filter(([key]) => key !== 'readOnlyReady').every(([, value]) => value === true);
     } catch { /* Unknown privacy/schema/authorization stays false; never repair it. */ }
