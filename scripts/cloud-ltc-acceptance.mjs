@@ -36,7 +36,7 @@ async function acceptanceTransition(state, transform) {
   return result;
 }
 function closeAcceptance(state, lease, { plan, env, mode, outcome, fullRestoreVerified, publicBaselineVerified }) {
-  assertAcceptanceContext(plan, env);
+  assertAcceptanceContext(plan, env, { recovery: mode === 'stage-only-recovery' });
   check(['stage-only', 'stage-only-recovery'].includes(mode) && ['stage-verified', 'incomplete-no-resume'].includes(outcome) && typeof fullRestoreVerified === 'boolean' && typeof publicBaselineVerified === 'boolean', 'acceptance_completion_invalid');
   return acceptanceTransition(state, document => {
     check(document.lease?.runId === lease.runId && document.lease.fence === lease.fence && Object.values(document.intents).every(terminal), 'acceptance_recovery_unknown');
@@ -46,7 +46,7 @@ function closeAcceptance(state, lease, { plan, env, mode, outcome, fullRestoreVe
     const stage = intents.find(intent => intent.operationId === `${prefixFor(plan)}-stage`);
     check(outcome !== 'stage-verified' || (fullRestoreVerified && publicBaselineVerified && stage?.status === 'confirmed'), 'acceptance_completion_invalid');
     const verification = { fullRestoreVerified, publicBaselineVerified, publicUnchangedVerified: publicBaselineVerified, protectedStageVerified: outcome === 'stage-verified', artifactPackageManifestSha256: plan.artifactPackageManifestSha256, sourceManifestSha256: plan.sourceManifestSha256, staticManifestSha256: plan.staticManifestSha256, buildOutputSha256: plan.buildOutputSha256, previousPublicManifestSha256: plan.previousPublicManifestSha256 };
-    const completion = { schemaVersion: 1, outcome, planSha256: acceptanceHash(plan), source: plan.source, implementationSha256: plan.implementationSha256, fence: lease.fence,
+    const completion = { schemaVersion: 1, outcome, planSha256: acceptanceHash(plan), source: plan.source, implementationSha256: plan.implementationSha256, controllerImplementationSha256: env.LTC_ACCEPTED_IMPLEMENTATION_SHA256, fence: lease.fence,
       origin: { runId: origin[1], attempt: origin[2] }, completedBy: { runId: env.GITHUB_RUN_ID, attempt: env.GITHUB_RUN_ATTEMPT, mode },
       terminalProofSha256: acceptanceHash(intents.map(intent => ({ operationId: intent.operationId, payloadSha256: intent.payloadSha256, status: intent.status, evidenceSha256: intent.evidenceSha256, receiptSha256: document.receipts[intent.operationId].sha256 }))),
       verification, verificationSha256: acceptanceHash(verification) };
@@ -74,9 +74,13 @@ function assertProtectedContext(env) {
     digest(env.LTC_ACCEPTANCE_PLAN_SHA256) && digest(env.LTC_ACCEPTED_IMPLEMENTATION_SHA256) &&
     /^[1-9]\d*$/.test(env.GITHUB_RUN_ID ?? '') && /^[1-9]\d*$/.test(env.GITHUB_RUN_ATTEMPT ?? ''), 'acceptance_context_required');
 }
-export function assertAcceptanceContext(plan, env) {
+export function assertAcceptanceContext(plan, env, { recovery = false } = {}) {
   validatePlan(plan); assertProtectedContext(env);
-  check(env.LTC_ACCEPTANCE_PLAN_SHA256 === acceptanceHash(plan) && env.LTC_ACCEPTED_IMPLEMENTATION_SHA256 === plan.implementationSha256 && env.LTC_ACCEPTANCE_SOURCE_COMMIT === plan.source, 'acceptance_context_required');
+  check(env.LTC_ACCEPTANCE_PLAN_SHA256 === acceptanceHash(plan) && (recovery || env.LTC_ACCEPTED_IMPLEMENTATION_SHA256 === plan.implementationSha256) && env.LTC_ACCEPTANCE_SOURCE_COMMIT === plan.source, 'acceptance_context_required');
+}
+export async function verifyRecoveryController({ env, root = process.cwd(), verify = verifyImplementation }) {
+  assertProtectedContext(env);
+  await verify(root, env.LTC_ACCEPTED_IMPLEMENTATION_SHA256);
 }
 export function persistedAcceptancePlan(document, expectedFence, expectedHash) {
   const record = document.acceptance;
@@ -202,12 +206,12 @@ export async function runStageAcceptance({ plan, packed, previousManifest, env, 
 // Explicit second job only: read remote proofs and write terminal ledger receipts.
 // It never calls apply, creates an upload, stages a deployment or resumes remaining steps.
 export async function recoverStageAcceptance({ plan, env, state, dependencies, expectedFence }) {
-  assertAcceptanceContext(plan, env); check(state instanceof DurableCloudState, 'acceptance_durable_state_required');
+  assertAcceptanceContext(plan, env, { recovery: true }); check(state instanceof DurableCloudState, 'acceptance_durable_state_required');
   let document = await state.inspect(); const lease = document.lease;
   const origin = /^accept-([1-9]\d*)-([1-9]\d*)$/.exec(lease?.runId ?? '');
   check(origin && lease.fence === expectedFence && origin[1] !== env.GITHUB_RUN_ID, 'acceptance_recovery_fence_required');
   check(acceptanceHash(persistedAcceptancePlan(document, expectedFence, acceptanceHash(plan))) === acceptanceHash(plan), 'acceptance_recovery_context_missing');
-  const run = await dependencies.github(`/actions/runs/${origin[1]}`);
+  const run = await dependencies.github(`/actions/runs/${origin[1]}/attempts/${origin[2]}`);
   check(run.id === Number(origin[1]) && run.run_attempt === Number(origin[2]) && run.status === 'completed' && run.event === 'workflow_dispatch' && run.head_branch === 'main' && run.repository?.full_name === TARGET.repository && run.path === '.github/workflows/ltc-daily-publication.yml', 'acceptance_origin_still_running');
   const intents = Object.values(document.intents).filter(intent => intent.fence === lease.fence);
   check(intents.every(intent => intent.runId === lease.runId && intent.operationId.startsWith(prefixFor(plan)) && intent.payload?.acceptancePlanSha256 === acceptanceHash(plan) && acceptanceHash(intent.payload) === intent.payloadSha256 && ['drive-evidence', 'vercel-stage'].includes(intent.payload.kind)), 'acceptance_recovery_context_missing');
@@ -257,6 +261,9 @@ function argumentsFor(args) {
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
     const options = argumentsFor(process.argv.slice(2)), env = process.env;
+    // Authenticate the current recovery controller before even reading private
+    // configs/ledger. Original plan implementation remains separately bound.
+    if (options.mode === 'recover') await verifyRecoveryController({ env });
     const json = async file => JSON.parse(await readFile(path.resolve(file), 'utf8'));
     const stateConfig = await json(options.stateConfig), socialStateConfig = await json(options.socialStateConfig), evidenceConfig = await json(options.evidenceConfig);
     let plan = options.planFile ? await json(options.planFile) : null, prepared, website;
@@ -267,7 +274,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     if (options.mode !== 'recover') prepared = await prepareStageAcceptance({ ...options, root: path.resolve(options.root), evidenceDirectory: path.resolve(options.evidenceDirectory), previousManifest: await json(options.previousManifestFile), acceptanceId: plan?.acceptanceId ?? options.acceptanceId, editionId: plan?.editionId ?? options.editionId, previousDeployment: plan?.previousDeployment ?? options.previousDeployment, implementationSha256: env.LTC_ACCEPTED_IMPLEMENTATION_SHA256, stateConfig, socialStateConfig, evidenceConfig });
     if (options.mode === 'plan') { await writeFile(options.receipt, JSON.stringify(prepared.plan, null, 2) + '\n', { flag: 'wx', mode: 0o600 }); console.log(JSON.stringify({ mode: 'offline-plan', planSha256: acceptanceHash(prepared.plan), publicationEnabled: false })); }
     else {
-      assertAcceptanceContext(plan, env);
+      assertAcceptanceContext(plan, env, { recovery: options.mode === 'recover' });
       check(!prepared || acceptanceHash(prepared.plan) === acceptanceHash(plan), 'acceptance_artifact_binding_changed');
       check(stateConfig.documentId === plan.websiteDocumentId && (stateConfig.ledgerKey ?? 'website') === 'website' && socialStateConfig.documentId === plan.socialDocumentId && socialStateConfig.ledgerKey === 'social' && [stateConfig.folderId, socialStateConfig.folderId, evidenceConfig.folderId].every(id => id === plan.folderId) && evidenceConfig.ownerPermissionId === plan.ownerPermissionId, 'acceptance_configuration_changed');
       website ??= await createGoogleStateRuntime({ config: stateConfig }); const social = await createGoogleStateRuntime({ config: socialStateConfig });

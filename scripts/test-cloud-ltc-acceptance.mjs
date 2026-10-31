@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, chmod, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
-import { acceptanceHash, assertAcceptanceContext, prepareStageAcceptance, runStageAcceptance, recoverStageAcceptance, persistedAcceptancePlan } from './cloud-ltc-acceptance.mjs';
+import { acceptanceHash, assertAcceptanceContext, prepareStageAcceptance, runStageAcceptance, recoverStageAcceptance, persistedAcceptancePlan, verifyRecoveryController } from './cloud-ltc-acceptance.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 import { TARGET, pathsFor, implementationDigest, builtManifest } from './cloud-ltc-release.mjs';
 
@@ -36,7 +36,7 @@ async function fixture(t) {
   const dependencies = {
     directory, socialState: { inspect: async () => ({ paused: flags.socialPaused, lease: null, records: {} }) },
     vercel: async endpoint => endpoint.startsWith('/v9/') ? { id: TARGET.project, accountId: TARGET.team } : endpoint.startsWith('/v6/') ? { deployments: [...deployments.values()].filter(item => item.meta), pagination: { next: null } } : deployments.get(TARGET.domains.some(domain => new URL(domain).hostname === endpoint.split('/').at(-1)) ? pointer : endpoint.split('/').at(-1)),
-    github: async () => ({ id: 100, run_attempt: 1, status: flags.running ? 'in_progress' : 'completed', event: 'workflow_dispatch', head_branch: 'main', repository: { full_name: TARGET.repository }, path: '.github/workflows/ltc-daily-publication.yml' }),
+    github: async endpoint => { events.push(`github:${endpoint}`); assert.ok(['/actions/runs/100', '/actions/runs/100/attempts/1'].includes(endpoint)); return { id: 100, run_attempt: endpoint === '/actions/runs/100' ? 2 : 1, status: flags.running ? 'in_progress' : 'completed', event: 'workflow_dispatch', head_branch: 'main', repository: { full_name: TARGET.repository }, path: '.github/workflows/ltc-daily-publication.yml' }; },
     verifySource: async () => assert.equal(git(['status', '--porcelain']), ''),
     preallocate: async count => Array.from({ length: count }, (_, index) => `preallocated_file_${index}`),
     evidenceProvider: (bundle, fileId) => ({
@@ -74,6 +74,7 @@ test('lost upload confirmation recovers fresh proof in a new job, abandons never
   const f = await fixture(t); await assert.rejects(runStageAcceptance({ ...f, crashAfter: 'first-effect' }), /operation_outcome_uncertain/);
   const before = await f.state.inspect(); assert.ok(before.lease); assert.equal(Object.values(before.intents).filter(intent => intent.status === 'uncertain').length, 1);
   const result = await f.recovery(); assert.equal(result.status, 'incomplete-no-resume'); assert.equal(result.effectsReissued, false); assert.equal(f.flags.uploadCalls, 1); assert.equal(f.flags.stageCalls, 0);
+  assert.ok(f.events.includes('github:/actions/runs/100/attempts/1')); assert.ok(!f.events.includes('github:/actions/runs/100'));
   assert.equal((await f.state.inspect()).paused, true); assert.equal((await f.state.inspect()).lease, null);
 });
 
@@ -115,6 +116,24 @@ test('bounded durable completion survives loss of ephemeral final receipt and bi
   const intents = Object.values(document.intents).filter(intent => intent.fence === completion.fence).sort((a, b) => a.operationId.localeCompare(b.operationId));
   assert.equal(completion.terminalProofSha256, acceptanceHash(intents.map(intent => ({ operationId: intent.operationId, payloadSha256: intent.payloadSha256, status: intent.status, evidenceSha256: intent.evidenceSha256, receiptSha256: document.receipts[intent.operationId].sha256 }))));
   await assert.rejects(runStageAcceptance(f), /acceptance_ledger_not_idle/); assert.equal(f.flags.stageCalls, 1);
+});
+
+test('approved replacement recovery controller preserves original plan/source binding and never repeats an effect', async t => {
+  const f = await fixture(t); await assert.rejects(runStageAcceptance({ ...f, crashAfter: 'first-effect' }), /operation_outcome_uncertain/);
+  const env = { ...f.env, GITHUB_RUN_ID: '101', LTC_ACCEPTED_IMPLEMENTATION_SHA256: 'f'.repeat(64) };
+  assert.throws(() => assertAcceptanceContext(f.plan, env), /acceptance_context_required/);
+  await assert.rejects(f.recovery({ env: { ...env, LTC_ACCEPTANCE_PLAN_SHA256: '0'.repeat(64) } }), /acceptance_context_required/);
+  await assert.rejects(f.recovery({ env: { ...env, LTC_ACCEPTANCE_SOURCE_COMMIT: '0'.repeat(40) } }), /acceptance_context_required/);
+  const result = await f.recovery({ env }); assert.equal(result.status, 'incomplete-no-resume'); assert.equal(f.flags.uploadCalls, 1); assert.equal(f.flags.stageCalls, 0);
+  const completion = (await f.state.inspect()).acceptance.completion;
+  assert.equal(completion.implementationSha256, f.plan.implementationSha256); assert.equal(completion.controllerImplementationSha256, env.LTC_ACCEPTED_IMPLEMENTATION_SHA256); assert.equal(completion.planSha256, acceptanceHash(f.plan)); assert.equal(completion.source, f.plan.source);
+});
+
+test('recovery controller verifier checks current checkout bytes against the protected current digest', async t => {
+  const f = await fixture(t); await verifyRecoveryController({ env: f.env, root: f.root });
+  await writeFile(path.join(f.root, 'package.json'), '{"changedController":true}');
+  await assert.rejects(verifyRecoveryController({ env: f.env, root: f.root }), /implementation_changed/);
+  let called = false; await assert.rejects(verifyRecoveryController({ env: { ...f.env, GITHUB_REF: 'refs/heads/unapproved' }, root: f.root, verify: async () => { called = true; } }), /acceptance_context_required/); assert.equal(called, false);
 });
 
 test('original plan survives admission and confirmed-stage recovery still obtains fresh protected proof', async t => {
