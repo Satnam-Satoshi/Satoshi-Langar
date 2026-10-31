@@ -1,5 +1,5 @@
-# UPDATE TEMPLATE ONLY. This file in ops/ cannot schedule jobs.
-# Update the existing main ltc-daily-publication.yml after acceptance; do not create a second writer.
+# Existing single scheduler; publication remains gated.
+# Read-only acceptance probes never deploy or publish.
 name: LTC bounded daily publication
 on:
   schedule:
@@ -235,6 +235,23 @@ jobs:
           LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
           LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
         run: node scripts/cloud-ltc-access-probe.mjs --receipt "$RUNNER_TEMP/ltc-google-folder-probe.json"
+      - name: Read exact configured website and social paused ledgers
+        id: google_ledgers
+        continue-on-error: true
+        env:
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_STATE_DOCUMENT_ID: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          LTC_SOCIAL_STATE_DOCUMENT_ID: ${{ vars.LTC_SOCIAL_STATE_DOCUMENT_ID }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: node scripts/cloud-ltc-access-probe.mjs --ledgers --receipt "$RUNNER_TEMP/ltc-paused-ledgers-probe.json"
+      - name: Read fixed Vercel project and team deployment controls
+        id: vercel_project
+        continue-on-error: true
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: node scripts/cloud-ltc-access-probe.mjs --vercel --receipt "$RUNNER_TEMP/ltc-vercel-project-probe.json"
       - name: Discover official Buffer schemas and verify cloud account/queue readback
         id: buffer
         continue-on-error: true
@@ -248,9 +265,14 @@ jobs:
           import {existsSync,readFileSync,appendFileSync} from 'node:fs';
           import {publicBufferProbeStructure} from './scripts/cloud-ltc-social.mjs';
           const folder=process.env.RUNNER_TEMP+'/ltc-google-folder-probe.json',buffer=process.env.RUNNER_TEMP+'/ltc-buffer-cloud-probe.json';
-          const value={mode:'read-only-cloud-acceptance-probes',cloudPublishingActive:false};
-          if(existsSync(folder))value.google=JSON.parse(readFileSync(folder,'utf8'));
-          if(existsSync(buffer))value.buffer=publicBufferProbeStructure(JSON.parse(readFileSync(buffer,'utf8')));
+          const ledgers=process.env.RUNNER_TEMP+'/ltc-paused-ledgers-probe.json',vercel=process.env.RUNNER_TEMP+'/ltc-vercel-project-probe.json';
+          const value={mode:'read-only-cloud-acceptance-probes',cloudPublishingActive:false,google:{folderPrivateVerified:false,readResultAvailable:false},buffer:{identityVerified:false,queueReadComplete:false,readResultAvailable:false},ledgers:{allLedgersVerified:false,readResultAvailable:false},vercel:{projectMetadataVerified:false,readResultAvailable:false}};
+          if(existsSync(folder))value.google={...JSON.parse(readFileSync(folder,'utf8')),readResultAvailable:true};
+          if(existsSync(ledgers))value.ledgers={...JSON.parse(readFileSync(ledgers,'utf8')),readResultAvailable:true};
+          if(existsSync(vercel))value.vercel={...JSON.parse(readFileSync(vercel,'utf8')),readResultAvailable:true};
+          if(existsSync(buffer))value.buffer={...publicBufferProbeStructure(JSON.parse(readFileSync(buffer,'utf8'))),readResultAvailable:true};
+          value.allReadOnlyProbesVerified=value.google.folderPrivateVerified===true&&value.ledgers.allLedgersVerified===true&&value.vercel.projectMetadataVerified===true&&value.buffer.identityVerified===true&&value.buffer.queueReadComplete===true;
           appendFileSync(process.env.GITHUB_STEP_SUMMARY,'```json\n'+JSON.stringify(value,null,2)+'\n```\n');
+          if(!value.allReadOnlyProbesVerified)process.exitCode=1;
           NODE
       # No raw account/post evidence is uploaded to this public repository's artifacts.
