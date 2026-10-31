@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { createBufferMcpClient, BUFFER_TARGET, validateBufferArguments, planDailyCampaign, localSlot, CloudSocialLedger, createSocialPostProvider, assertCloudSocialAcceptance, probeBufferCloud, executePreparedCampaign, loadAcceptedSocialInputs, runCloudCampaign, publicBufferProbeStructure } from './cloud-ltc-social.mjs';
+import { bufferToolData, verifyBufferIdentity, createBufferMcpClient, BUFFER_TARGET, validateBufferArguments, planDailyCampaign, localSlot, CloudSocialLedger, createSocialPostProvider, assertCloudSocialAcceptance, probeBufferCloud, executePreparedCampaign, loadAcceptedSocialInputs, runCloudCampaign, publicBufferProbeStructure } from './cloud-ltc-social.mjs';
 import { MemoryStateAdapter } from './cloud-ltc-state.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
 const token = 'unit-test-buffer-key-never-real';
@@ -15,7 +15,7 @@ const properties = {
   create_post: { type: 'object', properties: { channelId: str, schedulingType: { enum: ['automatic', 'notification'] }, text: str, assets: { type: 'array', items: object({ type: { enum: ['image'] }, url: { type: 'string', format: 'uri' }, altText: str }) }, saveToDraft: { type: 'boolean' }, metadata: { type: 'object' } }, required: ['channelId', 'schedulingType', 'text', 'assets', 'saveToDraft'], additionalProperties: false },
   edit_post: object({ postId: str, schedulingType: { enum: ['automatic'] }, mode: { enum: ['customScheduled'] }, dueAt: { type: 'string', format: 'date-time' }, saveToDraft: { type: 'boolean' } }),
 };
-function transport({ sse = false, failCall = null, status = null, incorrectId = false } = {}) {
+function transport({ sse = false, observedFormat = false, failCall = null, status = null, incorrectId = false } = {}) {
   const calls = []; let session;
   const fetchImpl = async (url, options) => {
     assert.equal(url, BUFFER_TARGET.endpoint); assert.equal(options.redirect, 'error'); assert.equal(options.headers.Authorization, `Bearer ${token}`);
@@ -29,8 +29,10 @@ function transport({ sse = false, failCall = null, status = null, incorrectId = 
     else if (request.method === 'tools/list') result = { tools: [...Object.entries(properties).map(([name, inputSchema]) => ({ name, inputSchema })), { name: 'graphql', inputSchema: object({ query: str }) }] };
     else {
       const name = request.params.name;
-      const data = name === 'get_account' ? { organizations: [{ id: BUFFER_TARGET.organization }], timezone: 'America/New_York' } : name === 'list_channels' ? { channels: [{ id: BUFFER_TARGET.channels.x, service: 'twitter', isDisconnected: false }, { id: BUFFER_TARGET.channels.instagram, service: 'instagram', connectionStatus: 'connected' }] } : name === 'list_posts' ? { posts: [], pageInfo: { hasNextPage: false } } : {};
-      result = { content: [{ type: 'text', text: JSON.stringify(data) }] };
+      let data = name === 'get_account' ? { organizations: [{ id: BUFFER_TARGET.organization }], timezone: 'America/New_York' } : name === 'list_channels' ? { channels: [{ id: BUFFER_TARGET.channels.x, service: 'twitter', isDisconnected: false }, { id: BUFFER_TARGET.channels.instagram, service: 'instagram', connectionStatus: 'connected' }] } : name === 'list_posts' ? { posts: [], pageInfo: { hasNextPage: false } } : {};
+      if(observedFormat && name==='list_channels')data=data.channels;
+      if(observedFormat && name==='list_posts')data={edges:[],pageInfo:{hasNextPage:false}};
+      result = { content: [{ type: 'text', text: JSON.stringify(data) },...(observedFormat?[{type:'text',text:JSON.stringify({rateLimit:[{remaining:449,resetSeconds:900}]})}]:[])] };
     }
     const body = { jsonrpc: '2.0', id: incorrectId && request.method === 'tools/call' ? request.id + 100 : request.id, result };
     return new Response(sse ? `: heartbeat\n\ndata: ${JSON.stringify(body)}\n\n` : JSON.stringify(body), { headers: { 'content-type': sse ? 'text/event-stream' : 'application/json', ...(request.method === 'initialize' ? { 'mcp-session-id': session } : {}) } });
@@ -190,4 +192,26 @@ test('public probe summary exposes protocol shapes, never account values, post t
   const publicSummary = JSON.stringify(publicBufferProbeStructure(privateReceipt));
   for (const secret of ['private@example.invalid', 'private-org-id', 'private-post-id', 'unpublished caption']) assert.ok(!publicSummary.includes(secret));
   assert.ok(publicSummary.includes('email')); assert.ok(publicSummary.includes('string'));
+});
+
+
+test('observed official Buffer data plus rate-limit blocks and bare channel arrays verify identity', () => {
+  const response = value => ({content:[{type:'text',text:JSON.stringify(value)},{type:'text',text:JSON.stringify({rateLimit:[{remaining:449,resetSeconds:900}]})}]});
+  const account=response({timezone:'America/New_York',organizations:[{id:BUFFER_TARGET.organization}]});
+  const channels=response(Object.entries(BUFFER_TARGET.channels).map(([platform,id])=>({id,service:platform==='x'?'twitter':'instagram',isDisconnected:false})));
+  assert.equal(bufferToolData(account).timezone,'America/New_York');
+  assert.equal(bufferToolData(channels).length,2);
+  assert.equal(verifyBufferIdentity(account,channels).organizationId,BUFFER_TARGET.organization);
+  for(const extra of [{unexpected:true},{rateLimit:[{remaining:-1,resetSeconds:1}]},{rateLimit:[{remaining:1,resetSeconds:1,secret:'unexpected'}]}]) {
+    assert.throws(()=>bufferToolData({content:[account.content[0],{type:'text',text:JSON.stringify(extra)}]}),/buffer_response_shape_unverified/);
+  }
+  assert.throws(()=>bufferToolData({content:[...account.content,account.content[0]]}),/buffer_response_shape_unverified/);
+});
+
+
+test('observed official rate-limit blocks, bare channel arrays and top-level post edges complete a read-only probe', async () => {
+  const fixture=transport({observedFormat:true});
+  const result=await probeBufferCloud({client:createBufferMcpClient({env:{LTC_BUFFER_API_KEY:token},fetchImpl:fixture.fetchImpl})});
+  assert.equal(result.identityVerified,true);assert.equal(result.queueReadComplete,true);assert.equal(result.requiresSchemaReview,false);
+  assert.equal(result.writesPerformed,false);assert.deepEqual(result.queue,[]);
 });

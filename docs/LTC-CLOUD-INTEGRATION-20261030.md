@@ -76,3 +76,16 @@ The isolated proposal now also collects the explicitly approved bounded builder-
 After the locked install and before the build, an immutable1200×630 daily news-map PNG/SVG/manifest is rendered from the edition's actual feature titles/source dates with explicit repository fonts. Exact date/revision-scoped assets are add-only; the portable exporter admits only their reviewed metadata path. Complete protected/public manifests include these bytes. Final private summaries/checkpoints bind exact edition JSON SHA, source-desk JSON SHA, PNG SHA, edition ID and public verification time for the separate social consumer. This is content-specific artwork, not merely a palette rotation.
 
 The new manual acceptance-probe input in the ops update template permits protected read-only Google-folder and official Buffer schema/account checks while both publication gates remain closed. No schedule is activated. Separate daily social runtime, namespace, caps and remaining acceptance are documented in LTC-CLOUD-SOCIAL.md.
+
+
+## Next read-only acceptance update
+
+The existing manual acceptance job now also reads the exact website/social ledgers and fixed Vercel project metadata, with service credentials isolated to their respective steps. `cloud-ltc-access-probe.mjs --ledgers --receipt NEW_PRIVATE_FILE` uses protected `LTC_STATE_FOLDER_ID`, `LTC_STATE_DOCUMENT_ID` and `LTC_SOCIAL_STATE_DOCUMENT_ID`; missing/reused IDs fail before access. Raw private ownership/parent/tab/envelope checks and local schema validation must establish initialized paused state with no active lease, unresolved effects or website restore hold. This never initializes, repairs, unpauses or writes either ledger.
+
+`cloud-ltc-access-probe.mjs --vercel --receipt NEW_PRIVATE_FILE` uses protected `VERCEL_TOKEN` for one fixed project/team metadata GET. It verifies exact identities and the existing reviewed native-deployment control, without requesting credentials or changing settings. Reports contain safe booleans, not raw account/project/ledger contents or IDs. Missing reports remain explicitly unverified in the summary. Only Google OAuth refresh uses POST; provider inspection is GET-only.
+
+This change is a separately reviewed acceptance update. Prior provisioning/CAS receipts do not substitute for execution of the new code, and neither publication gate nor any scheduler is activated by this update.
+
+### Official Buffer response review
+
+The first protected cloud key probe reached the official MCP endpoint but did not verify identity. Read-only official connector observations established a data JSON block followed by a separate `rateLimit` JSON block, bare channel arrays and top-level post edges. The reader now accepts those bounded formats and rejects unknown extra metadata blocks; channel/account checks and publication gates remain intact. Targeted tests cover those observed structures. The corrected protected cloud probe must pass before identity or queue acceptance is claimed.

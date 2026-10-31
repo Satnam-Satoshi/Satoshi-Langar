@@ -102,14 +102,22 @@ export function createBufferMcpClient({ env = process.env, fetchImpl = fetch, al
   return Object.freeze(api);
 }
 export function bufferToolData(result) {
-  if (plain(result?.structuredContent)) return result.structuredContent;
-  check(Array.isArray(result?.content), 'buffer_response_shape_unverified'); const text = result.content.filter(block => block.type === 'text'); check(text.length === 1, 'buffer_response_shape_unverified'); let value; try { value = JSON.parse(text[0].text); } catch { throw Error('buffer_response_shape_unverified'); } check(plain(value), 'buffer_response_shape_unverified'); return value;
+  if (plain(result?.structuredContent) || Array.isArray(result?.structuredContent)) return result.structuredContent;
+  check(Array.isArray(result?.content), 'buffer_response_shape_unverified');
+  const text = result.content.filter(block => block.type === 'text');
+  check(text.length >= 1 && text.length <= 2 && text.every(block => typeof block.text === 'string' && Buffer.byteLength(block.text) <= 2_000_000), 'buffer_response_shape_unverified');
+  let value; try { value = JSON.parse(text[0].text); } catch { throw Error('buffer_response_shape_unverified'); }
+  if (text.length === 2) {
+    let metadata; try { metadata = JSON.parse(text[1].text); } catch { throw Error('buffer_response_shape_unverified'); }
+    check(plain(metadata) && Object.keys(metadata).join(',') === 'rateLimit' && Array.isArray(metadata.rateLimit) && metadata.rateLimit.length <= 10 && metadata.rateLimit.every(limit => plain(limit) && Object.keys(limit).sort().join(',') === 'remaining,resetSeconds' && Number.isFinite(limit.remaining) && limit.remaining >= 0 && Number.isFinite(limit.resetSeconds) && limit.resetSeconds >= 0), 'buffer_response_shape_unverified');
+  }
+  check(plain(value) || Array.isArray(value), 'buffer_response_shape_unverified'); return value;
 }
 function recordsOf(value) { if (Array.isArray(value)) return value; if (Array.isArray(value?.nodes)) return value.nodes; if (Array.isArray(value?.edges)) return value.edges.map(edge => edge.node); throw Error('buffer_response_shape_unverified'); }
 export function verifyBufferIdentity(accountResult, channelsResult) {
   const raw = bufferToolData(accountResult); const account = raw.account ?? raw; const organizations = recordsOf(account.organizations);
   check(typeof account.timezone === 'string' && organizations.some(organization => organization.id === BUFFER_TARGET.organization), 'wrong_buffer_account');
-  const value = bufferToolData(channelsResult); const channels = recordsOf(value.channels ?? value.data?.channels);
+  const value = bufferToolData(channelsResult); const channels = recordsOf(Array.isArray(value) ? value : value.channels ?? value.data?.channels);
   for (const [platform, expected] of Object.entries(BUFFER_TARGET.channels)) { const channel = channels.find(item => item.id === expected); check(channel && channel.service === (platform === 'x' ? 'twitter' : 'instagram') && (channel.isDisconnected === false || channel.connectionStatus === 'connected'), 'wrong_buffer_channel'); }
   return { organizationId: BUFFER_TARGET.organization, channels: structuredClone(BUFFER_TARGET.channels), timezone: account.timezone };
 }
@@ -195,7 +203,7 @@ export class CloudSocialLedger {
   async release(lease) { return this.update(value => { check(value.lease?.fence === lease.fence && !Object.values(value.records).some(record => ['create-uncertain', 'schedule-uncertain'].includes(record.status)), 'social_reconciliation_required'); value.lease = null; return { released: true }; }); }
 }
 function normalizedPost(result) { const value = bufferToolData(result); const post = value.post ?? value; check(hex(post.id) && Object.values(BUFFER_TARGET.channels).includes(post.channelId ?? post.channel?.id) && typeof post.text === 'string' && ['draft', 'scheduled', 'sent', 'sending', 'error', 'needs_approval'].includes(post.status), 'buffer_post_readback_unverified'); return { ...post, channelId: post.channelId ?? post.channel.id }; }
-function verifySavedPost(saved, planned) { check(saved.channelId === planned.channelId && saved.text === planned.text && Array.isArray(saved.assets) && saved.assets.some(asset => (asset.source ?? asset.url) === planned.mediaURL && asset.altText === planned.altText), 'buffer_post_readback_mismatch'); }
+function verifySavedPost(saved, planned) { check(saved.channelId === planned.channelId && saved.text === planned.text && Array.isArray(saved.assets) && saved.assets.some(asset => (asset.source ?? asset.url) === planned.mediaURL && (asset.altText ?? asset.image?.altText) === planned.altText), 'buffer_post_readback_mismatch'); }
 export function createSocialPostProvider({ client, ledger, lease, post, instagramMetadata, editAction }) {
   check(client && typeof client.callTool === 'function' && ledger instanceof CloudSocialLedger, 'invalid_social_provider');
   return {
@@ -296,7 +304,7 @@ export async function probeBufferCloud({ client }) {
   try {
     for (let page = 0; page < 10; page++) {
       const result = bufferToolData(await client.callTool('list_posts', { organizationId: BUFFER_TARGET.organization, channelIds: Object.values(BUFFER_TARGET.channels), status: ['draft', 'needs_approval', 'scheduled', 'sending', 'sent', 'error'], first: 100, ...(after ? { after } : {}) })); lastEvidence = result;
-      const posts = recordsOf(result.posts);
+      const posts = recordsOf(result.posts ?? result);
       for (const post of posts) { check(hex(post.id) && Object.values(BUFFER_TARGET.channels).includes(post.channelId ?? post.channel?.id), 'buffer_response_shape_unverified'); client.rememberPostId(post.id); queue.push({ id: post.id, channelId: post.channelId ?? post.channel?.id, status: post.status, text: post.text, dueAt: post.dueAt ?? null, sentAt: post.sentAt ?? null, assets: post.assets ?? [], allowedActions: post.allowedActions ?? [] }); }
       const pageInfo = result.pageInfo ?? result.posts?.pageInfo;
       if (pageInfo?.hasNextPage === false) { complete = true; break; }
