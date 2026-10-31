@@ -12,13 +12,82 @@ import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
 import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
 import { createReadOnlyReleaseClients } from './cloud-ltc-reconcile.mjs';
 import { createVercelReleaseProviders, assertVercelDeploymentIdentity, assertVercelProjectPolicy } from './cloud-ltc-release-providers.mjs';
-import { TARGET, builtManifest, builtOutputManifest, verifyImplementation, verifyProtectedCandidate, verifyPublicDomains, cleanEnvironment, withVercelAuth, pathsFor, safeFailure } from './cloud-ltc-release.mjs';
+import { TARGET, builtManifest, builtOutputManifest, verifyImplementation, verifyProtectedManifestRecords, verifyPublicDomains, cleanEnvironment, pathsFor, safeFailure } from './cloud-ltc-release.mjs';
 
 const acceptanceFailureCodes = new Set(['acceptance_artifact_binding_changed', 'acceptance_artifacts_incomplete', 'acceptance_build_output_changed', 'acceptance_completion_invalid', 'acceptance_configuration_changed', 'acceptance_context_required', 'acceptance_deliberate_crash', 'acceptance_download_unknown', 'acceptance_durable_state_required', 'acceptance_effect_forbidden', 'acceptance_executable_missing', 'acceptance_file_ids_invalid', 'acceptance_initialized_ledger_required', 'acceptance_invalid_crash_boundary', 'acceptance_ledger_not_idle', 'acceptance_origin_still_running', 'acceptance_package_changed', 'acceptance_previous_manifest_changed', 'acceptance_previous_manifest_required', 'acceptance_promotion_forbidden', 'acceptance_public_pointer_changed', 'acceptance_recovery_context_missing', 'acceptance_recovery_fence_required', 'acceptance_recovery_unknown', 'acceptance_restored_artifact_mismatch', 'acceptance_social_ledger_invalid', 'acceptance_social_not_paused', 'acceptance_source_changed', 'acceptance_source_not_clean', 'acceptance_stage_unconfirmed', 'acceptance_static_incomplete', 'acceptance_static_output_mismatch', 'acceptance_wrong_ledger']);
 export function safeAcceptanceFailure(error) {
   return acceptanceFailureCodes.has(error?.message) ? error.message : safeFailure(error);
 }
 const check = (condition, code) => { if (!condition) throw Error(code); };
+export const ACCEPTANCE_CLI_VERSION = '65.9.0';
+export const ACCEPTANCE_PROJECT_NAME = 'https-github-com-satnam-satoshi-satoshi-langar';
+for (const code of ['acceptance_cli_failed', 'acceptance_cli_auth_scope_forbidden', 'acceptance_project_name_changed', 'acceptance_existing_bypass_required', 'acceptance_protected_read_binding_failed', 'acceptance_linked_read_required']) acceptanceFailureCodes.add(code);
+export function acceptanceProjectScopedAuth(args, token) {
+  check(Array.isArray(args) && ['deploy', 'curl'].includes(args[0]) && !args.some(arg => /^(?:--(?:scope|team|token|api|local-config|debug|trace)|-[ST])(?:=|$)/.test(arg)) && typeof token === 'string' && token.length >= 16 && token.length <= 8192 && !/[\s\x00-\x1f\x7f]/.test(token), 'acceptance_cli_auth_scope_forbidden');
+  const split = args.indexOf('--');
+  return split < 0 ? [...args, '--token', token] : [...args.slice(0, split), '--token', token, ...args.slice(split)];
+}
+export function safeAcceptanceCliDiagnostic(error) {
+  const category = error?.code === 'ENOENT' ? 'cli-unavailable' : error?.code === 'ETIMEDOUT' ? 'cli-timeout' : error?.code === 'ENOBUFS' ? 'cli-output-limit' : Number.isInteger(error?.status) ? 'cli-exited' : 'cli-execution-failed';
+  return { category, exitStatus: Number.isInteger(error?.status) && error.status >= 0 && error.status <= 255 ? error.status : null };
+}
+function assertAcceptanceProject(project) {
+  assertVercelProjectPolicy(project, TARGET);
+  check(project.name === ACCEPTANCE_PROJECT_NAME, 'acceptance_project_name_changed');
+}
+export function existingAcceptanceBypass(project) {
+  assertAcceptanceProject(project);
+  check(project.protectionBypass && Object.getPrototypeOf(project.protectionBypass) === Object.prototype, 'acceptance_existing_bypass_required');
+  const matches = Object.entries(project.protectionBypass).filter(([, value]) => value?.scope === 'automation-bypass');
+  check(matches.length === 1 && matches[0][0].length >= 16 && matches[0][0].length <= 8192 && !/[\s\x00-\x1f\x7f]/.test(matches[0][0]), 'acceptance_existing_bypass_required');
+  return matches[0][0];
+}
+export function existingLinkedReadRecords(manifest) {
+  const ordered = [...manifest].sort((a, b) => a.file.localeCompare(b.file));
+  const records = [ordered.find(record => record.file === 'index.html'), ordered.find(record => record.file.endsWith('.png')), ordered.find(record => /^conversations\/specials\/litecoin-at-15\/.+\/index\.html$/.test(record.file))];
+  check(records.every(Boolean), 'acceptance_linked_read_required'); return records;
+}
+// Supported 65.9 full-URL + existing environment bypass branch. No resolver,
+// --scope, token creation, deployment effect or production auth-helper change.
+export function createAcceptanceLinkedClient({ env, vercel, directory, execute = execFileSync, report = async () => {} }) {
+  check(env.LTC_VERCEL_CLI_VERSION === ACCEPTANCE_CLI_VERSION, 'pinned_cli_version_required');
+  const cliPath = env.LTC_VERCEL_CLI || 'vercel';
+  check(typeof cliPath === 'string' && !/[\x00\r\n]/.test(cliPath), 'invalid_cli_path');
+  const invoke = async (args, cwd, bypass) => {
+    const auth = acceptanceProjectScopedAuth(args, env.VERCEL_TOKEN);
+    try { return execute(cliPath, auth, { cwd, env: { ...cleanEnvironment(env), ...(bypass ? { VERCEL_AUTOMATION_BYPASS_SECRET: bypass } : {}) }, stdio: ['ignore', 'pipe', 'pipe'], timeout: 900_000, maxBuffer: 32 * 1024 * 1024 }); }
+    catch (error) { const diagnostic = safeAcceptanceCliDiagnostic(error); try { await report({ operation: args[0] === 'curl' ? 'protected-read' : 'stage', ...diagnostic }); } catch {} throw Error('acceptance_cli_failed'); }
+  };
+  return {
+    async verifyVersion() {
+      let installed;
+      try { installed = execute(cliPath, ['--version'], { encoding: 'utf8', env: cleanEnvironment(env), stdio: ['ignore', 'pipe', 'pipe'] }).trim(); }
+      catch (error) { try { await report({ operation: 'version', ...safeAcceptanceCliDiagnostic(error) }); } catch {} throw Error('acceptance_cli_failed'); }
+      check([ACCEPTANCE_CLI_VERSION, `Vercel CLI ${ACCEPTANCE_CLI_VERSION}`].includes(installed), 'pinned_cli_version_mismatch');
+    },
+    async deploy(args, cwd) {
+      check(args[0] === 'deploy' && args.includes('--prebuilt') && args.includes('--prod') && args.includes('--skip-domain'), 'acceptance_effect_forbidden');
+      assertAcceptanceProject(await vercel(`/v9/projects/${TARGET.project}`));
+      const link = JSON.parse(await readFile(path.join(cwd, '.vercel/project.json'), 'utf8'));
+      check(JSON.stringify(link) === JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team, projectName: ACCEPTANCE_PROJECT_NAME }), 'acceptance_protected_read_binding_failed');
+      const config = JSON.parse(await readFile(path.join(cwd, 'vercel.json'), 'utf8'));
+      check(!Object.hasOwn(config, 'scope'), 'acceptance_cli_auth_scope_forbidden');
+      return invoke(args, cwd);
+    },
+    async readProtected(declaration, records, manifest) {
+      check(/^dpl_[A-Za-z0-9]+$/.test(declaration?.id ?? ''), 'acceptance_protected_read_binding_failed');
+      const deployment = await vercel(`/v13/deployments/${declaration.id}`); assertVercelDeploymentIdentity(deployment, TARGET);
+      check(deployment.id === declaration.id && (declaration.url === undefined || declaration.url === deployment.url), 'acceptance_protected_read_binding_failed');
+      const bypass = existingAcceptanceBypass(await vercel(`/v9/projects/${TARGET.project}`));
+      const origin = `https://${deployment.url}`;
+      await verifyProtectedManifestRecords(deployment.id, records, manifest, args => {
+        const expected = ['curl', args[1], '--deployment', deployment.id, '--', '--include', '--silent', '--show-error', '--max-time', '30', '--max-redirs', '0', '--proto', '=https'];
+        check(JSON.stringify(args) === JSON.stringify(expected) && /^\/(?:[a-zA-Z0-9_.-]+\/)*[a-zA-Z0-9_.-]*$/.test(args[1]) && !args[1].split('/').some(part => part === '.' || part === '..'), 'acceptance_protected_read_binding_failed');
+        return invoke(['curl', origin + args[1], '--', ...args.slice(5)], directory, bypass);
+      });
+    },
+  };
+}
 export const acceptanceHash = value => createHash('sha256').update(typeof value === 'string' || Buffer.isBuffer(value) ? value : JSON.stringify(value)).digest('hex');
 const digest = value => /^[a-f0-9]{64}$/.test(value ?? '');
 const git = (root, args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -118,7 +187,7 @@ export async function prepareStageAcceptance({ root, evidenceDirectory, editionI
 async function controls(plan, dependencies) {
   const { socialState, vercel } = dependencies;
   const social = await socialState.inspect(); check(social.paused === true && !social.lease && !Object.values(social.records ?? {}).some(record => ['create-uncertain', 'schedule-uncertain'].includes(record.status)), 'acceptance_social_not_paused');
-  assertVercelProjectPolicy(await vercel(`/v9/projects/${TARGET.project}`), TARGET);
+  assertAcceptanceProject(await vercel(`/v9/projects/${TARGET.project}`));
   for (const domain of TARGET.domains) {
     const deployment = await vercel(`/v13/deployments/${new URL(domain).hostname}`);
     assertVercelDeploymentIdentity(deployment, TARGET); check(deployment.id === plan.previousDeployment, 'acceptance_public_pointer_changed');
@@ -146,7 +215,7 @@ async function restorePackage(plan, operations, dependencies) {
   const workspace = path.join(destination, 'source');
   await mkdir(path.join(workspace, '.vercel'), { recursive: true, mode: 0o700 });
   await cp(path.join(destination, 'build-output'), path.join(workspace, '.vercel/output'), { recursive: true, errorOnExist: true, force: false });
-  await writeFile(path.join(workspace, '.vercel/project.json'), JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team }), { flag: 'wx', mode: 0o600 });
+  await writeFile(path.join(workspace, '.vercel/project.json'), JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team, projectName: ACCEPTANCE_PROJECT_NAME }), { flag: 'wx', mode: 0o600 });
   return { workspace, manifest, previousManifest, restored };
 }
 
@@ -239,6 +308,12 @@ export async function recoverStageAcceptance({ plan, env, state, dependencies, e
   check(acceptanceHash(stage.payload) === acceptanceHash(stageOperation(plan, dependencies, [], null).payload), 'acceptance_recovery_context_missing');
   let restored;
   if (evidence.every(intent => document.intents[intent.operationId].status === 'confirmed')) restored = await restorePackage(plan, evidence, dependencies);
+  if (restored && stage.status === 'uncertain') {
+    check(typeof dependencies.verifyLinkedExistingRead === 'function', 'acceptance_linked_read_required');
+    const proof = await dependencies.verifyLinkedExistingRead(plan.previousDeployment, restored.previousManifest);
+    check(proof?.linkedCliExistingReadVerified === true && proof.countsAsStageAcceptance === false && proof.recordCount === 3 && proof.previousManifestSha256 === plan.previousPublicManifestSha256, 'acceptance_linked_read_required');
+    await dependencies.save({ mode: 'stage-only-recovery', status: 'existing-linked-read-verified', planSha256: acceptanceHash(plan), lease, linkedCliExistingReadVerified: true, linkedCliExistingRead: proof });
+  }
   if (stage.status === 'uncertain') { check(restored, 'acceptance_recovery_context_missing'); await coordinator.reconcile({ ...stageOperation(plan, dependencies, restored.manifest, null) }); }
   else if (stage.status === 'confirmed') {
     check(restored, 'acceptance_recovery_context_missing'); const operation = stageOperation(plan, dependencies, restored.manifest, null);
@@ -288,11 +363,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
       await writeFile(options.receipt, JSON.stringify({ mode: options.mode, planSha256: acceptanceHash(plan), directory, status: 'starting' }) + '\n', { flag: 'wx', mode: 0o600 });
       const clients = createReadOnlyReleaseClients({ env });
       const token = () => withGoogleCloudAuthorization({ env }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
-      const cliPath = env.LTC_VERCEL_CLI || 'vercel', cliVersion = env.LTC_VERCEL_CLI_VERSION;
-      check(/^\d+\.\d+\.\d+$/.test(cliVersion ?? ''), 'pinned_cli_version_required');
-      const installed = execFileSync(cliPath, ['--version'], { encoding: 'utf8', env: cleanEnvironment(env), stdio: ['ignore', 'pipe', 'pipe'] }).trim();
-      check([cliVersion, `Vercel CLI ${cliVersion}`].includes(installed), 'pinned_cli_version_mismatch');
-      const execute = (args, cwd) => execFileSync(cliPath, withVercelAuth(args, env.VERCEL_TOKEN), { cwd, env: cleanEnvironment(env), stdio: ['ignore', 'pipe', 'pipe'], timeout: 900_000, maxBuffer: 32 * 1024 * 1024 });
+      const privateReceipt = { mode: options.mode, planSha256: acceptanceHash(plan), directory, status: 'starting' };
+      const save = async result => { Object.assign(privateReceipt, result); await writeFile(options.receipt, JSON.stringify(privateReceipt, null, 2) + '\n', { mode: 0o600 }); };
+      const linked = createAcceptanceLinkedClient({ env, vercel: clients.vercel, directory, report: async diagnostic => { await save({ safeCliFailure: diagnostic }); console.log(JSON.stringify({ mode: 'safe-linked-cli-failure', ...diagnostic })); } });
+      await linked.verifyVersion();
       const dependencies = { ...clients, directory,
         crashBoundary: () => process.kill(process.pid, 'SIGKILL'),
         socialState: { inspect: async () => { const { value } = await social.stateAdapter.read('social'); check(value?.schemaVersion === 1 && value.kind === 'ltc-cloud-social' && value.records && typeof value.records === 'object' && !Array.isArray(value.records), 'acceptance_social_ledger_invalid'); return value; } },
@@ -300,9 +374,16 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
         preallocate: count => preallocateEvidenceIds({ count, config: evidenceConfig, getAccessToken: token }),
         evidenceProvider: (bundle, fileId) => createDriveEvidenceProvider({ bundle, config: { ...evidenceConfig, fileId }, getAccessToken: token }),
         download: receipt => downloadEvidence(receipt, { config: { ...evidenceConfig, fileId: receipt.fileId }, getAccessToken: token }),
-        cli: execute, verifyProtected: (deployment, editionId, manifest) => verifyProtectedCandidate(deployment.id, editionId, manifest, args => execute(args, directory)),
+        cli: (args, cwd) => linked.deploy(args, cwd), verifyProtected: (deployment, editionId, manifest) => { check(pathsFor(editionId).every(file => manifest.some(record => record.file === file)), 'invalid_candidate_manifest'); return linked.readProtected(deployment, manifest, manifest); },
+        verifyLinkedExistingRead: async (deploymentId, manifest) => {
+          const records = existingLinkedReadRecords(manifest);
+          await linked.readProtected({ id: deploymentId }, records, manifest);
+          const proof = { linkedCliExistingReadVerified: true, countsAsStageAcceptance: false, recordCount: 3, previousManifestSha256: acceptanceHash(manifest), deploymentSha256: acceptanceHash(deploymentId), recordsSha256: acceptanceHash(records), cliVersion: ACCEPTANCE_CLI_VERSION };
+          console.log(JSON.stringify({ mode: 'read-only-existing-linked-cli', ...proof, publicationEnabled: false, effectsReissued: false }));
+          return proof;
+        },
         verifyPublic: verifyPublicDomains,
-        save: result => writeFile(options.receipt, JSON.stringify({ ...result, directory }, null, 2) + '\n', { mode: 0o600 }),
+        save,
       };
       const result = options.mode === 'stage' ? await runStageAcceptance({ plan, packed: prepared.packed, previousManifest: prepared.previousManifest, env, state, dependencies, crashAfter: options.crashAfter ?? null }) : await recoverStageAcceptance({ plan, env, state, dependencies, expectedFence: Number(options.expectedFence) });
       console.log(JSON.stringify({ mode: result.mode, status: result.status, publicationEnabled: false, leaseReleased: result.leaseReleased }));

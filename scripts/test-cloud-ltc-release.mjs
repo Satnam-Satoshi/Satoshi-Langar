@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
-import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate, assertMigrationAcceptance, builtManifest, verifyPublicDomains, verifyPublicRootRouting, verifyPublicManifestRecord, intendedReadbackRecord, TARGET, prepareObservations, publicReadbackRecord, collectorCommand, acceptedSourceConfig, builtOutputManifest, releaseUnusedAdmission } from './cloud-ltc-release.mjs';
+import { assertChanges, assertControls, cleanEnvironment, implementationDigest, isEditionData, pathsFor, safeFailure, verifyImplementation, parseDeploymentOutput, withVercelAuth, verifyProtectedCandidate, verifyProtectedManifestRecords, assertMigrationAcceptance, builtManifest, verifyPublicDomains, verifyPublicRootRouting, verifyPublicManifestRecord, intendedReadbackRecord, TARGET, prepareObservations, publicReadbackRecord, collectorCommand, acceptedSourceConfig, builtOutputManifest, releaseUnusedAdmission } from './cloud-ltc-release.mjs';
 
 const id = '2026-10-02-r1';
 const head = 'a'.repeat(40);
@@ -249,6 +249,13 @@ test('protected readback preserves binary assets as bytes rather than UTF8 text'
   manifest.push({ file: 'images/cover.png', sha256: createHash('sha256').update(bytes).digest('hex') });
   await verifyProtectedCandidate('dpl_BinaryFixture', id, manifest, () => httpBytes(bytes));
   await assert.rejects(verifyProtectedCandidate('dpl_BinaryFixture', id, manifest, () => httpBytes(bytes.toString('utf8'))), /deployed_artifact_mismatch/);
+});
+
+test('bounded protected record verifier requires exact manifest membership and does not require an unrelated edition', async () => {
+  const body = Buffer.from([0x89, 0x50, 0, 0xff]), record = { file: 'images/existing.png', sha256: createHash('sha256').update(body).digest('hex') };
+  const calls = []; await verifyProtectedManifestRecords('dpl_Existing', [record], [record], args => { calls.push(args); return httpBytes(body); });
+  assert.equal(calls.length, 1); assert.equal(calls[0][1], '/images/existing.png');
+  for (const records of [[], [record, record], [{ ...record, sha256: '0'.repeat(64) }], [{ ...record, file: '../../private' }]]) await assert.rejects(verifyProtectedManifestRecords('dpl_Existing', records, [record], () => assert.fail('invalid selection must not read')), /invalid_candidate_manifest/);
 });
 
 test('pre-effect collection failure can release unused lease, but any current intent retains fencing', async () => {

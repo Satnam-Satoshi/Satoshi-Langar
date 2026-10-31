@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, chmod, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
-import { acceptanceHash, assertAcceptanceContext, prepareStageAcceptance, runStageAcceptance, recoverStageAcceptance, persistedAcceptancePlan, verifyRecoveryController, safeAcceptanceFailure } from './cloud-ltc-acceptance.mjs';
+import { acceptanceHash, assertAcceptanceContext, prepareStageAcceptance, runStageAcceptance, recoverStageAcceptance, persistedAcceptancePlan, verifyRecoveryController, safeAcceptanceFailure, acceptanceProjectScopedAuth, createAcceptanceLinkedClient, existingAcceptanceBypass, existingLinkedReadRecords, safeAcceptanceCliDiagnostic, ACCEPTANCE_PROJECT_NAME, ACCEPTANCE_CLI_VERSION } from './cloud-ltc-acceptance.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 import { TARGET, pathsFor, implementationDigest, builtManifest } from './cloud-ltc-release.mjs';
 
@@ -13,6 +13,7 @@ async function fixture(t) {
   const root = path.join(scratch, 'source'), evidenceDirectory = path.join(scratch, 'evidence'); await mkdir(root); await mkdir(evidenceDirectory);
   const put = async (file, bytes) => { await mkdir(path.dirname(file), { recursive: true }); await writeFile(file, bytes); };
   await put(path.join(root, '.gitignore'), 'dist/\n.vercel/\n'); await put(path.join(root, 'package.json'), '{"private":true}');
+  await put(path.join(root, 'vercel.json'), '{"framework":null}');
   await put(path.join(root, 'launch.sh'), '#!/bin/sh\nexit 0\n'); await chmod(path.join(root, 'launch.sh'), 0o700);
   const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid', GIT_COMMITTER_NAME: 'Fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid' } }).trim();
   git(['init', '-q']); git(['add', '.']); git(['-c', 'commit.gpgsign=false', 'commit', '-qm', 'accepted']);
@@ -35,7 +36,7 @@ async function fixture(t) {
   const proofFor = p => ({ fileId: p.fileId, folderId: p.folderId, sha256: p.sha256, length: p.bytes, ownerPermissionId: plan.ownerPermissionId, ownerOnly: true, downloadVerified: true });
   const dependencies = {
     directory, socialState: { inspect: async () => ({ paused: flags.socialPaused, lease: null, records: {} }) },
-    vercel: async endpoint => endpoint.startsWith('/v9/') ? { id: TARGET.project, accountId: TARGET.team } : endpoint.startsWith('/v6/') ? { deployments: [...deployments.values()].filter(item => item.meta), pagination: { next: null } } : deployments.get(TARGET.domains.some(domain => new URL(domain).hostname === endpoint.split('/').at(-1)) ? pointer : endpoint.split('/').at(-1)),
+    vercel: async endpoint => endpoint.startsWith('/v9/') ? { id: TARGET.project, accountId: TARGET.team, name: ACCEPTANCE_PROJECT_NAME } : endpoint.startsWith('/v6/') ? { deployments: flags.hideStage ? [] : [...deployments.values()].filter(item => item.meta), pagination: { next: null } } : deployments.get(TARGET.domains.some(domain => new URL(domain).hostname === endpoint.split('/').at(-1)) ? pointer : endpoint.split('/').at(-1)),
     github: async endpoint => { events.push(`github:${endpoint}`); assert.ok(['/actions/runs/100', '/actions/runs/100/attempts/1'].includes(endpoint)); return { id: 100, run_attempt: endpoint === '/actions/runs/100' ? 2 : 1, status: flags.running ? 'in_progress' : 'completed', event: 'workflow_dispatch', head_branch: 'main', repository: { full_name: TARGET.repository }, path: '.github/workflows/ltc-daily-publication.yml' }; },
     verifySource: async () => assert.equal(git(['status', '--porcelain']), ''),
     preallocate: async count => Array.from({ length: count }, (_, index) => `preallocated_file_${index}`),
@@ -46,7 +47,8 @@ async function fixture(t) {
     download: async receipt => { events.push('download'); if (flags.unknown) return null; const saved = uploaded.get(receipt.fileId); if (!saved) return null; assert.equal(saved.context.payloadSha256, receipt.payloadSha256); const bundle = flags.corruptDownload ? { ...saved.bundle, bytes: Buffer.from('corrupt') } : saved.bundle; return { bundle, proof: proofFor(saved.context.payload) }; },
     verifyPublic: async manifest => { assert.equal(acceptanceHash(manifest), plan.previousPublicManifestSha256); assert.notEqual(acceptanceHash(manifest), plan.staticManifestSha256); assert.equal(pointer, plan.previousDeployment); if (flags.failPublicAfterStage && flags.stageCalls) throw Error('baseline read unavailable'); events.push('public'); },
     verifyProtected: async (deployment, id, manifest) => { assert.equal(deployment.id, 'dpl_Candidate'); assert.equal(id, plan.editionId); assert.equal(acceptanceHash(manifest), plan.staticManifestSha256); events.push('protected'); },
-    cli: async (args, cwd) => { assert.equal(args[0], 'deploy'); assert.ok(args.includes('--prebuilt') && args.includes('--prod') && args.includes('--skip-domain')); assert.equal(acceptanceHash(await builtManifest(path.join(cwd, '.vercel/output/static'))), plan.staticManifestSha256); assert.deepEqual(JSON.parse(await readFile(path.join(cwd, '.vercel/project.json'), 'utf8')), { projectId: TARGET.project, orgId: TARGET.team }); const meta = {}; for (let n = 0; n < args.length; n++) if (args[n] === '--meta') { const [key, value] = args[++n].split('='); meta[key] = value; } flags.stageCalls++; events.push('deploy'); deployments.set('dpl_Candidate', { ...identity('dpl_Candidate'), meta }); },
+    verifyLinkedExistingRead: async (deployment, manifest) => { assert.equal(deployment, plan.previousDeployment); assert.equal(acceptanceHash(manifest), plan.previousPublicManifestSha256); events.push('linked-existing-read'); return { linkedCliExistingReadVerified: true, countsAsStageAcceptance: false, recordCount: 3, previousManifestSha256: acceptanceHash(manifest) }; },
+    cli: async (args, cwd) => { assert.equal(args[0], 'deploy'); assert.ok(args.includes('--prebuilt') && args.includes('--prod') && args.includes('--skip-domain')); assert.equal(acceptanceHash(await builtManifest(path.join(cwd, '.vercel/output/static'))), plan.staticManifestSha256); assert.deepEqual(JSON.parse(await readFile(path.join(cwd, '.vercel/project.json'), 'utf8')), { projectId: TARGET.project, orgId: TARGET.team, projectName: ACCEPTANCE_PROJECT_NAME }); const meta = {}; for (let n = 0; n < args.length; n++) if (args[n] === '--meta') { const [key, value] = args[++n].split('='); meta[key] = value; } flags.stageCalls++; events.push('deploy'); deployments.set('dpl_Candidate', { ...identity('dpl_Candidate'), meta }); },
     save: async value => { events.push(`save:${value.status}`); },
   };
   const recovery = async overrides => { const recoveryDir = await mkdtemp(path.join(scratch, 'recovery-')); const document = await state.inspect(); return recoverStageAcceptance({ plan, env: { ...env, GITHUB_RUN_ID: '101' }, state, expectedFence: document.lease?.fence, dependencies: { ...dependencies, directory: recoveryDir }, ...overrides }); };
@@ -167,12 +169,78 @@ test('actual SIGKILL after provider effect leaves durable uncertainty and no ter
     const input=JSON.parse(process.argv[1]); for(const bundle of input.packed.bundles)bundle.bytes=Buffer.from(bundle.bytes,'base64');
     const adapter={read:async()=>JSON.parse(await readFile(input.ledger,'utf8')),conditionalWrite:async(key,value,expected)=>{const prior=JSON.parse(await readFile(input.ledger,'utf8'));if(prior.version!==expected)throw Error('conflict');await writeFile(input.ledger,JSON.stringify({value,version:expected+1}));}};
     const state=new DurableCloudState(adapter,'website');
-    const dependencies={socialState:{inspect:async()=>({paused:true,lease:null,records:{}})},vercel:async endpoint=>endpoint.startsWith('/v9/')?{id:TARGET.project,accountId:TARGET.team}:{id:input.plan.previousDeployment,projectId:TARGET.project,ownerId:TARGET.team,team:{id:TARGET.team},target:'production',readyState:'READY',url:'accepted.vercel.app'},verifySource:async()=>{},verifyPublic:async()=>{},save:async()=>{},preallocate:async count=>Array.from({length:count},(_,n)=>'known_id_'+n),evidenceProvider:()=>({apply:async context=>writeFile(input.effect,JSON.stringify(context)),readback:async()=>{throw Error('must not reach confirmation');}}),crashBoundary:()=>process.kill(process.pid,'SIGKILL')};
+    const dependencies={socialState:{inspect:async()=>({paused:true,lease:null,records:{}})},vercel:async endpoint=>endpoint.startsWith('/v9/')?{id:TARGET.project,accountId:TARGET.team,name:'https-github-com-satnam-satoshi-satoshi-langar'}:{id:input.plan.previousDeployment,projectId:TARGET.project,ownerId:TARGET.team,team:{id:TARGET.team},target:'production',readyState:'READY',url:'accepted.vercel.app'},verifySource:async()=>{},verifyPublic:async()=>{},save:async()=>{},preallocate:async count=>Array.from({length:count},(_,n)=>'known_id_'+n),evidenceProvider:()=>({apply:async context=>writeFile(input.effect,JSON.stringify(context)),readback:async()=>{throw Error('must not reach confirmation');}}),crashBoundary:()=>process.kill(process.pid,'SIGKILL')};
     await runStageAcceptance({...input,state,dependencies,crashAfter:'first-effect'});
   `;
   const result = spawnSync(process.execPath, ['--input-type=module', '-e', script, JSON.stringify(input)], { encoding: 'utf8' });
   assert.equal(result.signal, 'SIGKILL', result.stderr); const record = JSON.parse(await readFile(ledger, 'utf8')).value;
   const applied = JSON.parse(await readFile(effect, 'utf8')); assert.equal(record.intents[applied.operationId].status, 'uncertain'); assert.equal(record.receipts[applied.operationId], undefined); assert.ok(record.lease); assert.ok(Object.values(record.intents).some(intent => intent.payload.kind === 'vercel-stage' && intent.status === 'pending'));
+});
+
+function linkedFixture() {
+  const token = 'fixture-project-token-only', bypass = 'fixture-existing-bypass-only';
+  const deployment = { id: 'dpl_Previous', projectId: TARGET.project, ownerId: TARGET.team, team: { id: TARGET.team, slug: TARGET.scope }, readyState: 'READY', target: 'production', url: 'accepted-fixed.vercel.app' };
+  const project = { id: TARGET.project, accountId: TARGET.team, name: ACCEPTANCE_PROJECT_NAME, protectionBypass: { [bypass]: { scope: 'automation-bypass' } } };
+  const env = { PATH: process.env.PATH, HOME: '/private/fixture-home', LTC_VERCEL_CLI_VERSION: ACCEPTANCE_CLI_VERSION, VERCEL_TOKEN: token, LTC_GOOGLE_REFRESH_TOKEN: 'must-not-be-in-child-env', LTC_BUFFER_API_KEY: 'must-not-be-in-child-env', APP_PRINCIPAL_ENABLED: 'must-not-be-in-child-env', VERCEL_AUTOMATION_BYPASS_SECRET: 'untrusted-inherited-bypass' };
+  const html = Buffer.from('previous homepage'), png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0, 0xff]), canonical = Buffer.from('canonical birthday HTML'), alias = 'conversations/specials/litecoin-at-15/1/index.html';
+  const manifest = [{ file: 'index.html', sha256: acceptanceHash(html) }, { file: 'images/existing.png', sha256: acceptanceHash(png) }, { file: alias, sha256: acceptanceHash('old archive bytes') }, { file: 'conversations/specials/proof-of-birthday/index.html', sha256: acceptanceHash(canonical) }];
+  const calls = [], apiCalls = [], reports = [];
+  const vercel = async endpoint => { apiCalls.push(endpoint); assert.ok([`/v13/deployments/${deployment.id}`, `/v9/projects/${TARGET.project}`].includes(endpoint)); return endpoint.startsWith('/v13/') ? deployment : project; };
+  const execute = (binary, args, options) => {
+    calls.push({ binary, args, options }); if (args[0] === '--version') return ACCEPTANCE_CLI_VERSION;
+    assert.equal(args[0], 'curl'); assert.equal(args.includes('--scope'), false); assert.equal(args.includes('--deployment'), false); assert.equal(args.includes('--trace'), false); assert.equal(args.includes('--location'), false);
+    assert.equal(args[args.indexOf('--token') + 1], token); assert.ok(args.indexOf('--token') < args.indexOf('--'));
+    assert.equal(options.env.VERCEL_AUTOMATION_BYPASS_SECRET, bypass);
+    for (const field of ['LTC_GOOGLE_REFRESH_TOKEN', 'LTC_BUFFER_API_KEY', 'APP_PRINCIPAL_ENABLED', 'VERCEL_TOKEN']) assert.equal(options.env[field], undefined);
+    assert.ok(!JSON.stringify(args).includes(bypass)); const url = new URL(args[1]); assert.equal(url.origin, 'https://' + deployment.url);
+    const route = url.pathname;
+    const header = route === '/conversations/specials/litecoin-at-15/1/' ? 'HTTP/2 308\r\nlocation: /conversations/specials/proof-of-birthday/\r\n\r\n' : 'HTTP/2 200\r\ncontent-type: application/octet-stream\r\n\r\n';
+    return Buffer.concat([Buffer.from(header), route === '/' ? html : route === '/images/existing.png' ? png : canonical]);
+  };
+  return { env, token, bypass, deployment, project, manifest, calls, apiCalls, reports, vercel, execute, report: async value => { reports.push(value); } };
+}
+test('supported linked client reads exactly three existing records in order using full bound URLs and existing env-only bypass', async () => {
+  const f = linkedFixture(), client = createAcceptanceLinkedClient({ ...f, directory: '/private/fixture-read' }); await client.verifyVersion();
+  await assert.rejects(createAcceptanceLinkedClient({ ...f, directory: '/private/fixture-read', execute: () => '61.1.0' }).verifyVersion(), /pinned_cli_version_mismatch/);
+  const records = existingLinkedReadRecords(f.manifest); await client.readProtected(f.deployment, records, f.manifest);
+  assert.deepEqual(f.calls.filter(call => call.args[0] === 'curl').map(call => new URL(call.args[1]).pathname), ['/', '/images/existing.png', '/conversations/specials/litecoin-at-15/1/', '/conversations/specials/proof-of-birthday/']);
+  assert.deepEqual(f.apiCalls, [`/v13/deployments/${f.deployment.id}`, `/v9/projects/${TARGET.project}`]); assert.deepEqual(f.reports, []);
+  assert.equal(f.calls.some(call => call.args[0] === 'deploy'), false);
+});
+test('project-only auth forbids scope/implicit targeting and bypass credentials never enter auth arguments', () => {
+  const token = 'fixture-project-token-only'; assert.deepEqual(acceptanceProjectScopedAuth(['deploy', '--prebuilt'], token), ['deploy', '--prebuilt', '--token', token]);
+  for (const flag of ['--scope', '--scope=other', '--team', '-S', '--api=https://other.invalid', '--local-config=other', '--trace', '--debug', '--token=other']) assert.throws(() => acceptanceProjectScopedAuth(['curl', 'https://accepted.vercel.app/', flag], token), /acceptance_cli_auth_scope_forbidden/);
+  assert.throws(() => createAcceptanceLinkedClient({ env: { LTC_VERCEL_CLI_VERSION: '61.1.0' } }), /pinned_cli_version_required/);
+});
+test('missing/ambiguous existing bypass, changed deployment URL/owner and project name fail without a CLI request or token creation', async () => {
+  for (const mutate of [f => { delete f.project.protectionBypass; }, f => { f.project.protectionBypass = {}; }, f => { f.project.protectionBypass['another-existing-bypass'] = { scope: 'automation-bypass' }; }, f => { f.project.name = 'other-project'; }, f => { f.deployment.ownerId = 'team_other'; }, f => { f.deployment.url = 'https://external.invalid/'; }]) {
+    const f = linkedFixture(); mutate(f); const client = createAcceptanceLinkedClient({ ...f, directory: '/private/fixture-read' }); await assert.rejects(client.readProtected({ id: 'dpl_Previous' }, existingLinkedReadRecords(f.manifest), f.manifest)); assert.equal(f.calls.length, 0);
+  }
+  const f = linkedFixture(), client = createAcceptanceLinkedClient({ ...f, directory: '/private/fixture-read' }); await assert.rejects(client.readProtected({ id: 'dpl_Previous', url: 'other.vercel.app' }, existingLinkedReadRecords(f.manifest), f.manifest), /acceptance_protected_read_binding_failed/); assert.equal(f.calls.length, 0);
+});
+test('safe child failure diagnostics contain only a fixed enum and bounded exit status', async () => {
+  const f = linkedFixture(), leak = 'private token stdout stderr argv must never escape';
+  const error = Object.assign(Error(leak), { status: 17, stdout: Buffer.from(leak), stderr: Buffer.from(leak), spawnargs: [leak], code: 'PRIVATE_CODE' });
+  const client = createAcceptanceLinkedClient({ ...f, directory: '/private/fixture-read', execute: () => { throw error; } });
+  await assert.rejects(client.readProtected(f.deployment, existingLinkedReadRecords(f.manifest), f.manifest), /acceptance_cli_failed/);
+  assert.deepEqual(f.reports, [{ operation: 'protected-read', category: 'cli-exited', exitStatus: 17 }]); assert.ok(!JSON.stringify(f.reports).includes('private'));
+  for (const [code, category] of [['ENOENT', 'cli-unavailable'], ['ETIMEDOUT', 'cli-timeout'], ['ENOBUFS', 'cli-output-limit'], ['PRIVATE', 'cli-execution-failed']]) assert.deepEqual(safeAcceptanceCliDiagnostic({ code, status: null, message: leak }), { category, exitStatus: null });
+  assert.equal(safeAcceptanceCliDiagnostic({ status: 999 }).exitStatus, null);
+});
+test('linked deploy checks exact raw project/name and local link, scrubs credentials and never passes bypass', async t => {
+  const f = linkedFixture(), directory = await mkdtemp(path.join(tmpdir(), 'ltc-linked-deploy-')); t.after(() => rm(directory, { recursive: true, force: true }));
+  await mkdir(path.join(directory, '.vercel')); await writeFile(path.join(directory, '.vercel/project.json'), JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team, projectName: ACCEPTANCE_PROJECT_NAME })); await writeFile(path.join(directory, 'vercel.json'), '{}');
+  let effects = 0; const client = createAcceptanceLinkedClient({ ...f, directory, execute: (binary, args, options) => { effects++; assert.equal(args[0], 'deploy'); assert.equal(args.includes('--scope'), false); assert.equal(options.env.VERCEL_AUTOMATION_BYPASS_SECRET, undefined); assert.equal(options.env.LTC_GOOGLE_REFRESH_TOKEN, undefined); return Buffer.from('candidate output'); } });
+  const args = ['deploy', '--prebuilt', '--prod', '--skip-domain', '--yes']; await client.deploy(args, directory); assert.equal(effects, 1);
+  await writeFile(path.join(directory, 'vercel.json'), '{"scope":"implicit-other-team"}'); await assert.rejects(client.deploy(args, directory), /acceptance_cli_auth_scope_forbidden/); assert.equal(effects, 1);
+});
+test('recovery saves linked existing-read proof before unknown stage readback and does not replay or complete acceptance', async t => {
+  const f = await fixture(t), stageId = `accept-${acceptanceHash(f.plan).slice(0, 24)}-stage`; await assert.rejects(runStageAcceptance({ ...f, crashAfter: stageId }), /operation_outcome_uncertain/);
+  const saved = []; f.dependencies.save = async value => { saved.push(value); }; f.flags.hideStage = true;
+  await assert.rejects(f.recovery(), /operation_outcome_uncertain/);
+  assert.equal(saved.at(-1).linkedCliExistingReadVerified, true); assert.equal(saved.at(-1).lease.fence, 1); assert.equal(f.flags.stageCalls, 1);
+  const doc = await f.state.inspect(); assert.equal(doc.paused, true); assert.ok(doc.lease); assert.equal(doc.intents[stageId].status, 'uncertain'); assert.equal(doc.acceptance.completion, undefined);
+  f.dependencies.verifyLinkedExistingRead = undefined; await assert.rejects(f.recovery(), /acceptance_linked_read_required/); assert.equal(f.flags.stageCalls, 1);
 });
 
 test('acceptance diagnostics expose fixed failure codes and redact arbitrary provider details', () => {
