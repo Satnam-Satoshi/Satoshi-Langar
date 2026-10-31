@@ -71,17 +71,35 @@ async function boundedJSON(response, limit) {
 export async function probeVercelProject({ env = process.env, fetchImpl = fetch }) {
   const token = env.VERCEL_TOKEN;
   check(typeof token === 'string' && token.length >= 16 && token.length <= 8192 && !/[\s\x00-\x1f\x7f]/.test(token), 'vercel_project_credential_required');
-  const result = { schemaVersion: 1, mode: 'read-only-vercel-project-probe', cloudPublishingActive: false, writesPerformed: false, projectIdentityVerified: false, accountIdentityVerified: false, nativeDeployControlVerified: false, projectMetadataVerified: false };
+  const result = { schemaVersion: 1, mode: 'read-only-vercel-project-probe', cloudPublishingActive: false, writesPerformed: false, projectHttpStatus: null, projectIdentityVerified: false, accountIdentityVerified: false, nativeDeployControlVerified: false, projectMetadataVerified: false, userHttpStatus: null, userShapeVerified: false, teamHttpStatus: null, teamIdentityVerified: false, teamSlugVerified: false, cliPreflightVerified: false };
+  // These are the pinned CLI's pre-deploy owner lookups, not new permissions or
+  // a deployment-write test. Each result survives failures of the other reads.
+  const read = async (endpoint, statusField, limit) => {
+    const response = await fetchImpl(`https://api.vercel.com${endpoint}`, { method: 'GET', redirect: 'error', signal: AbortSignal.timeout(15_000), headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } });
+    check(Number.isInteger(response?.status) && response.status >= 100 && response.status <= 599, 'metadata_response_unavailable');
+    result[statusField] = response.status;
+    if (response.status !== 200 || response.redirected) { await response.body?.cancel().catch(() => {}); throw Error('metadata_response_unavailable'); }
+    return boundedJSON(response, limit);
+  };
   try {
-    const response = await fetchImpl(`https://api.vercel.com/v9/projects/${TARGET.project}?teamId=${TARGET.team}`, { method: 'GET', redirect: 'error', signal: AbortSignal.timeout(15_000), headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' } });
-    check(response.status === 200 && !response.redirected, 'metadata_response_unavailable');
-    const project = await boundedJSON(response, 2_000_000);
+    const project = await read(`/v9/projects/${TARGET.project}?teamId=${TARGET.team}`, 'projectHttpStatus', 2_000_000);
     result.projectIdentityVerified = project.id === TARGET.project;
     result.accountIdentityVerified = project.accountId === TARGET.team;
     assertVercelProjectPolicy(project, TARGET);
     result.nativeDeployControlVerified = true;
     result.projectMetadataVerified = result.projectIdentityVerified && result.accountIdentityVerified && result.nativeDeployControlVerified;
   } catch { /* No raw provider diagnostics, environment fields or identities escape. */ }
+  try {
+    const account = await read('/v2/user', 'userHttpStatus', 65_536);
+    // CLI getUser consumes response.user.id; it does not use a uid envelope.
+    result.userShapeVerified = plain(account?.user) === true && typeof account.user.id === 'string' && account.user.id.length > 0 && account.user.id.length <= 256;
+  } catch { /* Denied/malformed reads retain only the safe HTTP status. */ }
+  try {
+    const team = await read(`/teams/${TARGET.team}`, 'teamHttpStatus', 65_536);
+    result.teamIdentityVerified = plain(team) === true && team.id === TARGET.team;
+    result.teamSlugVerified = plain(team) === true && team.slug === TARGET.scope;
+  } catch { /* Never return team/user IDs, names, email or provider error text. */ }
+  result.cliPreflightVerified = result.projectMetadataVerified && result.userShapeVerified && result.teamIdentityVerified && result.teamSlugVerified;
   return result;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
@@ -91,6 +109,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     check(args.length === 2 && args[0] === '--receipt' && args[1], 'invalid_probe_arguments');
     const receipt = mode === 'ledgers' ? await probePausedLedgers({}) : mode === 'vercel' ? await probeVercelProject({}) : await probePrivateGoogleFolder({});
     await writeFile(path.resolve(args[1]), JSON.stringify(receipt, null, 2) + '\n', { flag: 'wx', mode: 0o600 }); console.log(JSON.stringify(receipt));
-    if (!(mode === 'ledgers' ? receipt.allLedgersVerified : mode === 'vercel' ? receipt.projectMetadataVerified : receipt.folderPrivateVerified)) process.exitCode = 1;
+    if (!(mode === 'ledgers' ? receipt.allLedgersVerified : mode === 'vercel' ? receipt.projectMetadataVerified && receipt.cliPreflightVerified : receipt.folderPrivateVerified)) process.exitCode = 1;
   } catch (error) { console.error(['exact_private_ledgers_required', 'vercel_project_credential_required', 'exact_private_folder_required', 'google_refresh_credentials_required', 'google_refresh_failed', 'google_refresh_scope_mismatch'].includes(error.message) ? error.message : 'google_folder_probe_unavailable'); process.exitCode = 1; }
 }
