@@ -58,6 +58,7 @@ test('complete acceptance uses remote restored exact bytes, persists identities 
   assert.equal(result.status, 'stage-verified'); assert.equal(result.aliasesChanged, false); assert.equal(f.flags.stageCalls, 1);
   assert.ok(f.events.indexOf('upload') < f.events.indexOf('download') && f.events.indexOf('download') < f.events.indexOf('deploy') && f.events.includes('protected'));
   const state = await f.state.inspect(); assert.equal(state.paused, true); assert.equal(state.lease, null); assert.ok(Object.values(state.intents).every(intent => intent.status === 'confirmed'));
+  assert.equal(state.acceptance.status, 'completed'); assert.equal(state.acceptance.completion.outcome, 'stage-verified'); assert.equal(state.acceptance.completionSha256, result.completionSha256); assert.equal(acceptanceHash(state.acceptance.completion), result.completionSha256);
   await assert.rejects(runStageAcceptance(f), /acceptance_ledger_not_idle/);
 });
 
@@ -81,6 +82,8 @@ test('lost stage confirmation recovers from remote package without local source 
   await assert.rejects(runStageAcceptance({ ...f, crashAfter: stageId }), /operation_outcome_uncertain/);
   await rm(f.root, { recursive: true }); await rm(f.dependencies.directory, { recursive: true });
   const result = await f.recovery(); assert.equal(result.status, 'stage-verified'); assert.equal(f.flags.stageCalls, 1); assert.equal(f.flags.uploadCalls, f.plan.bundleCount); assert.ok(f.events.includes('protected')); assert.equal((await f.state.inspect()).lease, null);
+  const completed = (await f.state.inspect()).acceptance.completion;
+  assert.deepEqual(completed.origin, { runId: '100', attempt: '1' }); assert.deepEqual(completed.completedBy, { runId: '101', attempt: '1', mode: 'stage-only-recovery' }); assert.equal(completed.verification.fullRestoreVerified, true); assert.equal(completed.verification.publicBaselineVerified, true); assert.equal(completed.verification.protectedStageVerified, true);
 });
 
 test('unknown remote outcome remains paused with original lease; active original run and wrong fence cannot reconcile', async t => {
@@ -89,6 +92,7 @@ test('unknown remote outcome remains paused with original lease; active original
   f.flags.running = false; await assert.rejects(f.recovery({ expectedFence: 999 }), /acceptance_recovery_fence_required/);
   f.flags.unknown = true; await assert.rejects(f.recovery(), /operation_outcome_uncertain/);
   const doc = await f.state.inspect(); assert.equal(doc.paused, true); assert.ok(doc.lease); assert.ok(Object.values(doc.intents).some(intent => intent.status === 'uncertain')); assert.equal(f.flags.uploadCalls, 1);
+  assert.equal(doc.acceptance.status, 'admitted'); assert.equal(doc.acceptance.completion, undefined);
 });
 
 test('tampered downloaded bytes prevent staging and preserve fence for reviewed recovery', async t => { const f = await fixture(t); f.flags.corruptDownload = true; await assert.rejects(runStageAcceptance(f)); assert.equal(f.flags.stageCalls, 0); assert.ok((await f.state.inspect()).lease); });
@@ -97,6 +101,20 @@ test('failure before any intent recovers admission without creating effects', as
   const f = await fixture(t); f.dependencies.preallocate = async () => { throw Error('allocation unavailable'); };
   await assert.rejects(runStageAcceptance(f), /allocation unavailable/); const doc = await f.state.inspect(); assert.ok(doc.lease); assert.deepEqual(doc.intents, {});
   const result = await f.recovery(); assert.equal(result.status, 'incomplete-no-resume'); assert.equal((await f.state.inspect()).paused, true); assert.equal((await f.state.inspect()).lease, null); assert.equal(f.flags.uploadCalls, 0);
+  const completed = (await f.state.inspect()).acceptance.completion; assert.equal(completed.outcome, 'incomplete-no-resume'); assert.equal(completed.verification.fullRestoreVerified, false); assert.equal(completed.verification.publicBaselineVerified, false); assert.equal(completed.verification.protectedStageVerified, false);
+});
+
+test('bounded durable completion survives loss of ephemeral final receipt and binds terminal proofs', async t => {
+  const f = await fixture(t); f.dependencies.save = async value => { if (value.status === 'stage-verified') throw Error('local receipt unavailable'); };
+  await assert.rejects(runStageAcceptance(f), /local receipt unavailable/);
+  const document = await f.state.inspect(), completion = document.acceptance.completion;
+  assert.equal(document.lease, null); assert.equal(document.paused, true); assert.equal(document.acceptance.status, 'completed');
+  assert.equal(completion.planSha256, acceptanceHash(f.plan)); assert.equal(completion.source, f.plan.source); assert.equal(completion.implementationSha256, f.plan.implementationSha256); assert.equal(completion.fence, document.fence);
+  assert.deepEqual(completion.origin, { runId: '100', attempt: '1' }); assert.deepEqual(completion.completedBy, { runId: '100', attempt: '1', mode: 'stage-only' });
+  assert.equal(completion.verificationSha256, acceptanceHash(completion.verification)); assert.equal(document.acceptance.completionSha256, acceptanceHash(completion)); assert.ok(Buffer.byteLength(JSON.stringify(completion)) < 4096);
+  const intents = Object.values(document.intents).filter(intent => intent.fence === completion.fence).sort((a, b) => a.operationId.localeCompare(b.operationId));
+  assert.equal(completion.terminalProofSha256, acceptanceHash(intents.map(intent => ({ operationId: intent.operationId, payloadSha256: intent.payloadSha256, status: intent.status, evidenceSha256: intent.evidenceSha256, receiptSha256: document.receipts[intent.operationId].sha256 }))));
+  await assert.rejects(runStageAcceptance(f), /acceptance_ledger_not_idle/); assert.equal(f.flags.stageCalls, 1);
 });
 
 test('original plan survives admission and confirmed-stage recovery still obtains fresh protected proof', async t => {

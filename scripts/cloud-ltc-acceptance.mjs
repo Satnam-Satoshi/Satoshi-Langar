@@ -35,8 +35,26 @@ async function acceptanceTransition(state, transform) {
   await state.adapter.conditionalWrite('website', document, snapshot.version);
   return result;
 }
-function closeAcceptance(state, lease) {
-  return acceptanceTransition(state, document => { check(document.lease?.runId === lease.runId && document.lease.fence === lease.fence && Object.values(document.intents).every(terminal), 'acceptance_recovery_unknown'); document.lease = null; document.paused = true; if (document.acceptance) document.acceptance.status = 'closed'; });
+function closeAcceptance(state, lease, { plan, env, mode, outcome, fullRestoreVerified, publicBaselineVerified }) {
+  assertAcceptanceContext(plan, env);
+  check(['stage-only', 'stage-only-recovery'].includes(mode) && ['stage-verified', 'incomplete-no-resume'].includes(outcome) && typeof fullRestoreVerified === 'boolean' && typeof publicBaselineVerified === 'boolean', 'acceptance_completion_invalid');
+  return acceptanceTransition(state, document => {
+    check(document.lease?.runId === lease.runId && document.lease.fence === lease.fence && Object.values(document.intents).every(terminal), 'acceptance_recovery_unknown');
+    persistedAcceptancePlan(document, lease.fence, acceptanceHash(plan));
+    const origin = /^accept-([1-9]\d*)-([1-9]\d*)$/.exec(lease.runId); check(origin, 'acceptance_completion_invalid');
+    const intents = Object.values(document.intents).filter(intent => intent.fence === lease.fence).sort((a, b) => a.operationId.localeCompare(b.operationId));
+    const stage = intents.find(intent => intent.operationId === `${prefixFor(plan)}-stage`);
+    check(outcome !== 'stage-verified' || (fullRestoreVerified && publicBaselineVerified && stage?.status === 'confirmed'), 'acceptance_completion_invalid');
+    const verification = { fullRestoreVerified, publicBaselineVerified, publicUnchangedVerified: publicBaselineVerified, protectedStageVerified: outcome === 'stage-verified', artifactPackageManifestSha256: plan.artifactPackageManifestSha256, sourceManifestSha256: plan.sourceManifestSha256, staticManifestSha256: plan.staticManifestSha256, buildOutputSha256: plan.buildOutputSha256, previousPublicManifestSha256: plan.previousPublicManifestSha256 };
+    const completion = { schemaVersion: 1, outcome, planSha256: acceptanceHash(plan), source: plan.source, implementationSha256: plan.implementationSha256, fence: lease.fence,
+      origin: { runId: origin[1], attempt: origin[2] }, completedBy: { runId: env.GITHUB_RUN_ID, attempt: env.GITHUB_RUN_ATTEMPT, mode },
+      terminalProofSha256: acceptanceHash(intents.map(intent => ({ operationId: intent.operationId, payloadSha256: intent.payloadSha256, status: intent.status, evidenceSha256: intent.evidenceSha256, receiptSha256: document.receipts[intent.operationId].sha256 }))),
+      verification, verificationSha256: acceptanceHash(verification) };
+    const completionSha256 = acceptanceHash(completion);
+    document.acceptance.status = 'completed'; document.acceptance.completion = completion; document.acceptance.completionSha256 = completionSha256;
+    document.lease = null; document.paused = true;
+    return completionSha256;
+  });
 }
 
 function validatePlan(plan) {
@@ -176,8 +194,8 @@ export async function runStageAcceptance({ plan, packed, previousManifest, env, 
   const receipt = await coordinator.execute({ ...stage, provider: afterEffect(stage.provider, stage.operationId, crashAfter, dependencies.crashBoundary) });
   check(receipt.status === 'confirmed', 'acceptance_stage_unconfirmed');
   await controls(plan, dependencies); await dependencies.verifyPublic(restored.previousManifest);
-  await closeAcceptance(state, lease);
-  const result = { mode: 'stage-only', status: 'stage-verified', planSha256: acceptanceHash(plan), publicationEnabled: false, aliasesChanged: false, restored: restored.restored, stage: receipt, leaseReleased: true, websitePaused: true };
+  const completionSha256 = await closeAcceptance(state, lease, { plan, env, mode: 'stage-only', outcome: 'stage-verified', fullRestoreVerified: true, publicBaselineVerified: true });
+  const result = { mode: 'stage-only', status: 'stage-verified', planSha256: acceptanceHash(plan), completionSha256, publicationEnabled: false, aliasesChanged: false, restored: restored.restored, stage: receipt, leaseReleased: true, websitePaused: true };
   await dependencies.save(result); return result;
 }
 
@@ -197,8 +215,8 @@ export async function recoverStageAcceptance({ plan, env, state, dependencies, e
   const coordinator = new ReleaseOperationCoordinator({ state, lease });
   if (intents.every(intent => intent.status === 'pending')) {
     for (const intent of intents) { const proof = { kind: 'never-authorized', operationId: intent.operationId, fence: lease.fence, payloadSha256: intent.payloadSha256 }; await state.reconcile(intent.operationId, 'not-applied', acceptanceHash(proof), proof); }
-    await closeAcceptance(state, lease);
-    const result = { mode: 'stage-only-recovery', status: 'incomplete-no-resume', planSha256: acceptanceHash(plan), publicationEnabled: false, effectsReissued: false, websitePaused: true, leaseReleased: true };
+    const completionSha256 = await closeAcceptance(state, lease, { plan, env, mode: 'stage-only-recovery', outcome: 'incomplete-no-resume', fullRestoreVerified: false, publicBaselineVerified: false });
+    const result = { mode: 'stage-only-recovery', status: 'incomplete-no-resume', planSha256: acceptanceHash(plan), completionSha256, publicationEnabled: false, effectsReissued: false, websitePaused: true, leaseReleased: true };
     await dependencies.save(result); return result;
   }
   const evidence = intents.filter(intent => intent.payload.kind === 'drive-evidence').sort((a, b) => a.payload.artifactBundleIndex - b.payload.artifactBundleIndex);
@@ -222,8 +240,9 @@ export async function recoverStageAcceptance({ plan, env, state, dependencies, e
   else if (stage.status === 'pending') { const proof = { kind: 'never-authorized', operationId: stage.operationId, fence: lease.fence, payloadSha256: stage.payloadSha256 }; await state.reconcile(stage.operationId, 'not-applied', acceptanceHash(proof), proof); }
   await controls(plan, dependencies); if (restored) await dependencies.verifyPublic(restored.previousManifest);
   document = await state.inspect(); check(Object.values(document.intents).every(terminal), 'acceptance_recovery_unknown');
-  await closeAcceptance(state, lease);
-  const result = { mode: 'stage-only-recovery', status: document.intents[stage.operationId].status === 'confirmed' && restored ? 'stage-verified' : 'incomplete-no-resume', planSha256: acceptanceHash(plan), publicationEnabled: false, effectsReissued: false, websitePaused: true, leaseReleased: true };
+  const outcome = document.intents[stage.operationId].status === 'confirmed' && restored ? 'stage-verified' : 'incomplete-no-resume';
+  const completionSha256 = await closeAcceptance(state, lease, { plan, env, mode: 'stage-only-recovery', outcome, fullRestoreVerified: Boolean(restored), publicBaselineVerified: Boolean(restored) });
+  const result = { mode: 'stage-only-recovery', status: outcome, planSha256: acceptanceHash(plan), completionSha256, publicationEnabled: false, effectsReissued: false, websitePaused: true, leaseReleased: true };
   await dependencies.save(result); return result;
 }
 
