@@ -11,24 +11,30 @@ import { ReleaseOperationCoordinator } from './cloud-ltc-operations.mjs';
 import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
 import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
 import { createReadOnlyReleaseClients } from './cloud-ltc-reconcile.mjs';
+import { assertSetupIncidentsForStage, FOUNDER_ACTOR_ID } from './cloud-ltc-setup-quarantine.mjs';
+import { applyOwnerSetupQuarantine } from './cloud-ltc-setup-quarantine-runner.mjs';
 import { createVercelReleaseProviders, assertVercelDeploymentIdentity, assertVercelProjectPolicy } from './cloud-ltc-release-providers.mjs';
 import { TARGET, builtManifest, builtOutputManifest, verifyImplementation, verifyProtectedManifestRecords, verifyPublicDomains, cleanEnvironment, pathsFor, safeFailure } from './cloud-ltc-release.mjs';
 
 const acceptanceFailureCodes = new Set(['acceptance_artifact_binding_changed', 'acceptance_artifacts_incomplete', 'acceptance_build_output_changed', 'acceptance_completion_invalid', 'acceptance_configuration_changed', 'acceptance_context_required', 'acceptance_deliberate_crash', 'acceptance_download_unknown', 'acceptance_durable_state_required', 'acceptance_effect_forbidden', 'acceptance_executable_missing', 'acceptance_file_ids_invalid', 'acceptance_initialized_ledger_required', 'acceptance_invalid_crash_boundary', 'acceptance_ledger_not_idle', 'acceptance_origin_still_running', 'acceptance_package_changed', 'acceptance_previous_manifest_changed', 'acceptance_previous_manifest_required', 'acceptance_promotion_forbidden', 'acceptance_public_pointer_changed', 'acceptance_recovery_context_missing', 'acceptance_recovery_fence_required', 'acceptance_recovery_unknown', 'acceptance_restored_artifact_mismatch', 'acceptance_social_ledger_invalid', 'acceptance_social_not_paused', 'acceptance_source_changed', 'acceptance_source_not_clean', 'acceptance_stage_unconfirmed', 'acceptance_static_incomplete', 'acceptance_static_output_mismatch', 'acceptance_wrong_ledger']);
+for (const code of ['production_quarantined_setup_incident', 'quarantine_archive_required', 'quarantine_archive_snapshot_mismatch', 'quarantine_clock_required', 'quarantine_decision_pin_mismatch', 'quarantine_decision_required', 'quarantine_dependencies_required', 'quarantine_effect_set_invalid', 'quarantine_evidence_invalid', 'quarantine_fresh_review_required', 'quarantine_inputs_required', 'quarantine_isolation_invalid', 'quarantine_isolation_pin_mismatch', 'quarantine_linked_read_proof_required', 'quarantine_linked_read_run_changed', 'quarantine_linked_read_run_unavailable', 'quarantine_origin_changed', 'quarantine_origin_invalid', 'quarantine_origin_read_failed', 'quarantine_plan_mismatch', 'quarantine_pointer_read_failed', 'quarantine_project_isolation_changed', 'quarantine_project_read_failed', 'quarantine_protected_context_required', 'quarantine_protected_pins_required', 'quarantine_protected_review_required', 'quarantine_public_manifest_mismatch', 'quarantine_public_pointer_changed', 'quarantine_public_read_failed', 'quarantine_readback_mismatch', 'quarantine_readback_unavailable', 'quarantine_receipt_save_failed', 'quarantine_review_pin_mismatch', 'quarantine_runtime_run_mismatch', 'quarantine_scope_invalid', 'quarantine_snapshot_required', 'quarantine_social_isolation_changed', 'quarantine_social_read_failed', 'quarantine_stage_invalid', 'quarantine_state_invalid', 'quarantine_state_read_failed', 'quarantine_write_uncertain', 'setup_incident_context_invalid', 'setup_incident_continuity_invalid', 'setup_incident_lineage_forbidden', 'setup_incident_pin_required', 'setup_incident_state_invalid', 'setup_incident_unexpected_pin', 'setup_incident_unrecognized']) acceptanceFailureCodes.add(code);
 export function safeAcceptanceFailure(error) {
   return acceptanceFailureCodes.has(error?.message) ? error.message : safeFailure(error);
 }
+for (const code of ['acceptance_setup_incident_binding_changed','setup_incident_pin_required','setup_incident_unrecognized','setup_incident_lineage_forbidden','setup_incident_state_invalid','setup_incident_continuity_invalid','setup_incident_unexpected_pin','setup_incident_context_invalid']) acceptanceFailureCodes.add(code);
 const check = (condition, code) => { if (!condition) throw Error(code); };
 export const ACCEPTANCE_CLI_VERSION = '65.9.0';
 export const ACCEPTANCE_PROJECT_NAME = 'https-github-com-satnam-satoshi-satoshi-langar';
 for (const code of ['acceptance_cli_failed', 'acceptance_cli_auth_scope_forbidden', 'acceptance_project_name_changed', 'acceptance_existing_bypass_required', 'acceptance_protected_read_binding_failed', 'acceptance_linked_read_required']) acceptanceFailureCodes.add(code);
 export function acceptanceProjectScopedAuth(args, token) {
   check(Array.isArray(args) && ['deploy', 'curl'].includes(args[0]) && !args.some(arg => /^(?:--(?:scope|team|token|api|local-config|debug|trace)|-[ST])(?:=|$)/.test(arg)) && typeof token === 'string' && token.length >= 16 && token.length <= 8192 && !/[\s\x00-\x1f\x7f]/.test(token), 'acceptance_cli_auth_scope_forbidden');
-  const split = args.indexOf('--');
-  return split < 0 ? [...args, '--token', token] : [...args.slice(0, split), '--token', token, ...args.slice(split)];
+  // 65.9 curl forwards post-command --token to native curl. Credentials belong
+  // only in the supported environment, never argv (including passthrough).
+  return [...args];
 }
 export function safeAcceptanceCliDiagnostic(error) {
-  const category = error?.code === 'ENOENT' ? 'cli-unavailable' : error?.code === 'ETIMEDOUT' ? 'cli-timeout' : error?.code === 'ENOBUFS' ? 'cli-output-limit' : Number.isInteger(error?.status) ? 'cli-exited' : 'cli-execution-failed';
+  const stderr = Buffer.isBuffer(error?.stderr) ? error.stderr.toString('utf8') : typeof error?.stderr === 'string' ? error.stderr : '';
+  const category = stderr.includes('curl: option --token: is unknown') ? 'native-auth-flag-forwarded' : error?.code === 'ENOENT' ? 'cli-unavailable' : error?.code === 'ETIMEDOUT' ? 'cli-timeout' : error?.code === 'ENOBUFS' ? 'cli-output-limit' : Number.isInteger(error?.status) ? 'cli-exited' : 'cli-execution-failed';
   return { category, exitStatus: Number.isInteger(error?.status) && error.status >= 0 && error.status <= 255 ? error.status : null };
 }
 function assertAcceptanceProject(project) {
@@ -55,7 +61,7 @@ export function createAcceptanceLinkedClient({ env, vercel, directory, execute =
   check(typeof cliPath === 'string' && !/[\x00\r\n]/.test(cliPath), 'invalid_cli_path');
   const invoke = async (args, cwd, bypass) => {
     const auth = acceptanceProjectScopedAuth(args, env.VERCEL_TOKEN);
-    try { return execute(cliPath, auth, { cwd, env: { ...cleanEnvironment(env), ...(bypass ? { VERCEL_AUTOMATION_BYPASS_SECRET: bypass } : {}) }, stdio: ['ignore', 'pipe', 'pipe'], timeout: 900_000, maxBuffer: 32 * 1024 * 1024 }); }
+    try { return execute(cliPath, auth, { cwd, env: { ...cleanEnvironment(env), VERCEL_TOKEN: env.VERCEL_TOKEN, ...(bypass ? { VERCEL_AUTOMATION_BYPASS_SECRET: bypass } : {}) }, stdio: ['ignore', 'pipe', 'pipe'], timeout: 900_000, maxBuffer: 32 * 1024 * 1024 }); }
     catch (error) { const diagnostic = safeAcceptanceCliDiagnostic(error); try { await report({ operation: args[0] === 'curl' ? 'protected-read' : 'stage', ...diagnostic }); } catch {} throw Error('acceptance_cli_failed'); }
   };
   return {
@@ -108,12 +114,22 @@ async function acceptanceTransition(state, transform) {
   await state.adapter.conditionalWrite('website', document, snapshot.version);
   return result;
 }
+// Optional field is never inserted into an old persisted plan during recovery.
+export function assertAcceptanceSetupPolicy({document,plan,env,phase}) {
+  const pin=env.LTC_SETUP_INCIDENT_SHA256 || undefined;
+  check((plan.setupIncidentSha256 === undefined && pin === undefined) || (digest(plan.setupIncidentSha256) && plan.setupIncidentSha256 === pin), 'acceptance_setup_incident_binding_changed');
+  return assertSetupIncidentsForStage({document,protectedIncidentSha256:pin,newPlanSha256:acceptanceHash(plan),phase});
+}
+async function checkSetupPolicy(state,plan,env,phase) {
+  return assertAcceptanceSetupPolicy({document:await state.inspect(),plan,env,phase});
+}
 function closeAcceptance(state, lease, { plan, env, mode, outcome, fullRestoreVerified, publicBaselineVerified }) {
   assertAcceptanceContext(plan, env, { recovery: mode === 'stage-only-recovery' });
   check(['stage-only', 'stage-only-recovery'].includes(mode) && ['stage-verified', 'incomplete-no-resume'].includes(outcome) && typeof fullRestoreVerified === 'boolean' && typeof publicBaselineVerified === 'boolean', 'acceptance_completion_invalid');
   return acceptanceTransition(state, document => {
     check(document.lease?.runId === lease.runId && document.lease.fence === lease.fence && Object.values(document.intents).every(terminal), 'acceptance_recovery_unknown');
     persistedAcceptancePlan(document, lease.fence, acceptanceHash(plan));
+    assertAcceptanceSetupPolicy({document,plan,env,phase:document.paused?'recovery':'active'});
     const origin = /^accept-([1-9]\d*)-([1-9]\d*)$/.exec(lease.runId); check(origin, 'acceptance_completion_invalid');
     const intents = Object.values(document.intents).filter(intent => intent.fence === lease.fence).sort((a, b) => a.operationId.localeCompare(b.operationId));
     const stage = intents.find(intent => intent.operationId === `${prefixFor(plan)}-stage`);
@@ -126,11 +142,13 @@ function closeAcceptance(state, lease, { plan, env, mode, outcome, fullRestoreVe
     const completionSha256 = acceptanceHash(completion);
     document.acceptance.status = 'completed'; document.acceptance.completion = completion; document.acceptance.completionSha256 = completionSha256;
     document.lease = null; document.paused = true;
+    assertAcceptanceSetupPolicy({document,plan,env,phase:'completed'});
     return completionSha256;
   });
 }
 
 function validatePlan(plan) {
+  check(plan?.setupIncidentSha256 === undefined || digest(plan.setupIncidentSha256), 'acceptance_setup_incident_binding_changed');
   check(plan?.schemaVersion === 1 && plan.kind === 'ltc-stage-only-acceptance' && /^[a-z0-9][a-z0-9_-]{0,47}$/.test(plan.acceptanceId ?? '') && /^[a-f0-9]{40}$/.test(plan.source ?? '') &&
     ['implementationSha256', 'sourceManifestSha256', 'staticManifestSha256', 'buildOutputSha256', 'artifactPackageManifestSha256', 'previousPublicManifestSha256'].every(key => digest(plan[key])) &&
     /^\d{4}-\d{2}-\d{2}-r[1-9]\d*$/.test(plan.editionId ?? '') && /^dpl_[A-Za-z0-9]+$/.test(plan.previousDeployment ?? '') &&
@@ -162,7 +180,7 @@ export function persistedAcceptancePlan(document, expectedFence, expectedHash) {
 }
 
 // Offline preparation only. The private output must be reviewed/pinned before any effect.
-export async function prepareStageAcceptance({ root, evidenceDirectory, editionId, acceptanceId, previousDeployment, previousManifest, implementationSha256, stateConfig, socialStateConfig, evidenceConfig }) {
+export async function prepareStageAcceptance({ root, evidenceDirectory, editionId, acceptanceId, previousDeployment, previousManifest, implementationSha256, stateConfig, socialStateConfig, evidenceConfig, setupIncidentSha256 }) {
   check(git(root, ['status', '--porcelain', '--untracked-files=normal']) === '', 'acceptance_source_not_clean');
   await verifyImplementation(root, implementationSha256);
   check(stateConfig.ledgerKey === undefined || stateConfig.ledgerKey === 'website', 'acceptance_wrong_ledger');
@@ -181,6 +199,7 @@ export async function prepareStageAcceptance({ root, evidenceDirectory, editionI
     buildOutputSha256: acceptanceHash(await builtOutputManifest(path.join(root, '.vercel/output'))), artifactPackageManifestSha256: packed.manifestSha256, bundleCount: packed.bundles.length,
     executablePaths: files.filter(file => file.mode === 'executable' && /^(source|build-output)\//.test(file.path)).map(file => file.path).sort(),
     folderId: evidenceConfig.folderId, websiteDocumentId: stateConfig.documentId, socialDocumentId: socialStateConfig.documentId, ownerPermissionId: evidenceConfig.ownerPermissionId };
+  if (setupIncidentSha256 !== undefined && setupIncidentSha256 !== '') { check(digest(setupIncidentSha256), 'acceptance_setup_incident_binding_changed'); plan.setupIncidentSha256=setupIncidentSha256; }
   validatePlan(plan); return { plan, packed, previousManifest };
 }
 
@@ -223,7 +242,7 @@ function stageOperation(plan, dependencies, manifest, workspace) {
   const payload = { kind: 'vercel-stage', acceptancePlanSha256: acceptanceHash(plan), editionId: plan.editionId, artifactPackageManifestSha256: plan.artifactPackageManifestSha256, commit: plan.source, buildOutputSha256: plan.buildOutputSha256, artifactManifestSha256: plan.staticManifestSha256 };
   const providers = createVercelReleaseProviders({ target: TARGET, vercel: dependencies.vercel,
     cli: args => { check(workspace && args[0] === 'deploy' && args.includes('--skip-domain'), 'acceptance_effect_forbidden'); return dependencies.cli(args, workspace); },
-    beforeMutation: async () => { await controls(plan, dependencies); check(acceptanceHash(await builtOutputManifest(path.join(workspace, '.vercel/output'))) === plan.buildOutputSha256, 'acceptance_build_output_changed'); },
+    beforeMutation: async () => { if (dependencies.assertSetupContinuity) await dependencies.assertSetupContinuity(); await controls(plan, dependencies); check(acceptanceHash(await builtOutputManifest(path.join(workspace, '.vercel/output'))) === plan.buildOutputSha256, 'acceptance_build_output_changed'); },
     verifyProtected: deployment => dependencies.verifyProtected(deployment, plan.editionId, manifest),
     verifyPublic: async () => { throw Error('acceptance_promotion_forbidden'); } });
   return { operationId: `${prefixFor(plan)}-stage`, payload, provider: providers.stage(payload) };
@@ -242,33 +261,41 @@ export async function runStageAcceptance({ plan, packed, previousManifest, env, 
   check(acceptanceHash(previousManifest) === plan.previousPublicManifestSha256, 'acceptance_previous_manifest_changed');
   check(crashAfter === null || crashAfter === 'first-effect' || crashAfter === `${prefixFor(plan)}-stage`, 'acceptance_invalid_crash_boundary');
   const initial = await state.inspect();
+  assertAcceptanceSetupPolicy({document:initial,plan,env,phase:'initial'});
   check(initial.paused === true && !initial.restoreHold && !initial.lease && Object.values(initial.intents).every(terminal) && !Object.keys(initial.intents).some(id => id.startsWith(prefixFor(plan))), 'acceptance_ledger_not_idle');
   await controls(plan, dependencies); await dependencies.verifySource(); await dependencies.verifyPublic(previousManifest);
   // Once admitted, failures deliberately retain the fence; no catch/finally clears uncertainty.
   const lease = await acceptanceTransition(state, document => {
+    assertAcceptanceSetupPolicy({document,plan,env,phase:'initial'});
     check(document.paused && !document.restoreHold && !document.lease && Object.values(document.intents).every(terminal) && !Object.keys(document.intents).some(id => id.startsWith(prefixFor(plan))), 'acceptance_ledger_not_idle');
     document.paused = false; document.lease = { runId: `accept-${env.GITHUB_RUN_ID}-${env.GITHUB_RUN_ATTEMPT}`, fence: ++document.fence, expiresAt: Date.now() + 3_600_000 };
-    document.acceptance = { schemaVersion: 1, plan, planSha256: acceptanceHash(plan), runId: document.lease.runId, fence: document.lease.fence, status: 'admitted' }; return structuredClone(document.lease);
+    document.acceptance = { schemaVersion: 1, plan, planSha256: acceptanceHash(plan), runId: document.lease.runId, fence: document.lease.fence, status: 'admitted', ...(plan.setupIncidentSha256 ? {setupIncidentSha256:plan.setupIncidentSha256} : {}) };
+    assertAcceptanceSetupPolicy({document,plan,env,phase:'active'}); return structuredClone(document.lease);
   });
   const coordinator = new ReleaseOperationCoordinator({ state, lease });
+  dependencies={...dependencies,assertSetupContinuity:()=>checkSetupPolicy(state,plan,env,'active')};
+  const guardProvider=provider=>({readback:context=>provider.readback(context),apply:async context=>{await dependencies.assertSetupContinuity();return provider.apply(context)}});
   await dependencies.save({ mode: 'stage-only', planSha256: acceptanceHash(plan), lease, status: 'admitted' });
   const ids = await dependencies.preallocate(plan.bundleCount);
   check(ids.length === plan.bundleCount && new Set(ids).size === ids.length, 'acceptance_file_ids_invalid');
   const operations = packed.bundles.map((bundle, index) => ({ operationId: `${prefixFor(plan)}-e${index}`, payload: { kind: 'drive-evidence', role: 'acceptance-artifacts', acceptancePlanSha256: acceptanceHash(plan), artifactPackageManifestSha256: plan.artifactPackageManifestSha256, artifactBundleCount: plan.bundleCount, artifactBundleIndex: index, fileId: ids[index], folderId: plan.folderId, sha256: bundle.sha256, bytes: bundle.length }, bundle }));
   // Persist EVERY ID/payload, including the planned stage, before the first upload.
-  for (const operation of operations) await state.intend(lease, operation.operationId, acceptanceHash(operation.payload), operation.payload);
+  for (const operation of operations) { await dependencies.assertSetupContinuity(); await state.intend(lease, operation.operationId, acceptanceHash(operation.payload), operation.payload); }
   const plannedStage = stageOperation(plan, dependencies, [], null);
+  await dependencies.assertSetupContinuity();
   await state.intend(lease, plannedStage.operationId, acceptanceHash(plannedStage.payload), plannedStage.payload);
+  await dependencies.assertSetupContinuity();
   for (const operation of operations) {
     await controls(plan, dependencies); await state.renew(lease, 3_600_000);
     const provider = dependencies.evidenceProvider(operation.bundle, operation.payload.fileId);
-    await coordinator.execute({ ...operation, provider: afterEffect(provider, operation.operationId, crashAfter, dependencies.crashBoundary) });
+    await coordinator.execute({ ...operation, provider: afterEffect(guardProvider(provider), operation.operationId, crashAfter, dependencies.crashBoundary) });
   }
   const restored = await restorePackage(plan, operations, dependencies);
+  await dependencies.assertSetupContinuity();
   await controls(plan, dependencies);
   const stage = stageOperation(plan, dependencies, restored.manifest, restored.workspace);
   await state.renew(lease, 3_600_000);
-  const receipt = await coordinator.execute({ ...stage, provider: afterEffect(stage.provider, stage.operationId, crashAfter, dependencies.crashBoundary) });
+  const receipt = await coordinator.execute({ ...stage, provider: afterEffect(guardProvider(stage.provider), stage.operationId, crashAfter, dependencies.crashBoundary) });
   check(receipt.status === 'confirmed', 'acceptance_stage_unconfirmed');
   await controls(plan, dependencies); await dependencies.verifyPublic(restored.previousManifest);
   const completionSha256 = await closeAcceptance(state, lease, { plan, env, mode: 'stage-only', outcome: 'stage-verified', fullRestoreVerified: true, publicBaselineVerified: true });
@@ -281,6 +308,7 @@ export async function runStageAcceptance({ plan, packed, previousManifest, env, 
 export async function recoverStageAcceptance({ plan, env, state, dependencies, expectedFence }) {
   assertAcceptanceContext(plan, env, { recovery: true }); check(state instanceof DurableCloudState, 'acceptance_durable_state_required');
   let document = await state.inspect(); const lease = document.lease;
+  assertAcceptanceSetupPolicy({document,plan,env,phase:document.paused?'recovery':'active'});
   const origin = /^accept-([1-9]\d*)-([1-9]\d*)$/.exec(lease?.runId ?? '');
   check(origin && lease.fence === expectedFence && origin[1] !== env.GITHUB_RUN_ID, 'acceptance_recovery_fence_required');
   check(acceptanceHash(persistedAcceptancePlan(document, expectedFence, acceptanceHash(plan))) === acceptanceHash(plan), 'acceptance_recovery_context_missing');
@@ -289,6 +317,7 @@ export async function recoverStageAcceptance({ plan, env, state, dependencies, e
   const intents = Object.values(document.intents).filter(intent => intent.fence === lease.fence);
   check(intents.every(intent => intent.runId === lease.runId && intent.operationId.startsWith(prefixFor(plan)) && intent.payload?.acceptancePlanSha256 === acceptanceHash(plan) && acceptanceHash(intent.payload) === intent.payloadSha256 && ['drive-evidence', 'vercel-stage'].includes(intent.payload.kind)), 'acceptance_recovery_context_missing');
   await controls(plan, dependencies); await state.setPaused(true);
+  await checkSetupPolicy(state,plan,env,'recovery');
   const coordinator = new ReleaseOperationCoordinator({ state, lease });
   if (intents.every(intent => intent.status === 'pending')) {
     for (const intent of intents) { const proof = { kind: 'never-authorized', operationId: intent.operationId, fence: lease.fence, payloadSha256: intent.payloadSha256 }; await state.reconcile(intent.operationId, 'not-applied', acceptanceHash(proof), proof); }
@@ -299,10 +328,12 @@ export async function recoverStageAcceptance({ plan, env, state, dependencies, e
   const evidence = intents.filter(intent => intent.payload.kind === 'drive-evidence').sort((a, b) => a.payload.artifactBundleIndex - b.payload.artifactBundleIndex);
   check(evidence.length === plan.bundleCount && evidence.every((intent, index) => intent.payload.artifactBundleIndex === index && intent.payload.artifactBundleCount === plan.bundleCount && intent.payload.folderId === plan.folderId && intent.payload.artifactPackageManifestSha256 === plan.artifactPackageManifestSha256) && new Set(evidence.map(intent => intent.payload.fileId)).size === evidence.length, 'acceptance_recovery_context_missing');
   for (const intent of evidence) {
+    await checkSetupPolicy(state,plan,env,'recovery');
     if (intent.status === 'uncertain') await coordinator.reconcile({ ...intent, provider: { readback: async context => { const p = context.payload; const result = await dependencies.download({ ...p, length: p.bytes, operationId: context.operationId, payloadSha256: context.payloadSha256 }); return { ...context, status: result?.proof ? 'applied' : 'unknown', proof: result?.proof ?? {} }; } } });
     else if (intent.status === 'pending') { const proof = { kind: 'never-authorized', operationId: intent.operationId, fence: lease.fence, payloadSha256: intent.payloadSha256 }; await state.reconcile(intent.operationId, 'not-applied', acceptanceHash(proof), proof); }
   }
   document = await state.inspect();
+  assertAcceptanceSetupPolicy({document,plan,env,phase:'recovery'});
   const stages = intents.filter(intent => intent.payload.kind === 'vercel-stage'); check(stages.length === 1, 'acceptance_recovery_context_missing');
   const stage = stages[0];
   check(acceptanceHash(stage.payload) === acceptanceHash(stageOperation(plan, dependencies, [], null).payload), 'acceptance_recovery_context_missing');
@@ -329,31 +360,33 @@ export async function recoverStageAcceptance({ plan, env, state, dependencies, e
   await dependencies.save(result); return result;
 }
 
-function argumentsFor(args) {
+export function acceptanceArgumentsFor(args) {
   const result = {};
-  for (let i = 0; i < args.length; i += 2) { const key = { '--mode': 'mode', '--root': 'root', '--evidence-dir': 'evidenceDirectory', '--plan': 'planFile', '--state-config': 'stateConfig', '--social-state-config': 'socialStateConfig', '--evidence-config': 'evidenceConfig', '--receipt': 'receipt', '--edition-id': 'editionId', '--acceptance-id': 'acceptanceId', '--previous-deployment': 'previousDeployment', '--previous-manifest': 'previousManifestFile', '--expected-fence': 'expectedFence', '--crash-after': 'crashAfter' }[args[i]]; check(key && !result[key] && args[i + 1] && !args[i + 1].startsWith('--'), 'invalid_acceptance_arguments'); result[key] = args[i + 1]; }
-  check(['plan', 'stage', 'recover'].includes(result.mode) && ['stateConfig', 'socialStateConfig', 'evidenceConfig', 'receipt'].every(key => result[key]), 'invalid_acceptance_arguments');
-  check(result.mode === 'recover' ? /^[1-9]\d*$/.test(result.expectedFence ?? '') && !result.root && !result.crashAfter : result.root && result.evidenceDirectory && result.previousManifestFile && (result.mode === 'plan' ? result.editionId && result.previousDeployment && result.acceptanceId : result.planFile), 'invalid_acceptance_arguments');
+  for (let i = 0; i < args.length; i += 2) { const key = { '--mode': 'mode', '--review-file':'reviewFile', '--root': 'root', '--evidence-dir': 'evidenceDirectory', '--plan': 'planFile', '--state-config': 'stateConfig', '--social-state-config': 'socialStateConfig', '--evidence-config': 'evidenceConfig', '--receipt': 'receipt', '--edition-id': 'editionId', '--acceptance-id': 'acceptanceId', '--previous-deployment': 'previousDeployment', '--previous-manifest': 'previousManifestFile', '--expected-fence': 'expectedFence', '--crash-after': 'crashAfter' }[args[i]]; check(key && !result[key] && args[i + 1] && !args[i + 1].startsWith('--'), 'invalid_acceptance_arguments'); result[key] = args[i + 1]; }
+  check(['plan', 'stage', 'recover', 'quarantine'].includes(result.mode) && ['stateConfig', 'socialStateConfig', 'evidenceConfig', 'receipt'].every(key => result[key]), 'invalid_acceptance_arguments');
+  const noBuild=['recover','quarantine'].includes(result.mode);
+  check(noBuild ? /^[1-9]\d*$/.test(result.expectedFence ?? '') && !result.root && !result.evidenceDirectory && !result.crashAfter && (result.mode==='quarantine' ? result.reviewFile && result.previousManifestFile && !result.planFile && !result.editionId && !result.acceptanceId && !result.previousDeployment : !result.reviewFile) : !result.reviewFile && result.root && result.evidenceDirectory && result.previousManifestFile && (result.mode === 'plan' ? result.editionId && result.previousDeployment && result.acceptanceId : result.planFile), 'invalid_acceptance_arguments');
   return result;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
-    const options = argumentsFor(process.argv.slice(2)), env = process.env;
+    const options = acceptanceArgumentsFor(process.argv.slice(2)), env = process.env;
     // Authenticate the current recovery controller before even reading private
     // configs/ledger. Original plan implementation remains separately bound.
-    if (options.mode === 'recover') await verifyRecoveryController({ env });
+    if (['recover','quarantine'].includes(options.mode)) await verifyRecoveryController({ env });
+    if(options.mode==='quarantine') check(env.GITHUB_ACTOR_ID===FOUNDER_ACTOR_ID, 'acceptance_context_required');
     const json = async file => JSON.parse(await readFile(path.resolve(file), 'utf8'));
     const stateConfig = await json(options.stateConfig), socialStateConfig = await json(options.socialStateConfig), evidenceConfig = await json(options.evidenceConfig);
     let plan = options.planFile ? await json(options.planFile) : null, prepared, website;
-    if (options.mode === 'recover' && !plan) {
+    if (['recover','quarantine'].includes(options.mode) && !plan) {
       assertProtectedContext(env); website = await createGoogleStateRuntime({ config: stateConfig });
       plan = persistedAcceptancePlan(await new DurableCloudState(website.stateAdapter, 'website').inspect(), Number(options.expectedFence), env.LTC_ACCEPTANCE_PLAN_SHA256);
     }
-    if (options.mode !== 'recover') prepared = await prepareStageAcceptance({ ...options, root: path.resolve(options.root), evidenceDirectory: path.resolve(options.evidenceDirectory), previousManifest: await json(options.previousManifestFile), acceptanceId: plan?.acceptanceId ?? options.acceptanceId, editionId: plan?.editionId ?? options.editionId, previousDeployment: plan?.previousDeployment ?? options.previousDeployment, implementationSha256: env.LTC_ACCEPTED_IMPLEMENTATION_SHA256, stateConfig, socialStateConfig, evidenceConfig });
+    if (!['recover','quarantine'].includes(options.mode)) prepared = await prepareStageAcceptance({ ...options, root: path.resolve(options.root), evidenceDirectory: path.resolve(options.evidenceDirectory), previousManifest: await json(options.previousManifestFile), acceptanceId: plan?.acceptanceId ?? options.acceptanceId, editionId: plan?.editionId ?? options.editionId, previousDeployment: plan?.previousDeployment ?? options.previousDeployment, implementationSha256: env.LTC_ACCEPTED_IMPLEMENTATION_SHA256, setupIncidentSha256:env.LTC_SETUP_INCIDENT_SHA256 || undefined, stateConfig, socialStateConfig, evidenceConfig });
     if (options.mode === 'plan') { await writeFile(options.receipt, JSON.stringify(prepared.plan, null, 2) + '\n', { flag: 'wx', mode: 0o600 }); console.log(JSON.stringify({ mode: 'offline-plan', planSha256: acceptanceHash(prepared.plan), publicationEnabled: false })); }
     else {
-      assertAcceptanceContext(plan, env, { recovery: options.mode === 'recover' });
+      assertAcceptanceContext(plan, env, { recovery: ['recover','quarantine'].includes(options.mode) });
       check(!prepared || acceptanceHash(prepared.plan) === acceptanceHash(plan), 'acceptance_artifact_binding_changed');
       check(stateConfig.documentId === plan.websiteDocumentId && (stateConfig.ledgerKey ?? 'website') === 'website' && socialStateConfig.documentId === plan.socialDocumentId && socialStateConfig.ledgerKey === 'social' && [stateConfig.folderId, socialStateConfig.folderId, evidenceConfig.folderId].every(id => id === plan.folderId) && evidenceConfig.ownerPermissionId === plan.ownerPermissionId, 'acceptance_configuration_changed');
       website ??= await createGoogleStateRuntime({ config: stateConfig }); const social = await createGoogleStateRuntime({ config: socialStateConfig });
@@ -362,9 +395,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
       // Record scratch location before the first state/evidence mutation. Private, exclusive receipt.
       await writeFile(options.receipt, JSON.stringify({ mode: options.mode, planSha256: acceptanceHash(plan), directory, status: 'starting' }) + '\n', { flag: 'wx', mode: 0o600 });
       const clients = createReadOnlyReleaseClients({ env });
-      const token = () => withGoogleCloudAuthorization({ env }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
       const privateReceipt = { mode: options.mode, planSha256: acceptanceHash(plan), directory, status: 'starting' };
       const save = async result => { Object.assign(privateReceipt, result); await writeFile(options.receipt, JSON.stringify(privateReceipt, null, 2) + '\n', { mode: 0o600 }); };
+      if(options.mode==='quarantine'){
+        check(env.LTC_ACCEPTANCE_FENCE===options.expectedFence,'acceptance_recovery_fence_required');
+        const result=await applyOwnerSetupQuarantine({env,stateAdapter:website.stateAdapter,review:await json(options.reviewFile),previousManifest:await json(options.previousManifestFile),dependencies:{...clients,socialState:{inspect:async()=>{const {value}=await social.stateAdapter.read('social');check(value?.schemaVersion===1&&value.kind==='ltc-cloud-social'&&value.records&&typeof value.records==='object'&&!Array.isArray(value.records),'acceptance_social_ledger_invalid');return value}},verifyPublic:verifyPublicDomains,save}});
+        console.log(JSON.stringify({mode:'quarantine',incidentSha256:result.incidentSha256,newFence:result.newFence,outcome:'UNKNOWN',accepted:false,productionAuthorized:false}));
+      }else{
+      const token = () => withGoogleCloudAuthorization({ env }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
       const linked = createAcceptanceLinkedClient({ env, vercel: clients.vercel, directory, report: async diagnostic => { await save({ safeCliFailure: diagnostic }); console.log(JSON.stringify({ mode: 'safe-linked-cli-failure', ...diagnostic })); } });
       await linked.verifyVersion();
       const dependencies = { ...clients, directory,
@@ -378,7 +416,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
         verifyLinkedExistingRead: async (deploymentId, manifest) => {
           const records = existingLinkedReadRecords(manifest);
           await linked.readProtected({ id: deploymentId }, records, manifest);
-          const proof = { linkedCliExistingReadVerified: true, countsAsStageAcceptance: false, recordCount: 3, previousManifestSha256: acceptanceHash(manifest), deploymentSha256: acceptanceHash(deploymentId), recordsSha256: acceptanceHash(records), cliVersion: ACCEPTANCE_CLI_VERSION };
+          const proof = { linkedCliExistingReadVerified: true, countsAsStageAcceptance: false, recordCount: 3, previousManifestSha256: acceptanceHash(manifest), deploymentSha256: acceptanceHash(deploymentId), recordsSha256: acceptanceHash(records), cliVersion: ACCEPTANCE_CLI_VERSION, authTransport: 'environment-only', controllerImplementationSha256: env.LTC_ACCEPTED_IMPLEMENTATION_SHA256, runId: env.GITHUB_RUN_ID, attempt: env.GITHUB_RUN_ATTEMPT };
           console.log(JSON.stringify({ mode: 'read-only-existing-linked-cli', ...proof, publicationEnabled: false, effectsReissued: false }));
           return proof;
         },
@@ -387,6 +425,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
       };
       const result = options.mode === 'stage' ? await runStageAcceptance({ plan, packed: prepared.packed, previousManifest: prepared.previousManifest, env, state, dependencies, crashAfter: options.crashAfter ?? null }) : await recoverStageAcceptance({ plan, env, state, dependencies, expectedFence: Number(options.expectedFence) });
       console.log(JSON.stringify({ mode: result.mode, status: result.status, publicationEnabled: false, leaseReleased: result.leaseReleased }));
+      }
     }
   } catch (error) { console.error(`stage_acceptance_withheld_or_requires_recovery: ${safeAcceptanceFailure(error)}`); process.exitCode = 1; }
 }

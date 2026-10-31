@@ -20,9 +20,9 @@ on:
         type: boolean
         default: false
       acceptance_mode:
-        description: Explicitly approved stage-only acceptance or recovery; never promotes
+        description: Explicit stage-only acceptance, recovery or owner incident quarantine; never promotes
         type: choice
-        options: [none, stage, recover]
+        options: [none, stage, recover, quarantine]
         default: none
       acceptance_source_commit:
         description: Exact reviewed acceptance source commit
@@ -42,11 +42,11 @@ on:
         options: [none, first-effect, stage-effect]
         default: none
       acceptance_plan_sha256:
-        description: Original persisted plan hash; recovery only
+        description: Original persisted plan hash; recovery/quarantine only
         type: string
         default: ''
       acceptance_fence:
-        description: Original exact durable acceptance fence; recovery only
+        description: Original exact durable acceptance fence; recovery/quarantine only
         type: string
         default: ''
 permissions:
@@ -154,6 +154,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.bootstrap_previous_manifest && !inputs.dry_run && vars.LTC_CLOUD_PUBLISH == 'true'
         env:
           LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64: ${{ secrets.LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64 }}
+          LTC_SETUP_QUARANTINE_REVIEW_JSON: ${{ secrets.LTC_SETUP_QUARANTINE_REVIEW_JSON }}
         run: |
           node --input-type=module <<'NODE'
           import {writeFileSync} from 'node:fs';
@@ -309,7 +310,7 @@ jobs:
 
 
   stage-acceptance:
-    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover')
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: ltc-production
@@ -330,6 +331,7 @@ jobs:
       LTC_ACCEPTANCE_CRASH_AFTER: ${{ inputs.acceptance_crash_after }}
       LTC_ACCEPTANCE_PLAN_SHA256: ${{ inputs.acceptance_plan_sha256 }}
       LTC_ACCEPTANCE_FENCE: ${{ inputs.acceptance_fence }}
+      LTC_SETUP_INCIDENT_SHA256: ${{ vars.LTC_SETUP_INCIDENT_SHA256 }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -395,8 +397,9 @@ jobs:
           if(e.LTC_CLOUD_PUBLISH!=='false'||! /^[a-f0-9]{40}$/.test(e.LTC_ACCEPTANCE_SOURCE_COMMIT||'')||! /^\d+\.\d+\.\d+$/.test(e.LTC_VERCEL_CLI_VERSION||''))throw Error('Explicit reviewed acceptance context required');
           if(e.LTC_ACCEPTANCE_MODE==='stage'){
             if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||! /^[a-z0-9][a-z0-9_-]{0,47}$/.test(e.LTC_ACCEPTANCE_ID||'')||! /^dpl_[A-Za-z0-9]+$/.test(e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||'')||! ['none','first-effect','stage-effect'].includes(e.LTC_ACCEPTANCE_CRASH_AFTER))throw Error('Stage scope mismatch');
-          }else if(e.LTC_ACCEPTANCE_MODE==='recover'){
+          }else if(['recover','quarantine'].includes(e.LTC_ACCEPTANCE_MODE)){
             if(! /^[a-f0-9]{64}$/.test(e.LTC_ACCEPTANCE_PLAN_SHA256||'')||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Recovery scope mismatch');
+            if(e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT)throw Error('Unexpected recovery/quarantine inputs');
           }else throw Error('Unknown acceptance mode');
           NODE
       - name: Install pinned tools and test without service credentials
@@ -416,6 +419,7 @@ jobs:
           LTC_SOCIAL_STATE_DOCUMENT_ID: ${{ vars.LTC_SOCIAL_STATE_DOCUMENT_ID }}
           LTC_EVIDENCE_OWNER_PERMISSION_ID: ${{ vars.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
           LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64: ${{ secrets.LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64 }}
+          LTC_SETUP_QUARANTINE_REVIEW_JSON: ${{ secrets.LTC_SETUP_QUARANTINE_REVIEW_JSON }}
         run: |
           node --input-type=module <<'NODE'
           import {mkdirSync,writeFileSync} from 'node:fs';import {gunzipSync} from 'node:zlib';
@@ -426,15 +430,22 @@ jobs:
           save('ltc-accept-website.json',{schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId,documentId});
           save('ltc-accept-social.json',{schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId,documentId:social,ledgerKey:'social'});
           save('ltc-accept-evidence.json',{folderId,ownerPermissionId});
-          if(e.LTC_ACCEPTANCE_MODE==='stage'){
+          if(['stage','quarantine'].includes(e.LTC_ACCEPTANCE_MODE)){
             const encoded=e.LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64;
             if(typeof encoded!=='string'||encoded.length>65536||! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded))throw Error('Approved public rollback baseline required');
             const previous=JSON.parse(gunzipSync(Buffer.from(encoded,'base64'),{maxOutputLength:1000000}).toString('utf8'));
             if(!Array.isArray(previous)||!previous.length||!previous.every(r=>typeof r.file==='string'&&/^[a-f0-9]{64}$/.test(r.sha256||'')))throw Error('Invalid rollback baseline');
             save('ltc-accept-previous.json',previous);
-            mkdirSync(d+'/ltc-acceptance-evidence',{mode:0o700});
-            writeFileSync(d+'/ltc-acceptance-evidence/source.json',JSON.stringify({source:e.LTC_ACCEPTANCE_SOURCE_COMMIT,implementationSha256:e.LTC_ACCEPTED_IMPLEMENTATION_SHA256,mode:'exact-committed-artifact-no-new-observations'})+'\n',{flag:'wx',mode:0o600});
+            if(e.LTC_ACCEPTANCE_MODE==='stage'){
+              mkdirSync(d+'/ltc-acceptance-evidence',{mode:0o700});
+              writeFileSync(d+'/ltc-acceptance-evidence/source.json',JSON.stringify({source:e.LTC_ACCEPTANCE_SOURCE_COMMIT,implementationSha256:e.LTC_ACCEPTED_IMPLEMENTATION_SHA256,mode:'exact-committed-artifact-no-new-observations'})+'\n',{flag:'wx',mode:0o600});
+            }
           }
+            if(e.LTC_ACCEPTANCE_MODE==='quarantine'){
+              const review=e.LTC_SETUP_QUARANTINE_REVIEW_JSON;
+              if(typeof review!=='string'||Buffer.byteLength(review)>65536)throw Error('Protected incident review required');
+              save('ltc-setup-quarantine-review.json',JSON.parse(review));
+            }
           NODE
       - name: Bind exact prepared artifact plan before any provider effect
         if: inputs.acceptance_mode == 'stage'
@@ -449,6 +460,7 @@ jobs:
           NODE
       - name: Explicitly approved stage-only effect or fresh-proof recovery
         env:
+          LTC_SETUP_QUARANTINE_REVIEW_JSON: ${{ secrets.LTC_SETUP_QUARANTINE_REVIEW_JSON }}
           GITHUB_TOKEN: ${{ github.token }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
@@ -463,6 +475,9 @@ jobs:
             if [[ "$LTC_ACCEPTANCE_CRASH_AFTER" == stage-effect ]]; then set -- "$@" --crash-after "accept-${LTC_ACCEPTANCE_PLAN_SHA256:0:24}-stage"; fi
           else
             set -- "$@" --expected-fence "$LTC_ACCEPTANCE_FENCE"
+            if [[ "$LTC_ACCEPTANCE_MODE" == quarantine ]]; then
+              set -- "$@" --review-file "$RUNNER_TEMP/ltc-setup-quarantine-review.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json"
+            fi
           fi
           node scripts/cloud-ltc-acceptance.mjs "$@"
       - name: Safe acceptance result; preserve held fences after any failure
@@ -473,7 +488,7 @@ jobs:
           const f=process.env.RUNNER_TEMP+'/ltc-stage-acceptance-receipt.json';
           if(existsSync(f)){
             const r=JSON.parse(readFileSync(f,'utf8'));
-            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,planSha256:r.planSha256,fence:r.lease?.fence,leaseReleased:r.leaseReleased,publicationEnabled:false,aliasesChanged:false})+'\n');
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,planSha256:r.planSha256,fence:r.lease?.fence,leaseReleased:r.leaseReleased,incidentSha256:r.incidentSha256,newFence:r.newFence,originalOutcome:r.originalOutcome,accepted:r.accepted,productionAuthorized:r.productionAuthorized,publicationEnabled:false,aliasesChanged:false})+'\n');
           }
           NODE
       # No private artifacts, plans, source evidence or ledger snapshots are uploaded to GitHub artifacts.

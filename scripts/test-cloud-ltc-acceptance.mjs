@@ -1,10 +1,12 @@
+import {setupQuarantineFixture} from './lib/test-setup-quarantine-fixture.mjs';
+import {buildOwnerQuarantinedSetupTransition} from './cloud-ltc-setup-quarantine.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, chmod, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
-import { acceptanceHash, assertAcceptanceContext, prepareStageAcceptance, runStageAcceptance, recoverStageAcceptance, persistedAcceptancePlan, verifyRecoveryController, safeAcceptanceFailure, acceptanceProjectScopedAuth, createAcceptanceLinkedClient, existingAcceptanceBypass, existingLinkedReadRecords, safeAcceptanceCliDiagnostic, ACCEPTANCE_PROJECT_NAME, ACCEPTANCE_CLI_VERSION } from './cloud-ltc-acceptance.mjs';
+import { acceptanceHash, assertAcceptanceContext, prepareStageAcceptance, runStageAcceptance, recoverStageAcceptance, persistedAcceptancePlan, verifyRecoveryController, safeAcceptanceFailure, acceptanceArgumentsFor, assertAcceptanceSetupPolicy, acceptanceProjectScopedAuth, createAcceptanceLinkedClient, existingAcceptanceBypass, existingLinkedReadRecords, safeAcceptanceCliDiagnostic, ACCEPTANCE_PROJECT_NAME, ACCEPTANCE_CLI_VERSION } from './cloud-ltc-acceptance.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 import { TARGET, pathsFor, implementationDigest, builtManifest } from './cloud-ltc-release.mjs';
 
@@ -187,11 +189,11 @@ function linkedFixture() {
   const calls = [], apiCalls = [], reports = [];
   const vercel = async endpoint => { apiCalls.push(endpoint); assert.ok([`/v13/deployments/${deployment.id}`, `/v9/projects/${TARGET.project}`].includes(endpoint)); return endpoint.startsWith('/v13/') ? deployment : project; };
   const execute = (binary, args, options) => {
-    calls.push({ binary, args, options }); if (args[0] === '--version') return ACCEPTANCE_CLI_VERSION;
+    calls.push({ binary, args, options }); if (args[0] === '--version') { assert.equal(options.env.VERCEL_TOKEN, undefined); assert.equal(options.env.VERCEL_AUTOMATION_BYPASS_SECRET, undefined); return ACCEPTANCE_CLI_VERSION; }
     assert.equal(args[0], 'curl'); assert.equal(args.includes('--scope'), false); assert.equal(args.includes('--deployment'), false); assert.equal(args.includes('--trace'), false); assert.equal(args.includes('--location'), false);
-    assert.equal(args[args.indexOf('--token') + 1], token); assert.ok(args.indexOf('--token') < args.indexOf('--'));
+    assert.equal(args.includes('--token'), false); assert.ok(!JSON.stringify(args).includes(token)); assert.equal(options.env.VERCEL_TOKEN, token);
     assert.equal(options.env.VERCEL_AUTOMATION_BYPASS_SECRET, bypass);
-    for (const field of ['LTC_GOOGLE_REFRESH_TOKEN', 'LTC_BUFFER_API_KEY', 'APP_PRINCIPAL_ENABLED', 'VERCEL_TOKEN']) assert.equal(options.env[field], undefined);
+    for (const field of ['LTC_GOOGLE_REFRESH_TOKEN', 'LTC_BUFFER_API_KEY', 'APP_PRINCIPAL_ENABLED']) assert.equal(options.env[field], undefined);
     assert.ok(!JSON.stringify(args).includes(bypass)); const url = new URL(args[1]); assert.equal(url.origin, 'https://' + deployment.url);
     const route = url.pathname;
     const header = route === '/conversations/specials/litecoin-at-15/1/' ? 'HTTP/2 308\r\nlocation: /conversations/specials/proof-of-birthday/\r\n\r\n' : 'HTTP/2 200\r\ncontent-type: application/octet-stream\r\n\r\n';
@@ -208,8 +210,9 @@ test('supported linked client reads exactly three existing records in order usin
   assert.equal(f.calls.some(call => call.args[0] === 'deploy'), false);
 });
 test('project-only auth forbids scope/implicit targeting and bypass credentials never enter auth arguments', () => {
-  const token = 'fixture-project-token-only'; assert.deepEqual(acceptanceProjectScopedAuth(['deploy', '--prebuilt'], token), ['deploy', '--prebuilt', '--token', token]);
+  const token = 'fixture-project-token-only', args = ['deploy', '--prebuilt']; const authenticated = acceptanceProjectScopedAuth(args, token); assert.deepEqual(authenticated, args); assert.notEqual(authenticated, args);
   for (const flag of ['--scope', '--scope=other', '--team', '-S', '--api=https://other.invalid', '--local-config=other', '--trace', '--debug', '--token=other']) assert.throws(() => acceptanceProjectScopedAuth(['curl', 'https://accepted.vercel.app/', flag], token), /acceptance_cli_auth_scope_forbidden/);
+  for (const missing of [undefined, '', 'bad token']) assert.throws(() => acceptanceProjectScopedAuth(['curl', 'https://accepted.vercel.app/'], missing), /acceptance_cli_auth_scope_forbidden/);
   assert.throws(() => createAcceptanceLinkedClient({ env: { LTC_VERCEL_CLI_VERSION: '61.1.0' } }), /pinned_cli_version_required/);
 });
 test('missing/ambiguous existing bypass, changed deployment URL/owner and project name fail without a CLI request or token creation', async () => {
@@ -230,7 +233,7 @@ test('safe child failure diagnostics contain only a fixed enum and bounded exit 
 test('linked deploy checks exact raw project/name and local link, scrubs credentials and never passes bypass', async t => {
   const f = linkedFixture(), directory = await mkdtemp(path.join(tmpdir(), 'ltc-linked-deploy-')); t.after(() => rm(directory, { recursive: true, force: true }));
   await mkdir(path.join(directory, '.vercel')); await writeFile(path.join(directory, '.vercel/project.json'), JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team, projectName: ACCEPTANCE_PROJECT_NAME })); await writeFile(path.join(directory, 'vercel.json'), '{}');
-  let effects = 0; const client = createAcceptanceLinkedClient({ ...f, directory, execute: (binary, args, options) => { effects++; assert.equal(args[0], 'deploy'); assert.equal(args.includes('--scope'), false); assert.equal(options.env.VERCEL_AUTOMATION_BYPASS_SECRET, undefined); assert.equal(options.env.LTC_GOOGLE_REFRESH_TOKEN, undefined); return Buffer.from('candidate output'); } });
+  let effects = 0; const client = createAcceptanceLinkedClient({ ...f, directory, execute: (binary, args, options) => { effects++; assert.equal(args[0], 'deploy'); assert.equal(args.includes('--scope'), false); assert.equal(args.includes('--token'), false); assert.ok(!JSON.stringify(args).includes(f.token)); assert.equal(options.env.VERCEL_TOKEN, f.token); assert.equal(options.env.VERCEL_AUTOMATION_BYPASS_SECRET, undefined); assert.equal(options.env.LTC_GOOGLE_REFRESH_TOKEN, undefined); return Buffer.from('candidate output'); } });
   const args = ['deploy', '--prebuilt', '--prod', '--skip-domain', '--yes']; await client.deploy(args, directory); assert.equal(effects, 1);
   await writeFile(path.join(directory, 'vercel.json'), '{"scope":"implicit-other-team"}'); await assert.rejects(client.deploy(args, directory), /acceptance_cli_auth_scope_forbidden/); assert.equal(effects, 1);
 });
@@ -249,4 +252,60 @@ test('acceptance diagnostics expose fixed failure codes and redact arbitrary pro
   assert.equal(safeAcceptanceFailure(Error('http_403')), 'http_403');
   assert.equal(safeAcceptanceFailure(Error('Bearer private-token account@example.invalid')), 'release_failed_details_withheld');
   assert.equal(safeAcceptanceFailure(Error('acceptance_private_secret_value')), 'release_failed_details_withheld');
+});
+
+async function quarantinedFixture(t){
+ const f=await fixture(t);const quarantine=buildOwnerQuarantinedSetupTransition(setupQuarantineFixture());
+ const snapshot=await f.state.adapter.read('website');await f.state.adapter.conditionalWrite('website',quarantine.nextDocument,snapshot.version);
+ f.plan.setupIncidentSha256=quarantine.incidentSha256;f.env.LTC_SETUP_INCIDENT_SHA256=quarantine.incidentSha256;f.env.LTC_ACCEPTANCE_PLAN_SHA256=acceptanceHash(f.plan);
+ return {...f,quarantine};
+}
+test('legacy plan remains hash-identical and incident-free stage needs no new pin',async t=>{
+ const f=await fixture(t);const before=acceptanceHash(f.plan);assert.equal(Object.hasOwn(f.plan,'setupIncidentSha256'),false);
+ await runStageAcceptance(f);assert.equal(acceptanceHash(f.plan),before);assert.equal(Object.hasOwn((await f.state.inspect()).acceptance,'setupIncidentSha256'),false);
+});
+test('quarantined new stage preserves exact pinned incident through admission, effects and completion',async t=>{
+ const f=await quarantinedFixture(t);const oldHash=f.quarantine.incidentSha256;const result=await runStageAcceptance(f);assert.equal(result.status,'stage-verified');
+ const doc=await f.state.inspect();assert.equal(doc.fence,3);assert.equal(doc.acceptance.setupIncidentSha256,oldHash);assert.equal(doc.unresolvedSetupIncident.incidentSha256,oldHash);assert.equal(doc.retiredSetupIncidents[oldHash].unknownStage.status,'uncertain');assert.equal(doc.paused,true);assert.equal(doc.lease,null);
+});
+test('absent/wrong incident pin or unbound new plan fails before upload/deploy',async t=>{
+ for(const mode of ['missing','wrong','planmissing']){const f=await quarantinedFixture(t);if(mode==='missing')delete f.env.LTC_SETUP_INCIDENT_SHA256;else if(mode==='wrong')f.env.LTC_SETUP_INCIDENT_SHA256='f'.repeat(64);else{delete f.plan.setupIncidentSha256;f.env.LTC_ACCEPTANCE_PLAN_SHA256=acceptanceHash(f.plan)}
+ await assert.rejects(runStageAcceptance(f),/setup_incident/);assert.equal(f.flags.uploadCalls,0);assert.equal(f.flags.stageCalls,0);}
+});
+test('incident cannot disappear between admission and first provider effect',async t=>{
+ const f=await quarantinedFixture(t);const preallocate=f.dependencies.preallocate;
+ f.dependencies.preallocate=async count=>{const snapshot=await f.state.adapter.read('website');delete snapshot.value.unresolvedSetupIncident;await f.state.adapter.conditionalWrite('website',snapshot.value,snapshot.version);return preallocate(count)};
+ await assert.rejects(runStageAcceptance(f),/setup_incident/);assert.equal(f.flags.uploadCalls,0);assert.equal(f.flags.stageCalls,0);
+});
+test('quarantine CLI is no-build exact-fence review-only mode; artifact/deploy arguments rejected',()=>{
+ const base=['--mode','quarantine','--state-config','/private/website','--social-state-config','/private/social','--evidence-config','/private/evidence','--receipt','/private/receipt','--review-file','/private/review','--previous-manifest','/private/previous','--expected-fence','1'];
+ assert.equal(acceptanceArgumentsFor(base).mode,'quarantine');
+ for(const pair of [['--root','/source'],['--evidence-dir','/artifact'],['--plan','/new-plan'],['--crash-after','stage-effect']])assert.throws(()=>acceptanceArgumentsFor([...base,...pair]),/invalid_acceptance_arguments/);
+ assert.throws(()=>acceptanceArgumentsFor(base.filter((_,i)=>i<12||i>13)),/invalid_acceptance_arguments/);
+});
+test('quarantine source guard and readonly dispatch precede private config/linked provider creation',async()=>{
+ const source=await readFile(new URL('./cloud-ltc-acceptance.mjs',import.meta.url),'utf8');
+ const dispatch=source.indexOf("if(options.mode==='quarantine')");assert.ok(dispatch>0);
+ assert.ok(source.indexOf("if (['recover','quarantine'].includes(options.mode)) await verifyRecoveryController")<source.indexOf('const stateConfig = await json'));
+ assert.ok(source.indexOf("if (!['recover','quarantine'].includes(options.mode)) prepared")>0);
+ const branch=source.slice(dispatch,source.indexOf('}else{',dispatch));assert.ok(branch.includes('applyOwnerSetupQuarantine'));assert.ok(!/createAcceptanceLinkedClient|preallocateEvidenceIds|createDriveEvidenceProvider|downloadEvidence|linked\./.test(branch));
+});
+test('new plan preparation pins optional incident explicitly without changing legacy preparation shape',async t=>{
+ const f=await fixture(t);const options={...f,acceptanceId:f.plan.acceptanceId,editionId:f.plan.editionId,previousDeployment:f.plan.previousDeployment,implementationSha256:f.plan.implementationSha256};
+ const legacy=await prepareStageAcceptance(options);assert.equal(Object.hasOwn(legacy.plan,'setupIncidentSha256'),false);
+ const pinned=await prepareStageAcceptance({...options,setupIncidentSha256:'a'.repeat(64)});assert.equal(pinned.plan.setupIncidentSha256,'a'.repeat(64));
+ const stripped={...pinned.plan};delete stripped.setupIncidentSha256;assert.deepEqual(stripped,legacy.plan);
+ await assert.rejects(prepareStageAcceptance({...options,setupIncidentSha256:'wrong'}),/setup_incident/);
+});
+test('new quarantined-stage crash recovery retains incident binding and never repeats stage',async t=>{
+ const f=await quarantinedFixture(t);const stageId=`accept-${acceptanceHash(f.plan).slice(0,24)}-stage`;
+ await assert.rejects(runStageAcceptance({...f,crashAfter:stageId}),/operation_outcome_uncertain/);assert.equal(f.flags.stageCalls,1);
+ const originalHash=acceptanceHash(f.plan);const result=await f.recovery();assert.equal(result.status,'stage-verified');assert.equal(f.flags.stageCalls,1);assert.equal(acceptanceHash(f.plan),originalHash);
+ const doc=await f.state.inspect();assert.equal(doc.acceptance.setupIncidentSha256,f.quarantine.incidentSha256);assert.equal(doc.retiredSetupIncidents[f.quarantine.incidentSha256].unknownStage.status,'uncertain');
+});
+
+test('known native authentication-flag failure has a fixed category without returning private diagnostics',()=>{
+ const diagnostic=safeAcceptanceCliDiagnostic({status:2,stderr:Buffer.from('private-token-private@example.invalid\ncurl: option --token: is unknown')});
+ assert.deepEqual(diagnostic,{category:'native-auth-flag-forwarded',exitStatus:2});
+ assert.equal(JSON.stringify(diagnostic).includes('private'),false);
 });

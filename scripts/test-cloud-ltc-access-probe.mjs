@@ -166,3 +166,15 @@ test('actual workflow summary writes false defaults and fails until all five pro
     } finally { await rm(directory, { recursive: true, force: true }); }
   }
 });
+
+test('quarantined unknown setup remains visible and prevents generic resource acceptance even with empty active intents',async()=>{
+ const state={...website(),fence:2,unresolvedSetupIncident:{outcome:'UNKNOWN',accepted:false},retiredSetupIncidents:{privateIncident:{outcome:'UNKNOWN'}}};
+ const before=JSON.stringify(state),f=ledgerTransport({websiteState:state});
+ const receipt=await probePausedLedgers({env:ledgerEnv,fetchImpl:f.fetchImpl});
+ assert.equal(receipt.ledgers.website.schemaVerified,true);
+ assert.equal(receipt.ledgers.website.setupIncidentAbsentVerified,false);
+ assert.equal(receipt.ledgers.website.unresolvedEffectsAbsentVerified,false);
+ assert.equal(receipt.ledgers.website.readOnlyReady,false);assert.equal(receipt.allLedgersVerified,false);
+ assert.equal(receipt.writesPerformed,false);assert.equal(JSON.stringify(state),before);
+ assert.equal(JSON.stringify(receipt).includes('privateIncident'),false);
+});
