@@ -77,21 +77,52 @@ test('active leases and unresolved outcomes remain untouched and prevent accepta
   assert.equal(active.lease.runId, 'existing-run'); assert.equal(uncertain.records.example.status, 'create-uncertain');
 });
 const knownProject = () => ({ id: TARGET.project, accountId: TARGET.team, commandForIgnoringBuildStep: 'exit 0', link: { type: 'github', org: 'Khlnayak', repo: 'https-github.com-Satnam-Satoshi-Satoshi-Langar', repoId: 1246313844, productionBranch: 'main', sourceless: true, deployHooks: [] } });
-test('Vercel probe uses only fixed project/team metadata GET and emits booleans rather than private provider fields', async () => {
+const vercelPaths = [`/v9/projects/${TARGET.project}?teamId=${TARGET.team}`, '/v2/user', `/teams/${TARGET.team}`];
+const knownVercelBody = pathname => pathname === vercelPaths[0] ? knownProject() : pathname === vercelPaths[1] ? { user: { id: 'private-user-id', username: 'private-user-name', email: 'private-user@example.invalid' } } : { id: TARGET.team, slug: TARGET.scope, name: 'private-team-name' };
+test('Vercel probe performs only three fixed GETs with private authorization and emits safe statuses/booleans', async () => {
   const token = 'fixture-project-only-vercel-token'; const calls = [];
   const receipt = await probeVercelProject({ env: { VERCEL_TOKEN: token, LTC_VERCEL_PROJECT_ID: 'ignored-other-project' }, fetchImpl: async (url, options) => {
-    calls.push({ url, options }); assert.equal(url, `https://api.vercel.com/v9/projects/${TARGET.project}?teamId=${TARGET.team}`); assert.equal(options.method, 'GET'); assert.equal(options.redirect, 'error'); assert.equal(options.headers.Authorization, `Bearer ${token}`);
-    return json({ ...knownProject(), privateProviderDetails: 'must-not-surface' });
+    calls.push({ url, options }); assert.ok(vercelPaths.map(pathname => `https://api.vercel.com${pathname}`).includes(url)); assert.equal(options.method, 'GET'); assert.equal(options.redirect, 'error'); assert.equal(options.headers.Authorization, `Bearer ${token}`); assert.equal(options.body, undefined);
+    return json({ ...knownVercelBody(url.slice('https://api.vercel.com'.length)), privateProviderDetails: 'must-not-surface' });
   } });
-  assert.equal(calls.length, 1); assert.equal(receipt.projectMetadataVerified, true); assert.equal(receipt.writesPerformed, false);
-  for (const value of [token, TARGET.project, TARGET.team, 'must-not-surface']) assert.ok(!JSON.stringify(receipt).includes(value));
+  assert.deepEqual(calls.map(call => call.url), vercelPaths.map(pathname => `https://api.vercel.com${pathname}`)); assert.equal(receipt.projectMetadataVerified, true); assert.equal(receipt.writesPerformed, false); assert.equal(receipt.cliPreflightVerified, true);
+  for (const key of ['projectHttpStatus', 'userHttpStatus', 'teamHttpStatus']) assert.equal(receipt[key], 200);
+  for (const key of ['userShapeVerified', 'teamIdentityVerified', 'teamSlugVerified']) assert.equal(receipt[key], true);
+  for (const value of [token, TARGET.project, TARGET.team, TARGET.scope, 'must-not-surface', 'private-user-id', 'private-user-name', 'private-user@example.invalid', 'private-team-name']) assert.ok(!JSON.stringify(receipt).includes(value));
 });
 test('wrong Vercel account/project/control metadata or denied/ambiguous responses fail closed without retries', async () => {
   for (const response of [() => json({ ...knownProject(), accountId: 'team_other' }), () => json({ ...knownProject(), id: 'prj_other' }), () => json({ ...knownProject(), commandForIgnoringBuildStep: 'exit 1' }), () => json({ error: 'private diagnostics' }, 403), () => ({ status: 200, redirected: true }), () => new Response('malformed', { headers: { 'content-type': 'application/json' } })]) {
-    let calls = 0; const receipt = await probeVercelProject({ env: { VERCEL_TOKEN: 'fixture-project-only-vercel-token' }, fetchImpl: async () => { calls++; return response(); } });
-    assert.equal(receipt.projectMetadataVerified, false); assert.equal(receipt.writesPerformed, false); assert.equal(calls, 1);
+    let calls = 0; const receipt = await probeVercelProject({ env: { VERCEL_TOKEN: 'fixture-project-only-vercel-token' }, fetchImpl: async url => { calls++; const pathname = url.slice('https://api.vercel.com'.length); return pathname === vercelPaths[0] ? response() : json(knownVercelBody(pathname)); } });
+    assert.equal(receipt.projectMetadataVerified, false); assert.equal(receipt.writesPerformed, false); assert.equal(receipt.cliPreflightVerified, false); assert.equal(receipt.userShapeVerified, true); assert.equal(receipt.teamIdentityVerified, true); assert.equal(calls, 3);
   }
   await assert.rejects(probeVercelProject({ env: {}, fetchImpl: async () => { throw Error('must not reach network'); } }), /vercel_project_credential_required/);
+});
+test('denied user/team lookups retain successful project policy and safe 403 status without leaking provider bodies', async () => {
+  for (const deniedPath of vercelPaths.slice(1)) {
+    const calls = []; const receipt = await probeVercelProject({ env: { VERCEL_TOKEN: 'fixture-project-only-vercel-token' }, fetchImpl: async (url, options) => { calls.push(url); assert.equal(options.headers.Authorization, 'Bearer fixture-project-only-vercel-token'); const pathname = url.slice('https://api.vercel.com'.length); return pathname === deniedPath ? json({ error: { message: 'private-denied-user-and-token-details' } }, 403) : json(knownVercelBody(pathname)); } });
+    assert.equal(receipt.projectMetadataVerified, true); assert.equal(receipt.cliPreflightVerified, false); assert.equal(receipt[deniedPath === vercelPaths[1] ? 'userHttpStatus' : 'teamHttpStatus'], 403); assert.equal(calls.length, 3); assert.ok(!JSON.stringify(receipt).includes('private-denied'));
+  }
+});
+test('CLI lookups fail closed for missing/wrong shapes, non-JSON, redirects, oversized responses and network failures independently', async () => {
+  const failures = [
+    { make: () => json(null), status: 200 },
+    { make: () => json({ uid: 'not-the-CLI-user-shape' }), status: 200 },
+    { make: () => new Response('private HTML response', { headers: { 'content-type': 'text/html' } }), status: 200 },
+    { make: () => new Response('private malformed JSON', { headers: { 'content-type': 'application/json' } }), status: 200 },
+    { make: () => json({ privateBody: 'x'.repeat(70_000) }), status: 200 },
+    { make: () => new Response(null, { status: 307, headers: { location: 'https://untrusted.invalid/' } }), status: 307 },
+    { make: () => { const response = json({ privateRedirectedBody: true }); Object.defineProperty(response, 'redirected', { value: true }); return response; }, status: 200 },
+    { make: () => { throw Error('private network diagnostic token'); }, status: null },
+  ];
+  for (const target of vercelPaths.slice(1)) for (const failure of failures) {
+    const calls = []; const receipt = await probeVercelProject({ env: { VERCEL_TOKEN: 'fixture-project-only-vercel-token' }, fetchImpl: async (url, options) => { calls.push(url); assert.equal(options.redirect, 'error'); assert.equal(options.method, 'GET'); const pathname = url.slice('https://api.vercel.com'.length); return pathname === target ? failure.make() : json(knownVercelBody(pathname)); } });
+    assert.equal(receipt.projectMetadataVerified, true); assert.equal(receipt.cliPreflightVerified, false); assert.equal(receipt[target === vercelPaths[1] ? 'userHttpStatus' : 'teamHttpStatus'], failure.status); assert.equal(receipt[target === vercelPaths[1] ? 'userShapeVerified' : 'teamIdentityVerified'], false); assert.equal(calls.length, 3);
+    for (const key of ['projectMetadataVerified', 'userShapeVerified', 'teamIdentityVerified', 'teamSlugVerified', 'cliPreflightVerified']) assert.equal(typeof receipt[key], 'boolean');
+    assert.ok(!JSON.stringify(receipt).includes('private')); assert.ok(!JSON.stringify(receipt).includes('untrusted.invalid'));
+  }
+  for (const [pathname, body] of [[vercelPaths[1], { user: { uid: 'wrong-user-field' } }], [vercelPaths[1], { user: { id: '' } }], [vercelPaths[2], { id: 'team_other', slug: TARGET.scope }], [vercelPaths[2], { id: TARGET.team, slug: 'other-team' }]]) {
+    const receipt = await probeVercelProject({ env: { VERCEL_TOKEN: 'fixture-project-only-vercel-token' }, fetchImpl: async url => { const target = url.slice('https://api.vercel.com'.length); return json(target === pathname ? body : knownVercelBody(target)); } }); assert.equal(receipt.cliPreflightVerified, false); assert.equal(receipt.projectMetadataVerified, true);
+  }
 });
 test('acceptance workflow keeps provider credentials isolated to exact read-only probe steps', async () => {
   const workflow = await readFile(new URL('../ops/ltc-daily-workflow.yml', import.meta.url), 'utf8');
