@@ -5,7 +5,7 @@ Welcome. Writers, translators, artists, organizers, researchers, designers, deve
 ## Your first contribution
 
 1. Read the [mission](MISSION.md) and [current status](docs/STATUS.md).
-2. Pick a [starter task](docs/GOOD_FIRST_ISSUES.md), or [propose an improvement](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/new/choose).
+2. Pick a [starter task](docs/GOOD_FIRST_ISSUES.md) (`#47`–`#50`), or [propose an improvement](https://github.com/Satnam-Satoshi/Satoshi-Langar/issues/new/choose) (or via the public [Join page](https://https-github-com-satnam-satoshi-sat.vercel.app/join/), checking the starter tasks table first so you do not open a duplicate issue).
 3. Comment with the specific part you would like to help with. Coordinate before taking on a large change; no assignment is promised until a maintainer responds.
 4. Share a short finding in the issue, or open a focused pull request. Explain the problem, the change and how you checked it.
 5. Incorporate review. A contribution is complete when a human maintainer accepts it and the relevant evidence is linked.
