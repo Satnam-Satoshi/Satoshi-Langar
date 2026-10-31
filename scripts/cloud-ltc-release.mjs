@@ -463,6 +463,9 @@ export function safeFailure(error) {
   return known.has(message) || /^http_[1-5]\d{2}$/.test(message) || /^command_failed_(?:node|git|pnpm|vercel)$/.test(message) ? message : 'release_failed_details_withheld';
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
-  try { console.log(JSON.stringify(await runRelease(parseArgs(process.argv.slice(2))))); }
-  catch (error) { console.error(`LTC cloud release withheld: ${safeFailure(error)}`); process.exitCode = 1; }
+  // Finish evaluating this module before runRelease dynamically imports clients
+  // which import these exports. Awaiting here creates an async module cycle:
+  // release entry -> acceptance/runtime -> unfinished release entry (Node exit13).
+  Promise.resolve().then(() => runRelease(parseArgs(process.argv.slice(2))))
+    .then(result => { console.log(JSON.stringify(result)); }, error => { console.error(`LTC cloud release withheld: ${safeFailure(error)}`); process.exitCode = 1; });
 }
