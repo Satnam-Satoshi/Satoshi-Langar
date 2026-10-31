@@ -309,7 +309,7 @@ jobs:
 
 
   stage-acceptance:
-    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover')
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: ltc-production

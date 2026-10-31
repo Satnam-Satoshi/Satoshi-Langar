@@ -6,7 +6,7 @@ const stage=workflow.slice(workflow.indexOf('\n  stage-acceptance:'));
 const step=name=>{const start=stage.indexOf('      - name: '+name);assert(start>=0);const end=stage.indexOf('\n      - ',start+1);return stage.slice(start,end<0?undefined:end)};
 test('acceptance workflow isolates manual main-only stage/recovery from routine publication',()=>{
  assert.match(stage,/github\.ref == 'refs\/heads\/main'/);assert.match(stage,/github\.event_name == 'workflow_dispatch'/);
- assert.match(stage,/environment: ltc-production/);assert.match(stage,/contents: read\n      actions: read/);assert(!stage.includes('contents: write'));
+ assert.match(stage,/github\.event\.sender\.id == 268053325/);assert.match(stage,/environment: ltc-production/);assert.match(stage,/contents: read\n      actions: read/);assert(!stage.includes('contents: write'));
  assert.match(stage,/e\.LTC_CLOUD_PUBLISH!=='false'/);assert.match(stage,/Unknown acceptance mode/);
  assert(stage.indexOf('Verify reviewed source and exact implementation')<stage.indexOf('secrets.'));
  assert(!/vercel\s+(?:promote|rollback|alias)|--force|--publish/.test(stage));
