@@ -12,7 +12,7 @@ const properties = {
   get_account: object({}), list_channels: object({ organizationId: str }),
   list_posts: { ...object({ organizationId: str, channelIds: { type: 'array', items: str }, status: { type: 'array', items: str }, first: { type: 'integer', maximum: 100 } }), properties: { organizationId: str, channelIds: { type: 'array', items: str }, status: { type: 'array', items: str }, first: { type: 'integer', maximum: 100 }, after: str } },
   get_post: object({ postId: str }),
-  create_post: { type: 'object', properties: { channelId: str, schedulingType: { enum: ['automatic', 'notification'] }, text: str, assets: { type: 'array', items: object({ type: { enum: ['image'] }, url: { type: 'string', format: 'uri' }, altText: str }) }, saveToDraft: { type: 'boolean' }, metadata: { type: 'object' } }, required: ['channelId', 'schedulingType', 'text', 'assets', 'saveToDraft'], additionalProperties: false },
+  create_post: { type: 'object', properties: { channelId: str, schedulingType: { enum: ['automatic', 'notification'] }, text: str, assets: { type: 'array', items: object({ image: object({ url: { type: 'string', format: 'uri' }, metadata: object({ altText: str }) }) }) }, saveToDraft: { type: 'boolean' }, metadata: { type: 'object' } }, required: ['channelId', 'schedulingType', 'text', 'assets', 'saveToDraft'], additionalProperties: false },
   edit_post: object({ postId: str, schedulingType: { enum: ['automatic'] }, mode: { enum: ['customScheduled'] }, dueAt: { type: 'string', format: 'date-time' }, saveToDraft: { type: 'boolean' } }),
 };
 function transport({ sse = false, observedFormat = false, failCall = null, status = null, incorrectId = false } = {}) {
@@ -153,7 +153,7 @@ test('prepared job accounts for the live queue and never claims scheduled posts 
     if (name === 'get_account') data = { organizations: [{ id: BUFFER_TARGET.organization }], timezone: 'America/New_York' };
     if (name === 'list_channels') data = { channels: [{ id: BUFFER_TARGET.channels.x, service: 'twitter', isDisconnected: false }, { id: BUFFER_TARGET.channels.instagram, service: 'instagram', isDisconnected: false }] };
     if (name === 'list_posts') data = { posts: unexpectedDraft ? [{ id: 'c'.repeat(24), channelId: BUFFER_TARGET.channels.x, status: 'draft', text: 'unreconciled', dueAt: null }] : [], pageInfo: { hasNextPage: false } };
-    if (name === 'create_post') { saved = { id: 'b'.repeat(24), channelId: args.channelId, text: args.text, assets: args.assets.map(asset => ({ source: asset.url, altText: asset.altText })), status: 'draft', allowedActions: ['editPost'] }; data = { post: saved }; }
+    if (name === 'create_post') { saved = { id: 'b'.repeat(24), channelId: args.channelId, text: args.text, assets: args.assets.map(asset => ({ source: asset.image.url, altText: asset.image.metadata.altText })), status: 'draft', allowedActions: ['editPost'] }; data = { post: saved }; }
     if (name === 'get_post') data = { post: saved };
     if (name === 'edit_post') { saved = { ...saved, dueAt: args.dueAt, status: 'scheduled' }; data = { post: saved }; }
     return { structuredContent: data };
