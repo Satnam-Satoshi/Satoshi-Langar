@@ -16,10 +16,20 @@ test('missing or unsafe source uses a real source-desk anchor and an accurate la
  for(const url of[undefined,'','javascript:alert(1)','http://publisher.example/','https://user:password@publisher.example/','https://ltcmagazine.org/conversations/editions/2026-10-31-r1/'])assert.deepEqual(sourceDeskReadMore({readMore:'/conversations/editions/2026-10-31-r1/',url},config),{href:'/conversations/#source-desk',label:'Open source desk',destination:'source-desk'});
  assert.match(await readFile(new URL('../app/conversations/page.tsx',import.meta.url),'utf8'),/<section id="source-desk"/);
 });
-test('actual saved selections resolve four unavailable issue links without changing their bytes or other eight links',async()=>{
- const file=new URL('../content/ltc-newsroom-selections/latest.json',import.meta.url),before=await readFile(file),desk=JSON.parse(before);let replaced=0;
- for(const story of desk.stories){const link=sourceDeskReadMore(story,config);if(story.readMore==='/conversations/editions/2026-10-31-r1/'){replaced++;assert.equal(link.href,story.url);assert.equal(link.label,'Open primary source');}else assert.equal(link.href,story.readMore);}
- assert.equal(replaced,4);assert((await readFile(file)).equals(before));
+test('actual saved selections resolve excluded links without assuming a dated selection count or changing saved bytes',async()=>{
+ const file=new URL('../content/ltc-newsroom-selections/latest.json',import.meta.url),before=await readFile(file),desk=JSON.parse(before);
+ assert(Array.isArray(desk.stories));
+ for(const story of desk.stories){const link=sourceDeskReadMore(story,config);if(story.readMore==='/conversations/editions/2026-10-31-r1/'){assert.equal(link.href,story.url);assert.equal(link.label,'Open primary source');}else assert.equal(link.href,story.readMore);}
+ assert((await readFile(file)).equals(before));
+});
+test('future-day selections containing only eligible issue links remain unchanged with no replacements',()=>{
+ const desk={date:'2026-11-02',stories:[
+  {id:'next-day',readMore:'/conversations/editions/2026-11-01-r1/',url:'https://publisher.example/first'},
+  {id:'following-day',readMore:'https://ltcmagazine.org/conversations/editions/2026-11-02-r1/',url:'https://publisher.example/second'},
+  {id:'retained-day',readMore:'/conversations/editions/2026-10-30-r1/',url:'https://publisher.example/third'}
+ ]},before=JSON.stringify(desk);
+ for(const story of desk.stories)assert.deepEqual(sourceDeskReadMore(story,config),{href:story.readMore,label:null,destination:'unchanged'});
+ assert.equal(JSON.stringify(desk),before);
 });
 test('home, conversations and Litecoin source-card displays all use the shared resolver and appropriate link labels',async()=>{
  for(const file of['../app/components/CommunityEditionFront.tsx','../app/conversations/page.tsx','../app/conversations/litecoin/page.tsx']){const text=await readFile(new URL(file,import.meta.url),'utf8');assert.match(text,/import \{ sourceDeskReadMore \} from/);assert.match(text,/href=\{sourceDeskReadMore\((?:story|s), publicationExclusionConfig\)\.href\}/);assert.match(text,/sourceDeskReadMore\((?:story|s), publicationExclusionConfig\)\.label/);assert.doesNotMatch(text,/href=\{(?:story|s)\.readMore\}/);}

@@ -62,6 +62,18 @@ jobs:
           # This computed digest identifies validation bytes; it cannot approve publication.
           validation_digest="$(node scripts/ltc-release-guard.mjs)"
           node scripts/cloud-ltc-release.mjs --dry-run --expected-digest "$validation_digest" --receipt "$RUNNER_TEMP/ltc-cloud-review.json"
+      - name: Diagnose credential-free validation failure
+        if: failure()
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,readFileSync,realpathSync} from 'node:fs';import path from 'node:path';import {tmpdir} from 'node:os';import {execFileSync} from 'node:child_process';import {cleanEnvironment} from './scripts/cloud-ltc-release.mjs';
+          const file=process.env.RUNNER_TEMP+'/ltc-cloud-review.json';if(!existsSync(file))process.exit(0);
+          const receipt=JSON.parse(readFileSync(file,'utf8'));if(receipt.mode!=='dry-run'||receipt.published!==false||receipt.failure!=='command_failed_pnpm')process.exit(0);
+          const root=realpathSync(path.join(receipt.scratchDirectory,'source')),temporary=realpathSync(tmpdir());
+          if(!root.startsWith(temporary+path.sep+'ltc-cloud-')||path.basename(root)!=='source')throw Error('Unexpected credential-free diagnostic path');
+          console.log('Re-running offline validation only in the public-source scratch clone; no collection or provider effects.');
+          execFileSync('pnpm',['check'],{cwd:root,env:cleanEnvironment(process.env),stdio:'inherit',timeout:900000});
+          NODE
       - name: Sanitized result
         if: always()
         run: |
