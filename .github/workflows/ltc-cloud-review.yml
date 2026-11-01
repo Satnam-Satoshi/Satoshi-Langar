@@ -44,14 +44,14 @@ jobs:
       - name: Offline stage recipe plan using explicit fixture resources only
         run: |
           node --input-type=module <<'NODE'
-          import {mkdirSync,writeFileSync} from 'node:fs';import {execFileSync} from 'node:child_process';import {builtManifest} from './scripts/cloud-ltc-release.mjs';
+          import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';import {execFileSync} from 'node:child_process';import {builtManifest} from './scripts/cloud-ltc-release.mjs';import {publicEditions} from './scripts/lib/ltc-public-editions.mjs';
           const d=process.env.RUNNER_TEMP+'/ltc-offline-acceptance';mkdirSync(d,{mode:0o700});mkdirSync(d+'/evidence',{mode:0o700});
           const save=(name,value)=>writeFileSync(d+'/'+name,JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});
           save('website.json',{schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId:'offline_folder_fixture',documentId:'offline_website_fixture'});
           save('social.json',{schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId:'offline_folder_fixture',documentId:'offline_social_fixture',ledgerKey:'social'});
           save('evidence.json',{folderId:'offline_folder_fixture',ownerPermissionId:'offline_owner_fixture'});
           save('previous.json',await builtManifest(process.cwd()+'/dist'));save('evidence/build.json',{mode:'offline-fixture-plan-only'});
-          const edition=JSON.parse((await import('node:fs')).readFileSync('content/ltc/index.json','utf8')).sort((a,b)=>b.date.localeCompare(a.date)||b.revision-a.revision)[0].id;
+          const edition=publicEditions(JSON.parse(readFileSync('content/ltc/index.json','utf8')),JSON.parse(readFileSync('config/ltc-publication-exclusions.json','utf8'))).sort((a,b)=>b.date.localeCompare(a.date)||b.revision-a.revision)[0].id;
           const digest=execFileSync(process.execPath,['scripts/ltc-release-guard.mjs'],{encoding:'utf8'}).trim();
           execFileSync(process.execPath,['scripts/cloud-ltc-acceptance.mjs','--mode','plan','--root',process.cwd(),'--evidence-dir',d+'/evidence','--state-config',d+'/website.json','--social-state-config',d+'/social.json','--evidence-config',d+'/evidence.json','--edition-id',edition,'--acceptance-id','offline-recipe','--previous-deployment','dpl_OfflineFixture','--previous-manifest',d+'/previous.json','--receipt',d+'/plan.json'],{stdio:'inherit',env:{...process.env,LTC_ACCEPTED_IMPLEMENTATION_SHA256:digest}});
           NODE
