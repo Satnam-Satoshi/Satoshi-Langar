@@ -31,7 +31,7 @@ test('recovery skips rebuild, pins original plan/fence and retains safe admitted
 });
 
 test('owner incident quarantine requires a private protected review packet and preserves the original outcome',()=>{
- assert.match(workflow,/options: \[none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged\]/);
+ assert.match(workflow,/options: \[none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged\]/);
  assert.match(stage,/inputs\.acceptance_mode == 'quarantine'/);
  assert.match(stage,/github\.event\.sender\.id == 268053325/);
  assert.match(step('Validate explicit acceptance scope before credentials'),/\['recover','quarantine'\]\.includes/);
@@ -74,14 +74,16 @@ test('pre-effect retirement is manual founder-only with separate protected revie
  assert(stage.includes("inputs.acceptance_mode == 'pre-effect-retire'"));assert(effect.includes('LTC_PRE_EFFECT_RECOVERY_REVIEW_JSON'));assert(effect.includes('LTC_PRE_EFFECT_RECOVERY_REVIEW_SHA256'));
  assert(effect.includes('cloud-ltc-pre-effect-recovery.mjs'));assert(effect.includes('--previous-manifest'));
  assert(step('Select exact private resources and accepted public hash baseline').includes("['stage','quarantine','pre-effect-retire']"));
- assert(step('Validate explicit acceptance scope before credentials').includes("['promotion-reconcile','promotion-rollback','pre-effect-retire','continue-staged']"));
+ assert(step('Validate explicit acceptance scope before credentials').includes("['promotion-reconcile','promotion-rollback','pre-effect-retire','continue-staged','retire-staged']"));
  assert(!effect.includes('LTC_CLOUD_PUBLISH:'));assert(!effect.includes('conditionalWrite'));
 });
 
 test('existing-stage continuation remains a single manual protected job with separate review and no build/recollection',()=>{
  const effect=step('Explicitly approved stage-only effect or fresh-proof recovery');assert(stage.includes("inputs.acceptance_mode == 'continue-staged'"));assert(effect.includes('LTC_STAGED_CONTINUATION_REVIEW_JSON'));assert(effect.includes('LTC_STAGED_CONTINUATION_REVIEW_SHA256'));assert(effect.includes('cloud-ltc-continue-staged.mjs'));assert(!effect.includes('git push'));
- assert(step('Validate explicit acceptance scope before credentials').includes("['promotion-reconcile','promotion-rollback','pre-effect-retire','continue-staged']"));
+ assert(step('Validate explicit acceptance scope before credentials').includes("['promotion-reconcile','promotion-rollback','pre-effect-retire','continue-staged','retire-staged']"));
  assert(step('Build exact committed source without preparing new daily data').includes("if: inputs.acceptance_mode == 'stage'"));
 });
 
 test('finite receipt summary reports actual publication with scalar-fence fallback while routine remains disabled',()=>{const summary=step('Safe acceptance result; preserve held fences after any failure');assert(summary.includes('fence:r.lease?.fence??r.fence'));assert(summary.includes('publicationPerformed:r.publicationPerformed'));assert(summary.includes('publicationEnabled:false'));});
+
+test('archive-only mode uses separate protected review, no source preparation, one existing scheduler and preserved ten inputs',()=>{const effect=step('Explicitly approved stage-only effect or fresh-proof recovery');assert(stage.includes("inputs.acceptance_mode == 'retire-staged'"));assert(effect.includes('LTC_STAGE_RETIREMENT_REVIEW_JSON'));assert(effect.includes('LTC_STAGE_RETIREMENT_REVIEW_SHA256'));assert(effect.includes('cloud-ltc-retire-staged.mjs'));assert(!effect.includes('vercel delete'));assert(step('Build exact committed source without preparing new daily data').includes("if: inputs.acceptance_mode == 'stage'"));});

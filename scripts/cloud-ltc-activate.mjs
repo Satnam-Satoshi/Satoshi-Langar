@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { acceptFirstFreshGeneration } from './cloud-ltc-generation.mjs';
 import { assertReviewedMigrationAcceptance } from './cloud-ltc-migration-gate.mjs';
 import { receiptHash as hash } from './cloud-ltc-acceptance-proof.mjs';
 import { DurableCloudState } from './cloud-ltc-state.mjs';
@@ -28,6 +29,7 @@ export async function activateReviewedDailyPublication({ env, configuration, sta
   const manifest = await dependencies.currentManifest(document);
   await dependencies.verifyPublic(manifest);
   const next = structuredClone(document);
+  acceptFirstFreshGeneration(next, {env});
   next.paused = false;
   next.migrationActivation = { schemaVersion: 1, configurationSha256: hash(configuration), stageCompletionSha256: configuration.pins.stagePins.completionSha256, promotionCompletionSha256: configuration.pins.completionSha256, controllerImplementationSha256: env.LTC_ACCEPTED_IMPLEMENTATION_SHA256, runId: env.GITHUB_RUN_ID, attempt: env.GITHUB_RUN_ATTEMPT, publicDeployment: expected, publicManifestSha256: hash(manifest), localWriterCutoverSha256: proof.localWriterCutoverSha256, retainedUnknownAccepted: false, websiteOnly: true };
   await new DurableCloudState({ read: async () => ({ value: next }) }, 'website').inspect();

@@ -6,6 +6,7 @@ import { mkdtemp, mkdir, writeFile, readFile, rm, symlink } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { performCoordinatedRelease, confirmedStageFromState } from './cloud-ltc-production.mjs';
+import { releaseGeneration, generationEvidenceId } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -46,7 +47,7 @@ async function fixture({ uncertainStage = false, badPublishedBytes = false, unce
         async apply(context) {
           events.push('evidence-upload');
           const intent = (await state.inspect()).intents[context.operationId];
-          assert.equal(intent.status, 'uncertain'); assert.equal(intent.payload.fileId, config.fileId); assert.equal(intent.payload.sha256, bundle.sha256);
+          assert.equal(intent.status, 'uncertain');if(intent.payload.role==='release-artifacts'){assert.equal(intent.payload.generation,releaseGeneration(lease));assert.equal(intent.operationId,generationEvidenceId(releaseGeneration(lease),bundle.sha256));} assert.equal(intent.payload.fileId, config.fileId); assert.equal(intent.payload.sha256, bundle.sha256);
           stored = { operationId: context.operationId, payloadSha256: context.payloadSha256, status: 'applied', proof: { fileId: config.fileId, sha256: bundle.sha256, folderId: config.folderId, length: bundle.length, ownerOnly: true, downloadVerified: true } };
         },
         async readback(context) { return stored ?? { ...context, status: 'unknown' }; },

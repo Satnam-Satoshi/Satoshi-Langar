@@ -82,10 +82,12 @@ export class DurableCloudState {
     check(document.lease?.runId === lease?.runId && document.lease?.fence === lease?.fence, 'lease_fenced');
     check(document.lease.expiresAt > this.clock(), 'lease_expired');
   }
-  async acquire(runId, ttlMs = 60_000) {
+  async acquire(runId, ttlMs = 60_000, admissionCheck) {
     check(validKey(runId) && Number.isInteger(ttlMs) && ttlMs >= 1000 && ttlMs <= 3_600_000, 'invalid_lease');
     return this.#update(document => {
       check(!document.paused && !document.restoreHold, 'publication_paused');
+      const admissionResult=admissionCheck?.(copy(document));
+      check(!admissionResult||typeof admissionResult.then!=='function','invalid_admission_check');
       // Expiry never silently authorizes another writer. Explicit recovery first.
       check(!document.lease, 'lease_held');
       check(Object.values(document.intents).every(terminal), 'reconciliation_required');

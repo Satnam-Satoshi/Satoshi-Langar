@@ -79,7 +79,7 @@ export function createControlledVercelMutation({ env, review, fetchImpl = fetch 
 // Routine production uses the same project-scoped transport, but derives each
 // exact target from the already-authorized current-fence durable intent. This
 // cannot invent an alias mutation or execute a historical acceptance operation.
-export function createDurableVercelCommand({ env, state, lease, vercel, linked, root, fetchImpl = fetch }) {
+export function createDurableVercelCommand({ env, state, lease, vercel, linked, root, verifyPromotionFreshness, fetchImpl = fetch }) {
   return async args => {
     const kind = { deploy: 'vercel-stage', promote: 'vercel-promote', rollback: 'vercel-rollback' }[args[0]];
     check(kind, 'controlled_vercel_action_forbidden');
@@ -101,6 +101,7 @@ export function createDurableVercelCommand({ env, state, lease, vercel, linked, 
     check(stage, 'controlled_vercel_scope_mismatch');
     const candidate = await vercel(`/v13/deployments/${candidateId}`);
     check(candidate?.id === candidateId && candidate.projectId === TARGET.project && candidate.ownerId === TARGET.team && candidate.team?.id === TARGET.team && candidate.meta?.ltcSourceCommit === payload.commit && candidate.url === stage.proof.proof.url, 'controlled_vercel_scope_mismatch');
+    if(kind==='vercel-promote')await verifyPromotionFreshness?.();
     return createControlledVercelMutation({ env, review: { stagePins: { candidateDeployment: candidateId, previousDeployment: previousId } }, fetchImpl })(args, { candidate: candidateId, previous: previousId, candidateUrl: candidate.url });
   };
 }

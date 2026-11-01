@@ -28,7 +28,7 @@ const hash=value=>sha(JSON.stringify(value));
 const safeContinuationCodes=new Set(["controlled_vercel_write_uncertain","staged_continuation_already_claimed", "staged_continuation_arguments_required", "staged_continuation_candidate_changed", "staged_continuation_checkpoint_changed", "staged_continuation_checkpoint_readback_changed", "staged_continuation_claim_readback_changed", "staged_continuation_controller_changed", "staged_continuation_displayed_ticker_expired", "staged_continuation_download_unknown", "staged_continuation_effect_outside_scope", "staged_continuation_evidence_changed", "staged_continuation_evidence_proof_changed", "staged_continuation_finite_authority_required", "staged_continuation_full_restore_required", "staged_continuation_git_changed", "staged_continuation_historical_guard_changed", "staged_continuation_history_changed", "staged_continuation_intent_set_changed", "staged_continuation_issue_date_expired", "staged_continuation_lease_changed", "staged_continuation_live_prices_unavailable", "staged_continuation_origin_not_completed", "staged_continuation_origin_required", "staged_continuation_owner_required", "staged_continuation_previous_pointer_changed", "staged_continuation_private_config_changed", "staged_continuation_project_changed", "staged_continuation_provenance_changed", "staged_continuation_receipt_changed", "staged_continuation_restore_required", "staged_continuation_restored_artifact_changed", "staged_continuation_restored_binding_changed", "staged_continuation_restored_context_changed", "staged_continuation_review_expired", "staged_continuation_review_pin_required", "staged_continuation_review_required", "staged_continuation_scope_required", "staged_continuation_snapshot_changed", "staged_continuation_source_changed", "staged_continuation_source_controls_changed", "staged_continuation_source_snapshot_invalid", "staged_continuation_stage_changed", "staged_continuation_stage_proof_changed", "staged_continuation_state_required", "staged_continuation_unconfirmed_intent", "staged_continuation_unknown_changed"]);
 export function safeStagedContinuationFailure(error){const code=typeof error?.message==='string'?error.message:'';if(safeContinuationCodes.has(code))return code;const safe=safeFailure(error);return safe==='release_failed_details_withheld'?'staged_continuation_details_withheld':safe;}
 
-export async function verifyRestoredStagedArtifacts({destination,review,promotionFreshness=false,now=new Date().toISOString()}){
+export async function verifyHistoricalStagedArtifacts({destination,review}){
   const source=await builtManifest(path.join(destination,'source')),manifest=await builtManifest(path.join(destination,'static')),output=await builtOutputManifest(path.join(destination,'build-output'));
   check(hash(source)===review.sourceManifestSha256&&hash(manifest)===review.artifactManifestSha256&&hash(output)===review.buildOutputSha256&&hash(await builtManifest(path.join(destination,'build-output/static')))===review.artifactManifestSha256,'staged_continuation_restored_artifact_changed');
   // Compute the historical guard over explicit restored source files; execute
@@ -40,12 +40,25 @@ export async function verifyRestoredStagedArtifacts({destination,review,promotio
   check(hash(savedManifest)===review.artifactManifestSha256&&previous.deployment===review.previousDeployment&&hash(previous.manifest)===review.previousPublicManifestSha256&&plan.source===review.origin.sourceBefore&&plan.commit===review.artifactSource&&plan.editionId===review.editionId,'staged_continuation_restored_context_changed');
   const publicationProvenance={editionSha256:sha(await readFile(path.join(destination,`source/content/ltc/${review.editionId}.json`))),sourceDeskSha256:sha(await readFile(path.join(destination,'source/content/ltc-newsroom-selections/latest.json'))),dailyGraphicSha256:sha(await readFile(path.join(destination,`source/public/magazine/daily/${review.editionId}/social.png`)))};
   check(hash(publicationProvenance)===hash(review.publicationProvenance)&&manifest.some(record=>record.file===`magazine/daily/${review.editionId}/social.png`&&record.sha256===publicationProvenance.dailyGraphicSha256),'staged_continuation_provenance_changed');
+  return{manifest,previousManifest:previous.manifest,publicationProvenance};
+}
+
+export function assertImmutableDisplayedTickers(edition,now){for(const brief of edition.briefs.filter(brief=>brief.desk==='Market snapshot'))check(tickerFreshness(brief.effectiveAt,now)==='dated-observation','staged_continuation_displayed_ticker_expired');}
+export async function verifyRestoredStagedArtifacts({destination,review,promotionFreshness=false,now=new Date().toISOString()}){
+  const verified=await verifyHistoricalStagedArtifacts({destination,review});
   check(editionDate(now)===review.editionId.slice(0,10),'staged_continuation_issue_date_expired');
   const sourceJSON=async file=>JSON.parse(await readFile(path.join(destination,'source',file),'utf8'));
   let normalized;try{normalized=validateSnapshot(await sourceJSON('public/data/ltc-snapshot.json'),await sourceJSON('config/ltc-sources.json'),await sourceJSON('config/ltc-publication.json'),now,review.editionId.slice(0,10));}catch{throw Error('staged_continuation_source_snapshot_invalid');}
-  if(promotionFreshness){const edition=await sourceJSON(`content/ltc/${review.editionId}.json`),displayed=new Set(edition.briefs.filter(brief=>brief.desk==='Market snapshot').flatMap(brief=>brief.sourceIds));for(const source of normalized.filter(source=>displayed.has(source.id)&&Object.hasOwn(TICKER_RULES,source.parserVersion))){check(tickerFreshness(source.sourceAsOf,now)==='dated-observation','staged_continuation_displayed_ticker_expired');}}
+  if(promotionFreshness){const edition=await sourceJSON(`content/ltc/${review.editionId}.json`);assertImmutableDisplayedTickers(edition,now);const displayed=new Set(edition.briefs.filter(brief=>brief.desk==='Market snapshot').flatMap(brief=>brief.sourceIds));for(const source of normalized.filter(source=>displayed.has(source.id)&&Object.hasOwn(TICKER_RULES,source.parserVersion))){check(tickerFreshness(source.sourceAsOf,now)==='dated-observation','staged_continuation_displayed_ticker_expired');}}
 
-  return{manifest,previousManifest:previous.manifest,publicationProvenance};
+  return verified;
+}
+
+export async function restoreHistoricalStagedArtifact({pinned,review,evidenceConfig,directory,token,fetchImpl=fetch,save=async()=>{}}){
+  const bundles=[];for(const intent of pinned.evidence){const p=intent.payload,result=await downloadEvidence({...p,length:p.bytes,operationId:intent.operationId,payloadSha256:intent.payloadSha256},{config:{...evidenceConfig,fileId:p.fileId},getAccessToken:token,fetcher:fetchImpl});check(result?.bundle,'staged_continuation_download_unknown');bundles.push(result.bundle);await save({restoredBundleCount:bundles.length});}
+  const destination=path.join(directory,'restored-artifact');const restored=await restoreArtifactEvidence(bundles,{directory:destination,expectedManifestSha256:review.artifactPackageManifestSha256});
+  check(['source','static','build-output','evidence'].every(scope=>restored.scopes[scope]>0),'staged_continuation_full_restore_required');
+  const verified=await verifyHistoricalStagedArtifacts({destination,review});return{...verified,destination,restored};
 }
 
 export async function createStagedContinuationRuntime({env,review,configuration,state,evidenceConfig,directory,root,save,fetchImpl=fetch}){
@@ -70,9 +83,7 @@ export async function createStagedContinuationRuntime({env,review,configuration,
     },
     async verifyProjectAndPointers(){await verifyProject();for(const domain of TARGET.domains){const deployment=await vercel(`/v13/deployments/${new URL(domain).hostname}`);assertVercelDeploymentIdentity(deployment,TARGET);check(deployment.id===review.previousDeployment,'staged_continuation_previous_pointer_changed');}},
     async restore(pinned){
-      const bundles=[];for(const intent of pinned.evidence){const p=intent.payload,result=await downloadEvidence({...p,length:p.bytes,operationId:intent.operationId,payloadSha256:intent.payloadSha256},{config:{...evidenceConfig,fileId:p.fileId},getAccessToken:token,fetcher:fetchImpl});check(result?.bundle,'staged_continuation_download_unknown');bundles.push(result.bundle);await save({restoredBundleCount:bundles.length});}
-      const destination=path.join(directory,'restored-artifact');const restored=await restoreArtifactEvidence(bundles,{directory:destination,expectedManifestSha256:review.artifactPackageManifestSha256});
-      check(['source','static','build-output','evidence'].every(scope=>restored.scopes[scope]>0),'staged_continuation_full_restore_required');
+      const {destination}=await restoreHistoricalStagedArtifact({pinned,review,evidenceConfig,directory,token,fetchImpl,save});
       const verified=await verifyRestoredStagedArtifacts({destination,review});
       reviewCandidateUrl=pinned.candidateUrl;
       promotionVerifier=async()=>{await verifyLiveMarkets();await verifyRestoredStagedArtifacts({destination,review,promotionFreshness:true});};return{...verified,verify:()=>verifyRestoredStagedArtifacts({destination,review}),verifyPromotion:promotionVerifier};

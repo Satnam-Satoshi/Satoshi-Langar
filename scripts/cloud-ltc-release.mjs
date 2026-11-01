@@ -11,6 +11,7 @@ import { rehearseReleaseOperations } from './cloud-ltc-rehearsal.mjs';
 import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
 import { performCoordinatedRelease, loadPreviousReleaseManifest } from './cloud-ltc-production.mjs';
 import { assertVercelProjectPolicy } from './cloud-ltc-release-providers.mjs';
+import { assertFreshGenerationAdmission, captureFreshGenerationBinding, assertFreshGenerationEdition } from './cloud-ltc-generation.mjs';
 import { assertReviewedMigrationAcceptance } from './cloud-ltc-migration-gate.mjs';
 
 // Default mode never commits or deploys. Publication requires protected evidence/policy and durable admission.
@@ -256,14 +257,15 @@ function parseArgs(argv) {
 export function requireDurableAdapter(adapter) {
   requireThat(adapter instanceof GoogleDocsStateAdapter, 'durable_adapter_required');
 }
-export async function admitDurablePublication({adapter, runId, key = 'website', clock = Date.now}) {
+export async function admitDurablePublication({adapter, runId, key = 'website', clock = Date.now, env = process.env}) {
   requireDurableAdapter(adapter);
   requireThat(/^gha-[0-9]{1,30}-[0-9]{1,6}$/.test(runId ?? ''), 'invalid_cloud_run_id');
   const state = new DurableCloudState(adapter, key, {clock});
   // acquire validates pause/restoreHold, unresolved intents and active lease,
   // then persists its fencing token using the real adapter's revision CAS.
-  const lease = await state.acquire(runId, 3_600_000);
-  return {state, lease};
+  let firstFreshGeneration=null;
+  const lease = await state.acquire(runId, 3_600_000, document => {assertFreshGenerationAdmission(document, {env, now: clock()});firstFreshGeneration=captureFreshGenerationBinding(document);});
+  return {state, lease, firstFreshGeneration};
 }
 export async function releaseUnusedAdmission(admission) {
   try {
@@ -307,7 +309,7 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
       requireThat(stateConfig?.documentId === bindings.websiteDocumentId && stateConfig.folderId === bindings.folderId && env.LTC_ACCEPTED_IMPLEMENTATION_SHA256 === options.expected, 'private_storage_required');
       record.migrationProof = assertMigrationAcceptance({ document: await new DurableCloudState(stateAdapter, 'website').inspect(), configuration: migration, currentControllerImplementationSha256: options.expected });
       record.migrationConfigurationSha256 = sha(JSON.stringify(migration));
-      admission = await admitDurablePublication({adapter:stateAdapter, runId:`gha-${env.GITHUB_RUN_ID}-${env.GITHUB_RUN_ATTEMPT}`});
+      admission = await admitDurablePublication({adapter:stateAdapter, runId:`gha-${env.GITHUB_RUN_ID}-${env.GITHUB_RUN_ATTEMPT}`, env});
       record.durableAdmission = {key:'website', ...admission.lease};
       await save();
       // An interrupted external intent retains its fence; owner-reviewed proof
@@ -329,6 +331,9 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     await prepareObservations({ clone, evidence, inputs, existingEdition: Boolean(edition) });
     record.evidence = await Promise.all(Object.entries(inputs).map(async ([kind, file]) => ({ kind, sha256: sha(await readFile(file)) })));
     if (!edition) edition = JSON.parse(await readFile(path.join(clone, `content/ltc/${date}-r1.json`), 'utf8'));
+    const preparedEdition=JSON.parse(await readFile(path.join(clone,`content/ltc/${edition.id}.json`),'utf8'));
+    const verifyFirstFreshEdition=()=>{if(admission?.firstFreshGeneration)assertFreshGenerationEdition(preparedEdition,{now:Date.now(),notBeforeDate:admission.firstFreshGeneration.notBeforeDate});};
+    verifyFirstFreshEdition(); // Before any source/private/archive/deployment effect.
     record.distributionSourceSha256 = sha(await readFile(path.join(evidence, 'litecoin-distribution-raw.json')));
     record.edition = edition.id;
     record.snapshotSha256 = sha(await readFile(path.join(clone, 'public/data/ltc-snapshot.json')));
@@ -368,7 +373,7 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     await save();
     const linked = createAcceptanceLinkedClient({ env, vercel, directory: portable.root, report: async diagnostic => { record.safeCliFailure = diagnostic; await save(); } });
     await linked.verifyVersion();
-    const vercelCommand = createDurableVercelCommand({ env, state: admission.state, lease: admission.lease, vercel, linked, root: portable.root });
+    const vercelCommand = createDurableVercelCommand({ env, state: admission.state, lease: admission.lease, vercel, linked, root: portable.root, verifyPromotionFreshness:verifyFirstFreshEdition });
     const result = await performCoordinatedRelease({
       admission, root: clone, source, changes, editionId: edition.id, acceptedSource,
       startedAt: record.startedAt, target: TARGET, github, vercel, cli: vercelCommand,
@@ -384,6 +389,7 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     Object.assign(record, result, { status: result.status ?? 'published', completedAt: time() }); await save();
     return { status: record.status, receipt: receiptPath, published: record.published };
   } catch (error) {
+    if(admission?.firstFreshGeneration){try{const {pauseOwnedFreshGeneration}=await import('./cloud-ltc-generation.mjs');await pauseOwnedFreshGeneration(admission);}catch{}}
     if (admission) record.unusedLeaseReleased = await releaseUnusedAdmission(admission);
     record.status = record.status === 'rolled-back' ? 'rolled-back' : 'withheld';
     record.failure = safeFailure(error); record.completedAt = time(); await save();
@@ -460,6 +466,7 @@ export function safeFailure(error) {
   const message = typeof error?.message === 'string' ? error.message : '';
   const known = new Set(['operation_outcome_uncertain', 'operation_reconciliation_required', 'reconciliation_required', 'release_operation_not_confirmed', 'state_conflict', 'lease_held', 'lease_fenced', 'lease_expired', 'storage_read_failed', 'storage_write_uncertain', 'google_refresh_credentials_required', 'google_refresh_failed', 'google_refresh_scope_mismatch', 'bootstrap_rollback_manifest_required', 'rollback_manifest_unavailable', 'rollback_manifest_changed', 'evidence_file_ids_required', 'evidence_too_large', 'artifact_source_set_too_large', 'state_capacity_exceeded', 'incomplete_release_artifact_backup', 'protected_candidate_read_failed', 'pinned_cli_version_required', 'pinned_cli_version_mismatch', 'production_recovery_configuration_required', 'collector_failed', 'invalid_collector_snapshot', 'migration_acceptance_pending', 'accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'invalid_accepted_source', 'durable_adapter_required', 'invalid_cloud_run_id', 'built_output_changed', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'invalid_deployment_output', 'invalid_candidate_manifest', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
   for (const code of ['redirect_target_missing_from_manifest', 'reviewed_redirect_changed', 'unexpected_artifact_status', 'invalid_protected_http_response', 'deployment_discovery_uncertain', 'confirmed_stage_receipt_invalid']) known.add(code);
+  for(const code of ["fresh_generation_acceptance_required", "fresh_generation_binding_changed", "fresh_generation_checkpoint_invalid", "fresh_generation_checkpoint_readback_changed", "fresh_generation_displayed_ticker_expired", "fresh_generation_edition_invalid", "fresh_generation_manual_proof_required", "fresh_generation_proof_required", "fresh_generation_retirement_proof_required", "fresh_generation_same_day_withheld", "invalid_release_generation", "invalid_retired_issue_date"]) known.add(code);
   return known.has(message) || /^http_[1-5]\d{2}$/.test(message) || /^command_failed_(?:node|git|pnpm|vercel)$/.test(message) ? message : 'release_failed_details_withheld';
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

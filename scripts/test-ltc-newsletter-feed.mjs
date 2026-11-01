@@ -1,3 +1,4 @@
+import {publicEditions} from './lib/ltc-public-editions.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -5,7 +6,9 @@ import {build} from 'esbuild';
 async function load(entry){const out=await build({entryPoints:[entry],bundle:true,platform:'node',format:'esm',target:'node22',write:false,logLevel:'silent'});return import(`data:text/javascript;base64,${Buffer.from(out.outputFiles[0].text).toString('base64')}`);}
 const {buildNewsletterFeed,newsletterDescription}=await load('app/data/newsletter-feed.ts');
 const route=await load('app/conversations/newsletter.xml/route.ts');
-const records=JSON.parse(await readFile('content/ltc/index.json','utf8'));
+const rawRecords=JSON.parse(await readFile('content/ltc/index.json','utf8'));
+const exclusions=JSON.parse(await readFile('config/ltc-publication-exclusions.json','utf8'));
+const records=publicEditions(rawRecords,exclusions);
 const ids=xml=>[...xml.matchAll(/<guid isPermaLink="false">([^<]+)<\/guid>/g)].map(m=>m[1]);
 function fixture(date='2026-10-22',revision=1,publishedAt='2026-10-23T01:52:09Z'){
  const edition=structuredClone(records[0]);Object.assign(edition,{id:`${date}-r${revision}`,date,revision,publishedAt,presentation:undefined,corrections:[]});edition.features.issueDate=date;return edition;
@@ -17,6 +20,7 @@ test('static feed projects only saved events deterministically with stable exist
  assert.deepEqual(ids(xml),expected);assert.equal(route.dynamic,'force-static');
  const response=await route.GET();assert.equal(response.headers.get('content-type'),'application/rss+xml; charset=utf-8');assert.equal(await response.text(),xml);
  assert(xml.includes('https://ltcmagazine.org/conversations/newsletter.xml'));
+ for(const excluded of exclusions.editions)assert(!xml.includes(`ltc:edition:${excluded.id}`),'Never-public preparation is not mailed as a past publication');
 });
 test('corrections preserve publication order, exact timestamp and predecessors',async()=>{
  const previous=fixture('2026-10-20',1,'2026-10-20T12:00:00Z'),today=fixture(),correction=fixture('2026-10-20',2,'2026-10-23T02:00:00Z');

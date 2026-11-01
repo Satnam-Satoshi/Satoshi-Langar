@@ -1,4 +1,6 @@
 import storedEditions from '../../content/ltc/index.json';
+import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
+import { publicEditions } from '../../scripts/lib/ltc-public-editions.mjs';
 import type { DeskSection } from './desks';
 import { publicationDays, publicationMonths } from './edition-calendar';
 
@@ -52,7 +54,7 @@ export type LtcEdition = {
   policyRecords?: import('./intelligence').LtcPolicySnapshot;
 };
 
-export const ltcPublicationDays = publicationDays(storedEditions as LtcEdition[]);
+export const ltcPublicationDays = publicationDays(publicEditions(storedEditions as LtcEdition[], publicationExclusionConfig));
 export const ltcPublicationMonths = publicationMonths(ltcPublicationDays);
 export const ltcEditions = ltcPublicationDays.flatMap(day => day.revisions);
 export const latestLtcEdition: LtcEdition | undefined = ltcPublicationDays[0]?.latest;
