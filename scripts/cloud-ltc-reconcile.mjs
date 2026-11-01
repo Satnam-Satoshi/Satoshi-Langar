@@ -75,7 +75,7 @@ export async function inspectPersistedOperations({ state, github, vercel, eviden
       else if (p.kind === 'drive-evidence') {
         check(p.folderId === evidenceConfig.folderId, 'private_storage_required');
         const result = await downloadEvidence({ ...p, length: p.bytes, operationId: intent.operationId, payloadSha256: intent.payloadSha256 }, { config: { ...evidenceConfig, fileId: p.fileId }, getAccessToken, fetcher });
-        check(result?.proof, 'provider_readback_unknown'); proof = result.proof;
+        check(result !== null, 'evidence_known_file_not_found'); check(result?.proof, 'provider_readback_unknown'); proof = result.proof;
       } else if (['vercel-stage', 'vercel-promote', 'vercel-rollback'].includes(p.kind)) {
         const manifests = await recover(p);
         const providers = createVercelReleaseProviders({ target: TARGET, vercel, cli: async () => { throw Error('read_only_reconciliation'); }, beforeMutation: async () => { throw Error('read_only_reconciliation'); },
@@ -89,7 +89,10 @@ export async function inspectPersistedOperations({ state, github, vercel, eviden
         proof = result.proof;
       } else throw Error('unsupported_operation_kind');
       results.push({ ...base, observed: 'applied', proof, proofSha256: hash(JSON.stringify(proof)) });
-    } catch { results.push({ ...base, observed: 'unknown', reason: 'provider-or-recovery-proof-unavailable' }); }
+    } catch (error) {
+      const diagnostics = new Set(['evidence_known_file_not_found','drive_request_unconfirmed','evidence_metadata_mismatch','evidence_operation_mismatch','evidence_not_owner_only','unverified_evidence_folder','invalid_evidence_digest','invalid_evidence_json','invalid_evidence_schema','invalid_evidence_file_digest','noncanonical_evidence_bundle']);
+      results.push({ ...base, observed: 'unknown', reason: 'provider-or-recovery-proof-unavailable', ...(diagnostics.has(error?.message) ? { diagnostic: error.message } : {}) });
+    }
   }
   return { schemaVersion: 1, mode: 'read-only-crash-reconciliation', publicationEnabled: false, stateChanged: false, effectsReissued: false, paused: document.paused, leaseHeld: document.lease !== null, results, requiresExplicitReview: true };
 }
