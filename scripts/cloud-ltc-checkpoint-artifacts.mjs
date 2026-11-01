@@ -21,4 +21,3 @@ export async function restoreCheckpointArtifacts({pinned,review,evidenceConfig,d
   check(['source','static','build-output','evidence'].every(scope=>restored.scopes[scope]>0),'checkpoint_recovery_full_restore_required');
   const verified=await verifyCheckpointArtifactBytes({destination,review});return{...verified,destination,restored};
 }
-
