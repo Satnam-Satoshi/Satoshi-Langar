@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { performCoordinatedRelease } from './cloud-ltc-production.mjs';
+import { performCoordinatedRelease, confirmedStageFromState } from './cloud-ltc-production.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -136,4 +136,17 @@ test('exact same live bytes return no-op without archive upload, source write or
     assert.ok(!f.events.some(event => ['evidence-upload', 'deploy', 'promote', 'rollback'].includes(event)));
     assert.equal((await f.state.inspect()).lease, null);
   } finally { await rm(f.scratch, { recursive: true, force: true }); }
+});
+
+test('confirmed stage is consumed once: no second protected crawl can abort before promotion',async()=>{
+ const f=await fixture();try{let reads=0;f.options.verifyProtected=async()=>{if(++reads>1)throw Error('second-protected-read-failed');};const result=await performCoordinatedRelease(f.options);assert.equal(result.published,true);assert.equal(reads,1);assert.deepEqual(f.events.filter(e=>['deploy','promote'].includes(e)),['deploy','promote']);}finally{await rm(f.scratch,{recursive:true,force:true});}
+});
+test('persisted stage proof requires exact current lease/fence, payload, leaf and immutable receipt',async()=>{
+ const f=await fixture({badPublishedBytes:true});try{
+  await assert.rejects(performCoordinatedRelease(f.options));const original=await f.state.inspect(),stage=Object.values(original.intents).find(i=>i.payload.kind==='vercel-stage');const operation={operationId:stage.operationId,payload:stage.payload};
+  const candidate=await confirmedStageFromState({state:f.state,lease:f.options.admission.lease,operation});assert.equal(candidate.deployment,'dpl_Candidate');
+  for(const change of [d=>d.lease.runId='other',d=>d.intents[stage.operationId].fence++,d=>d.intents[stage.operationId].status='uncertain',d=>d.intents[stage.operationId].payload.commit='f'.repeat(40),d=>d.intents[stage.operationId].proof.proof.source='f'.repeat(40),d=>d.receipts[stage.operationId].sha256='f'.repeat(64),d=>delete d.receipts[stage.operationId]]){
+   const document=structuredClone(original);change(document);await assert.rejects(confirmedStageFromState({state:{inspect:async()=>document},lease:f.options.admission.lease,operation}),/confirmed_stage_receipt_invalid/);
+  }
+ }finally{await rm(f.scratch,{recursive:true,force:true});}
 });

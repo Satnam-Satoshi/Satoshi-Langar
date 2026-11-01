@@ -34,7 +34,7 @@ test('child process environment and errors never expose provider tokens', () => 
   for (const value of [...Object.values(secrets), 'command_failed_ghp_thisisprivate', 'url https://example.com?token=private']) assert.equal(safeFailure(new Error(value)), 'release_failed_details_withheld');
   assert.equal(safeFailure(new Error('publication_paused')), 'publication_paused');
   assert.equal(safeFailure(new Error('http_403')), 'http_403');
-  for (const code of ['redirect_target_missing_from_manifest', 'reviewed_redirect_changed', 'unexpected_artifact_status', 'invalid_protected_http_response']) { assert.equal(safeFailure(new Error(code)), code); assert.equal(safeFailure(new Error(code + ': private response')), 'release_failed_details_withheld'); }
+  for (const code of ['redirect_target_missing_from_manifest', 'reviewed_redirect_changed', 'unexpected_artifact_status', 'invalid_protected_http_response', 'deployment_discovery_uncertain', 'confirmed_stage_receipt_invalid']) { assert.equal(safeFailure(new Error(code)), code); assert.equal(safeFailure(new Error(code + ': private response')), 'release_failed_details_withheld'); }
 });
 test('release verification covers date, exact revision, month, archive, RSS and JSON', () => {
   const files = pathsFor(id);
