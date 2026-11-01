@@ -22,7 +22,7 @@ on:
       acceptance_mode:
         description: Explicit reviewed acceptance action; promotion proof temporarily changes public aliases
         type: choice
-        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads]
+        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint]
         default: none
       acceptance_source_commit:
         description: Exact reviewed acceptance source commit
@@ -314,7 +314,7 @@ jobs:
 
 
   stage-acceptance:
-    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine' || inputs.acceptance_mode == 'promotion-proof' || inputs.acceptance_mode == 'promotion-reconcile' || inputs.acceptance_mode == 'promotion-rollback' || inputs.acceptance_mode == 'activate-cloud' || inputs.acceptance_mode == 'social-inspect' || inputs.acceptance_mode == 'social-bootstrap' || inputs.acceptance_mode == 'social-private-draft' || inputs.acceptance_mode == 'social-reconcile-private-draft' || inputs.acceptance_mode == 'pre-effect-retire' || inputs.acceptance_mode == 'continue-staged' || inputs.acceptance_mode == 'retire-staged' || inputs.acceptance_mode == 'inspect-upload-failure' || inputs.acceptance_mode == 'quarantine-uploads')
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine' || inputs.acceptance_mode == 'promotion-proof' || inputs.acceptance_mode == 'promotion-reconcile' || inputs.acceptance_mode == 'promotion-rollback' || inputs.acceptance_mode == 'activate-cloud' || inputs.acceptance_mode == 'social-inspect' || inputs.acceptance_mode == 'social-bootstrap' || inputs.acceptance_mode == 'social-private-draft' || inputs.acceptance_mode == 'social-reconcile-private-draft' || inputs.acceptance_mode == 'pre-effect-retire' || inputs.acceptance_mode == 'continue-staged' || inputs.acceptance_mode == 'retire-staged' || inputs.acceptance_mode == 'inspect-upload-failure' || inputs.acceptance_mode == 'quarantine-uploads' || inputs.acceptance_mode == 'recover-promotion-checkpoint')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: ltc-production
@@ -405,6 +405,8 @@ jobs:
           }else if(['recover','quarantine'].includes(e.LTC_ACCEPTANCE_MODE)){
             if(! /^[a-f0-9]{64}$/.test(e.LTC_ACCEPTANCE_PLAN_SHA256||'')||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Recovery scope mismatch');
             if(e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT)throw Error('Unexpected recovery/quarantine inputs');
+          }else if(e.LTC_ACCEPTANCE_MODE==='recover-promotion-checkpoint'){
+            if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||e.LTC_ACCEPTANCE_FENCE!=='10'||e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PLAN_SHA256||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact checkpoint recovery scope required');
           }else if(e.LTC_ACCEPTANCE_MODE==='inspect-upload-failure'){
             if(! /^gha-[1-9]\d*-[1-9]\d*@[a-f0-9]{40}$/.test(e.LTC_ACCEPTANCE_ID||'')||! /^[a-f0-9]{64}$/.test(e.LTC_ACCEPTANCE_PLAN_SHA256||'')||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact read-only upload snapshot required');
           }else if(['promotion-proof','promotion-reconcile','promotion-rollback','activate-cloud','social-inspect','social-bootstrap','social-private-draft','social-reconcile-private-draft','pre-effect-retire','continue-staged','retire-staged','quarantine-uploads'].includes(e.LTC_ACCEPTANCE_MODE)){
@@ -470,6 +472,8 @@ jobs:
           NODE
       - name: Explicitly approved stage-only effect or fresh-proof recovery
         env:
+          LTC_PROMOTION_CHECKPOINT_REVIEW_JSON: ${{ inputs.acceptance_mode == 'recover-promotion-checkpoint' && secrets.LTC_PROMOTION_CHECKPOINT_REVIEW_JSON || '' }}
+          LTC_PROMOTION_CHECKPOINT_REVIEW_SHA256: ${{ vars.LTC_PROMOTION_CHECKPOINT_REVIEW_SHA256 }}
           LTC_UPLOAD_QUARANTINE_REVIEW_JSON: ${{ inputs.acceptance_mode == 'quarantine-uploads' && secrets.LTC_UPLOAD_QUARANTINE_REVIEW_JSON || '' }}
           LTC_UPLOAD_QUARANTINE_REVIEW_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_REVIEW_SHA256 }}
           LTC_STAGE_RETIREMENT_REVIEW_JSON: ${{ inputs.acceptance_mode == 'retire-staged' && secrets.LTC_STAGE_RETIREMENT_REVIEW_JSON || '' }}
@@ -507,7 +511,15 @@ jobs:
               set -- "$@" --review-file "$RUNNER_TEMP/ltc-setup-quarantine-review.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json"
             fi
           fi
-          if [[ "$LTC_ACCEPTANCE_MODE" == quarantine-uploads ]]; then
+          if [[ "$LTC_ACCEPTANCE_MODE" == recover-promotion-checkpoint ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_PROMOTION_CHECKPOINT_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>131072)throw Error('Protected promotion checkpoint review required');
+          JSON.parse(value);writeFileSync(process.env.RUNNER_TEMP+'/ltc-promotion-checkpoint-review.json',value,{flag:'wx',mode:0o600});
+          NODE
+            node scripts/cloud-ltc-recover-checkpoint.mjs --review-file "$RUNNER_TEMP/ltc-promotion-checkpoint-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == quarantine-uploads ]]; then
             node --input-type=module <<'NODE'
           import {writeFileSync} from 'node:fs';
           const value=process.env.LTC_UPLOAD_QUARANTINE_REVIEW_JSON;
