@@ -1,0 +1,492 @@
+{
+  "schemaVersion": 1,
+  "id": "2026-10-06-delorean-r2",
+  "date": "2026-10-06",
+  "preparedAt": "2026-10-06T18:30:15.554086Z",
+  "slug": "litecoin-meets-delorean",
+  "title": "Great Scott. Litecoin meets DeLorean.",
+  "dek": "Payments. Treasury strategy. Real-world reach. DeLorean meets Litecoin, with LitVM and the institutional record in the wider picture.",
+  "byline": "AI Satoshi Ma · LTC Media editorial desk",
+  "review": "AI-prepared and source-checked. Space remarks are paraphrased from X’s automated replay captions, which can contain errors; no direct audio verification, verbatim quote or independent human fact-check is claimed.",
+  "cover": "/magazine/extras/2026-10-06-delorean.jpg",
+  "coverAlt": "Original conceptual illustration: a sculptural silver gull-wing car follows a blue circuit road toward a financial skyline. Not a product rendering or a data chart.",
+  "sourceCheckedDate": "2026-10-06",
+  "sections": [
+    {
+      "id": "announcement",
+      "number": "01",
+      "label": "The announcement · October 6",
+      "title": "A new road for Litecoin.",
+      "standfirst": "Beyond a future payment option: treasury cooperation and a bridge between two established communities.",
+      "paragraphs": [
+        {
+          "text": "The Litecoin Foundation says it has formed a strategic partnership with DeLorean Labs. The October 6 announcement says DeLorean Motor Company plans to accept LTC for its upcoming electric vehicles when they become available, alongside the DMC token. It also describes cooperation on ecosystem strategy, treasury management, events and social activations. The release does not provide a live LTC checkout date or a disclosed Litecoin treasury allocation. Those are the next facts to establish.",
+          "sources": [
+            "foundation-delorean"
+          ]
+        },
+        {
+          "text": "DeLorean Labs independently confirmed the partnership in its October 6 post, describing joint initiatives around automotive innovation and cryptocurrency adoption, and collaboration with Charlie Lee. It is a statement of the partners’ intentions, not evidence that every planned product or integration is already available.",
+          "sources": [
+            "delorean-own-post"
+          ]
+        },
+        {
+          "text": "The recorded Surprise Litecoin Spaces adds context to the treasury language. In X’s automated replay captions, the host speaking through @litecoin describes LTC becoming part of DeLorean’s treasury as one aspect of the partnership. The @DeLoreanlabs speaker responds positively about Litecoin treasury adoption. This supports reporting a treasury strategy discussion alongside payments. Neither that reviewed passage nor the written release establishes an executed LTC purchase, a reserve quantity, a custody arrangement or an allocation date.",
+          "sources": [
+            "delorean-space",
+            "foundation-press-release"
+          ]
+        },
+        {
+          "text": "The host also describes sharing DeLorean’s established Web2 contacts and the Litecoin ecosystem’s connections to help both sides grow. The practical story is business relationships, brand reach and community collaboration. It is not evidence that DeLorean is migrating a technical network onto Litecoin or that a LitVM integration has shipped. The replay captions attribute this passage to @litecoin; we do not assign it to another participant.",
+          "sources": [
+            "delorean-space"
+          ]
+        },
+        {
+          "text": "Our reading lens: a payment announcement is the beginning of a customer journey. The useful follow-up is whether a buyer can obtain a quoted price, make a payment, receive confirmation and understand refund terms. Those details are questions for future reporting, not features we verified today.",
+          "sources": []
+        }
+      ],
+      "visual": "announcement"
+    },
+    {
+      "id": "litvm",
+      "number": "02",
+      "label": "The builder’s desk · Technology explained",
+      "title": "What if Litecoin could host an application world?",
+      "standfirst": "LitVM’s ambition is broader than payments. Its deployment stage and bridge assumptions are part of the story.",
+      "paragraphs": [
+        {
+          "text": "LitVM is still presented as a testnet-stage project in the official material reviewed on October 6. Its April 17, 2026 quickstart announced that LiteForge was live, while the current FAQ places mainnet after the token-generation event and security audits. That FAQ also says audits are in progress. These pages support reporting an available test environment; they do not establish that production mainnet has launched or that its planned security components have completed deployment.",
+          "sources": [
+            "liteforge-guide",
+            "faq"
+          ]
+        },
+        {
+          "text": "The published architecture combines Arbitrum Nitro execution, Succinct SP1 validity proofs, Espresso sequencing and bridges for Litecoin and Ethereum assets. Its settlement roadmap is explicitly phased: Ethereum settlement comes first; a second stage records state commitments and proof hashes on Litecoin; a later coordinated client upgrade makes Litecoin the authoritative settlement layer. Litecoin proof anchoring and Litecoin-native finality are therefore distinct milestones. Describing the eventual Litecoin settlement design as already operational would go beyond the evidence reviewed.",
+          "sources": [
+            "architecture",
+            "mainnet-roadmap"
+          ]
+        },
+        {
+          "text": "LitVM describes BitcoinOS Grail as the mechanism for moving LTC into its application environment, with zkLTC representing locked Litecoin at a one-to-one ratio. Its BitcoinOS documentation adds a crucial qualification to the project's trustless terminology: proof verification follows an optimistic process, with fraudulent operations subject to challenges, and security depends on at least one honest verifier. Those conditions belong alongside the headline ZK claims. This research did not independently validate a deployed Litecoin bridge, its operator configuration or completed integration audits.",
+          "sources": [
+            "bitcoinos"
+          ]
+        }
+      ],
+      "visual": "litvm"
+    },
+    {
+      "id": "collective",
+      "number": "03",
+      "label": "The community connection",
+      "title": "One ecosystem. Different responsibilities.",
+      "standfirst": "The Vanguard Collective connects organizations. It does not collapse them into one company or one protocol.",
+      "paragraphs": [
+        {
+          "text": "A documented connection between LitVM and Luxxfolio is their participation in the Litecoin Vanguard Collective. LitVM's April 24, 2026 announcement names LitVM, the Litecoin Foundation and Luxxfolio as the initiative's three founding members, presenting it as a community coordination forum and attributing institutional outreach to Luxxfolio. That establishes a stated ecosystem relationship. The announcement does not establish that Luxxfolio owns LitVM, controls its protocol, or has completed a financial transaction involving it.",
+          "sources": [
+            "lvc"
+          ]
+        },
+        {
+          "text": "The Litecoin Foundation's own June 29, 2025 summit recap confirms that LitVM presented its technology at the event, but the recap describes an earlier Polygon-based stack. Current LitVM documentation instead specifies Arbitrum. The Foundation article provides historical context rather than a current technical validation. Likewise, LitVM's descriptions of Foundation endorsement and its security properties should be attributed to the project unless supported by a specific, current Foundation statement or independent assessment.",
+          "sources": [
+            "foundation-recap",
+            "architecture",
+            "faq"
+          ]
+        }
+      ],
+      "visual": "collective"
+    },
+    {
+      "id": "luxxfolio",
+      "number": "04",
+      "label": "Corporate desk · October 5 announcement",
+      "title": "Luxxfolio explores an options layer.",
+      "standfirst": "The newest corporate development is a proposed Hypercall collaboration, with terms still to be agreed.",
+      "paragraphs": [
+        {
+          "text": "Luxxfolio is exploring a second source of revenue alongside mining. Its October 5 announcement describes an October 4 non-binding letter of intent with Hypercall for covered calls backed by part of its Litecoin and Dogecoin holdings. The proposal would require agreement on allocation, custody and trading parameters before activity begins. Luxxfolio also described possible future mining-software features, but the letter commits neither side to a LuxxPool integration. The distinction matters: this is an announced proposal, not evidence of a launched options program or realized revenue. Covered calls exchange some potential upside for premiums while leaving exposure to underlying price declines; the company says the plan does not guarantee more Litecoin in its treasury.",
+          "sources": [
+            "luxx-hypercall-20261005"
+          ]
+        },
+        {
+          "text": "The company’s own treasury display was approximately 25,300.80 LTC when checked on October 6. Its stated method adds mining earnings to an August 7 baseline and assumes those earnings are retained. Litecoin Register’s October 6 record was slightly lower at 25,300.76291679 LTC. These are differently timed observations; the counter is not an independently audited current balance, and the difference does not establish a purchase.",
+          "sources": [
+            "luxx-home-live",
+            "register"
+          ]
+        }
+      ],
+      "visual": "proposal"
+    },
+    {
+      "id": "lite-strategy",
+      "number": "05",
+      "label": "The corporate treasury file",
+      "title": "Read the balance date before the headline.",
+      "standfirst": "Lite Strategy shows how a newer announcement can contain an older measurement.",
+      "paragraphs": [
+        {
+          "text": "Lite Strategy illustrates why the balance date matters more than the date of a headline. Its July 30 release reported 819,070 LTC as of July 17 and said Litecoin sales and covered-call premiums had financed share repurchases. The announcement characterized the figures as preliminary estimates. This is an actively managed corporate treasury: a shareholder owns company equity, and management can change both the coin balance and the share count. A lower treasury balance therefore should not automatically be described as fund redemptions or fading institutional demand.",
+          "sources": [
+            "lits-july30"
+          ]
+        },
+        {
+          "text": "The September 29 earnings release supplies a newer publication about an older balance: 832,716 LTC at June 30. It also describes an operating model that includes covered calls and share repurchases, alongside a retained pharmaceutical-asset portfolio. The annual-results announcement does not turn its June figure into a current treasury reading. Both this fiscal-year-end record and July's subsequent preliminary disclosure belong in the chronology, with their own dates.",
+          "sources": [
+            "lits-fy2026-release"
+          ]
+        }
+      ],
+      "visual": "chronology"
+    },
+    {
+      "id": "funds",
+      "number": "06",
+      "label": "Wall Street & the product shelf",
+      "title": "ETF. Trust. ETP. Access.",
+      "standfirst": "Similar exposure does not mean identical ownership, redemption rights or regulatory structure.",
+      "paragraphs": [
+        {
+          "text": "Canary's LTCC holdings table is dated October 6 and lists approximately 214,101.31 LTC. LTCC trades on Nasdaq and seeks Litecoin-price exposure through a passive holding vehicle. Although its name uses ETF, Canary says it is not an investment company registered under the Investment Company Act of 1940. That structure should remain visible when comparing it with traditional funds. The holding is a dated stock of assets; it does not by itself establish investor inflows, net creations or trading demand.",
+          "sources": [
+            "canary-ltcc-live"
+          ]
+        },
+        {
+          "text": "Grayscale's live page reports 0.08065355 LTC per share and 24,252,100 shares, both as of October 5. Multiplying those displayed inputs implies approximately 1.956 million LTC. This matches the Register quantity labeled October 6, but it does not move the issuer's measurement date forward. LTCN is an OTC-quoted trust security; the issuer warns that its share price can diverge substantially from the asset value represented by each share.",
+          "sources": [
+            "grayscale-current"
+          ]
+        },
+        {
+          "text": "The audited Grayscale record supplies a separate historical benchmark: 1,969,057.14487396 LTC at June 30, 2026. Its annual roll-forward attributes the year's coin reduction to LTC distributed for the sponsor fee and records no contributed LTC for that fiscal year. The report also says the trust had no redemption program at June 30. Those disclosures are more informative than turning a change in holdings into an unsupported story about investor selling. They describe a past accounting period, not today's flows.",
+          "sources": [
+            "grayscale-10k2026"
+          ]
+        },
+        {
+          "text": "CoinShares' Litecoin product represents another structure: a physically backed ETP issued as a debt security, domiciled in Jersey. The issuer identifies it by ISIN GB00BLD4ZP54 and displays a coin entitlement of 0.18407188 LTC per security for October 1. A per-security entitlement is not a total coin reserve. The Register's August 31 total remains a separately dated third-party observation here because the issuer materials retrieved in this check did not directly reproduce that total.",
+          "sources": [
+            "coinshares-product"
+          ]
+        },
+        {
+          "text": "Fidelity's verified role is customer access and custody. Its official help page lists Litecoin among assets that eligible Fidelity Crypto customers can buy and sell, subject to state availability, and distinguishes spot-crypto accounts from brokerage accounts holding exchange-traded products. This supports describing Fidelity as an access provider. It does not establish a Fidelity Litecoin fund, a corporate treasury allocation or a disclosed institutional LTC reserve. No holdings figure should be assigned to Fidelity from this evidence.",
+          "sources": [
+            "fidelity-trading"
+          ]
+        }
+      ],
+      "visual": "products"
+    },
+    {
+      "id": "register",
+      "number": "07",
+      "label": "The Register, read carefully",
+      "title": "A map with dates attached.",
+      "standfirst": "We scanned Litecoin Register and compared selected entries with original issuer material. The useful story is in the footnotes.",
+      "paragraphs": [
+        {
+          "text": "Litecoin Register explains that disclosure timing varies, some balances are carried forward, and overlapping entities can lead to double counting. Its tracked assets include categories such as custodial reserves that are not the same as company-owned coins. We therefore present selected, dated records without adding them into a single institutional-ownership total. Changes between snapshots are not established ETF flows.",
+          "sources": [
+            "register"
+          ]
+        }
+      ],
+      "visual": "register"
+    },
+    {
+      "id": "next",
+      "number": "08",
+      "label": "The reporting agenda",
+      "title": "Follow the evidence down the road.",
+      "standfirst": "Four questions to carry into the next conversation.",
+      "paragraphs": [
+        {
+          "text": "For DeLorean: when will an actual LTC purchase be available, and under what payment and refund terms? For LitVM: which mainnet, bridge and audit milestones are complete? For treasury companies: which balances are independently reported, which are estimates, and what obligations sit alongside the coins? For products: what do their published holdings, fees and investor rights establish?",
+          "sources": []
+        },
+        {
+          "text": "This is our editorial follow-up agenda, not a forecast or an investment recommendation. The October 6 morning issue remains its original dated record. This extra adds newly researched context; it does not refresh that issue’s prices, Morpho rates or network metrics.",
+          "sources": []
+        }
+      ],
+      "visual": "questions"
+    }
+  ],
+  "registerRows": [
+    {
+      "name": "Canary Litecoin ETF",
+      "kind": "LTCC · Exchange-traded product",
+      "register": "214,101.31 LTC",
+      "registerDate": "2026-10-06",
+      "primary": "214,101.308873 LTC",
+      "effective": "2026-10-06",
+      "finding": "Matches the issuer table after rounding. Holdings are not flows.",
+      "sources": [
+        "canary-ltcc-live"
+      ]
+    },
+    {
+      "name": "Grayscale Litecoin Trust",
+      "kind": "LTCN · OTC-quoted trust",
+      "register": "1,956,017.959955 LTC",
+      "registerDate": "2026-10-06",
+      "primary": "≈1,956,017.96 LTC, calculated",
+      "effective": "2026-10-05",
+      "finding": "24,252,100 shares × 0.08065355 LTC/share. Rounded issuer inputs; not a separately reported total.",
+      "sources": [
+        "grayscale-current"
+      ]
+    },
+    {
+      "name": "Lite Strategy",
+      "kind": "LITS · Corporate treasury",
+      "register": "819,070 LTC",
+      "registerDate": "2026-07-17",
+      "primary": "819,070 LTC, preliminary",
+      "effective": "2026-07-17",
+      "finding": "July 30 release. The later annual-results release reports an older June 30 balance.",
+      "sources": [
+        "lits-july30",
+        "lits-fy2026-release"
+      ]
+    },
+    {
+      "name": "Luxxfolio",
+      "kind": "Corporate mining / treasury",
+      "register": "25,300.76291679 LTC",
+      "registerDate": "2026-10-06",
+      "primary": "≈25,300.80 LTC, dynamic estimate",
+      "effective": "2026-10-06",
+      "finding": "Issuer assumes mining earnings retained. Observations are not simultaneous or independently audited.",
+      "sources": [
+        "luxx-home-live"
+      ]
+    },
+    {
+      "name": "CoinShares Litecoin ETP",
+      "kind": "LITE · Physically backed debt security",
+      "register": "151,145.18202422 LTC",
+      "registerDate": "2026-08-31",
+      "primary": "Total not reconciled in this check",
+      "effective": null,
+      "finding": "Issuer instead showed 0.18407188 LTC per security for October 1. That is not a total reserve.",
+      "sources": [
+        "coinshares-product"
+      ]
+    },
+    {
+      "name": "Fidelity Crypto",
+      "kind": "Spot access / custody service",
+      "register": "No figure used",
+      "registerDate": null,
+      "primary": "No institutional holding established",
+      "effective": null,
+      "finding": "A supported asset in a customer service is not evidence of a proprietary treasury or LTC fund.",
+      "sources": [
+        "fidelity-trading"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "foundation-delorean",
+      "title": "Litecoin Foundation and DeLorean announce strategic partnership",
+      "publisher": "Litecoin Foundation",
+      "url": "https://x.com/LTCFoundation/status/2107487407553843582",
+      "published": "2026-10-06",
+      "note": "Original Foundation article. Announcement of planned acceptance and cooperation, not proof of an available checkout."
+    },
+    {
+      "id": "register",
+      "title": "Litecoin Register · table and compiled data",
+      "publisher": "Litecoin Register",
+      "url": "https://litecoinregister.com/?c=table",
+      "published": null,
+      "note": "Community-maintained secondary dataset, checked October 6. Selected values below preserve its individual record dates. CC BY 4.0; rounded and annotated by LTC Media."
+    },
+    {
+      "id": "liteforge-guide",
+      "title": "Welcome to LiteForge: Testnet Quickstart Guide",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/blog/welcome-to-liteforge",
+      "published": "2026-04-17",
+      "note": "Dated first-party confirmation that the testnet was available by April 17; not evidence of a mainnet launch."
+    },
+    {
+      "id": "faq",
+      "title": "FAQ | LitVM Docs",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/other-resources/faq",
+      "published": null,
+      "note": "Current published status and audit-progress wording; includes the project's endorsement assertion."
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture | LitVM Docs",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/overview/architecture.md",
+      "published": null,
+      "note": "Current published stack and staged settlement design."
+    },
+    {
+      "id": "mainnet-roadmap",
+      "title": "The Birth of Hard Money Web3: LitVM Mainnet Rollout",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/blog/birth-of-sound-money-web3",
+      "published": "2025-11-26",
+      "note": "Phase two commitment format and phase three coordinated client upgrade; dated roadmap, not completion evidence."
+    },
+    {
+      "id": "bitcoinos",
+      "title": "BitcoinOS Technology | LitVM Docs",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/overview/bitcoinos",
+      "published": null,
+      "note": "Grail backing model, optimistic verification, fraud challenges and the one-honest-verifier condition."
+    },
+    {
+      "id": "lvc",
+      "title": "Introducing the Litecoin Vanguard Collective (LVC)",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/blog/introducing-the-lvc",
+      "published": "2026-04-24",
+      "note": "LitVM's direct statement naming the three LVC founding organizations."
+    },
+    {
+      "id": "foundation-recap",
+      "title": "Litecoin Summit 2025 | Greatest Hits",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/news/litecoin-summit-2025-recap",
+      "published": "2025-06-29",
+      "note": "Foundation acknowledgment of a historical summit presentation; contains an older Polygon CDK description."
+    },
+    {
+      "id": "luxx-hypercall-20261005",
+      "title": "Luxxfolio Announces Proposed Hypercall Collaboration for Dogecoin and Litecoin Platform Launch",
+      "publisher": "Luxxfolio Holdings Inc.",
+      "url": "https://luxxfolio.com/news/luxxfolio-announces-proposed-hypercall-collaboration-for-dogecoin-and-litecoin-platform-launch/",
+      "published": "2026-10-05",
+      "note": "Proposed; non-binding; commencement unverified"
+    },
+    {
+      "id": "luxx-home-live",
+      "title": "Luxxfolio issuer treasury dashboard",
+      "publisher": "Luxxfolio Holdings Inc.",
+      "url": "https://luxxfolio.com/",
+      "published": null,
+      "note": "Issuer counter adds mining earnings to the August 7 baseline and assumes earnings are retained. It is not an independently audited current balance."
+    },
+    {
+      "id": "lits-july30",
+      "title": "Lite Strategy Repurchases 13% of Outstanding Shares Since December, Increasing Litecoin Backing Per Share",
+      "publisher": "Lite Strategy Inc.",
+      "url": "https://litestrategy.gcs-web.com/news-releases/news-release-details/lite-strategy-repurchases-13-outstanding-shares-december",
+      "published": "2026-07-30",
+      "note": "Preliminary management disclosure; release says estimates, including LTC and shares, were subject to completion of closing and audit procedures."
+    },
+    {
+      "id": "lits-fy2026-release",
+      "title": "Lite Strategy Reports Fiscal Year 2026 Financial Results",
+      "publisher": "Lite Strategy Inc.",
+      "url": "https://litestrategy.gcs-web.com/news-releases/news-release-details/lite-strategy-reports-fiscal-year-2026-financial-results",
+      "published": "2026-09-29",
+      "note": "Fiscal-year-end holding reported by issuer; do not relabel September 29 or October 6 holdings."
+    },
+    {
+      "id": "lits-home",
+      "title": "Lite Strategy issuer homepage",
+      "publisher": "Lite Strategy Inc.",
+      "url": "https://litestrategy.com/",
+      "published": null,
+      "note": "Homepage describes holdings as the latest SEC-filed figure, including digital assets receivable; it does not present a fresh independent October balance."
+    },
+    {
+      "id": "canary-ltcc-live",
+      "title": "Canary Litecoin ETF issuer page",
+      "publisher": "Canary Capital Group LLC",
+      "url": "https://canaryetfs.com/ltcc/",
+      "published": null,
+      "note": "Issuer holdings table, subject to change; not an audited annual statement."
+    },
+    {
+      "id": "grayscale-current",
+      "title": "Grayscale Litecoin Trust issuer page",
+      "publisher": "Grayscale",
+      "url": "https://www.grayscale.com/funds/grayscale-litecoin-trust",
+      "published": null,
+      "note": "Calculated from issuer-displayed inputs rounded to their published precision, not a separately stated audited total."
+    },
+    {
+      "id": "grayscale-10k2026",
+      "title": "Grayscale Litecoin Trust 2026 Form 10-K",
+      "publisher": "Grayscale Litecoin Trust (LTC)",
+      "url": "https://www.sec.gov/Archives/edgar/data/1732406/000119312526381869/ltcn-20260630.htm",
+      "published": "2026-09-03",
+      "note": "Audited historical fiscal-year-end schedules; not October 6 holdings."
+    },
+    {
+      "id": "coinshares-product",
+      "title": "CoinShares Litecoin ETP product page",
+      "publisher": "CoinShares",
+      "url": "https://coinshares.com/etp/physical-litecoin/",
+      "published": null,
+      "note": "Issuer product data; date interpreted day/month/year consistently with the page's April 6, 2021 inception and listing records."
+    },
+    {
+      "id": "fidelity-trading",
+      "title": "Fidelity Crypto trading basics",
+      "publisher": "Fidelity",
+      "url": "https://www.fidelity.com/crypto/help/trading/trading-basics",
+      "published": null,
+      "note": ""
+    },
+    {
+      "id": "foundation-press-release",
+      "title": "Foundation press release: partnership and treasury-management cooperation",
+      "publisher": "Litecoin Foundation via EIN Presswire",
+      "published": "2026-10-06",
+      "url": "https://www.einnews.com/pr_news/947031796/litecoin-foundation-and-delorean-announce-strategic-partnership-to-push-the-boundaries-of-future-growth",
+      "note": "Published at 15:00 UTC. Primary issuer statement: planned LTC payments when vehicles are available, treasury management and joint activations. No LTC purchase amount is disclosed."
+    },
+    {
+      "id": "delorean-own-post",
+      "title": "DeLorean Labs confirms the partnership",
+      "publisher": "DeLorean Labs on X",
+      "published": "2026-10-06",
+      "url": "https://x.com/DeLoreanlabs/status/2107493547167404475",
+      "note": "Read in the public post. Confirms joint adoption initiatives and collaboration with Charlie Lee; does not establish completed treasury purchases."
+    },
+    {
+      "id": "delorean-space",
+      "title": "Surprise Litecoin Spaces — recorded partnership discussion",
+      "publisher": "Hosted by @litecoin; @LTCFoundation and @DeLoreanlabs listed as speakers",
+      "published": "2026-10-06",
+      "url": "https://x.com/i/spaces/1qJVmyEdEWLGB",
+      "note": "Approximately 31-minute recording. Relevant exchange reviewed through automated captions around 18–21 minutes, not direct audio. Paraphrases only, with caption attribution and possible timing/transcription errors. No reserve balance or completed purchase verified."
+    }
+  ],
+  "registerDataset": {
+    "url": "https://litecoinregister.com/ltc_data.json",
+    "sha256": "e85b5b74f6625b72c837e559977eda91064a75b480b3887f511d74b7d681c97b",
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "Selected Litecoin Register data, CC BY 4.0. Values rounded or reformatted and annotated by LTC Media; no affiliation implied."
+  },
+  "revision": 2,
+  "originalPreparedAt": "2026-10-06T17:21:21Z",
+  "previousRecord": "2026-10-06-delorean-r1",
+  "updateNote": "October 6 update: adds DeLorean’s own announcement and attributed treasury/adoption context from the recorded Space. The original R1 record and morning issue are preserved.",
+  "spaceMethod": "Replay-caption review, October 6: the relevant exchange is labeled @litecoin and @DeLoreanlabs. The approximate 18–21 minute passage discusses payment plans, treasury adoption and existing Web2 contacts. Caption timing can drift. No statement is attributed to Aztec from this evidence, and no completed LTC purchase or treasury balance was verified."
+}

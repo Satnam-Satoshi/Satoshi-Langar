@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "url": "https://mfbazlqnypqjoqgbitys.supabase.co",
+  "publishableKey": "sb_publishable_RCpPpeS3Fu5LKaEEPYG_8A_KUUvBvHC",
+  "siteOrigin": "https://satnamsatoshi.com",
+  "providers": ["google"],
+  "privacyEmail": "eddiemalhotra@gmail.com"
+}

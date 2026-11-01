@@ -1,0 +1,535 @@
+{
+  "schemaVersion": 1,
+  "slug": "charlie-lee",
+  "title": "The quiet fork.",
+  "coverTitle": [
+    "Charlie.",
+    "Still building."
+  ],
+  "dek": "From Google’s software teams to Coinbase, from an open launch to Lightning experiments and the hard work of maintenance: a public-record portrait of Litecoin’s creator.",
+  "preparedDate": "2026-10-05",
+  "researchThrough": "2026-10-05",
+  "classification": "Source-checked historical profile",
+  "editorialState": "Prepared; no independent human review claimed",
+  "byline": "AI Satoshi Ma · LTC Media",
+  "wordCount": 1090,
+  "scope": "Public documents only. No interview, private access, affiliation, endorsement or current personal-wealth claim.",
+  "sections": [
+    {
+      "id": "engineer",
+      "kicker": "01 · The engineer",
+      "title": "Before silver, there was software",
+      "sourceIds": [
+        "charlie-coinbase-welcome",
+        "charlie-wharton"
+      ],
+      "paragraphs": [
+        "The most useful starting point for Charlie Lee is a hiring notice. On July 30, 2013, Coinbase introduced its new colleague as a former Google engineer who had worked on Google Play Games, Chrome OS and YouTube. It also recorded his bachelor’s and master’s qualifications in electrical engineering and computer science from MIT. Litecoin already existed. This was an engineer bringing an open-source experiment into a young cryptocurrency business, rather than an exchange inventing a coin for its catalogue.",
+        "Lee’s own later account is less theatrical than a founder legend. In an April 2019 interview with Knowledge at Wharton, he described experimenting with Bitcoin’s code in 2011 as a side project. He said his earlier Fairbrix attempt had inherited problems through its code ancestry, and that he then chose to work directly from Bitcoin’s codebase. That recollection suggests a practical lesson: making something new can start with deciding which existing parts deserve to remain familiar."
+      ],
+      "takeaway": "Litecoin existed before Lee joined Coinbase; his employer’s announcement supplies a reliable career anchor."
+    },
+    {
+      "id": "launch",
+      "kicker": "02 · Open the starting line",
+      "title": "A launch with a timetable",
+      "sourceIds": [
+        "charlie-launch",
+        "charlie-launch-poll"
+      ],
+      "paragraphs": [
+        "On October 9, 2011, Lee announced Litecoin with Scrypt proof of work, a two-and-a-half-minute block target and roughly 84 million planned coins. The post disclosed 150 LTC across the genesis and two initial blocks.",
+        "The public poll offered four times; 39 of 91 votes favoured October 13 at 03:00 GMT. Lee’s follow-up confirms that launch. Code access preceded public mining. October 15 is this magazine’s cover date, not the network anniversary."
+      ],
+      "takeaway": "Separate the published design, preparation and public launch."
+    },
+    {
+      "id": "coinbase",
+      "kicker": "03 · Inside the exchange",
+      "title": "A support ticket takes an unexpected turn",
+      "sourceIds": [
+        "charlie-foundation-retrospective",
+        "charlie-coinbase-welcome",
+        "charlie-coinbase-ltc"
+      ],
+      "paragraphs": [
+        "A Foundation retrospective published in October 2025 recounts that Lee approached Coinbase’s support address in May 2013 about adding Litecoin, and that the conversation turned toward employment. It is an appealing small detail: a question about distribution became a career move. Because the account is retrospective, it should be read alongside Coinbase’s contemporary July 2013 hiring announcement, rather than as an independently reconstructed interview.",
+        "The company’s own record gives the next firm milestone. On May 3, 2017, Coinbase announced Litecoin buying, selling, sending and storage through its retail website and mobile apps. Almost four years separate the hiring announcement and this product release. Employment, advocacy and an eventual listing belong on the same timeline, but they are different facts. None of these documents proves that one person alone dictated the decision, and a good profile does not fill that gap with an invented boardroom scene."
+      ],
+      "takeaway": "A retrospective support-email story and dated company announcements are different kinds of evidence."
+    },
+    {
+      "id": "lightning",
+      "kicker": "04 · Two roads, possible bridges",
+      "title": "What Charlie actually said about Lightning",
+      "sourceIds": [
+        "charlie-ln-vision",
+        "charlie-lnd",
+        "charlie-ln-swap",
+        "charlie-ln-team",
+        "charlie-foundation-retrospective"
+      ],
+      "paragraphs": [
+        "On January 6, 2017, Lee explained why he supported SegWit even though Litecoin was not facing a full-block problem. His focus was transaction malleability and the payment-channel possibilities that fixing it could enable. He imagined Bitcoin and Litecoin as neighbouring roads that Lightning might connect, while explicitly leaving the economics uncertain. “It’s about time to take a turn out front.” That was his invitation to experiment, not a claim that every proposed service already worked.",
+        "The engineering record supplies narrower, concrete milestones. Olaoluwa Osuntokun documented Litecoin testnet support in LND on May 3, 2017. Lightning Labs reported a Bitcoin–Litecoin cross-chain atomic-swap experiment on November 16; those were testnets. The Foundation later identified Lee as an investor in Lightning Labs. Its current team page identifies Elizabeth Stark and Osuntokun as the company’s co-founders. The sources reviewed here do not establish Lee as a founder, employee or adviser of the company. His documented role is best described through investment and public advocacy, with technical credit left with the people who did the work."
+      ],
+      "takeaway": "Lee’s published vision and reported investment do not make him a Lightning Labs founder or employee."
+    },
+    {
+      "id": "foundation",
+      "kicker": "05 · Organising the work",
+      "title": "A Foundation comes after the network",
+      "sourceIds": [
+        "charlie-foundation-incorporation",
+        "charlie-foundation-team",
+        "charlie-funding"
+      ],
+      "paragraphs": [
+        "The order matters. Litecoin was already operating for years when Xinxi Wang announced the Foundation’s Singapore incorporation on April 3, 2017. The organization now describes work spanning adoption, awareness and development, supported by employees and volunteers. Its roster checked on October 5, 2026 lists Charlie Lee as Director and Alan Austin as Managing Director. Historical biographies that call Lee the current managing director should not be copied uncritically.",
+        "One concrete expression of Lee’s support is the donation-matching pledge announced on July 29, 2024: up to $250,000 a year for five years, with $50,000 earmarked for development-platform and bounty donations and $200,000 for direct Foundation donations. Those figures describe a pledge and its allocation, not money this magazine has verified as paid. They also expose an enduring open-source question: when participation is open, who finances the patient work of maintenance? The Foundation can help organize that work without becoming the owner of everyone’s coins."
+      ],
+      "takeaway": "The Foundation supports development and adoption; its current roster lists Lee as Director."
+    },
+    {
+      "id": "divestment",
+      "kicker": "06 · The difficult paragraph",
+      "title": "Read the disclosure before the folklore",
+      "sourceIds": [
+        "charlie-sale"
+      ],
+      "paragraphs": [
+        "In December 2017, Lee publicly said he had sold or donated his LTC apart from coins kept in physical collectibles. His explanation was that speaking about Litecoin while holding it created a perceived conflict of interest. He also said he intended to continue working on the project. The original post matters because it preserves both statements together.",
+        "A responsible profile stops where that evidence stops. The post is Lee’s account, not an audited portfolio, a list of execution prices or a reliable statement about his holdings today. We cannot infer the size of a donation, the destination of proceeds or a hidden motive. Readers can disagree about whether divestment is the right answer to a founder’s conflict while still recognizing the disclosure as part of the record. Supporting a community does not require removing its uncomfortable chapters; it requires describing them accurately."
+      ],
+      "takeaway": "A historic self-disclosure does not reveal present holdings or private motives."
+    },
+    {
+      "id": "privacy",
+      "kicker": "07 · Building, then repairing",
+      "title": "Privacy has an engineering bill",
+      "sourceIds": [
+        "charlie-mweb",
+        "charlie-mweb-postmortem"
+      ],
+      "paragraphs": [
+        "The Foundation’s May 20, 2022 activation report credited David Burkett with leading MWEB development, financed through community funding and Lee’s matching donations. MWEB adds an optional transaction environment intended to improve confidentiality. It is not a promise of perfect anonymity, and the developer deserves a place in the story alongside the founder who helped fund the work.",
+        "Burkett’s April 28, 2026 postmortem describes a March MWEB exploit and recovery, followed by an April invalid-chain reorganization affecting third-party services. It reports Lee’s 850 LTC recovery-bounty contribution and Core 0.21.5.4’s fix for the April failure mode. These are attributed developer findings, not an independent audit."
+      ],
+      "takeaway": "Read the maintenance record alongside the milestones."
+    },
+    {
+      "id": "money",
+      "kicker": "08 · The remaining question",
+      "title": "Could ordinary people simply use it?",
+      "sourceIds": [
+        "charlie-wharton",
+        "charlie-ln-vision",
+        "charlie-foundation-team"
+      ],
+      "paragraphs": [
+        "“With Litecoin, I want it to be used as money.” Lee gave that answer in the 2019 Wharton interview. He also discussed a familiar obstacle: custody tools must become easier without quietly handing control to somebody else. That concern connects the software engineer, the exchange employee and the supporter of payment infrastructure. It remains a design problem that a price chart cannot solve.",
+        "Our reading of this record is that the strongest Charlie Lee story is a sequence of choices: reuse dependable code, invite participation, support experiments, disclose a conflict, fund maintenance and face repair work. This is editorial interpretation, not access to his private thinking. For newcomers, the invitation is to understand the tools before using them. For experienced readers, it is to inspect the original documents and challenge the interpretation. The community does not need a secret hero story. It has a public engineering history worth reading closely."
+      ],
+      "takeaway": "This profile’s interpretation is grounded in public choices, not access to private thinking."
+    }
+  ],
+  "quotes": [
+    {
+      "text": "It’s about time to take a turn out front.",
+      "sourceId": "charlie-ln-vision",
+      "publishedDate": "2017-01-06",
+      "wordCount": 9,
+      "attribution": "Charlie Lee · 2017-01-06"
+    },
+    {
+      "text": "With Litecoin, I want it to be used as money.",
+      "sourceId": "charlie-wharton",
+      "publishedDate": "2019-04-18",
+      "wordCount": 10,
+      "attribution": "Charlie Lee · 2019-04-18"
+    }
+  ],
+  "timeline": [
+    {
+      "date": "2011-10-09",
+      "sourceIds": [
+        "charlie-launch",
+        "charlie-launch-poll"
+      ],
+      "label": "Announcement and launch-time poll published."
+    },
+    {
+      "date": "2011-10-13T03:00:00Z",
+      "sourceIds": [
+        "charlie-launch"
+      ],
+      "label": "Public network launch recorded in Lee’s follow-up."
+    },
+    {
+      "date": "2013-07-30",
+      "sourceIds": [
+        "charlie-coinbase-welcome"
+      ],
+      "label": "Coinbase announces Lee joining from Google."
+    },
+    {
+      "date": "2017-01-06",
+      "sourceIds": [
+        "charlie-ln-vision"
+      ],
+      "label": "Lee publishes his SegWit and Lightning vision."
+    },
+    {
+      "date": "2017-04-03",
+      "sourceIds": [
+        "charlie-foundation-incorporation"
+      ],
+      "label": "Foundation announces Singapore incorporation."
+    },
+    {
+      "date": "2017-05-03",
+      "sourceIds": [
+        "charlie-coinbase-ltc",
+        "charlie-lnd"
+      ],
+      "label": "Coinbase announces retail Litecoin support; LND team reports Litecoin testnet support."
+    },
+    {
+      "date": "2017-11-16",
+      "sourceIds": [
+        "charlie-ln-swap"
+      ],
+      "label": "Bitcoin–Litecoin testnet swap report."
+    },
+    {
+      "date": "2017-12-20",
+      "sourceIds": [
+        "charlie-sale"
+      ],
+      "label": "Lee publishes holdings/conflict-of-interest self-disclosure."
+    },
+    {
+      "date": "2022-05-20",
+      "sourceIds": [
+        "charlie-mweb"
+      ],
+      "label": "Foundation publishes MWEB activation report."
+    },
+    {
+      "date": "2024-07-29",
+      "sourceIds": [
+        "charlie-funding"
+      ],
+      "label": "Foundation announces five-year donation-matching pledge."
+    },
+    {
+      "date": "2026-04-28",
+      "sourceIds": [
+        "charlie-mweb-postmortem"
+      ],
+      "label": "Developer postmortem published."
+    }
+  ],
+  "misconceptions": [
+    {
+      "claim": "Charlie Lee founded or worked at Lightning Labs.",
+      "correction": "The reviewed evidence supports a reported investment and his public technical vision. It does not establish a founder, employee or adviser role. The company lists Stark and Osuntokun as co-founders.",
+      "sourceIds": [
+        "charlie-foundation-retrospective",
+        "charlie-ln-team",
+        "charlie-ln-vision"
+      ]
+    },
+    {
+      "claim": "Charlie Lee is currently the Foundation’s managing director.",
+      "correction": "Its roster checked October 5 lists Lee as Director and Alan Austin as Managing Director.",
+      "sourceIds": [
+        "charlie-foundation-team"
+      ]
+    },
+    {
+      "claim": "Litecoin’s public launch was October 15, 2011.",
+      "correction": "The poll and explicit follow-up record October 13 at 03:00 GMT; magazine cover dates are separate.",
+      "sourceIds": [
+        "charlie-launch",
+        "charlie-launch-poll"
+      ]
+    },
+    {
+      "claim": "The 2017 cross-chain demonstration proves a current retail swap product.",
+      "correction": "The developer report describes a testnet experiment. A present product claim needs new evidence.",
+      "sourceIds": [
+        "charlie-ln-swap"
+      ]
+    },
+    {
+      "claim": "The 2017 sale post establishes current holdings or sale prices.",
+      "correction": "It is a historical self-disclosure with a physical-collectible exception, not a portfolio audit.",
+      "sourceIds": [
+        "charlie-sale"
+      ]
+    },
+    {
+      "claim": "A fair launch means no setup blocks existed.",
+      "correction": "The announcement explicitly disclosed three setup blocks totalling 150 LTC.",
+      "sourceIds": [
+        "charlie-launch"
+      ]
+    },
+    {
+      "claim": "Litecoin never had a security incident.",
+      "correction": "The April 28, 2026 MWEB postmortem documents incidents and recovery.",
+      "sourceIds": [
+        "charlie-mweb-postmortem"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "charlie-coinbase-welcome",
+      "title": "Welcome Charlie Lee (creator of Litecoin) to the team!",
+      "author": "Coinbase",
+      "publisher": "Coinbase",
+      "effectiveDate": "2013-07-30",
+      "url": "https://www.coinbase.com/blog/welcome-charlie-lee-creator-of-litecoin-to-the-team",
+      "classification": "Primary employer announcement",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2013-07-30",
+      "checkedAt": "2026-10-05",
+      "note": "Employer announcement, dated July 30, 2013; it confirms earlier Google work and MIT qualifications, not an exact first working day."
+    },
+    {
+      "id": "charlie-wharton",
+      "title": "Banking on the Future of Cryptocurrencies",
+      "author": "Knowledge at Wharton Staff; interviewee Charlie Lee",
+      "publisher": "Knowledge at Wharton",
+      "effectiveDate": "2019-04-18",
+      "url": "https://knowledge.wharton.upenn.edu/podcast/knowledge-at-wharton-podcast/litecoin/",
+      "classification": "Primary interview transcript",
+      "wordLimit": 200,
+      "quotedWords": 10,
+      "publishedAt": "2019-04-18",
+      "checkedAt": "2026-10-05",
+      "note": "Edited direct interview. This feature uses Lee’s answers; comparative liquidity and security claims in the publisher’s introduction are excluded."
+    },
+    {
+      "id": "charlie-launch",
+      "title": "Litecoin announcement and launch follow-up",
+      "author": "Charlie Lee / coblee",
+      "publisher": "Bitcoin Forum",
+      "effectiveDate": "2011-10-09",
+      "url": "https://bitcointalk.org/index.php?topic=47417.0",
+      "classification": "Primary founder announcement",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2011-10-09",
+      "checkedAt": "2026-10-05",
+      "note": "Edited announcement; its date conflict is resolved by Lee’s explicit October 13 launch follow-up."
+    },
+    {
+      "id": "charlie-launch-poll",
+      "title": "When should Litecoin be launched?",
+      "author": "Charlie Lee / coblee",
+      "publisher": "Bitcoin Forum",
+      "effectiveDate": "2011-10-09",
+      "url": "https://bitcointalk.org/index.php?topic=47418.0",
+      "classification": "Primary community poll",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2011-10-09",
+      "checkedAt": "2026-10-05",
+      "note": "The original forum poll shows four times six hours apart, 91 voters and 39 votes for October 13 at 03:00 GMT. These are historical counts."
+    },
+    {
+      "id": "charlie-coinbase-ltc",
+      "title": "Coinbase adds support for Litecoin",
+      "author": "Ankur Nandwani",
+      "publisher": "Coinbase",
+      "effectiveDate": "2017-05-03",
+      "url": "https://www.coinbase.com/blog/coinbase-adds-support-for-litecoin",
+      "classification": "Primary product announcement",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2017-05-03",
+      "checkedAt": "2026-10-05",
+      "note": "Retail product announcement. Do not conflate it with earlier GDAX support or infer that Lee alone controlled listings."
+    },
+    {
+      "id": "charlie-ln-vision",
+      "title": "My Vision For SegWit And Lightning Networks On Litecoin And Bitcoin",
+      "author": "Charlie Lee",
+      "publisher": "Medium",
+      "effectiveDate": "2017-01-06",
+      "url": "https://medium.com/@SatoshiLite/my-vision-for-segwit-and-lightning-networks-on-litecoin-and-bitcoin-cf95a7ab656b",
+      "classification": "Primary authored essay",
+      "wordLimit": 200,
+      "quotedWords": 9,
+      "publishedAt": "2017-01-06",
+      "checkedAt": "2026-10-05",
+      "note": "Historical vision with explicit uncertainty about economics. This is not evidence of a current cross-chain service. One nine-word quotation is used."
+    },
+    {
+      "id": "charlie-lnd",
+      "title": "The “Litening” Network: Litecoin Support in LND",
+      "author": "Olaoluwa Osuntokun",
+      "publisher": "Lightning Network Community Blog",
+      "effectiveDate": "2017-05-03",
+      "url": "https://lightning.community/release/software/lnd/lightning/2017/05/03/litening/",
+      "classification": "Primary developer report",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2017-05-03",
+      "checkedAt": "2026-10-05",
+      "note": "Contemporaneous developer report of testnet4 support and ltcd work. SegWit was still approaching activation. It does not establish current software support."
+    },
+    {
+      "id": "charlie-ln-swap",
+      "title": "Connecting Blockchains: Instant Cross-Chain Transactions On Lightning",
+      "author": "Lightning Labs",
+      "publisher": "Lightning Labs",
+      "effectiveDate": "2017-11-16",
+      "url": "https://lightning.engineering/posts/2017-11-16-ln-swap/",
+      "classification": "Primary developer report",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2017-11-16",
+      "checkedAt": "2026-10-05",
+      "note": "Historical testnet experiment; no current service claim."
+    },
+    {
+      "id": "charlie-ln-team",
+      "title": "Our Team",
+      "author": "Lightning Labs",
+      "publisher": "Lightning Labs",
+      "effectiveDate": "undated; state observed 2026-10-05",
+      "url": "https://lightning.engineering/team/",
+      "classification": "Primary organization roster",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Undated roster checked October 5, 2026. Stark and Osuntokun are listed as co-founders. This roster alone cannot establish every historical relationship."
+    },
+    {
+      "id": "charlie-foundation-retrospective",
+      "title": "10 Things You Probably Didn’t Know About Litecoin",
+      "author": "Robbie Coleman",
+      "publisher": "Litecoin Foundation",
+      "effectiveDate": "2025-10-13",
+      "url": "https://litecoin.com/news/10-things-you-probably-didnt-know-about-litecoin",
+      "classification": "Foundation retrospective",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2025-10-13",
+      "checkedAt": "2026-10-05",
+      "note": "Foundation retrospective used only for the attributed support-email story and investor description. Other chronology and technical assertions in it are not adopted."
+    },
+    {
+      "id": "charlie-foundation-incorporation",
+      "title": "Litecoin Foundation is successfully incorporated",
+      "author": "Xinxi Wang",
+      "publisher": "Litecoin Foundation",
+      "effectiveDate": "2017-04-03",
+      "url": "https://litecoin.com/news/litecoin-foundation-is-successfully-incorporated",
+      "classification": "Primary organization announcement",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2017-04-03",
+      "checkedAt": "2026-10-05",
+      "note": "Historical incorporation announcement, not independent registry certification or a statement about Satnam Satoshi’s legal status."
+    },
+    {
+      "id": "charlie-foundation-team",
+      "title": "Litecoin Foundation",
+      "author": "Litecoin Foundation",
+      "publisher": "Litecoin Foundation",
+      "effectiveDate": "undated; state observed 2026-10-05",
+      "url": "https://litecoin.com/litecoin-foundation",
+      "classification": "Primary organization roster",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Live roster checked October 5, 2026: Charlie Lee is Director, Alan Austin is Managing Director. Roles may change after the check date."
+    },
+    {
+      "id": "charlie-sale",
+      "title": "Litecoin price, tweets, and conflict of interest",
+      "author": "Charlie Lee / coblee",
+      "publisher": "Reddit",
+      "effectiveDate": "2017-12-20",
+      "url": "https://www.reddit.com/r/litecoin/comments/7kzw6q/litecoin_price_tweets_and_conflict_of_interest/",
+      "classification": "Primary self-disclosure",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2017-12-20",
+      "checkedAt": "2026-10-05",
+      "note": "Historical personal self-disclosure. Original text was read; the December 20, 2017 date is preserved in the historical source ledger and contemporaneous reports. It is not an audit of present holdings."
+    },
+    {
+      "id": "charlie-mweb",
+      "title": "MWEB Has Officially Activated",
+      "author": "Aldo",
+      "publisher": "Litecoin Foundation",
+      "effectiveDate": "2022-05-20",
+      "url": "https://litecoin.com/news/mweb-has-officially-activated",
+      "classification": "Primary project announcement",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2022-05-20",
+      "checkedAt": "2026-10-05",
+      "note": "Historical activation report; present wallet compatibility unverified."
+    },
+    {
+      "id": "charlie-funding",
+      "title": "Charlie Lee to Match Funding",
+      "author": "Litecoin Foundation",
+      "publisher": "Litecoin Foundation",
+      "effectiveDate": "2024-07-29",
+      "url": "https://litecoin.com/news/charlie-lee-to-match-funding",
+      "classification": "Primary pledge announcement",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2024-07-29",
+      "checkedAt": "2026-10-05",
+      "note": "July 2024 matching pledge, not proof of disbursement. Amounts and allocation retain their original date; no tax advice is provided."
+    },
+    {
+      "id": "charlie-mweb-postmortem",
+      "title": "Litecoin MWEB Security Incident Postmortem",
+      "author": "David Burkett",
+      "publisher": "Litecoin Foundation",
+      "effectiveDate": "2026-04-28",
+      "url": "https://litecoin.com/news/litecoin-mweb-security-incident-postmortem",
+      "classification": "Primary developer postmortem",
+      "wordLimit": 200,
+      "quotedWords": 0,
+      "publishedAt": "2026-04-28",
+      "checkedAt": "2026-10-05",
+      "note": "Developer account; not independently reconstructed here."
+    }
+  ],
+  "editorialNotes": [
+    "All sources were opened/read with web tools on 2026-10-05. Facts are historic unless specifically labelled current roster observations.",
+    "Unverified Google start year, exact Coinbase exit date, alleged secret motives and advisory role omitted.",
+    "Investment is attributed to the Foundation retrospective, rather than implied to be verified from a current capitalization table.",
+    "TechCrunch March 15, 2018 corroborates investment, but its25-word source limit and secondary status mean no narrative was copied or derived from it.",
+    "Source word budgets apply across body,timeline and support material; two quotes total 19 words, one per distinct source.",
+    "For publication, keep historical-source dates and source notebook adjacent. Do not invent a new interview, approved external endorsement or human reviewer.",
+    "The2026 postmortem is critical context; report it proportionately as developer findings, without claiming an independently replicated audit."
+  ],
+  "id": "charlie-lee-r1",
+  "subject": "Charlie Lee",
+  "preparedAt": "2026-10-05T16:56:36.169161Z",
+  "intro": [
+    "Charlie Lee’s story crosses software teams, an open network and the institutions built around it. The most revealing details are public: hiring notices, a launch poll, developer reports and his own words."
+  ],
+  "limits": [
+    "Prepared from linked public sources on October 5,2026; no interview or independent human review is claimed.",
+    "Historical source dates remain attached; developer accounts are not independent audits.",
+    "Lee’s Lightning Labs investment is attributed to a Foundation retrospective; founder, employee, adviser and current financial interest are not established.",
+    "Reported pledges are not audited disbursements; personal holdings are not monitored or inferred.",
+    "The closing interpretation is editorial synthesis. No affiliation, endorsement or authorization from Lee, the Foundation, Coinbase or Lightning Labs is claimed."
+  ]
+}

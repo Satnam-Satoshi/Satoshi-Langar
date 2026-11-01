@@ -1,0 +1,419 @@
+{
+  "title": "Litecoin institutional access and holdings: dated evidence desk",
+  "cutoffDate": "2026-10-04",
+  "checkedAt": "2026-10-04T22:43:11Z",
+  "classification": "AI-prepared factual research; human editorial review pending",
+  "scope": "Selected entities requested by the founder. Not a comprehensive institutional ownership census, ranking, live feed or investment recommendation.",
+  "rows": [
+    {
+      "name": "Fidelity Crypto / Fidelity Digital Assets",
+      "ticker": null,
+      "category": "platform_access_and_client_custody",
+      "displayQuantity": "Not disclosed in reviewed sources",
+      "primary": {
+        "quantityLtc": null,
+        "asOfDate": null,
+        "basis": "public_service_support",
+        "sourceIds": [
+          "inst-fidelity",
+          "inst-fidelity-deposits"
+        ]
+      },
+      "tracker": null,
+      "status": "Official Fidelity help lists LTC trading and main-network deposits, subject to availability.",
+      "limits": "LTC ETF, corporate LTC treasury and aggregate client LTC holdings are not established by these sources. Product support is not a disclosed balance."
+    },
+    {
+      "name": "Grayscale Litecoin Trust",
+      "ticker": "LTCN",
+      "category": "investment_trust",
+      "displayQuantity": "≈1,956,420 LTC; calculated from Oct2 product fields",
+      "primary": {
+        "quantityLtc": "1956420.05977300",
+        "asOfDate": "2026-10-02",
+        "basis": "calculated_from_rounded_issuer_fields",
+        "sourceIds": [
+          "inst-grayscale-workbook"
+        ],
+        "formula": "24,252,100 shares ×0.08067013 LTC/share",
+        "displayPrecision": "nearest whole LTC; approximate",
+        "inputs": {
+          "sharesOutstanding": 24252100,
+          "ltcPerShare": "0.08067013"
+        }
+      },
+      "historical": {
+        "quantityLtc": "1969057.14487396",
+        "asOfDate": "2026-06-30",
+        "basis": "issuer_sec_filing",
+        "sourceIds": [
+          "inst-grayscale-10k"
+        ]
+      },
+      "tracker": {
+        "quantityLtc": 1956420,
+        "asOfDate": "2026-10-04",
+        "basis": "secondary_tracker_observation",
+        "sourceIds": [
+          "inst-register-ltcn"
+        ]
+      },
+      "status": "OTCQX trust in reviewed annual report; Sept11 S-3/A proposes ETF conversion. No completed NYSEArca conversion verified in this check.",
+      "limits": "The tracker date is not the product workbook effective date. Approximate total uses a rounded per-share field, not direct custody attestation. No inferred flows."
+    },
+    {
+      "name": "Canary Litecoin ETF",
+      "ticker": "LTCC",
+      "category": "exchange_traded_product",
+      "displayQuantity": "214,107 LTC, tracker-only; cutoff reconciliation pending",
+      "primary": {
+        "quantityLtc": null,
+        "asOfDate": null,
+        "basis": "quantity_withheld_future_source_date",
+        "sourceIds": [
+          "inst-canary"
+        ]
+      },
+      "tracker": {
+        "quantityLtc": 214107,
+        "asOfDate": "2026-10-04",
+        "basis": "secondary_tracker_observation",
+        "sourceIds": [
+          "inst-register-ltcc"
+        ]
+      },
+      "status": "Official page identifies LTCC on Nasdaq. Oct2 trust details are readable.",
+      "limits": "Issuer holdings section labelsOct5 (after cutoff). Do not use its214,106.881518 quantity or relabel itOct4, even though it rounds to tracker figure. No within-cutoff issuer holdings corroboration admitted."
+    },
+    {
+      "name": "Lite Strategy",
+      "ticker": "LITS",
+      "category": "corporate_treasury",
+      "displayQuantity": "819,070 LTC atJuly17",
+      "primary": {
+        "quantityLtc": 819070,
+        "asOfDate": "2026-07-17",
+        "basis": "issuer_sec_filing",
+        "sourceIds": [
+          "inst-lits-sec"
+        ],
+        "publicationDate": "2026-07-30"
+      },
+      "tracker": {
+        "quantityLtc": 819070,
+        "asOfDate": "2026-07-17",
+        "basis": "secondary_tracker_observation",
+        "sourceIds": [
+          "inst-register-lits"
+        ]
+      },
+      "status": "Issuer-reported corporate treasury quantity; publishedJuly30,2026.",
+      "limits": "Historical balance, notOct4holdings. Later publication of an earlier balance does not supersede a later effective-date observation. Do not infer mNAV or future capital allocation.",
+      "historical": {
+        "quantityLtc": 832716,
+        "asOfDate": "2026-06-30",
+        "publicationDate": "2026-09-29",
+        "basis": "issuer_results_release",
+        "sourceIds": [
+          "inst-lits-results"
+        ]
+      }
+    },
+    {
+      "name": "CoinShares Litecoin ETP",
+      "ticker": "LITE",
+      "category": "exchange_traded_product",
+      "displayQuantity": "151,145.18202422 LTC atAug31; stale reserve record with warning",
+      "primary": {
+        "quantityLtc": "151145.18202422",
+        "asOfDate": "2026-08-31",
+        "basis": "service_provider_reserve_field",
+        "sourceIds": [
+          "inst-coinshares-reserves"
+        ],
+        "asOfTimestamp": "2026-08-31T16:33:21.445Z",
+        "field": "products[LITE].hedging",
+        "liabilitiesLtc": "147634.7626292",
+        "warning": {
+          "showWarning": true,
+          "ripcordsStatus": [
+            "Management"
+          ]
+        }
+      },
+      "tracker": {
+        "quantityLtc": 151145,
+        "asOfDate": "2026-08-31",
+        "basis": "secondary_tracker_observation",
+        "sourceIds": [
+          "inst-register-lite-de"
+        ]
+      },
+      "status": "Official page identifies a physically backed debt-security ETP, ISINGB00BLD4ZP54.",
+      "limits": "Do not present stale or warning-flagged API as live fully reconciled proof of reserves. Providerhedging,liabilities and investorentitlement are different fields. No sum with otherCoinSharesLTCproducts."
+    },
+    {
+      "name": "Bitwise Physical Litecoin ETP",
+      "ticker": "ELTC",
+      "category": "exchange_traded_product",
+      "displayQuantity": "93,070.70 LTC atOct4",
+      "primary": {
+        "quantityLtc": "93070.70",
+        "asOfDate": "2026-10-04",
+        "basis": "issuer_product_page",
+        "sourceIds": [
+          "inst-bitwise"
+        ],
+        "sourceTimestampText": "04-10-2026 17:15:19",
+        "timezone": null,
+        "field": "AUM in Cold-Storage"
+      },
+      "tracker": {
+        "quantityLtc": 93071,
+        "asOfDate": "2026-10-04",
+        "basis": "secondary_tracker_observation",
+        "sourceIds": [
+          "inst-register-eltc"
+        ]
+      },
+      "status": "Official Bitwise page identifies debt-securityETP, ISINDE000A3GN5J9. Register rounds to nearest wholeLTC.",
+      "limits": "Issuer-reported quantity, not independent wallet audit. Multiple exchange tickers/listings are oneISIN, not separate reserve pools."
+    },
+    {
+      "name": "Luxxfolio Holdings",
+      "ticker": "LUXX",
+      "category": "corporate_treasury_and_mining",
+      "displayQuantity": "25,017.721481 LTC atSep28; tracker has later unreconciled25,288",
+      "primary": {
+        "quantityLtc": "25017.721481",
+        "asOfDate": "2026-09-28",
+        "basis": "issuer_public_endpoint",
+        "sourceIds": [
+          "inst-luxx-api"
+        ],
+        "asOfTimestamp": "2026-09-28T03:22:34+00:00",
+        "field": "treasury_ltc"
+      },
+      "tracker": {
+        "quantityLtc": 25288,
+        "asOfDate": "2026-10-04",
+        "basis": "secondary_tracker_observation",
+        "sourceIds": [
+          "inst-register-luxx"
+        ]
+      },
+      "status": "Issuer endpoint scope combinesAugust7baseline with subsequentmining; retrieved record still datedSep28.",
+      "limits": "Tracker latest value was not corroborated by the endpoint returned in this check. Preserve bothdates; do not average or silently choose a highernumber. Do not count mined_ltc separately from treasury_ltc."
+    }
+  ],
+  "sources": [
+    {
+      "id": "inst-fidelity",
+      "title": "Fidelity Crypto account basics",
+      "url": "https://www.fidelity.com/crypto/help/account-basics/fidelity-crypto",
+      "publisher": "Fidelity",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "Undated help page. Explicit LTC buying/selling; custody service provided by Fidelity Digital Assets, NA. No reviewed public LTC balance."
+    },
+    {
+      "id": "inst-fidelity-deposits",
+      "title": "Depositing crypto",
+      "url": "https://www.fidelity.com/crypto/help/deposits-withdrawals/depositing-crypto",
+      "publisher": "Fidelity",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "LTC main-layer-one deposit support; availability restrictions. Do not infer MWEB deposit compatibility."
+    },
+    {
+      "id": "inst-grayscale-10k",
+      "title": "Grayscale Litecoin Trust FY2026 Form 10-K",
+      "url": "https://www.sec.gov/Archives/edgar/data/1732406/000119312526381869/ltcn-20260630.htm",
+      "publisher": "Grayscale / SEC EDGAR",
+      "publishedDate": "2026-09-03",
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "Schedule of investment: 1,969,057.14487396 LTC as of June30,2026. OTCQX trust; no operating redemption program at that balance-sheet date."
+    },
+    {
+      "id": "inst-grayscale-s3a",
+      "title": "Grayscale Litecoin Trust preliminary S-3/A",
+      "url": "https://www.sec.gov/Archives/edgar/data/1732406/000119312526389256/ltc_s-3_amendment_1.htm",
+      "publisher": "Grayscale / SEC EDGAR",
+      "publishedDate": "2026-09-11",
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "Preliminary ETF conversion/listing proposal; not evidence that conversion became effective."
+    },
+    {
+      "id": "inst-grayscale-workbook",
+      "title": "Grayscale Litecoin Trust product-performance workbook",
+      "url": "https://reporting-prod-20231113144948145500000003.s3.amazonaws.com/product-performance/a1c6cd98-e574-4ef4-a657-7f38f54ec290.xlsx",
+      "publisher": "Grayscale-branded reporting workbook",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "issuer_material_linked_by_secondary_tracker",
+      "note": "Retrieved through the exact source URL shown by Register. Daily Performance and Holdings both datedOct2; LTCN/product ID verified. Not a raw exact total-LTC field. Legacy Grayscale website403; do not treat this as independent on-chain custody verification. Retain source-rights disclosure; publish original calculations/limited factual attribution, not mirrored workbook."
+    },
+    {
+      "id": "inst-canary",
+      "title": "Canary Litecoin ETF official product page",
+      "url": "https://canaryetfs.com/ltcc/",
+      "publisher": "Canary Capital",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "Trust-details and NAV sections datedOct2; holdings section already labelsOct5,2026 and is excluded byOct4 cutoff. Page also contains contradictory inception-year footnote; do not reproduce its inception date without separate verification."
+    },
+    {
+      "id": "inst-lits-sec",
+      "title": "Lite Strategy repurchase update, Exhibit99.1",
+      "url": "https://www.sec.gov/Archives/edgar/data/1262104/000119312526325026/lits-ex99_1.htm",
+      "publisher": "Lite Strategy / SEC EDGAR",
+      "publishedDate": "2026-07-30",
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "Reports819,070 LTC as ofJuly17,2026. Publication date and balance date differ."
+    },
+    {
+      "id": "inst-coinshares",
+      "title": "CoinShares Litecoin ETP product page",
+      "url": "https://coinshares.com/etp/physical-litecoin/",
+      "publisher": "CoinShares",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "LITE, ISINGB00BLD4ZP54; physically backed debt-security ETP. Key-information section datedOct1. No total LTC quantity extracted from product page."
+    },
+    {
+      "id": "inst-coinshares-reserves",
+      "title": "CoinShares Physical reserve snapshot",
+      "url": "https://widget.real-time-reserves.ledgerlens.io/api/v1/coinshares-physical/snapshot",
+      "publisher": "LedgerLens / CoinShares-linked reserves",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "service_provider_record",
+      "note": "JSON timestamp2026-08-31T16:33:21.445Z; LITE hedging151145.18202422LTC, liabilities147634.7626292LTC; showWarningtrue, ripcords.status[Management]. Stale; warn-status details not resolved."
+    },
+    {
+      "id": "inst-bitwise",
+      "title": "Bitwise Physical Litecoin ETP",
+      "url": "https://bitwiseinvestments.eu/products/bitwise-physical-litecoin-etp/",
+      "publisher": "Bitwise Europe",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "AUM in Cold-Storage93,070.70LTC; data04-10-2026, lastupdated17:15:19. Timezone not supplied beside timestamp. ISINDE000A3GN5J9; debt-securityETP."
+    },
+    {
+      "id": "inst-luxx-api",
+      "title": "Luxxfolio public mining and treasury endpoint",
+      "url": "https://luxxfolio.com/wp-json/luxxfolio/v1/mining?source=public-v3",
+      "publisher": "Luxxfolio",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "updated_at2026-09-28T03:22:34+00:00; treasury_ltc25017.721481. Scope:August7baseline plus subsequentLTCmined. Endpointliveflag is not freshness validation or an audit."
+    },
+    {
+      "id": "inst-register-ltcn",
+      "title": "Litecoin Register: Grayscale Litecoin Trust",
+      "url": "https://litecoinregister.com/profile/ltcn/",
+      "publisher": "Litecoin Register",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "secondary_tracker",
+      "note": "Live public HTML fetched2026-10-04T22:39:37Z; retain per-row source dates, which differ from retrieval day."
+    },
+    {
+      "id": "inst-register-lits",
+      "title": "Litecoin Register: Lite Strategy",
+      "url": "https://litecoinregister.com/profile/lits/",
+      "publisher": "Litecoin Register",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "secondary_tracker",
+      "note": "Live public HTML fetched2026-10-04T22:39:37Z; retain per-row source dates, which differ from retrieval day."
+    },
+    {
+      "id": "inst-register-ltcc",
+      "title": "Litecoin Register: Canary Litecoin ETF",
+      "url": "https://litecoinregister.com/profile/ltcc/",
+      "publisher": "Litecoin Register",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "secondary_tracker",
+      "note": "Live public HTML fetched2026-10-04T22:39:37Z; retain per-row source dates, which differ from retrieval day."
+    },
+    {
+      "id": "inst-register-lite-de",
+      "title": "Litecoin Register: CoinShares Physical Litecoin ETP",
+      "url": "https://litecoinregister.com/profile/lite-de/",
+      "publisher": "Litecoin Register",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "secondary_tracker",
+      "note": "Live public HTML fetched2026-10-04T22:39:37Z; retain per-row source dates, which differ from retrieval day."
+    },
+    {
+      "id": "inst-register-eltc",
+      "title": "Litecoin Register: Bitwise Physical Litecoin ETP",
+      "url": "https://litecoinregister.com/profile/eltc/",
+      "publisher": "Litecoin Register",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "secondary_tracker",
+      "note": "Live public HTML fetched2026-10-04T22:39:37Z; retain per-row source dates, which differ from retrieval day."
+    },
+    {
+      "id": "inst-register-luxx",
+      "title": "Litecoin Register: Luxxfolio",
+      "url": "https://litecoinregister.com/profile/luxx/",
+      "publisher": "Litecoin Register",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "secondary_tracker",
+      "note": "Live public HTML fetched2026-10-04T22:39:37Z; retain per-row source dates, which differ from retrieval day."
+    },
+    {
+      "id": "inst-register-method",
+      "title": "Litecoin Register methodology",
+      "url": "https://litecoinregister.com/help/",
+      "publisher": "Litecoin Register",
+      "publishedDate": null,
+      "checkedDate": "2026-10-04",
+      "classification": "secondary_methodology",
+      "note": "Community-maintained data; timing, forward-fill, incomplete coverage and overlap limits."
+    },
+    {
+      "id": "inst-lits-results",
+      "title": "Lite Strategy fiscal year 2026 results",
+      "url": "https://litestrategy.gcs-web.com/news-releases/news-release-details/lite-strategy-reports-fiscal-year-2026-financial-results",
+      "publisher": "Lite Strategy",
+      "publishedDate": "2026-09-29",
+      "checkedDate": "2026-10-04",
+      "classification": "primary",
+      "note": "Reports 832,716 LTC as of June 30, 2026; publication date is later than the July17 balance in the July30 release."
+    }
+  ],
+  "aggregation": {
+    "permitted": false,
+    "reason": "Platform client custody, issuer/product reserves, corporatetreasuries, wrappers and trackerestimates may refer to overlapping coins. Holdings change is not ETFflow. All quantities retain dates; no aggregate or circulating-supply percentage calculated."
+  },
+  "exclusions": [
+    "No proprietary Fidelity LTC balance asserted.",
+    "No holdings afterOct4 admitted as current.",
+    "No exchange proof-of-reserves, cbLTC backing or MWEB balances added to these rows.",
+    "No double counting multiple European exchange listings of oneISIN.",
+    "No missing value becomes zero."
+  ],
+  "editorialAlerts": [
+    "Canary future-datedOct5 holdings excluded atOct4cutoff.",
+    "CoinShares reserve endpoint is staleAug31 with explicit warningflag.",
+    "Luxxfolio current tracker quantity is not corroborated by the returnedSep28 issuer API.",
+    "Grayscale trackerOct4 label does not establish that theOct2 issuerworksheet observation is currentOct4."
+  ],
+  "sourceRetrievalNote": "Direct HTTP evidence retrieval timestamps are preserved per source in institutional-evidence/fetch-records.json and issuer-fetch-records.json."
+}

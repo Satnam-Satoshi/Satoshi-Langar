@@ -1,0 +1,28 @@
+.collection{margin:clamp(32px,5vw,76px) 0;color:#142738}
+.sectionHead{display:flex;justify-content:space-between;align-items:baseline;gap:20px;border-top:2px solid #142738;padding-top:16px;margin-bottom:24px}
+.sectionHead h2{font:500 clamp(25px,3vw,38px)/1.05 Georgia,serif;letter-spacing:-.035em;margin:0}
+.sectionHead p{font-size:12px;color:#56636c;margin:0}
+.card{display:grid;grid-template-columns:minmax(190px,280px) minmax(0,1fr);align-items:center;gap:clamp(24px,5vw,64px);padding:clamp(20px,4vw,48px);border:1px solid #bac8d2;background:#edf1f0}
+.cover{display:block;position:relative;aspect-ratio:2/3;overflow:hidden;color:#fff;text-decoration:none;box-shadow:6px 9px 0 #c8d0d0,12px 16px 22px #17394a20;transition:transform .2s}
+.cover:hover{transform:translateY(-3px)}
+.cover img{width:100%;height:100%;object-fit:cover}
+.cover>div{position:absolute;inset:0;background:linear-gradient(#061321ba 0%,#07182925 60%,#061321a8 100%);padding:7%;display:flex;flex-direction:column}
+.cover span,.cover small{font:600 clamp(9px,1vw,11px)/1.35 Arial,sans-serif;letter-spacing:.11em}
+.cover strong{font:500 clamp(30px,4.3vw,58px)/.95 Georgia,serif;letter-spacing:-.05em;margin-top:12%}
+.cover em{font-weight:400}
+.cover small{margin-top:auto}
+.copy{max-width:750px;min-width:0}
+.eyebrow{font:700 10px/1.5 Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;margin:0 0 12px;color:#315a74}
+.copy h3{font:500 clamp(35px,5vw,66px)/.98 Georgia,serif;letter-spacing:-.045em;margin:0 0 20px}
+.copy h3 a{color:inherit;text-decoration:none}
+.copy h3 a:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}
+.copy h3 em{font-weight:400}
+.copy>p:not(.eyebrow):not(.dates):not(.review){font:400 clamp(15px,1.65vw,18px)/1.6 Georgia,serif;max-width:62ch}
+.review{display:inline-block;font:700 11px/1.5 Arial,sans-serif;border:1px solid #9bb0b5;padding:7px 10px;color:#284b49;background:#f7faf5}
+.actions{display:flex;flex-wrap:wrap;gap:12px 22px;margin:20px 0}
+.actions a{font:700 12px/1.5 Arial,sans-serif;color:#143b5c;text-decoration:underline;text-underline-offset:4px;padding:5px 0}
+.actions a:first-child{background:#142f43;color:#fff;padding:11px 14px;text-decoration:none}
+.dates{font:400 11px/1.65 Arial,sans-serif;color:#52616b;max-width:68ch;margin-bottom:0}
+.collection a:focus-visible{outline:3px solid #1468d0;outline-offset:5px}
+@media(max-width:680px){.sectionHead{display:block}.sectionHead p{margin-top:10px}.card{grid-template-columns:1fr;gap:28px}.cover{width:min(100%,230px);margin:0 auto}.cover strong{font-size:48px}.copy h3{font-size:43px}.actions{gap:10px 20px}.actions a{min-height:44px;display:inline-flex;align-items:center}}
+@media(prefers-reduced-motion:reduce){.cover{transition:none}.cover:hover{transform:none}}

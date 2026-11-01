@@ -1,0 +1,457 @@
+{
+  "id": "litecoin-research-2026-10-04-r1",
+  "date": "2026-10-04",
+  "title": "People. Projects. Paper trail.",
+  "description": "A companion to Litecoin at 15: the builders, community publications and Grayscale LTCN records worth reading at the source.",
+  "status": "AI-prepared research companion · Independent human editorial review pending",
+  "sources": [
+    {
+      "id": "foundation",
+      "title": "Litecoin Foundation team",
+      "url": "https://litecoin.com/litecoin-foundation",
+      "classification": "Primary organization page",
+      "note": "The Foundation lists Indigo, Loshan T. and David Burkett with their respective development roles. A team listing does not validate every personal post.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "litecoin-com",
+      "title": "Litecoin.com",
+      "url": "https://litecoin.com/",
+      "classification": "Primary project website",
+      "note": "Foundation and ecosystem information. Promotional claims need their own supporting evidence before use as measurements.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "litecoin-org",
+      "title": "Litecoin.org",
+      "url": "https://litecoin.org/",
+      "classification": "Project website link",
+      "note": "The public request returned an application shell; substantive page content was not verified in this check.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "indigo-github",
+      "title": "Indigo Nakamoto on GitHub",
+      "url": "https://github.com/IndigoNakamoto",
+      "classification": "Primary contributor profile",
+      "note": "The contributor describes the chat, funding board and Dev Kit work. The Foundation separately lists Indigo for Projects/Chat.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "indigo-x",
+      "title": "Indigo on X",
+      "url": "https://x.com/indigo_nakamoto",
+      "classification": "Contributor profile link",
+      "note": "Cross-linked from the GitHub profile. The current X timeline could not be read; no recent post is quoted.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "master-x",
+      "title": "@masterbtcltc on X",
+      "url": "https://x.com/masterbtcltc",
+      "classification": "Founder-supplied community link",
+      "note": "Current profile and posts were not readable in this check. No account biography, affiliation or latest-post claim is inferred.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "loshan-x",
+      "title": "@loshan on X",
+      "url": "https://x.com/loshan",
+      "classification": "Founder-supplied developer link",
+      "note": "No readable current timeline. The separate Foundation source supports the named developer role, not this account’s current posts.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "burkett-x",
+      "title": "@davidburkett38 on X",
+      "url": "https://x.com/davidburkett38",
+      "classification": "Founder-supplied developer link",
+      "note": "No readable current timeline. Use the separately attributed Foundation postmortem for the technical record.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "dasch-x",
+      "title": "@daddycool1991 on X",
+      "url": "https://x.com/daddycool1991",
+      "classification": "Founder-supplied community link",
+      "note": "Current profile and posts were not readable. No current role or announcement is established by the handle alone.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "lookinto",
+      "title": "Look Into Litecoin",
+      "url": "https://www.lookintolitecoin.com/",
+      "classification": "Community publication",
+      "note": "Its homepage carries author bylines and discloses that contributors own Litecoin. Commentary and investment theses require attribution and independent factual checking.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "register",
+      "title": "Litecoin Register table",
+      "url": "https://litecoinregister.com/?c=table",
+      "classification": "Secondary research tracker",
+      "note": "The table was retrieved on October 4. Its changing balances are not reproduced here as validated current holdings.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "register-method",
+      "title": "Litecoin Register methodology",
+      "url": "https://litecoinregister.com/help/",
+      "classification": "Tracker methodology",
+      "note": "The help page identifies timing, forward-fill, verification and double-counting limitations. No automatic data reuse has been activated.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "chat-repo",
+      "title": "Litecoin Knowledge Hub repository",
+      "url": "https://github.com/IndigoNakamoto/Litecoin.com-Chat",
+      "classification": "Primary software documentation",
+      "note": "The README describes retrieval over a Foundation-managed knowledge base. Architecture and release claims are the project’s own; answer accuracy was not tested.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "projects",
+      "title": "Foundation projects directory",
+      "url": "https://litecoin.com/projects",
+      "classification": "Primary project directory",
+      "note": "Listings identify initiatives and contribution routes. Funding totals, completed labels and listed software are not independent audits.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "devkit",
+      "title": "Litecoin Dev Kit repositories",
+      "url": "https://github.com/LitecoinDevKit",
+      "classification": "Primary software documentation",
+      "note": "Describes a Bitcoin Dev Kit port, descriptor wallets, MWEB work and language bindings. This check did not test fund safety.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "mweb-report",
+      "title": "David Burkett’s MWEB incident postmortem",
+      "url": "https://litecoin.com/news/litecoin-mweb-security-incident-postmortem",
+      "classification": "Primary developer report",
+      "note": "Dated account of March and April 2026 incidents and repairs; no independent chain reconstruction is claimed.",
+      "publishedAt": "2026-04-28",
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "space-project",
+      "title": "Litecoin Space port project",
+      "url": "https://litecoin.com/projects/bounty-port-mempool-space",
+      "classification": "Primary project record",
+      "note": "The Foundation project record credits Loshan’s porting work. The campaign’s completed status is attributed, not an operational audit.",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04"
+    },
+    {
+      "id": "ltcn-10k",
+      "title": "Grayscale fiscal-2026 annual report",
+      "url": "https://www.sec.gov/Archives/edgar/data/1732406/000119312526381869/ltcn-20260630.htm",
+      "classification": "Issuer or regulatory record",
+      "publishedAt": "2026-09-03",
+      "checkedAt": "2026-10-04",
+      "note": "Annual filing; fiscal year ended June 30, 2026. Historical operating and formation disclosures."
+    },
+    {
+      "id": "ltcn-otc",
+      "title": "Grayscale public quotation announcement",
+      "url": "https://www.nasdaq.com/press-release/trading-to-commence-for-grayscale-bitcoin-cash-trust-and-grayscale-litecoin-trust",
+      "classification": "Issuer or regulatory record",
+      "publishedAt": "2020-08-17",
+      "checkedAt": "2026-10-04",
+      "note": "Issuer announcement syndicated by Nasdaq. Subsequent annual report supplies August 18 OTC trading date."
+    },
+    {
+      "id": "ltcn-reporting",
+      "title": "Grayscale SEC-reporting announcement",
+      "url": "https://www.globenewswire.com/news-release/2021/09/10/2295185/0/en/Grayscale-Investments-Doubles-Its-Suite-of-SEC-Reporting-Investment-Products.html",
+      "classification": "Issuer or regulatory record",
+      "publishedAt": "2021-09-10",
+      "checkedAt": "2026-10-04",
+      "note": "Issuer announcement; expressly distinguishes SEC reporting from ETF conversion."
+    },
+    {
+      "id": "ltcn-proposal",
+      "title": "SEC notice of NYSE Arca proposal",
+      "url": "https://www.sec.gov/files/rules/sro/nysearca/2025/34-102367.pdf",
+      "classification": "Issuer or regulatory record",
+      "publishedAt": "2025-02-06",
+      "checkedAt": "2026-10-04",
+      "note": "Notice for exchange filing January 24, amended February 3; not approval."
+    },
+    {
+      "id": "ltcn-s3",
+      "title": "LTCN Form S-3 filing record",
+      "url": "https://www.sec.gov/Archives/edgar/data/1732406/000173240625000008/0001732406-25-000008-index.htm",
+      "classification": "Issuer or regulatory record",
+      "publishedAt": "2025-09-09",
+      "checkedAt": "2026-10-04",
+      "note": "Registration number 333-290130. Filing does not establish effectiveness."
+    },
+    {
+      "id": "sec-generic",
+      "title": "SEC generic listing standards",
+      "url": "https://www.sec.gov/newsroom/press-releases/2025-121-sec-approves-generic-listing-standards-commodity-based-trust-shares",
+      "classification": "Issuer or regulatory record",
+      "publishedAt": "2025-09-17",
+      "checkedAt": "2026-10-04",
+      "note": "General qualifying-listing pathway, not an LTCN trading notice."
+    },
+    {
+      "id": "ltcn-withdrawal",
+      "title": "SEC docket SR-NYSEARCA-2025-05",
+      "url": "https://www.sec.gov/rules-regulations/self-regulatory-organization-rulemaking/sr-nysearca-2025-05",
+      "classification": "Issuer or regulatory record",
+      "publishedAt": "2025-09-29",
+      "checkedAt": "2026-10-04",
+      "note": "Docket marked withdrawn. Does not establish product launch, denial or abandonment."
+    },
+    {
+      "id": "ltcn-s3a",
+      "title": "LTCN preliminary S-3/A amendment",
+      "url": "https://www.sec.gov/Archives/edgar/data/1732406/000119312526389256/ltc_s-3_amendment_1.htm",
+      "classification": "Issuer or regulatory record",
+      "publishedAt": "2026-09-11",
+      "checkedAt": "2026-10-04",
+      "note": "Conditional proposed ETF rename and NYSE Arca listing. Not evidence of effectiveness or current operation."
+    },
+    {
+      "id": "ltcn-issuer",
+      "title": "Grayscale LTCN product page",
+      "url": "https://etfs.grayscale.com/ltcn",
+      "classification": "Issuer page link",
+      "publishedAt": null,
+      "checkedAt": "2026-10-04",
+      "note": "Issuer URL named in the September amendment. Content unavailable during this check; no current metrics validated."
+    }
+  ],
+  "people": [
+    {
+      "id": "indigo",
+      "name": "Indigo Nakamoto",
+      "focus": "Interfaces for an open network",
+      "summary": "The Foundation lists Indigo as the developer for Projects/Chat. The linked GitHub profile connects that work to a public funding board, a retrieval-based knowledge tool and a Litecoin wallet development kit.",
+      "question": "Can a reader trace an AI answer back to the underlying source?",
+      "sourceIds": [
+        "foundation",
+        "indigo-github",
+        "indigo-x"
+      ]
+    },
+    {
+      "id": "loshan",
+      "name": "Loshan T.",
+      "focus": "Making the chain readable",
+      "summary": "The Foundation lists Loshan as a Litecoin developer. Its Litecoin Space project record credits his work porting a Bitcoin explorer to Litecoin—a practical link between protocol data and a usable interface.",
+      "question": "Which software, network and block does an explorer result describe?",
+      "sourceIds": [
+        "foundation",
+        "space-project",
+        "loshan-x"
+      ]
+    },
+    {
+      "id": "burkett",
+      "name": "David Burkett",
+      "focus": "Privacy with a public engineering record",
+      "summary": "Listed by the Foundation for Litecoin and MWEB development, Burkett authored the April 28, 2026 security postmortem. Read that repair history beside the feature’s benefits.",
+      "question": "What does the evidence establish about the fix, and what remains outside its scope?",
+      "sourceIds": [
+        "foundation",
+        "mweb-report",
+        "burkett-x"
+      ]
+    },
+    {
+      "id": "master",
+      "name": "@masterbtcltc",
+      "focus": "Community reading lead",
+      "summary": "The Look Into Litecoin homepage carries articles under the masterbtcltc byline. The X link supplied for this reading room remains a route to the conversation; its current timeline was not available for verification.",
+      "question": "Where does an author’s interpretation end and a primary record begin?",
+      "sourceIds": [
+        "lookinto",
+        "master-x"
+      ]
+    },
+    {
+      "id": "daddycool",
+      "name": "@daddycool1991",
+      "focus": "Community conversation lead",
+      "summary": "A founder-supplied account to include in Litecoin community research. No readable current profile or posts were available in this check, so this card makes no fresh announcement or biography claim.",
+      "question": "Before carrying a claim into an issue, can we locate its dated original record?",
+      "sourceIds": [
+        "dasch-x"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Ask, then inspect",
+      "name": "Litecoin Knowledge Hub",
+      "summary": "The repository describes a conversational tool that retrieves from a curated Foundation knowledge base. A useful next step for readers is to inspect a cited answer, its source date and its limits.",
+      "stage": "Project-described architecture · Answers not independently tested",
+      "sourceIds": [
+        "chat-repo",
+        "indigo-github"
+      ]
+    },
+    {
+      "title": "Find the work",
+      "name": "The projects board",
+      "summary": "The Foundation’s directory opens a route from curiosity to specific work: software, documentation, testing and funding proposals. Start with the project’s own scope and contribution guidance.",
+      "stage": "Public project directory · Listings are not endorsements by LTC Media",
+      "sourceIds": [
+        "projects"
+      ]
+    },
+    {
+      "title": "Study the building blocks",
+      "name": "Litecoin Dev Kit",
+      "summary": "The repositories describe descriptor-based wallet libraries, MWEB support and Rust-to-mobile bindings. Indigo’s profile calls it a public prototype awaiting independent funds-safety review.",
+      "stage": "Public prototype · Independent funds-safety review not established",
+      "sourceIds": [
+        "devkit",
+        "indigo-github"
+      ]
+    }
+  ],
+  "reading": [
+    {
+      "id": "official",
+      "title": "Start with the network’s own pages",
+      "kicker": "Project information",
+      "body": "Litecoin.com provides Foundation, project and news routes. Litecoin.org is included as requested, but this check retrieved only its application shell. A reachable domain alone is not verification of a claim.",
+      "sourceIds": [
+        "litecoin-com",
+        "litecoin-org",
+        "foundation"
+      ]
+    },
+    {
+      "id": "tracker",
+      "title": "A table is a starting point",
+      "kicker": "Holdings research",
+      "body": "Litecoin Register brings many types of holders into one place. Its methodology flags disclosure delays, carried-forward observations and possible overlap. For a published number, follow the row to its source, retain the balance date and check who controls the underlying coins.",
+      "sourceIds": [
+        "register",
+        "register-method"
+      ]
+    },
+    {
+      "id": "community",
+      "title": "Make room for an attributed point of view",
+      "kicker": "Independent community media",
+      "body": "Look Into Litecoin publishes community articles and books. Its contributor ownership disclosure is useful context. We link readers to that perspective while checking technical claims against code and institutional claims against filings; commentary is not a measurement.",
+      "sourceIds": [
+        "lookinto"
+      ]
+    }
+  ],
+  "ltcn": {
+    "intro": "A share in a Litecoin trust and native LTC are different claims. Public quotation, SEC reporting and an exchange conversion are different milestones, too. The dated record helps keep them apart.",
+    "status": "Conversion proposed in the latest verified filing: September 11, 2026. NYSE Arca launch not verified.",
+    "statusSourceIds": [
+      "ltcn-s3a"
+    ],
+    "timeline": [
+      {
+        "date": "2018-01-26",
+        "title": "A trust is formed",
+        "summary": "The annual report dates formation to January 26, 2018 and the start of operations to March 1. These are distinct milestones.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "ltcn-10k"
+        ]
+      },
+      {
+        "date": "2020-08-17",
+        "title": "Quotation enters the public story",
+        "summary": "Grayscale announced DTC eligibility on August 17. The annual report dates OTC trading from August 18; announcement and first-trading dates should not be substituted for each other.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "ltcn-otc",
+          "ltcn-10k"
+        ]
+      },
+      {
+        "date": "2021-09-10",
+        "title": "SEC reporting, not an ETF launch",
+        "summary": "Grayscale announced reporting-company status. The issuer explicitly distinguished that status from ETF conversion.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "ltcn-reporting"
+        ]
+      },
+      {
+        "date": "2025-02-06",
+        "title": "The exchange proposal is noticed",
+        "summary": "The SEC published notice of NYSE Arca’s January 24 proposal, as amended February 3. A proposal entering review is not a listing approval.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "ltcn-proposal"
+        ]
+      },
+      {
+        "date": "2025-09-09",
+        "title": "A registration statement is filed",
+        "summary": "Form S-3 was filed under registration number 333-290130. A filed registration statement does not establish that exchange trading began.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "ltcn-s3"
+        ]
+      },
+      {
+        "date": "2025-09-17",
+        "title": "The broader listing route changes",
+        "summary": "The SEC approved generic standards for qualifying commodity-based trust shares. The general rule change was not an LTCN-specific launch announcement.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "sec-generic"
+        ]
+      },
+      {
+        "date": "2025-09-29",
+        "title": "The specific docket is withdrawn",
+        "summary": "The SEC docket is marked withdrawn. That procedural status alone does not establish launch, rejection or abandonment.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "ltcn-withdrawal"
+        ]
+      },
+      {
+        "date": "2026-09-03",
+        "title": "A dated operating record",
+        "summary": "The annual report for June 30, 2026 describes OTCQX quotation and no operating redemption program at that reporting date. It is not a live October observation.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "ltcn-10k"
+        ]
+      },
+      {
+        "date": "2026-09-11",
+        "title": "A preliminary conversion amendment",
+        "summary": "The S-3/A describes an intended ETF rename and NYSE Arca listing under LTCN. Its conditional proposed mechanics must not be presented as already operating.",
+        "classification": "Historical primary record",
+        "sourceIds": [
+          "ltcn-s3a"
+        ]
+      }
+    ],
+    "limitations": "This is a selected primary-record timeline, not an exhaustive news or EDGAR inventory. The issuer product page was unavailable to this check; no October 4 NAV, AUM, discount, holdings or fund-flow figure is validated. A later effectiveness notice, final prospectus and issuer/exchange launch record would require a new check. Absence from this search does not prove no later filing exists."
+  }
+}

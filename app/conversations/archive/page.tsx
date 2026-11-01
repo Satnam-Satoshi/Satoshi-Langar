@@ -1,0 +1,24 @@
+import LtcNewsExtraCard from '../../components/LtcNewsExtraCard';
+import EditorialSpecialShelf from '../../components/EditorialSpecialShelf';
+import type { Metadata } from 'next';
+import { magazineArticles, magazineIssue, articleHref } from '../../data/magazine';
+import { ltcEditions, ltcPublicationDays, ltcPublicationMonths, latestLtcEdition, formatEditionDate, editionDateHref, archiveMonthHref } from '../../data/editions';
+import { formatPublicationMonth } from '../../data/edition-calendar';
+import LtcEditionList from '../../components/LtcEditionList';
+import LtcSpecialEdition from '../../components/LtcSpecialEdition';
+import styles from '../magazine.module.css';
+
+export const metadata: Metadata = { title: 'LTC Media · Past issues & special editions', description: 'Browse LTC daily issues and the 84-page Proof of Birthday special, with publication dates, source records, review status and correction history.' };
+export default function ArchivePage() {
+  return <main className={styles.paper}>
+    <nav className={styles.articleNav} aria-label="Magazine navigation"><a className={styles.articleBrand} href="/conversations/" aria-label="LTC magazine home">LTC</a><a href="/conversations/">Return to the magazine →</a><a href="/conversations/feed.xml">RSS feed</a></nav>
+    <header className={styles.articleHeader}><p className={styles.kicker}>The LTC archive</p><h1>A record worth keeping.</h1><p className={styles.dek}>The day’s source brief. The longer conversation. Every edition keeps its date, its evidence and its limits.</p><p className={styles.meta}>Daily briefings, special editions and reading-room features keep separate publication and review records. Review status is shown beside each issue.</p></header>
+    <section className={styles.publicationSummary} aria-label="Publication record"><div><p className={styles.kicker}>One publication. A new dated record each day.</p><p className={styles.dek}>{ltcPublicationDays.length} publication {ltcPublicationDays.length === 1 ? 'day' : 'days'} · {ltcEditions.length} saved {ltcEditions.length === 1 ? 'version' : 'versions'}</p><p className={styles.small}>Daily target: 10 a.m. New York time, subject to source checks and publishing availability. Dates with no published edition remain unlinked. We never fill a missed day with a backdated issue.</p></div>{latestLtcEdition && <a className={styles.readLink} href={editionDateHref(latestLtcEdition.date)}>Latest published · {formatEditionDate(latestLtcEdition.date)}</a>}</section>
+    <LtcNewsExtraCard/><EditorialSpecialShelf />
+    <LtcSpecialEdition />
+    <section aria-labelledby="browse-month"><div className={styles.sectionHead}><h2 id="browse-month">Browse by month</h2><p>Publication calendar · Newest first</p></div><nav className={styles.monthShelf} aria-label="Publication months">{ltcPublicationMonths.map(({ month, days }) => <a key={month} href={archiveMonthHref(month)}><span>{month.slice(0, 4)}</span><strong>{formatPublicationMonth(month)}</strong><small>{days.length} published {days.length === 1 ? 'day' : 'days'} · Open calendar →</small></a>)}</nav></section>
+    <section className={styles.editionArchive} aria-labelledby="daily-archive"><div className={styles.sectionHead}><h2 id="daily-archive">Recent publication days</h2><p>Latest 14 days with editions</p></div>{ltcPublicationDays.length ? <LtcEditionList days={ltcPublicationDays.slice(0, 14)} /> : <p>No daily source editions have been released yet.</p>}</section>
+    <section aria-labelledby="preview-archive"><div className={styles.sectionHead}><h2 id="preview-archive">The editorial reading room</h2><p>Explainers · Analysis · Field guides</p></div><ol className={styles.archiveList}>{[...magazineArticles].reverse().map(story => <li key={story.slug}><div><p>{story.preparedDate ?? magazineIssue.date}</p><p>{story.desk}</p><p>{story.classification} · {story.minutes} min</p></div><div><p className={styles.kicker}>Editorial preview · Human review pending</p><h2><a className={styles.headlineLink} href={articleHref(story.slug)}>{story.title}</a></h2><p>{story.dek}</p></div></li>)}</ol></section>
+    <section style={{ marginTop: 40 }} aria-labelledby="founding-note"><div className={styles.sectionHead}><h2 id="founding-note">The founding methodology</h2><p>First drafted September 30, 2026</p></div><ul className={styles.archiveList}><li><div><p>Markets & institutions</p><p>Explainer · 5 min</p></div><div><h2><a className={styles.headlineLink} href="/conversations/methodology/">What mNAV can—and cannot—tell us.</a></h2><p>A continuing method note: source dates, debt, dilution and the editorial compact. An AI-prepared explainer awaiting human editorial review.</p></div></li></ul></section><p className={styles.small}>Daily edition records preserve corrections as new revisions. Git history preserves source changes; no independently certified timestamp or comprehensive history predating our first edition is claimed.</p>
+  </main>;
+}

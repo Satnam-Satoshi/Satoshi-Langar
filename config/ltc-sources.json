@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "publication": "Lunch Time Conversations",
+  "scheduleStatus": "codex-local-daily",
+  "sources": [
+    {
+      "id": "ibit-holdings",
+      "title": "iShares Bitcoin Trust ETF \u00b7 holdings",
+      "desk": "Markets & institutions",
+      "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
+      "referenceUrl": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf",
+      "kind": "primary",
+      "parser": "ibit-csv-v1",
+      "metricStatus": "dated-holdings",
+      "maxAgeDays": 4
+    },
+    {
+      "id": "bitcoin-core",
+      "title": "Bitcoin Core \u00b7 software releases",
+      "desk": "Network analysis",
+      "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
+      "referenceUrl": "https://bitcoincore.org/en/releases/",
+      "kind": "primary",
+      "parser": "github-release-v1",
+      "metricStatus": "software-release",
+      "maxAgeDays": null
+    },
+    {
+      "id": "litecoin-core",
+      "title": "Litecoin Core \u00b7 software releases",
+      "desk": "Network analysis",
+      "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
+      "referenceUrl": "https://github.com/litecoin-project/litecoin/releases",
+      "kind": "primary",
+      "parser": "github-litecoin-release-v1",
+      "metricStatus": "software-release",
+      "maxAgeDays": null
+    },
+    {
+      "id": "lnd",
+      "title": "LND \u00b7 Lightning software releases",
+      "desk": "Builders & Lightning",
+      "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
+      "referenceUrl": "https://github.com/lightningnetwork/lnd/releases",
+      "kind": "primary",
+      "parser": "github-lnd-release-v1",
+      "metricStatus": "software-release",
+      "maxAgeDays": null
+    },
+    {
+      "id": "strategy-notes",
+      "title": "Strategy \u00b7 mNAV definitions",
+      "desk": "Markets & institutions",
+      "url": "https://www.strategy.com/notes",
+      "referenceUrl": "https://www.strategy.com/notes",
+      "kind": "primary",
+      "parser": "source-check-v1",
+      "metricStatus": "methodology-reference",
+      "maxAgeDays": null
+    },
+    {
+      "id": "coinshares-bitc",
+      "title": "CoinShares \u00b7 Bitcoin ETP",
+      "desk": "Markets & institutions",
+      "url": "https://coinshares.com/etp/physical-bitcoin/",
+      "referenceUrl": "https://coinshares.com/etp/physical-bitcoin/",
+      "kind": "primary",
+      "parser": "source-check-v1",
+      "metricStatus": "numeric-adapter-pending",
+      "maxAgeDays": null
+    },
+    {
+      "id": "sec-news",
+      "title": "SEC \u00b7 official announcements",
+      "desk": "Politics & public record",
+      "url": "https://www.sec.gov/newsroom/press-releases",
+      "referenceUrl": "https://www.sec.gov/newsroom/press-releases",
+      "kind": "primary",
+      "parser": "source-check-v1",
+      "metricStatus": "editorial-selection-required",
+      "maxAgeDays": null
+    },
+    {
+      "id": "litecoin-register",
+      "title": "Litecoin Register \u00b7 community research",
+      "desk": "Litecoin holdings",
+      "url": "https://www.litecoinregister.com/",
+      "referenceUrl": "https://www.litecoinregister.com/help/",
+      "kind": "secondary",
+      "parser": "source-check-v1",
+      "metricStatus": "attributed-reference-only",
+      "maxAgeDays": null
+    },
+    {
+      "id": "coinbase-btc-usd",
+      "title": "Coinbase Exchange \u00b7 BTC/USD last trade",
+      "desk": "Markets & prices",
+      "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
+      "referenceUrl": "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker",
+      "kind": "primary",
+      "parser": "coinbase-btc-ticker-v1",
+      "metricStatus": "venue-last-trade",
+      "maxAgeDays": 0
+    },
+    {
+      "id": "coinbase-ltc-usd",
+      "title": "Coinbase Exchange \u00b7 LTC/USD last trade",
+      "desk": "Markets & prices",
+      "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
+      "referenceUrl": "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker",
+      "kind": "primary",
+      "parser": "coinbase-ltc-ticker-v1",
+      "metricStatus": "venue-last-trade",
+      "maxAgeDays": 0
+    }
+  ]
+}

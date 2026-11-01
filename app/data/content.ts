@@ -9,7 +9,7 @@ export const pillars = [
 
 export const productCards = [
   { title: "Treasury Intelligence", body: "A read-only research system for public Bitcoin, Litecoin, and Stellar treasury evidence.", href: "/treasury", label: "Explore the methodology", icon: ChartNoAxesCombined },
-  { title: "Lunch Time Conversations", body: "A daily public-interest newspaper connecting markets, institutions, policy, and community learning.", href: "/conversations", label: "Read the publication plan", icon: Newspaper },
+  { title: "LTC Media · Lunch Time Conversations", body: "Source-bound briefings and original explainers connecting Bitcoin, public policy, open technology and service.", href: "/conversations/", label: "Read the magazine", icon: Newspaper },
   { title: "Satoshi Langar", body: "A community pilot for meals, volunteering, dignity, and transparent Proof of Seva.", href: "/langar", label: "Understand the pilot", icon: HandHeart },
 ];
 
@@ -37,7 +37,7 @@ export const sevaSteps = [
 ];
 
 export const humanAiRoles = [
-  { label: "Humans govern", items: ["Set mission and policy", "Approve publication", "Own relationships and consent", "Hold emergency authority"] },
+  { label: "Humans govern", items: ["Set mission and policy", "Set publication policy", "Own relationships and consent", "Hold emergency authority"] },
   { label: "AI assists", items: ["Find and organize sources", "Check consistency and freshness", "Prepare drafts and alternatives", "Maintain auditable work records"] },
 ];
 

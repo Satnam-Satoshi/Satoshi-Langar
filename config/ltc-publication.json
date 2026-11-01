@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "policyId": "bounded-daily-v1",
+  "enabled": true,
+  "paused": false,
+  "timezone": "America/New_York",
+  "humanOwner": "Satnam Satoshi founder",
+  "authorization": "Founder requested autonomous daily LTC website publication on October 2, 2026. Permission covers tested deterministic public-source briefings, not arbitrary political reporting, investment recommendations or unreviewed source expansion.",
+  "maximumSnapshotAgeHours": 24,
+  "maximumObservationAgeDays": 4,
+  "maximumTickerAgeMinutes": 120,
+  "requireCompletePresentation": true,
+  "requiresFreshPrimaryObservation": true,
+  "individualHumanReview": false,
+  "scheduler": "Daily release runner; site deployment is a separate verified step. See docs/LTC-PIPELINE.md."
+}

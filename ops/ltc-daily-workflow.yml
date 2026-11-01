@@ -1,0 +1,82 @@
+# DRAFT ONLY: GitHub does not execute workflows in ops/. Do not call this active.
+# A separate reviewed scheduler-only PR must place this on main, after setup.
+name: LTC bounded daily publication
+on:
+  schedule:
+    - cron: '7,27 10 * * *'
+      timezone: America/New_York
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and validate without remote writes
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: ltc-production-publication
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && (vars.LTC_CLOUD_PUBLISH == 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ltc-production
+    permissions:
+      contents: write
+    env:
+      LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
+      LTC_CLOUD_PUBLISH: ${{ vars.LTC_CLOUD_PUBLISH }}
+      LTC_VERCEL_CLI_VERSION: ${{ vars.LTC_VERCEL_CLI_VERSION }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: agent/community-ecosystem-20260930
+          persist-credentials: false
+          fetch-depth: 0
+      # TRUSTED BOOTSTRAP: no checked-out script/package code is executed before this inline guard.
+      - name: Check accepted implementation before executing source
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          import {readFileSync,lstatSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const expected=process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256;
+          if(!/^[a-f0-9]{64}$/.test(expected||''))throw Error('Accepted implementation digest is missing');
+          const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).sort();
+          const hash=createHash('sha256');
+          for(const file of files){
+            if(!lstatSync(file).isFile()||lstatSync(file).isSymbolicLink())throw Error('Non-regular tracked file');
+            if(/^content\/ltc\/(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(file)||file==='public/data/ltc-snapshot.json')continue;
+            hash.update(file+'\0');hash.update(readFileSync(file));hash.update('\0');
+          }
+          if(hash.digest('hex')!==expected)throw Error('Implementation changed; publication withheld');
+          NODE
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.23.2
+      - name: Install pinned tools without deployment credentials
+        shell: bash
+        run: |
+          test "${LTC_VERCEL_CLI_VERSION}" != ""
+          [[ "$LTC_VERCEL_CLI_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          npm install --global pnpm@11.19.0 "vercel@$LTC_VERCEL_CLI_VERSION"
+      - name: Guard regression tests
+        run: node --test scripts/test-cloud-ltc-release.mjs
+      - name: Comprehensive dry run
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+        run: node scripts/cloud-ltc-release.mjs --dry-run --receipt "$RUNNER_TEMP/ltc-receipt.json"
+      - name: Publish accepted dated edition
+        if: vars.LTC_CLOUD_PUBLISH == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: node scripts/cloud-ltc-release.mjs --publish --receipt "$RUNNER_TEMP/ltc-receipt.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: ltc-release-receipt-${{ github.run_id }}
+          path: ${{ runner.temp }}/ltc-receipt.json
+          if-no-files-found: ignore
+          retention-days: 30

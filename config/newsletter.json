@@ -1,0 +1,16 @@
+{
+  "enabled": false,
+  "provider": "brevo",
+  "signupUrl": null,
+  "replyTo": null,
+  "checkedAt": null,
+  "checks": {
+    "ownerConfirmed": false,
+    "senderAuthenticated": false,
+    "doubleOptInTested": false,
+    "unsubscribeTested": false,
+    "privacyPublished": false,
+    "dailyFeedDeliveryTested": false,
+    "sendLimitConfirmed": false
+  }
+}
