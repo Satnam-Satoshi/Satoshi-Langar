@@ -97,7 +97,11 @@ export async function uploadEvidence(bundle,options,context){
  const boundary=`ltc_evidence_${valid.sha256}`;
  const meta={id:config.fileId,name:`ltc-evidence-${valid.sha256}.json`,mimeType:'application/json',parents:[config.folderId],appProperties:{sha256:valid.sha256,operationId:context.operationId,payloadSha256:context.payloadSha256}};
  const body=Buffer.concat([Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`),valid.bytes,Buffer.from(`\r\n--${boundary}--\r\n`)]);
- try{await call('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`});}catch{throw Error('evidence_upload_outcome_unknown');}
+ // Multipart bundles can be several MiB. Give the single create request a
+ // bounded minute; metadata/readback keep their shorter existing deadline.
+ // An explicit caller deadline still applies, and no request is retried.
+ const upload=client({...options,timeoutMs:options.timeoutMs??60_000});
+ try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`});}catch{throw Error('evidence_upload_outcome_unknown');}
  const restored=await downloadEvidence(receipt,options);check(restored,'evidence_readback_missing');return {receipt,...restored};
 }
 export async function restoreEvidence(bundle,{directory}){
