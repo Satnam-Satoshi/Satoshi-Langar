@@ -261,3 +261,6 @@ aside[aria-label="Current market observations with source times"] b{color:#343c4
 aside[aria-label="Current market observations with source times"] small{color:#555b57}
 aside[aria-label="Current market observations with source times"] a:focus-visible{outline-color:#a5411e}
 @media(max-width:620px){.header-utility nav[aria-label="LTC Magazine social channels"]{flex-wrap:nowrap;gap:4px}.header-utility nav[aria-label="LTC Magazine social channels"] a{padding:7px 4px;font-size:11px;gap:5px;min-width:0}.header-utility>div>div nav svg{width:15px;height:15px}}
+/* Live reading destinations share typography; archived special layouts keep theirs. */
+.live-page-intro h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;line-height:1.04}
+@media(max-width:620px){.edition-notice{padding-block:7px;font-size:10px;line-height:1.4}.live-page-intro>div{padding-block:42px}}
