@@ -145,3 +145,55 @@ test('reviewed legacy native-link suppression is checked exactly without changin
   for (const change of [{ org: 'other' }, { repoId: 123 }, { productionBranch: 'other' }, { sourceless: false }, { deployHooks: [{}] }]) assert.throws(() => assertVercelProjectPolicy({ ...project, link: { ...link, ...change } }, target), /native_git_link_requires_owner_resolution/);
   assert.throws(() => assertVercelProjectPolicy({ ...project, commandForIgnoringBuildStep: null }, target), /native_git_link_requires_owner_resolution/);
 });
+
+async function aliasReadbackFixture({mode='promote',outcome='lost-then-settles'}={}){
+  const {TARGET}=await import('./cloud-ltc-release.mjs'),{createControlledVercelMutation}=await import('./cloud-ltc-promotion-runtime.mjs');
+  const {state,coordinator:run}=await coordinator(),commit='a'.repeat(40),candidate='dpl_ReadbackCandidate',previous='dpl_ReadbackPrevious',waits=[];
+  let postCount=0,readbackReads=0,mutations=0;
+  const identity=id=>({id,projectId:TARGET.project,ownerId:TARGET.team,team:{id:TARGET.team},readyState:'READY',target:'production',url:id===candidate?'readback-candidate.vercel.app':'readback-previous.vercel.app',meta:{ltcSourceCommit:commit}});
+  const expected=mode==='promote'?candidate:previous,old=mode==='promote'?previous:candidate;
+  const bridge=createControlledVercelMutation({env:{VERCEL_TOKEN:'synthetic-token-for-offline-fixture'},review:{stagePins:{candidateDeployment:candidate,previousDeployment:previous}},fetchImpl:async(url,options)=>{
+    assert.equal(new URL(url).origin,'https://api.vercel.com');assert.equal(options.method,'POST');postCount++;
+    if(outcome==='scope-error')throw Error('unexpected native response');
+    if(outcome==='lost-then-settles')throw Error('synthetic lost acknowledgement after accepted POST');
+    return new Response(null,{status:202});
+  }});
+  const vercel=async endpoint=>{
+    const key=endpoint.split('/').at(-1);
+    if(TARGET.domains.some(d=>new URL(d).hostname===key)){
+      if(!postCount)return identity(old);
+      readbackReads++;
+      if(outcome==='lost-then-settles'){
+        if(readbackReads===1)throw Error('provider_read_unavailable');
+        if(readbackReads===2)return identity(old);
+        return identity(expected);
+      }
+      if(outcome==='third')return identity('dpl_UnexpectedOther');
+      if(outcome==='wrong-owner')return {...identity(expected),ownerId:'other-team'};
+      return identity(old);
+    }
+    return identity(key);
+  };
+  let publicReads=0;
+  const providers=createVercelReleaseProviders({target:TARGET,vercel,cli:async args=>{if(outcome==='scope-error')throw Error('controlled_vercel_scope_mismatch');return bridge(args,{candidate,previous,candidateUrl:'readback-candidate.vercel.app'});},beforeMutation:async()=>{mutations++;},verifyProtected:async()=>{},verifyPublic:async()=>{publicReads++;},readbackWait:async ms=>waits.push(ms)});
+  const payload=mode==='promote'?{kind:'vercel-promote',deployment:candidate,previous,commit}:{kind:'vercel-rollback',failed:candidate,restore:previous,commit,previousManifestSha256:hash('old approved bytes')};
+  return{state,run,payload,provider:providers[mode](payload),postCount:()=>postCount,readbackReads:()=>readbackReads,mutations:()=>mutations,publicReads:()=>publicReads,waits};
+}
+test('one real controlled POST with lost acknowledgement resolves by bounded GET-only reads; coordinator confirms without a second POST',async()=>{
+  for(const mode of['promote','rollback']){
+    const f=await aliasReadbackFixture({mode}),operation={operationId:'lost-'+mode,payload:f.payload,provider:f.provider};
+    const result=await f.run.execute(operation);assert.equal(result.status,'confirmed');assert.equal(f.postCount(),1);assert.equal(f.readbackReads(),5);assert.deepEqual(f.waits,[1000,1000]);assert.equal(f.mutations(),1);assert.equal(f.publicReads(),mode==='rollback'?1:0);
+    assert.equal((await f.run.execute(operation)).status,'confirmed');assert.equal(f.postCount(),1);
+  }
+});
+test('bounded old aliases hold uncertainty with no rePOST; third deployments or wrong ownership stop immediately',async()=>{
+  for(const outcome of['old','third','wrong-owner']){
+    const f=await aliasReadbackFixture({outcome}),operation={operationId:'hold-'+outcome,payload:f.payload,provider:f.provider};
+    await assert.rejects(f.run.execute(operation),/operation_outcome_uncertain/);assert.equal(f.postCount(),1);assert.equal((await f.state.inspect()).intents[operation.operationId].status,'uncertain');
+    assert.equal(f.readbackReads(),outcome==='old'?6:1);assert.equal(f.waits.length,outcome==='old'?2:0);
+    await assert.rejects(f.run.execute(operation),/operation_reconciliation_required/);assert.equal(f.postCount(),1);
+  }
+});
+test('scope/source guard errors cannot enter the acknowledgement recovery path',async()=>{
+  const f=await aliasReadbackFixture({outcome:'scope-error'}),operation={operationId:'guard-refusal',payload:f.payload,provider:f.provider};await assert.rejects(f.run.execute(operation),/operation_outcome_uncertain/);assert.equal(f.postCount(),0);assert.equal(f.readbackReads(),0);assert.deepEqual(f.waits,[]);
+});

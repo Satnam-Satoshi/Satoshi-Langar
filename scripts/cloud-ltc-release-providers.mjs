@@ -112,7 +112,8 @@ export function assertVercelProjectPolicy(project, target) {
 export function assertVercelDeploymentIdentity(deployment, target) {
   check(/^dpl_[A-Za-z0-9]+$/.test(deployment?.id ?? '') && deployment.projectId === target.project && deployment.ownerId === target.team && deployment.team?.id === target.team && (deployment.teamId === undefined || deployment.teamId === target.team) && (deployment.team?.slug === undefined || deployment.team.slug === target.scope) && deployment.readyState === 'READY' && deployment.target === 'production' && /^[a-z0-9-]+\.vercel\.app$/.test(deployment.url ?? ''), 'deployment_identity_mismatch');
 }
-export function createVercelReleaseProviders({ target, vercel, cli, verifyProtected, verifyPublic, beforeMutation }) {
+export function createVercelReleaseProviders({ target, vercel, cli, verifyProtected, verifyPublic, beforeMutation, readbackAttempts = 3, readbackDelayMs = 1000, readbackWait = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
+  check(Number.isSafeInteger(readbackAttempts) && readbackAttempts >= 1 && readbackAttempts <= 5 && Number.isSafeInteger(readbackDelayMs) && readbackDelayMs >= 0 && readbackDelayMs <= 2000 && typeof readbackWait === 'function', 'invalid_vercel_readback_policy');
   check(target?.project && target?.team && Array.isArray(target.domains) && target.domains.length === 2 && [vercel, cli, verifyProtected, verifyPublic, beforeMutation].every(fn => typeof fn === 'function'), 'invalid_vercel_provider_configuration');
   const pointers = async expected => {
     const records = [];
@@ -122,6 +123,35 @@ export function createVercelReleaseProviders({ target, vercel, cli, verifyProtec
       records.push({ domain, deployment: deployment.id });
     }
     return records;
+  };
+  // Only reads are retried. Old/mixed old+expected aliases can be propagation;
+  // a third deployment or invalid ownership is a competing outcome and holds.
+  const settledPointers = async (expected, previous) => {
+    for (let attempt = 0; attempt < readbackAttempts; attempt++) {
+      try {
+        const records = []; let ready = true;
+        for (const domain of target.domains) {
+          const deployment = await vercel(`/v13/deployments/${new URL(domain).hostname}`);
+          assertVercelDeploymentIdentity(deployment, target);
+          check(deployment.id === expected || deployment.id === previous, 'competing_production_release');
+          ready &&= deployment.id === expected;
+          records.push({ domain, deployment: deployment.id });
+        }
+        if (ready) return records;
+      } catch (error) {
+        if (['deployment_identity_mismatch', 'competing_production_release'].includes(error?.message)) throw error;
+      }
+      if (attempt + 1 < readbackAttempts) await readbackWait(readbackDelayMs);
+    }
+    throw Error('vercel_pointer_readback_unsettled');
+  };
+  const onceThenRead = async args => {
+    try { await cli(args); }
+    catch (error) {
+      // The fixed POST transport labels an uncertain acknowledgement. Let the
+      // coordinator inspect its authorized target without ever issuing it again.
+      if (error?.message !== 'controlled_vercel_write_uncertain') throw error;
+    }
   };
   return {
     stage(payload) {
@@ -155,8 +185,8 @@ export function createVercelReleaseProviders({ target, vercel, cli, verifyProtec
         await pointers(payload.previous);
         const deployment = await vercel(`/v13/deployments/${payload.deployment}`); assertVercelDeploymentIdentity(deployment, target);
         check(deployment.meta?.ltcSourceCommit === payload.commit, 'deployment_identity_mismatch');
-        await cli(['promote', `https://${deployment.url}`, '--yes']);
-      }, async context => applied(context, { kind: 'vercel-promote', pointers: await pointers(payload.deployment), previous: payload.previous, deployment: payload.deployment }));
+        await onceThenRead(['promote', `https://${deployment.url}`, '--yes']);
+      }, async context => applied(context, { kind: 'vercel-promote', pointers: await settledPointers(payload.deployment, payload.previous), previous: payload.previous, deployment: payload.deployment }));
     },
     rollback(payload) {
       check(/^dpl_[A-Za-z0-9]+$/.test(payload.failed ?? '') && /^dpl_[A-Za-z0-9]+$/.test(payload.restore ?? '') && payload.failed !== payload.restore && sha256(payload.previousManifestSha256), 'invalid_rollback_payload');
@@ -164,9 +194,9 @@ export function createVercelReleaseProviders({ target, vercel, cli, verifyProtec
         await beforeMutation(payload.commit);
         await pointers(payload.failed);
         const deployment = await vercel(`/v13/deployments/${payload.restore}`); assertVercelDeploymentIdentity(deployment, target);
-        await cli(['rollback', payload.restore, '--non-interactive']);
+        await onceThenRead(['rollback', payload.restore, '--non-interactive']);
       }, async context => {
-        const records = await pointers(payload.restore); await verifyPublic(payload.previousManifestSha256);
+        const records = await settledPointers(payload.restore, payload.failed); await verifyPublic(payload.previousManifestSha256);
         return applied(context, { kind: 'vercel-rollback', pointers: records, restored: payload.restore, previousManifestSha256: payload.previousManifestSha256 });
       });
     },
