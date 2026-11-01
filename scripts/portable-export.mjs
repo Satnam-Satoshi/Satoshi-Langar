@@ -3,13 +3,21 @@ import path from 'node:path';
 import { readCommunityArchive } from './lib/community-archive.mjs';
 import { applySiteSeo, buildSeoSitemaps } from './lib/site-seo.mjs';
 import { routineDataRecord } from './lib/ltc-routine-data.mjs';
+import { publicEditions, excludedPublicationPath } from './lib/ltc-public-editions.mjs';
+import { createHash } from 'node:crypto';
 const source = path.resolve('out'), target = path.resolve('dist');
-const editions = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
+const exclusions = JSON.parse(await readFile('config/ltc-publication-exclusions.json', 'utf8'));
+const editions = publicEditions(JSON.parse(await readFile('content/ltc/index.json', 'utf8')), exclusions);
+for (const record of exclusions.editions) {
+ const bytes = await readFile(`content/ltc/${record.id}.json`);
+ if (createHash('sha256').update(bytes).digest('hex') !== record.editionSha256) throw Error('excluded_edition_bytes_changed');
+}
 const seoPages = [];
 await rm(target, { recursive: true, force: true });
 async function walk(directory) {
  for (const entry of await readdir(directory, {withFileTypes:true})) {
   const input=path.join(directory,entry.name), relative=path.relative(source,input), output=path.join(target,relative);
+  if(excludedPublicationPath(relative.split(path.sep).join('/'),exclusions,editions)) continue;
   if(relative==='conversations/specials/litecoin-at-15') continue;
   if(entry.isDirectory()) { await walk(input); continue; }
   const publicExtras=['data/litecoin-distribution-20261011.json','data/litecoin-distribution-20261013.json','data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','scripts/ecosystem-help.js','scripts/open-money.js','scripts/timechain-live.js','scripts/market-live.js','scripts/register-live.js','scripts/morpho-live.js','conversations/feed.xml','conversations/daily.xml','conversations/newsletter.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
@@ -69,10 +77,8 @@ for(const suffix of ['',...Array.from({length:84},(_,i)=>`${i+1}/`)]) {
  await writeFile(path.join(directory,'index.html'),seo.html);
 }
 await mkdir(path.join(target,'data/ltc-editions'),{recursive:true});
-for(const entry of await readdir('content/ltc',{withFileTypes:true})) {
- if(entry.isFile() && /^(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(entry.name))
-  await copyFile(path.join('content/ltc',entry.name),path.join(target,'data/ltc-editions',entry.name));
-}
+await writeFile(path.join(target,'data/ltc-editions/index.json'),JSON.stringify(editions,null,2)+'\n');
+for(const edition of editions) await copyFile(path.join('content/ltc',edition.id+'.json'),path.join(target,'data/ltc-editions',edition.id+'.json'));
 await mkdir(path.join(target,'data/ltc-community'),{recursive:true});
 for (const record of readCommunityArchive('content/ltc-community/archive')) {
  await copyFile(`content/ltc-community/archive/${record.id}.json`,path.join(target,`data/ltc-community/${record.id}.json`));

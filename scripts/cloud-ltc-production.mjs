@@ -5,6 +5,7 @@ import { ReleaseOperationCoordinator } from './cloud-ltc-operations.mjs';
 import { prepareGitReleasePlan, createVercelReleaseProviders, executeReleaseOperation, assertVercelDeploymentIdentity } from './cloud-ltc-release-providers.mjs';
 import { chunkEvidence, packageEvidence, packageArtifactEvidence, createDriveEvidenceProvider, preallocateEvidenceIds, downloadEvidence } from './cloud-ltc-evidence.mjs';
 import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
+import { releaseGeneration, generationEvidenceId, completeFirstFreshGeneration, captureFreshGenerationBinding, assertFreshGenerationBinding, pauseOwnedFreshGeneration } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 const check = (value, code) => { if (!value) throw new Error(code); };
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -40,6 +41,7 @@ export async function performCoordinatedRelease(options) {
   const { admission, root, source, changes, editionId, acceptedSource, startedAt, target, github, vercel, cli, controls, verifyProtected, verifyPublic, verifyImplementation, verifyBuildOutput, manifest, buildOutput, rollbackManifest, evidenceDirectory, evidenceConfig, publicationProvenance, env = process.env, fetchImpl = fetch, saveReceipt } = options;
   check(admission?.state && admission?.lease && Array.isArray(rollbackManifest) && rollbackManifest.length > 0 && rollbackManifest.every(record => typeof record.file === 'string' && /^[a-f0-9]{64}$/.test(record.sha256 ?? '')) && typeof saveReceipt === 'function' && publicationProvenance && ['editionSha256', 'sourceDeskSha256', 'dailyGraphicSha256'].every(key => /^[a-f0-9]{64}$/.test(publicationProvenance[key] ?? '')), 'invalid_production_release_configuration');
   check(evidenceConfig && typeof evidenceConfig.folderId === 'string' && typeof evidenceConfig.ownerPermissionId === 'string' && (!evidenceConfig.fileIds || (Array.isArray(evidenceConfig.fileIds) && new Set(evidenceConfig.fileIds).size === evidenceConfig.fileIds.length)), 'invalid_evidence_configuration');
+  if(!Object.hasOwn(admission,'firstFreshGeneration'))admission.firstFreshGeneration=captureFreshGenerationBinding(await admission.state.inspect());
   const coordinator = new ReleaseOperationCoordinator(admission);
   const operationReceipts = [];
   const execute = async operation => {
@@ -49,6 +51,7 @@ export async function performCoordinatedRelease(options) {
     return receipt;
   };
   const beforeMutation = async commit => {
+    try{assertFreshGenerationBinding(await admission.state.inspect(),admission.firstFreshGeneration);}catch(error){if(admission.firstFreshGeneration){try{await pauseOwnedFreshGeneration(admission);}catch{}}throw error;}
     await admission.state.renew(admission.lease, 3_600_000);
     await verifyImplementation(); await verifyBuildOutput(); await options.verifyMigration?.(); await controls(commit);
   };
@@ -60,6 +63,7 @@ export async function performCoordinatedRelease(options) {
     previous.push(deployment.id);
   }
   check(new Set(previous).size === 1, 'competing_production_release');
+  if(admission.firstFreshGeneration)check(previous[0]===admission.firstFreshGeneration.previousDeployment&&hash(JSON.stringify(rollbackManifest))===admission.firstFreshGeneration.previousPublicManifestSha256,'fresh_generation_baseline_changed');
   // Verify archived previous bytes before making any remote changes.
   await verifyPublic(rollbackManifest);
   if (hash(JSON.stringify(rollbackManifest)) === hash(JSON.stringify(manifest))) {
@@ -67,7 +71,8 @@ export async function performCoordinatedRelease(options) {
     return { status: 'already-live', published: false, releaseCommit: source, candidateDeployment: previous[0], operationReceipts: [] };
   }
   const plan = await prepareGitReleasePlan({ root, base: source, changes, editionId, branch: acceptedSource.branch, committedAt: startedAt, github, beforeMutation });
-  const sourcePlan = { source, commit: plan.commitSha, startedAt, editionId, operations: plan.steps.map(({ operationId, payload }) => ({ operationId, payload })) };
+  const generation = releaseGeneration(admission.lease);
+  const sourcePlan = { generation, source, commit: plan.commitSha, startedAt, editionId, operations: plan.steps.map(({ operationId, payload }) => ({ operationId, payload })) };
   await writeFile(path.join(evidenceDirectory, 'source-operation-plan.json'), JSON.stringify(sourcePlan), { flag: 'wx', mode: 0o600 });
   await writeFile(path.join(evidenceDirectory, 'artifact-manifest.json'), JSON.stringify(manifest), { flag: 'wx', mode: 0o600 });
   await writeFile(path.join(evidenceDirectory, 'build-output-manifest.json'), JSON.stringify(buildOutput), { flag: 'wx', mode: 0o600 });
@@ -78,15 +83,15 @@ export async function performCoordinatedRelease(options) {
   const bundles = artifactPackage.bundles;
   const token = () => withGoogleCloudAuthorization({ env, fetchImpl }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
   const existing = await admission.state.inspect();
-  const missing = bundles.filter(bundle => !existing.intents[`evidence-${bundle.sha256}`]);
+  const missing = bundles.filter(bundle => !existing.intents[generationEvidenceId(generation, bundle.sha256)]);
   const allocate = options.preallocateIds ?? preallocateEvidenceIds;
   const allocated = evidenceConfig.fileIds ?? (missing.length ? await allocate({ count: missing.length, config: evidenceConfig, getAccessToken: token, fetcher: fetchImpl }) : []);
   check(allocated.length === missing.length, 'evidence_file_ids_required');
   const providerFactory = options.evidenceProviderFactory ?? createDriveEvidenceProvider;
   let allocatedIndex = 0;
   const evidenceOperations = bundles.map(bundle => {
-    const payload = { kind: 'drive-evidence', role: 'release-artifacts', artifactPackageManifestSha256: artifactPackage.manifestSha256, artifactBundleCount: bundles.length, artifactBundleIndex: bundles.indexOf(bundle), fileId: existing.intents[`evidence-${bundle.sha256}`]?.payload?.fileId ?? allocated[allocatedIndex++], folderId: evidenceConfig.folderId, sha256: bundle.sha256, bytes: bundle.length };
-    return { operationId: `evidence-${bundle.sha256}`, payload, provider: providerFactory({ bundle, config: { ...evidenceConfig, fileId: payload.fileId }, getAccessToken: token, fetcher: fetchImpl }) };
+    const payload = { kind: 'drive-evidence', role: 'release-artifacts', generation, artifactPackageManifestSha256: artifactPackage.manifestSha256, artifactBundleCount: bundles.length, artifactBundleIndex: bundles.indexOf(bundle), fileId: existing.intents[generationEvidenceId(generation, bundle.sha256)]?.payload?.fileId ?? allocated[allocatedIndex++], folderId: evidenceConfig.folderId, sha256: bundle.sha256, bytes: bundle.length };
+    return { operationId: generationEvidenceId(generation, bundle.sha256), payload, provider: providerFactory({ bundle, config: { ...evidenceConfig, fileId: payload.fileId }, getAccessToken: token, fetcher: fetchImpl }) };
   });
   // All IDs/hashes are durably saved before the first upload. An uncertain write
   // during this phase produces no external upload and still fails closed.
@@ -154,9 +159,10 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   await execute({ operationId: summaryId, payload: summaryPayload, provider: providerFactory({ bundle: summary, config: { ...evidenceConfig, fileId: summaryPayload.fileId }, getAccessToken: token, fetcher: fetchImpl }) });
   await admission.state.recordLatestRelease(admission.lease, { source: releaseCommit, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, publicationProvenance, artifactManifestSha256: hash(JSON.stringify(manifest)), artifactPackageManifestSha256: artifactPackageManifestSha256, ...(continuation ? { continuation } : {}), summary: { archivedStateSha256: backup.sha256, operationId: summaryId, payloadSha256: hash(JSON.stringify(summaryPayload)), fileId: summaryPayload.fileId, folderId: evidenceConfig.folderId, sha256: summary.sha256, length: summary.length } });
   await admission.state.compactArchivedState(admission.lease, { backup, summaryBundle: summary, summaryOperationId: summaryId });
+  let firstFreshProofCompleted=false;
   if (completeCheckpoint) await completeCheckpoint({ summaryId, summaryPayload, backup, publicVerifiedAt });
-  else await admission.state.release(admission.lease);
-  return { published: true, releaseCommit: releaseCommit, candidateDeployment: candidate.deployment, operationReceipts };
+  else {firstFreshProofCompleted=await completeFirstFreshGeneration(admission);if(!firstFreshProofCompleted)await admission.state.release(admission.lease);}
+  return { ...(firstFreshProofCompleted?{firstFreshProofCompleted:true,paused:true,routineEnabled:false}:{}), published: true, releaseCommit: releaseCommit, candidateDeployment: candidate.deployment, operationReceipts };
 }
 
 export async function loadPreviousReleaseManifest({ state, evidenceConfig, publicationProvenance, env = process.env, fetchImpl = fetch }) {

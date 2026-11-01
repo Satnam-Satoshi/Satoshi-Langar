@@ -1,3 +1,5 @@
+import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
+import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
 import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
 import { latestLtcEdition, editionDateHref, formatEditionDate } from '../data/editions';
 import s from './CommunityEditionFront.module.css';
@@ -26,7 +28,7 @@ export default function CommunityEditionFront({ community = false }: { community
     </div>
     <aside className={s.feature} aria-label="Special edition and source headlines">
       <a className={s.special} href="/conversations/specials/litecoin-to-the-moon/"><img src="/magazine/litecoin-to-the-moon/cover.svg" width="1086" height="1448" alt="Original orbital artwork for Litecoin to the Moon; an editorial illustration, not a price chart."/><div><p className={s.kicker}>The special edition / October 30</p><h3>Litecoin to<br/><em>the Moon.</em></h3><p>Canton, cLTC, LitVM and the road to Rome. Different rails. Better questions.</p><span>Read the special ↗</span></div></a>
-      <div className={s.desk}><p className={s.kicker}>From the source desk · Checked {checked}</p>{sourceDesk.stories.slice(0, 2).map(story => <article key={story.id}><p>{story.desk}</p><h3><a href={story.readMore}>{story.title} ↗</a></h3><span>{story.classification} · {'dateKind' in story && story.dateKind === 'observed' ? 'Observed' : 'Published'} <time dateTime={story.publishedAt}>{story.publishedAt}</time></span></article>)}</div>
+      <div className={s.desk}><p className={s.kicker}>From the source desk · Checked {checked}</p>{sourceDesk.stories.slice(0, 2).map(story => <article key={story.id}><p>{story.desk}</p><h3><a href={sourceDeskReadMore(story, publicationExclusionConfig).href} aria-label={sourceDeskReadMore(story, publicationExclusionConfig).label ? `${sourceDeskReadMore(story, publicationExclusionConfig).label}: ${story.title}` : undefined}>{story.title} ↗</a></h3><span>{story.classification} · {'dateKind' in story && story.dateKind === 'observed' ? 'Observed' : 'Published'} <time dateTime={story.publishedAt}>{story.publishedAt}</time></span></article>)}</div>
     </aside>
     <nav className={s.routes} aria-label="Choose your way into the community">{routes.map(route => <a href={route.href} key={route.number}><span className={s.routeNumber}>{route.number} / A WAY IN</span><strong>{route.title}</strong><p>{route.text}</p><span className={s.routeLink}>{route.label} ↗</span></a>)}</nav>
     <div className={s.foot}><span>{community ? 'A community, built through useful work.' : 'One table. Different questions.'}</span><a href="/conversations/feed.xml">Follow the daily feed ↗</a><a href="/donate/">Help keep the commons open →</a></div>
