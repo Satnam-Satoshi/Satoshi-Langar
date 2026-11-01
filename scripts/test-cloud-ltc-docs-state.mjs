@@ -115,17 +115,17 @@ test('publisher admission rejects missing/memory adapter before filesystem, prov
 });
 test('runner lease admission respects pause, restore hold and one-writer fencing; never unpauses', async () => {
   const f=fixture();const state=new DurableCloudState(f.adapter,'website',{clock:()=>1000});
-  await assert.rejects(admitDurablePublication({adapter:f.adapter,runId:'gha-123-1',clock:()=>1000}),/publication_paused/);
+  await assert.rejects(admitDurablePublication({env:{},adapter:f.adapter,runId:'gha-123-1',clock:()=>1000}),/publication_paused/);
   assert.equal(f.calls.length,0);
   await state.setPaused(false);
-  const attempts=await Promise.allSettled([admitDurablePublication({adapter:f.adapter,runId:'gha-123-1',clock:()=>1000}),admitDurablePublication({adapter:f.adapter,runId:'gha-124-1',clock:()=>1000})]);
+  const attempts=await Promise.allSettled([admitDurablePublication({env:{},adapter:f.adapter,runId:'gha-123-1',clock:()=>1000}),admitDurablePublication({env:{},adapter:f.adapter,runId:'gha-124-1',clock:()=>1000})]);
   assert.equal(attempts.filter(r=>r.status==='fulfilled').length,1);
   const lease=attempts.find(r=>r.status==='fulfilled').value.lease;
   assert.equal(lease.fence,1);assert.equal(lease.expiresAt,3601000);
-  await assert.rejects(admitDurablePublication({adapter:f.adapter,runId:'gha-125-1',clock:()=>99999999}),/lease_held/);
-  await assert.rejects(admitDurablePublication({adapter:f.adapter,runId:'arbitrary'}),/invalid_cloud_run_id/);
+  await assert.rejects(admitDurablePublication({env:{},adapter:f.adapter,runId:'gha-125-1',clock:()=>99999999}),/lease_held/);
+  await assert.rejects(admitDurablePublication({env:{},adapter:f.adapter,runId:'arbitrary'}),/invalid_cloud_run_id/);
   const backup=await state.backup();const g=fixture();const restored=new DurableCloudState(g.adapter,'website');await restored.restore(backup);
-  await assert.rejects(admitDurablePublication({adapter:g.adapter,runId:'gha-126-1'}),/publication_paused/);
+  await assert.rejects(admitDurablePublication({env:{},adapter:g.adapter,runId:'gha-126-1'}),/publication_paused/);
 });
 
 test('operation coordinator with actual Docs adapter preserves uncertain effect across reconstructed coordinator', async () => {
@@ -136,4 +136,16 @@ test('operation coordinator with actual Docs adapter preserves uncertain effect 
   const recovered=new ReleaseOperationCoordinator({state:new DurableCloudState(f.adapter,'website',{clock:()=>1000}),lease});
   await assert.rejects(recovered.execute(operation),/operation_reconciliation_required/);assert.equal(calls,1);
   assert.equal((await recovered.reconcile(operation)).status,'confirmed');await state.release(lease);
+});
+
+
+test('explicit protected quarantine pin rejects an unbound fixture before any lease CAS', async () => {
+  const f=fixture();const state=new DurableCloudState(f.adapter,'website',{clock:()=>1000});
+  await state.setPaused(false);
+  const before=await f.adapter.read('website'),writes=f.calls.length;
+  await assert.rejects(admitDurablePublication({adapter:f.adapter,runId:'gha-127-1',clock:()=>1000,env:{LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256:'f'.repeat(64)}}),/upload_quarantine_independent_acceptance_required/);
+  assert.equal(f.calls.length,writes);
+  assert.deepEqual(await f.adapter.read('website'),before);
+  assert.equal((await state.inspect()).lease,null);
+  assert.equal((await state.inspect()).fence,0);
 });
