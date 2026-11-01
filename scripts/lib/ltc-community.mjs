@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 
 // Fixed public source identities; request targets cannot be supplied by feed content.
 export const COMMUNITY_SOURCES = Object.freeze([
-  Object.freeze({ id: 'litecoin-foundation-news', sourceName: 'Litecoin Foundation news', url: 'https://litecoin.com/news/rss.xml', format: 'rss', origin: 'https://litecoin.com', channelUrl: 'https://litecoin.com/news', classification: 'official-foundation-headline' }),
+  Object.freeze({ id: 'litecoin-foundation-news', sourceName: 'Litecoin Foundation news', url: 'https://litecoin.com/news/rss.xml', format: 'rss', origin: 'https://litecoin.com', channelUrl: 'https://litecoin.com', classification: 'official-foundation-headline' }),
   Object.freeze({ id: 'litecoin-foundation-nexus', sourceName: 'Litecoin Foundation · Nexus releases', url: 'https://api.github.com/repos/litecoin-foundation/nexus/releases?per_page=10', format: 'github-releases', origin: 'https://github.com', classification: 'official-software-release' }),
 ]);
 export const COMMUNITY_LIMITS = Object.freeze({ maximumBytes: 2_000_000, timeoutMs: 15_000, historyDays: 90, itemsPerSource: 1, maximumSnapshotAgeHours: 24 });
@@ -100,7 +100,7 @@ function titleText(title) {
 function recordUrl(value, source) {
   assert(typeof value === 'string' && value.length < 1000 && !/[\s\\%?#]/u.test(value), 'invalid_record_url');
   let url; try { url = new URL(value); } catch { throw new Error('invalid_record_url'); }
-  const path = source.format === 'rss' ? /^\/news\/[a-z0-9]+(?:-[a-z0-9]+)*$/ : /^\/litecoin-foundation\/nexus\/releases\/tag\/v\d+\.\d+\.\d+(?:\.\d+)?$/;
+  const path = source.format === 'rss' ? /^\/news\/[a-z0-9]+(?:-+[a-z0-9]+)*$/ : /^\/litecoin-foundation\/nexus\/releases\/tag\/v\d+\.\d+\.\d+(?:\.\d+)?$/;
   assert(url.protocol === 'https:' && url.origin === source.origin && !url.username && !url.password && !url.port && path.test(url.pathname) && value === url.href, 'invalid_record_url');
   return value;
 }
@@ -236,3 +236,4 @@ export function validateCommunitySnapshot(snapshot, { now = new Date().toISOStri
   }
   return snapshot;
 }
+
