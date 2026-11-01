@@ -1,3 +1,4 @@
+import{assertNoQuarantinedUploadReuse}from'./cloud-ltc-upload-quarantine-proof.mjs';
 import { createHash } from 'node:crypto';
 import { verifyEvidenceBundle } from './cloud-ltc-evidence.mjs';
 
@@ -104,6 +105,7 @@ export class DurableCloudState {
     if (payload !== undefined) check(digest(JSON.stringify(payload)) === payloadSha256, 'invalid_intent');
     return this.#update(document => {
       this.#live(document, lease);
+      assertNoQuarantinedUploadReuse(document,{operations:[{operationId,payload}]});
       const previous = Object.hasOwn(document.intents, operationId) ? document.intents[operationId] : null;
       if (previous) { check(previous.payloadSha256 === payloadSha256, 'idempotency_conflict'); return previous; }
       document.intents[operationId] = { operationId, runId: lease.runId, fence: lease.fence, payloadSha256, ...(payload === undefined ? {} : { payload: copy(payload) }), status: 'pending', evidenceSha256: null };
@@ -186,10 +188,11 @@ export class DurableCloudState {
       return { compacted: true, archivedIntentCount: prune.length, archiveHead: document.archiveHead };
     });
   }
-  async release(lease) {
+  async release(lease, admissionCheck) {
     return this.#update(document => {
       check(document.lease?.runId === lease.runId && document.lease?.fence === lease.fence, 'lease_fenced');
       check(Object.values(document.intents).every(terminal), 'reconciliation_required');
+      const result=admissionCheck?.(copy(document));check(!result||typeof result.then!=='function','invalid_admission_check');
       document.lease = null; return { released: true };
     });
   }

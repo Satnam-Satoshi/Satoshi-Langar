@@ -60,6 +60,25 @@ test('clean restore verifies every byte, refuses existing directories and symlin
 test('provider binds durable payload to actual bundle, file, folder and length before any effect',async()=>{const f=fixture(),p=createDriveEvidenceProvider({bundle:bundle(),...f.options});await assert.rejects(p.apply({...context,payload:{...context.payload,fileId:'wrong_file_123'}}),/payload_mismatch/);await assert.rejects(p.apply({...context,payloadSha256:'0'.repeat(64)}),/digest_mismatch/);assert.equal(f.calls.length,0);});
 test('bounded Drive deadlines fail closed without retrying effects',async()=>{let calls=0;await assert.rejects(uploadEvidence(bundle(),{config,getAccessToken:async()=>'fixture-token',timeoutMs:15,fetcher:async()=>{calls++;return new Promise(()=>{});}},context),/unconfirmed/);assert.equal(calls,1);});
 
+test('one multipart create gets a bounded minute while reads keep shorter deadlines',async t=>{
+ const deadlines=[],original=globalThis.setTimeout;
+ t.mock.method(globalThis,'setTimeout',(callback,delay,...args)=>{deadlines.push(delay);return original(callback,delay,...args);});
+ const f=fixture();await uploadEvidence(bundle(),f.options,context);
+ assert.equal(f.posts,1);assert.equal(deadlines.filter(n=>n===60_000).length,1);
+ assert.equal(deadlines.filter(n=>n===15_000).length,deadlines.length-1);
+ deadlines.length=0;const explicit=fixture();await uploadEvidence(bundle(),{...explicit.options,timeoutMs:500},context);
+ assert.equal(explicit.posts,1);assert(deadlines.length>1&&deadlines.every(n=>n===500));
+});
+
+test('an uncertain single multipart create is never retried with the longer default',async t=>{
+ const deadlines=[],original=globalThis.setTimeout;
+ t.mock.method(globalThis,'setTimeout',(callback,delay,...args)=>{deadlines.push(delay);return original(callback,delay,...args);});
+ const f=fixture({ambiguous:true});await assert.rejects(uploadEvidence(bundle(),f.options,context),/evidence_upload_outcome_unknown/);
+ assert.equal(f.posts,1);assert.equal(deadlines.filter(n=>n===60_000).length,1);
+ const readback=await createDriveEvidenceProvider({bundle:bundle(),...f.options}).readback(context);
+ assert.equal(readback.status,'applied');assert.equal(f.posts,1);
+});
+
 test('chunking preserves all bytes deterministically at size/file-count boundaries',()=>{
  const files=[{path:'b.json',bytes:Buffer.alloc(1250001,2)},{path:'a.json',bytes:Buffer.alloc(1250000,1)},{path:'c.json',bytes:Buffer.from('tail')}];
  const chunks=chunkEvidence(files);assert.equal(chunks.length,2);assert.deepEqual(chunks.map(c=>c.sha256),chunkEvidence([...files].reverse()).map(c=>c.sha256));assert.deepEqual(chunks.flatMap(c=>c.manifest.map(f=>f.path)),['a.json','b.json','c.json']);
