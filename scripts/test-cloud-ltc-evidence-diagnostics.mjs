@@ -23,11 +23,11 @@ async function retryFixture({first=502,second=200,hidden=false,mismatch,stop}={}
  const config={folderId:'retry_folder_123',fileId:'retry_file_123',ownerPermissionId:'retry_owner_123'};
  const bundle=packageEvidence([{path:'test.json',bytes:Buffer.from('identical private fixture')}]);
  const payload={kind:'drive-evidence',fileId:config.fileId,folderId:config.folderId,sha256:bundle.sha256,bytes:bundle.length};
- let now=1000,posts=0,stored=false,reads=0;const bodies=[],waits=[],diagnostics=[];
+ let now=1000,posts=0,stored=false,reads=0,tokens=0;const bodies=[],waits=[],diagnostics=[];
  const adapter=new MemoryStateAdapter(),state=new DurableCloudState(adapter,'website',{clock:()=>now});await state.setPaused(false);
  const lease=await state.acquire('same-id-run',60000),coordinator=new ReleaseOperationCoordinator({state,lease});
  const operationId='same-id-upload';
- const options={bundle,config,timeoutMs:25,getAccessToken:async()=>'fixture-token',onDiagnostic:d=>diagnostics.push(d),readbackWait:async ms=>{
+ const options={bundle,config,timeoutMs:25,getAccessToken:async()=>{tokens++;if(stop==='token-expiry'&&tokens===4)now=999999;return 'fixture-token';},onDiagnostic:d=>diagnostics.push(d),readbackWait:async ms=>{
   waits.push(ms);if(!stop)return;
   if(stop==='pause')await state.setPaused(true);
   else if(stop==='expiry')now=999999;
@@ -75,3 +75,5 @@ test('retry budget exhausted preserves UNKNOWN; non-transient HTTP status never 
 test('pause, hold, expired lease, changed fence and changed intent prohibit the repeated POST',async()=>{
  for(const stop of ['pause','hold','expiry','fence','payload']){const f=await retryFixture({stop});await assert.rejects(f.coordinator.execute(f.operation),/operation_outcome_uncertain/);assert.equal(f.posts(),1);assert.equal((await f.state.inspect()).intents[f.operation.operationId].status,'uncertain');}
 });
+
+test('lease expiry during initial upload token resolution prevents the first POST',async()=>{const f=await retryFixture({stop:'token-expiry'});await assert.rejects(f.coordinator.execute(f.operation),/operation_outcome_uncertain/);assert.equal(f.posts(),0);assert.equal((await f.state.inspect()).intents[f.operation.operationId].status,'uncertain');});
