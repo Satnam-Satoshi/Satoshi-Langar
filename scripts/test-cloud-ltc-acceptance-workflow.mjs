@@ -32,7 +32,7 @@ test('recovery skips rebuild, pins original plan/fence and retains safe admitted
 });
 
 test('owner incident quarantine requires a private protected review packet and preserves the original outcome',()=>{
- assert.match(workflow,/options: \[none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint\]/);
+ assert.match(workflow,/options: \[none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint, retire-routine-uploads\]/);
  assert.match(stage,/inputs\.acceptance_mode == 'quarantine'/);
  assert.match(stage,/github\.event\.sender\.id == 268053325/);
  assert.match(step('Validate explicit acceptance scope before credentials'),/\['recover','quarantine'\]\.includes/);
