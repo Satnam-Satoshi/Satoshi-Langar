@@ -67,3 +67,17 @@ test('unsafe plans and non-JSON payloads are rejected before provider effects',a
   for(const payload of [{x:undefined},{x:NaN},new Date(),{x:BigInt(2)}])await assert.rejects(f.coordinator.execute({operationId:'unsafe',payload,provider:p}),/invalid_operation_payload/);
   assert.equal(p.calls,0);
 });
+
+
+test('Drive same-ID retry capability is live only inside original apply and is never available during reconciliation',async()=>{
+ const f=await setup();let capability;
+ const payload={kind:'drive-evidence',fileId:'same_file_123'},p={
+  apply:async context=>{capability=context.assertSameIdRetry;assert.equal(typeof capability,'function');const before=await f.state.adapter.read('website');assert.equal(await capability(),true);const after=await f.state.adapter.read('website');assert.deepEqual(after,before,'Retry guard is read-only and preserves durable uncertainty');throw Error('uncertain');},
+  readback:async context=>{assert.equal(context.assertSameIdRetry,undefined);return {...context,status:'unknown'};}
+ };
+ await assert.rejects(f.coordinator.execute({operationId:'same-id',payload,provider:p}),/operation_outcome_uncertain/);
+ await assert.rejects(capability(),/operation_reconciliation_required/);
+ await assert.rejects(f.coordinator.reconcile({operationId:'same-id',payload,provider:p}),/operation_outcome_uncertain/);
+ const other=await setup();let called=false;
+ await assert.rejects(other.coordinator.execute({operationId:'not-drive',payload:{kind:'promote'},provider:{...p,apply:async context=>{called=true;assert.equal(context.assertSameIdRetry,undefined);throw Error('no retry');}}}),/operation_outcome_uncertain/);assert(called);
+});
