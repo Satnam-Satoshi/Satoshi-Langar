@@ -47,6 +47,8 @@ export function verifyEvidenceBundle(bundle){
  check(rebuilt.bytes.equals(bundle.bytes),'noncanonical_evidence_bundle');return rebuilt;
 }
 const DIAGNOSTIC=Symbol('private-evidence-failure');
+const REQUEST_FAILURE=Symbol('classified-evidence-request-failure');
+function requestFailure(diagnostic){const error=Error('drive_request_unconfirmed');Object.defineProperty(error,REQUEST_FAILURE,{value:safeEvidenceDiagnostic(diagnostic)});return error;}
 const diagnosticPhases=new Set(['folder-metadata','folder-permissions','upload-preflight','upload-post','readback-metadata','readback-permissions','readback-media','readback-integrity','id-allocation']);
 const diagnosticReasons=new Set(['authorization','transport','timeout','http-status','redirect','body','integrity','not-found']);
 export function safeEvidenceDiagnostic(value){return {provider:'drive-evidence',phase:diagnosticPhases.has(value?.phase)?value.phase:'unknown',reason:diagnosticReasons.has(value?.reason)?value.reason:'unknown',httpStatus:Number.isInteger(value?.httpStatus)&&value.httpStatus>=100&&value.httpStatus<=599?value.httpStatus:null,timedOut:value?.timedOut===true,postAttempted:value?.postAttempted===true};}
@@ -61,16 +63,22 @@ async function bounded(response,limit){
 function client(options){
  const {getAccessToken,fetcher=fetch,timeoutMs=15000}=options;
  check(typeof getAccessToken==='function','missing_token_provider');
- return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown'}={})=>{
+ return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown',beforeFetch}={})=>{
   check(/^\/(?:drive\/v3\/files\/[A-Za-z0-9_-]+(?:\/permissions)?|upload\/drive\/v3\/files)(?:\?[^#]*)?$/.test(pathname),'drive_path_not_allowed');
-  let token;try{token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');}catch{await reportDiagnostic(options,{phase,reason:'authorization',httpStatus:null,timedOut:false});throw Error('drive_request_unconfirmed');}
-  const controller=new AbortController();let timer,status=null,timedOut=false,reason='transport';
+  // One request deadline covers token acquisition, live authorization, fetch
+  // and bounded body consumption. Timed-out continuations cannot later POST.
+  const controller=new AbortController();let timer,status=null,timedOut=false,reason='authorization',postStarted=false;
   try{
    const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;controller.abort();reject(Error('drive_timeout'));},timeoutMs);});
-   return await Promise.race([(async()=>{if(method==='POST'&&options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;
+   return await Promise.race([(async()=>{
+    const token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');
+    if(controller.signal.aborted)throw Error('drive_timeout');
+    if(beforeFetch)await beforeFetch();
+    if(controller.signal.aborted)throw Error('drive_timeout');
+    reason='transport';if(method==='POST'){postStarted=true;if(options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;}
     const response=await fetcher('https://www.googleapis.com'+pathname,{method,body,redirect:'error',cache:'no-store',signal:controller.signal,headers:{authorization:`Bearer ${token}`,accept:'application/json',...(contentType?{'content-type':contentType}:{})}});
     status=response.status;if(response.redirected){reason='redirect';throw Error('drive_redirect_rejected');}if(allowMissing&&status===404)return null;if(!response.ok){reason='http-status';throw Error('drive_request_failed');}reason='body';return bounded(response,limit);})(),deadline]);
-  }catch{await reportDiagnostic(options,{phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut});throw Error('drive_request_unconfirmed');}finally{clearTimeout(timer);controller.abort();}
+  }catch{await reportDiagnostic(options,{phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut});throw requestFailure({phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut,postAttempted:postStarted});}finally{clearTimeout(timer);controller.abort();}
  };
 }
 const fields='id,name,mimeType,parents,trashed,ownedByMe,size,appProperties';
@@ -97,34 +105,49 @@ export async function downloadEvidence(receipt,options){
  return {bundle,proof:{fileId:config.fileId,folderId:config.folderId,sha256:bundle.sha256,length:bundle.length,ownerPermissionId:config.ownerPermissionId,ownerOnly:true,downloadVerified:true}};
  }catch(error){await reportDiagnostic(options,{phase:'readback-integrity',reason:'integrity',httpStatus:null,timedOut:false});throw error;}
 }
-/** Exactly one create attempt. An uncertain response MUST be reconciled by known fileId. */
+/** Bounded, guarded retries reuse one pre-generated ID and captured immutable body. */
 export async function uploadEvidence(bundle,options,context){
  options=trackedOptions(options);try{
- const valid=verifyEvidenceBundle(bundle),{config}=options;configCheck(config);operationCheck(context);
+ const valid=verifyEvidenceBundle(bundle),{config}=options;configCheck(config);operationCheck(context);const assertApplyActive=context.assertApplyActive;
  const receipt={fileId:config.fileId,folderId:config.folderId,sha256:valid.sha256,length:valid.length,operationId:context.operationId,payloadSha256:context.payloadSha256};
  const call=client(options);await verifyFolder(call,config);
  const prior=await metadata(call,config.fileId,'upload-preflight');
  if(prior){const restored=await downloadEvidence(receipt,options);check(restored,'evidence_readback_missing');return {receipt,...restored};}
  const boundary=`ltc_evidence_${valid.sha256}`;
  const meta={id:config.fileId,name:`ltc-evidence-${valid.sha256}.json`,mimeType:'application/json',parents:[config.folderId],appProperties:{sha256:valid.sha256,operationId:context.operationId,payloadSha256:context.payloadSha256}};
- const body=Buffer.concat([Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`),valid.bytes,Buffer.from(`\r\n--${boundary}--\r\n`)]);
- // Multipart bundles can be several MiB. Give the single create request a
- // bounded minute; metadata/readback keep their shorter existing deadline.
- // An explicit caller deadline still applies; the create request is never repeated.
+ const body=Buffer.concat([Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`),valid.bytes,Buffer.from(`\r\n--${boundary}--\r\n`)]).toString('utf8');
+ const bodySha256=hash(body),contextBinding=JSON.stringify(context),configBinding=JSON.stringify({fileId:config.fileId,folderId:config.folderId,ownerPermissionId:config.ownerPermissionId});
+ const assertBinding=()=>{check(hash(body)===bodySha256&&JSON.stringify(context)===contextBinding&&JSON.stringify({fileId:config.fileId,folderId:config.folderId,ownerPermissionId:config.ownerPermissionId})===configBinding,'evidence_retry_binding_changed');};
+ const wait=options.readbackWait??(ms=>new Promise(resolve=>setTimeout(resolve,ms)));
  const upload=client({...options,timeoutMs:options.timeoutMs??60_000});
- try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post'});}catch{
-  // A lost create acknowledgement permits exact known-ID reads only. Neither
-  // absence nor unavailable proof authorizes a second create or not-applied.
-  if(options[DIAGNOSTIC].postAttempted){
-   for(let attempt=0;attempt<3;attempt++){
-    try{const restored=await downloadEvidence(receipt,options);if(restored)return {receipt,...restored};}
-    catch(error){if(error?.message!=='drive_request_unconfirmed')break;}
-    if(attempt<2){try{await(options.readbackWait??(ms=>new Promise(resolve=>setTimeout(resolve,ms))))(1000);}catch{break;}}
-   }
+ const readKnown=async()=>{
+  for(let read=0;read<3;read++){
+   try{const restored=await downloadEvidence(receipt,options);if(restored)return restored;}
+   catch(error){const f=error?.[REQUEST_FAILURE];if(!f||f.reason==='authorization'||f.reason==='redirect'||f.reason==='http-status'&&[401,403].includes(f.httpStatus))throw Error('evidence_upload_outcome_unknown');}
+   if(read<2){try{await wait(1000);}catch{throw Error('evidence_upload_outcome_unknown');}}
   }
-  throw Error('evidence_upload_outcome_unknown');
+  return null;
+ };
+ for(let attempt=0;attempt<3;attempt++){
+  assertBinding();
+  try{
+   await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post',beforeFetch:async()=>{assertApplyActive?.();if(options.beforeCreateAttempt)await options.beforeCreateAttempt({...structuredClone(context),attempt:attempt+1});assertBinding();assertApplyActive?.();}});
+  }catch(error){
+   const failure=error?.[REQUEST_FAILURE];
+   // Readback is mandatory before considering another HTTP create with this ID.
+   if(failure?.reason==='authorization'||failure?.reason==='redirect'||failure?.reason==='http-status'&&[401,403].includes(failure.httpStatus))throw Error('evidence_upload_outcome_unknown');
+   if(failure?.postAttempted){const restored=await readKnown();if(restored)return {receipt,...restored};}
+   const retryable=failure?.postAttempted&&((failure.httpStatus===null&&(failure.reason==='transport'||failure.reason==='timeout'))||failure.reason==='http-status'&&[500,502,503,504].includes(failure.httpStatus));
+   // Legacy/finite callers without an exact live-intent guard keep one create.
+   if(!retryable||attempt===2||typeof options.beforeCreateAttempt!=='function')throw Error('evidence_upload_outcome_unknown');
+   try{await wait(1000*2**attempt);}catch{throw Error('evidence_upload_outcome_unknown');}
+   assertBinding();
+   try{const restored=await downloadEvidence(receipt,options);if(restored)return {receipt,...restored};}catch{throw Error('evidence_upload_outcome_unknown');}
+   continue;
+  }
+  const restored=await readKnown();check(restored,'evidence_readback_missing');return {receipt,...restored};
  }
- const restored=await downloadEvidence(receipt,options);check(restored,'evidence_readback_missing');return {receipt,...restored};
+ throw Error('evidence_upload_outcome_unknown');
  }catch(error){await reportDiagnostic(options,{phase:'upload-preflight',reason:'integrity',httpStatus:null,timedOut:false});throw error;}
 }
 export async function restoreEvidence(bundle,{directory}){
