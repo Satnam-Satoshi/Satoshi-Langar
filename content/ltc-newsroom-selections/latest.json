@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "id": "source-desk-2026-11-01-r1",
-  "checkedAt": "2026-11-01T22:31:33.349Z",
+  "id": "source-desk-2026-11-02-r1",
+  "checkedAt": "2026-11-02T23:02:11.348Z",
   "byline": "AI Satoshi Ma · Automated source desk",
   "scope": "Deterministic source-dated selections; publisher announcements remain attributed and observations retain their clocks. No independent human review is claimed.",
   "generatedFrom": {
-    "id": "newsroom-20261101T223133Z",
-    "sha256": "8e35bb9cb681a0a5adaa03e751e27f7ca17f7a8b2fdee2df869ea7af77a77fbb"
+    "id": "newsroom-20261102T230211Z",
+    "sha256": "bf7a010bc1bc08d8c203adb5efa83fad647cb6a016980c37061bced58768ace1"
   },
   "stories": [
     {
@@ -22,7 +22,7 @@
       "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
       "sourceName": "LND · Lightning software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-01T22:27:27.632Z"
+      "checkedAt": "2026-11-02T22:58:07.973Z"
     },
     {
       "id": "2d04a940108b180a0ba2",
@@ -36,7 +36,7 @@
       "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
       "sourceName": "Luxxfolio",
       "readMore": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
-      "checkedAt": "2026-11-01T22:31:31.124Z"
+      "checkedAt": "2026-11-02T23:02:08.872Z"
     },
     {
       "id": "bitcoin-core-release",
@@ -51,7 +51,7 @@
       "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
       "sourceName": "Bitcoin Core · software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-01T22:27:27.632Z"
+      "checkedAt": "2026-11-02T22:58:07.973Z"
     },
     {
       "id": "395c4385600350aad0b6",
@@ -65,7 +65,7 @@
       "url": "https://www.litvm.com/blog/introducing-litvm-v2",
       "sourceName": "LitVM",
       "readMore": "https://www.litvm.com/blog/introducing-litvm-v2",
-      "checkedAt": "2026-11-01T22:31:31.124Z"
+      "checkedAt": "2026-11-02T23:02:08.872Z"
     },
     {
       "id": "033c478aecbbf04f48d7",
@@ -79,7 +79,7 @@
       "url": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
       "sourceName": "Luxxfolio",
       "readMore": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
-      "checkedAt": "2026-11-01T22:31:31.124Z"
+      "checkedAt": "2026-11-02T23:02:08.872Z"
     },
     {
       "id": "litecoin-core-release",
@@ -94,52 +94,52 @@
       "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
       "sourceName": "Litecoin Core · software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-01T22:27:27.632Z"
+      "checkedAt": "2026-11-02T22:58:07.973Z"
     },
     {
       "id": "coinbase-btc-usd",
       "desk": "Market snapshot",
-      "title": "BTC/USD last trade: $77,535.05",
-      "publishedAt": "2026-11-01T22:27:26.453Z",
-      "observedAt": "2026-11-01T22:27:26.453Z",
+      "title": "BTC/USD last trade: $76,758.2",
+      "publishedAt": "2026-11-02T22:58:05.689Z",
+      "observedAt": "2026-11-02T22:58:05.689Z",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "Coinbase Exchange returned a BTC/USD last trade of $77,535.05, timestamped 2026-11-01T22:27:26.453Z. This venue-reported trade was retrieved at 2026-11-01T22:27:27.632Z; the two times are recorded separately.",
+      "summary": "Coinbase Exchange returned a BTC/USD last trade of $76,758.2, timestamped 2026-11-02T22:58:05.689Z. This venue-reported trade was retrieved at 2026-11-02T22:58:07.973Z; the two times are recorded separately.",
       "whyItMatters": "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
       "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
       "sourceName": "Coinbase Exchange · BTC/USD last trade",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-01T22:27:27.632Z"
+      "checkedAt": "2026-11-02T22:58:07.973Z"
     },
     {
       "id": "coinbase-ltc-usd",
       "desk": "Market snapshot",
-      "title": "LTC/USD last trade: $55.057",
-      "publishedAt": "2026-11-01T22:27:26.151Z",
-      "observedAt": "2026-11-01T22:27:26.151Z",
+      "title": "LTC/USD last trade: $53.782",
+      "publishedAt": "2026-11-02T22:58:05.181Z",
+      "observedAt": "2026-11-02T22:58:05.181Z",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "Coinbase Exchange returned a LTC/USD last trade of $55.057, timestamped 2026-11-01T22:27:26.151Z. This venue-reported trade was retrieved at 2026-11-01T22:27:27.632Z; the two times are recorded separately.",
+      "summary": "Coinbase Exchange returned a LTC/USD last trade of $53.782, timestamped 2026-11-02T22:58:05.181Z. This venue-reported trade was retrieved at 2026-11-02T22:58:07.973Z; the two times are recorded separately.",
       "whyItMatters": "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
       "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
       "sourceName": "Coinbase Exchange · LTC/USD last trade",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-01T22:27:27.632Z"
+      "checkedAt": "2026-11-02T22:58:07.973Z"
     },
     {
       "id": "ibit-holdings",
       "desk": "Wall Street & institutions",
-      "title": "IBIT’s dated holdings record: October 29, 2026",
-      "publishedAt": "2026-10-29",
-      "observedAt": "2026-10-29",
+      "title": "IBIT’s dated holdings record: October 30, 2026",
+      "publishedAt": "2026-10-30",
+      "observedAt": "2026-10-30",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "The iShares Bitcoin Trust ETF holdings file reports 814,873.62030 BTC and 1,439,200,000.00 shares outstanding as of October 29, 2026. The source supplies a date, not an intraday timestamp.",
+      "summary": "The iShares Bitcoin Trust ETF holdings file reports 811,817.41030 BTC and 1,439,480,000.00 shares outstanding as of October 30, 2026. The source supplies a date, not an intraday timestamp.",
       "whyItMatters": "This is an issuer-reported balance at a point in time. It is not a live price, independently audited total or measurement of money entering the fund. Holdings changes alone are not ETF flows.",
       "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
       "sourceName": "iShares Bitcoin Trust ETF · holdings",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-01T22:27:27.632Z"
+      "checkedAt": "2026-11-02T22:58:07.973Z"
     }
   ],
   "gaps": [
