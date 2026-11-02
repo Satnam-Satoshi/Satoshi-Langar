@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-10-16",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-10-16T14:30:10Z",
+  "checkedAt": "2026-10-16",
+  "title": "Read the rules. Follow the blocks.",
+  "theme": "Proof of Work",
+  "dek": "A new SEC staff-interpretations index, a date-correct distribution checkpoint, and a practical guide to Litecoin issuance.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma \u00b7 LTC Media editorial desk under founder governance; no independent human fact-check claimed.",
+  "freshnessPolicy": "Prices and network data retain source-effective times; later checks do not re-date old announcements.",
+  "independence": "Independent Satnam Satoshi publication. No source endorsement or partnership is implied.",
+  "stories": [
+    {
+      "id": "sec-staff-20261015",
+      "title": "SEC staff posts a new interpretations index",
+      "desk": "Policy / Disclosure",
+      "classification": "Staff interpretations index \u00b7 Not a Litecoin approval",
+      "dek": "The SEC\u2019s October 15 update lists new or revised staff questions on filing-fee computation, compensatory offerings, Form S-8 and Form 4.",
+      "status": "Checked October16 \u00b7 Source published October15",
+      "eventDates": [
+        {
+          "date": "2026-10-15",
+          "label": "Source publication"
+        }
+      ],
+      "paragraphs": [
+        "The SEC\u2019s October 15 index lists new or revised staff questions on filing fees, compensatory offerings, Form S-8 and Form 4. This is a staff-interpretations update, not a new Litecoin rule or product approval.",
+        "The index links the underlying questions. Readers should consult those texts for their specific subject; this brief does not infer a legal outcome for a company, fund or token."
+      ],
+      "takeaway": "An updated staff interpretation and a Commission rulemaking are different records.",
+      "discussionPrompt": "Which disclosure term should our next source guide explain?",
+      "sourceIds": [
+        "sec-staff-20261015"
+      ]
+    },
+    {
+      "id": "distribution-20261016",
+      "title": "A new checkpoint, with the dates left visible",
+      "desk": "Litecoin / Distribution",
+      "classification": "Secondary compiled dataset \u00b7 Not fund flows",
+      "dek": "Today\u2019s distribution derivative uses September 16 as its 30-day baseline. Each row retains its actual observation date and any unknown baseline.",
+      "status": "Prepared October16 \u00b7 Underlying row dates vary",
+      "eventDates": [
+        {
+          "date": "2026-10-16",
+          "label": "Derivative preparation"
+        },
+        {
+          "date": "2026-09-16",
+          "label": "30-day cutoff"
+        }
+      ],
+      "paragraphs": [
+        "The current derivative is prepared from Litecoin Register\u2019s compiled records. It preserves zero balances, unknown earlier observations and the date of each eligible record.",
+        "Rows can overlap across entities or categories. The sum is a tracked-record total, not a count of unique coins, independently verified custody, or money newly invested during the period."
+      ],
+      "takeaway": "Read source dates before interpreting a change as a purchase.",
+      "discussionPrompt": "Which primary issuer record would improve this map?",
+      "sourceIds": [
+        "distribution"
+      ]
+    },
+    {
+      "id": "timechain-guide-20261016",
+      "title": "The halving clock is a model, not a promise",
+      "desk": "Learn / Litecoin timechain",
+      "classification": "Educational guide \u00b7 Current provider observations",
+      "dek": "The timechain guide separates observed blocks, estimated halving time and scheduled issuance, with a source-linked merged-mining explanation.",
+      "status": "Current guide checked October16 \u00b7 Educational context",
+      "eventDates": [],
+      "paragraphs": [
+        "The guide now refreshes provider-reported block observations and calculates a target-time halving estimate. A countdown does not predict the exact date a future block will arrive.",
+        "Scheduled issuance includes the mathematical subsidy from genesis; it is not an audit of spendable or circulating supply. The separate playground lets readers inspect the subsidy at exact halving boundaries.",
+        "Its merged-mining section distinguishes reusable work, independent ledgers and pool-specific payouts. Auxiliary rewards may help cover costs, but do not guarantee mining profitability."
+      ],
+      "takeaway": "Separate a protocol schedule from a market prediction.",
+      "discussionPrompt": "Which part of merged mining needs a diagram next?",
+      "sourceIds": [
+        "timechain"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "sec-staff-20261015",
+      "title": "Corporation Finance Interpretations Update: October 15, 2026",
+      "publisher": "US Securities and Exchange Commission",
+      "url": "https://www.sec.gov/about/cfi-10152026",
+      "publishedAt": "2026-10-15",
+      "checkedAt": "2026-10-16",
+      "note": "Original official index read; the brief reports its scope only, without interpreting individual legal questions."
+    },
+    {
+      "id": "distribution",
+      "title": "October16 distribution derivative and methodology",
+      "publisher": "Litecoin Register / LTC Magazine derivative",
+      "url": "https://ltcmagazine.org/data/litecoin-distribution-20261016.json",
+      "publishedAt": "2026-10-16",
+      "checkedAt": "2026-10-16",
+      "note": "CC BY4.0 compiled dataset derivative; issuer dates preserved; not an independent custody audit."
+    },
+    {
+      "id": "timechain",
+      "title": "Litecoin Timechain: blocks, scarcity and shared work",
+      "publisher": "LTC Magazine",
+      "url": "https://satnamsatoshi.com/conversations/timechain/index.html",
+      "publishedAt": "2026-10-15",
+      "checkedAt": "2026-10-16",
+      "note": "Exact page bytes verified against accepted release8e074b8; educational explanation, not a new network event."
+    }
+  ]
+}

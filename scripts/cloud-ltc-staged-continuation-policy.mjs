@@ -1,0 +1,51 @@
+import { receiptHash as hash } from './cloud-ltc-acceptance-proof.mjs';
+const check=(value,code)=>{if(!value)throw Error(code);};
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const digest=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);
+const commit=value=>typeof value==='string'&&/^[a-f0-9]{40}$/.test(value);
+const id=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{8,160}$/.test(value);
+const run=value=>typeof value==='string'&&/^[1-9]\d{0,29}$/.test(value);
+const plain=value=>value!==null&&typeof value==='object'&&Object.getPrototypeOf(value)===Object.prototype;
+const target={repository:'Satnam-Satoshi/Satoshi-Langar',project:'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx',team:'team_yc5ZBvCbWT2M7iGyj3vQDOzk',domains:['https://satnamsatoshi.com','https://ltcmagazine.org']};
+const hashes=['snapshotSha256','artifactManifestSha256','buildOutputSha256','artifactPackageManifestSha256','sourceManifestSha256','previousPublicManifestSha256','originalUnknownRawSha256','sourcePolicySha256'];
+// Founder-owned finite exception: inspect a fully confirmed held daily stage.
+// Pure validation grants no effect, routine activation, lease transfer or replay.
+export function validateStagedContinuationReview({env,review,now=Date.now()}){
+ check(env.GITHUB_ACTIONS==='true'&&env.GITHUB_EVENT_NAME==='workflow_dispatch'&&env.GITHUB_REF==='refs/heads/main'&&env.GITHUB_REPOSITORY===target.repository&&env.GITHUB_ACTOR_ID==='268053325'&&env.LTC_ACCEPTANCE_MANUAL==='true'&&env.LTC_ACCEPTANCE_ENVIRONMENT==='ltc-production'&&env.LTC_CLOUD_PUBLISH==='false'&&run(env.GITHUB_RUN_ID)&&run(env.GITHUB_RUN_ATTEMPT),'staged_continuation_owner_required');
+ check(plain(review)&&Buffer.byteLength(JSON.stringify(review))<=65536&&review.schemaVersion===1&&review.kind==='founder-approved-staged-daily-continuation'&&review.approved===true&&review.actorId==='268053325'&&commit(review.controllerSource)&&digest(review.controllerImplementationSha256)&&review.controllerImplementationSha256===env.LTC_ACCEPTED_IMPLEMENTATION_SHA256&&commit(review.artifactSource)&&digest(review.artifactImplementationSha256)&&hashes.every(key=>digest(review[key])),'staged_continuation_review_required');
+ const approved=Date.parse(review.approvedAt),expires=Date.parse(review.expiresAt);
+ check(Number.isFinite(approved)&&Number.isFinite(expires)&&approved<=now&&now<expires&&expires>approved&&expires-approved<=86400000,'staged_continuation_review_expired');
+ check(digest(env.LTC_STAGED_CONTINUATION_REVIEW_SHA256)&&hash(review)===env.LTC_STAGED_CONTINUATION_REVIEW_SHA256,'staged_continuation_review_pin_required');
+ check(plain(review.scope)&&Object.entries(target).every(([key,value])=>same(review.scope[key],value))&&/^agent\/[a-z0-9][a-z0-9/-]{0,150}$/.test(review.scope.branch??'')&&!review.scope.branch.includes('..')&&plain(review.bindings)&&['folderId','websiteDocumentId','ownerPermissionId'].every(key=>id(review.bindings[key]))&&review.bindings.folderId!==review.bindings.websiteDocumentId,'staged_continuation_scope_required');
+ const origin=review.origin;
+ check(plain(origin)&&run(origin.runId)&&run(origin.attempt)&&origin.runId!==env.GITHUB_RUN_ID&&commit(origin.workflowHead)&&commit(origin.sourceBefore)&&Number.isSafeInteger(origin.fence)&&origin.fence>0&&env.LTC_ACCEPTANCE_SOURCE_COMMIT===review.artifactSource&&env.LTC_ACCEPTANCE_FENCE===String(origin.fence),'staged_continuation_origin_required');
+ check(/^dpl_[A-Za-z0-9]+$/.test(review.candidateDeployment??'')&&/^dpl_[A-Za-z0-9]+$/.test(review.previousDeployment??'')&&review.candidateDeployment!==review.previousDeployment&&/^[a-z0-9][a-z0-9_-]{0,79}$/.test(review.stageOperationId??'')&&/^\d{4}-\d{2}-\d{2}-r[1-9]\d*$/.test(review.editionId??'')&&plain(review.publicationProvenance)&&['editionSha256','sourceDeskSha256','dailyGraphicSha256'].every(key=>digest(review.publicationProvenance[key]))&&review.allProjectProductionAliasesApproved===true&&review.firstPromotionOnly===true&&review.rollbackOnConfirmedPromotionVerificationFailure===true&&review.authorizeRoutineActivation===false&&review.allowNewFencedClaim===true&&review.pauseAfter===true,'staged_continuation_finite_authority_required');
+ return Object.freeze({reviewSha256:hash(review),artifactSource:review.artifactSource,controllerSource:review.controllerSource,productionAuthorized:false,routineActivationAuthorized:false});
+}
+export function validateStagedContinuationSnapshot({document,review}){
+ check(plain(document)&&document.schemaVersion===1&&typeof document.paused==='boolean'&&document.restoreHold===false&&plain(document.intents)&&plain(document.receipts)&&Buffer.byteLength(JSON.stringify(document))<=900000&&hash(document)===review.snapshotSha256,'staged_continuation_snapshot_changed');
+ const fence=review.origin.fence,runId=`gha-${review.origin.runId}-${review.origin.attempt}`;
+ check(document.latestRelease===undefined&&!document.stagedDailyContinuation&&document.fence===fence&&document.lease?.fence===fence&&document.lease.runId===runId&&Number.isFinite(document.lease.expiresAt),'staged_continuation_lease_changed');
+ const marker=document.unresolvedSetupIncident;
+ check(plain(marker)&&hash(marker)===review.originalUnknownRawSha256&&marker.outcome==='UNKNOWN'&&marker.accepted===false&&marker.productionAuthorized===false&&digest(marker.incidentSha256)&&hash(document.retiredSetupIncidents?.[marker.incidentSha256])===marker.incidentSha256,'staged_continuation_unknown_changed');
+ for(const [operationId,intent] of Object.entries(document.intents)){
+  check(plain(intent)&&intent.operationId===operationId&&Number.isSafeInteger(intent.fence)&&intent.fence>0&&intent.fence<=fence&&intent.status==='confirmed'&&plain(intent.payload)&&hash(intent.payload)===intent.payloadSha256&&plain(intent.proof)&&hash(intent.proof)===intent.evidenceSha256,'staged_continuation_unconfirmed_intent');
+  const receipt=document.receipts[operationId],proof=intent.proof;
+  check(plain(receipt)&&same(receipt.receipt,intent)&&receipt.sha256===hash(intent)&&proof.operationId===operationId&&proof.payloadSha256===intent.payloadSha256&&proof.status==='applied'&&plain(proof.proof),'staged_continuation_receipt_changed');
+ }
+ check(Object.keys(document.receipts).every(key=>Object.hasOwn(document.intents,key)),'staged_continuation_receipt_changed');
+ const current=Object.values(document.intents).filter(intent=>intent.fence===fence);
+ check(current.length===47&&current.every(intent=>intent.runId===runId)&&!current.some(intent=>['vercel-promote','vercel-rollback'].includes(intent.payload.kind)||intent.payload.role==='release-summary'),'staged_continuation_intent_set_changed');
+ const stages=current.filter(intent=>intent.payload.kind==='vercel-stage'),stage=stages[0];
+ check(stages.length===1&&stage.operationId===review.stageOperationId&&same(stage.payload,{kind:'vercel-stage',editionId:review.editionId,artifactPackageManifestSha256:review.artifactPackageManifestSha256,commit:review.artifactSource,buildOutputSha256:review.buildOutputSha256,artifactManifestSha256:review.artifactManifestSha256}),'staged_continuation_stage_changed');
+ const leaf=stage.proof.proof;
+ check(leaf.kind==='vercel-stage'&&leaf.deployment===review.candidateDeployment&&typeof leaf.url==='string'&&/^[a-z0-9-]+\.vercel\.app$/.test(leaf.url)&&leaf.source===review.artifactSource&&leaf.buildOutputSha256===review.buildOutputSha256&&leaf.artifactManifestSha256===review.artifactManifestSha256,'staged_continuation_stage_proof_changed');
+ const evidence=current.filter(intent=>intent.payload.kind==='drive-evidence').sort((a,b)=>a.payload.artifactBundleIndex-b.payload.artifactBundleIndex);
+ check(evidence.length===40&&new Set(evidence.map(intent=>intent.payload.fileId)).size===40&&evidence.every((intent,index)=>{const p=intent.payload;return p.role==='release-artifacts'&&p.artifactPackageManifestSha256===review.artifactPackageManifestSha256&&p.artifactBundleCount===40&&p.artifactBundleIndex===index&&p.folderId===review.bindings.folderId&&id(p.fileId)&&digest(p.sha256)&&Number.isInteger(p.bytes)&&p.bytes>0&&p.bytes<=3500000;}),'staged_continuation_evidence_changed');
+ for(const intent of evidence){const p=intent.payload,l=intent.proof.proof;check(l.fileId===p.fileId&&l.folderId===p.folderId&&l.sha256===p.sha256&&l.length===p.bytes&&l.ownerPermissionId===review.bindings.ownerPermissionId&&l.ownerOnly===true&&l.downloadVerified===true,'staged_continuation_evidence_proof_changed');}
+ const git=current.filter(intent=>intent.payload.kind.startsWith('git-')),refs=git.filter(intent=>intent.payload.kind==='git-ref'),gitRef=refs[0];
+ check(git.length===6&&git.every(intent=>['git-blob','git-tree','git-commit','git-ref'].includes(intent.payload.kind))&&refs.length===1&&gitRef.payload.branch===review.scope.branch&&gitRef.payload.previous===review.origin.sourceBefore&&gitRef.payload.commit===review.artifactSource&&same(gitRef.proof.proof,{kind:'git-ref',branch:review.scope.branch,commit:review.artifactSource,previous:review.origin.sourceBefore,tree:gitRef.proof.proof.tree})&&/^[a-f0-9]{40}$/.test(gitRef.proof.proof.tree),'staged_continuation_git_changed');
+ const commits=git.filter(intent=>intent.payload.kind==='git-commit');
+ check(commits.length===1&&commits[0].payload.sha===review.artifactSource&&same(commits[0].payload.parents,[review.origin.sourceBefore])&&commits[0].payload.tree===gitRef.proof.proof.tree&&commits[0].proof.proof.sha===review.artifactSource&&commits[0].proof.proof.tree===gitRef.proof.proof.tree,'staged_continuation_git_changed');
+ return Object.freeze({stage:structuredClone(stage),evidence:structuredClone(evidence),gitRef:structuredClone(gitRef),lease:structuredClone(document.lease),fence,editionId:review.editionId,candidateDeployment:review.candidateDeployment,candidateUrl:leaf.url,previousDeployment:review.previousDeployment,artifactSource:review.artifactSource,artifactImplementationSha256:review.artifactImplementationSha256,sourceManifestSha256:review.sourceManifestSha256,artifactManifestSha256:review.artifactManifestSha256,buildOutputSha256:review.buildOutputSha256,artifactPackageManifestSha256:review.artifactPackageManifestSha256,previousPublicManifestSha256:review.previousPublicManifestSha256,publicationProvenance:structuredClone(review.publicationProvenance),knownConfirmedOperationCount:47,promotionAuthorized:false,routineActivationAuthorized:false});
+}

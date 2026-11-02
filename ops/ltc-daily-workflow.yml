@@ -1,16 +1,54 @@
-# DRAFT ONLY: GitHub does not execute workflows in ops/. Do not call this active.
-# A separate reviewed scheduler-only PR must place this on main, after setup.
+# UPDATE TEMPLATE ONLY. This file in ops/ cannot schedule jobs.
+# Update the existing main ltc-daily-publication.yml after acceptance; do not create a second writer.
 name: LTC bounded daily publication
 on:
   schedule:
-    - cron: '7,27 10 * * *'
+    - cron: '0,20 10 * * *'
       timezone: America/New_York
   workflow_dispatch:
     inputs:
       dry_run:
-        description: Build and validate without remote writes
+        description: Collect/build locally on the runner without provider mutation
         type: boolean
         default: true
+      acceptance_probe:
+        description: Read-only cloud Google-folder and Buffer schema/account probes; no publication
+        type: boolean
+        default: false
+      bootstrap_previous_manifest:
+        description: One-time accepted previous-manifest bootstrap from protected configuration
+        type: boolean
+        default: false
+      acceptance_mode:
+        description: Explicit reviewed acceptance action; promotion proof temporarily changes public aliases
+        type: choice
+        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint, retire-routine-uploads]
+        default: none
+      acceptance_source_commit:
+        description: Exact reviewed acceptance source commit
+        type: string
+        default: ''
+      acceptance_id:
+        description: Reviewed finite stage attempt label
+        type: string
+        default: ''
+      acceptance_previous_deployment:
+        description: Exact current accepted public deployment for stage-only binding
+        type: string
+        default: ''
+      acceptance_crash_after:
+        description: Explicit crash exercise; no automatic recovery or effect replay
+        type: choice
+        options: [none, first-effect, stage-effect]
+        default: none
+      acceptance_plan_sha256:
+        description: Original persisted plan hash; recovery/quarantine only
+        type: string
+        default: ''
+      acceptance_fence:
+        description: Original exact durable acceptance fence; recovery/quarantine only
+        type: string
+        default: ''
 permissions:
   contents: read
 concurrency:
@@ -18,24 +56,28 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && (vars.LTC_CLOUD_PUBLISH == 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run))
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && !inputs.acceptance_probe && (inputs.acceptance_mode == '' || inputs.acceptance_mode == 'none') && (vars.LTC_CLOUD_PUBLISH == 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run))
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     environment: ltc-production
     permissions:
       contents: write
     env:
       LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
+      LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256 }}
       LTC_CLOUD_PUBLISH: ${{ vars.LTC_CLOUD_PUBLISH }}
       LTC_VERCEL_CLI_VERSION: ${{ vars.LTC_VERCEL_CLI_VERSION }}
+      LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: agent/community-ecosystem-20260930
+          ref: ${{ vars.LTC_SOURCE_BRANCH }}
           persist-credentials: false
           fetch-depth: 0
-      # TRUSTED BOOTSTRAP: no checked-out script/package code is executed before this inline guard.
-      - name: Check accepted implementation before executing source
+      # Trusted inline guard: never import or execute checked-out source before digest acceptance.
+      - name: Verify reviewed source and exact implementation
         shell: bash
         run: |
           node --input-type=module <<'NODE'
@@ -43,12 +85,42 @@ jobs:
           import {readFileSync,lstatSync} from 'node:fs';
           import {createHash} from 'node:crypto';
           const expected=process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256;
-          if(!/^[a-f0-9]{64}$/.test(expected||''))throw Error('Accepted implementation digest is missing');
+          if(!/^[a-f0-9]{64}$/.test(expected||''))throw Error('Accepted implementation digest missing');
+          const config=JSON.parse(readFileSync('config/ltc-cloud-source.json','utf8'));
+          if(config.repository!=='Satnam-Satoshi/Satoshi-Langar'||config.branch!==process.env.LTC_SOURCE_BRANCH||!/^agent\/[a-z0-9][a-z0-9/-]{0,150}$/.test(config.branch)||config.branch.includes('..')||config.branch.includes('//')||config.branch.endsWith('/'))throw Error('Reviewed source branch mismatch');
+          // Reviewed exact data shapes shared by the implementation guard and mutation gate.
+          // Classification is not publication approval: sources and immutable-history checks
+          // must also pass. No directory-wide exclusion or unknown JSON file is permitted.
+          const pointers = new Set([
+            'content/ltc/index.json', 'public/data/ltc-snapshot.json',
+            'content/ltc-community/latest.json', 'content/ltc-newsroom/latest.json',
+            'content/ltc-newsroom-selections/latest.json',
+            'content/research/litecoin-distribution-latest.json',
+          ]);
+          function calendarDate(value) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            const parsed = new Date(`${value}T00:00:00.000Z`);
+            return Number.isFinite(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+          }
+          function routineDataRecord(file) {
+            if (typeof file !== 'string') return null;
+            if (pointers.has(file)) return { kind: 'pointer' };
+            const graphic = /^public\/magazine\/daily\/(\d{4}-\d{2}-\d{2}-r[1-9]\d?)\/(?:social\.(?:png|svg)|graphic\.json)$/.exec(file);
+            if (graphic) return calendarDate(graphic[1].slice(0, 10)) ? { kind: 'graphic', date: graphic[1].slice(0, 10), editionId: graphic[1] } : null;
+            let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/daily-features\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);
+            if (match) { const date = match[1] || match[2] || match[3]; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/research|public\/data)\/litecoin-distribution-(\d{4})(\d{2})(\d{2})\.json$/.exec(file);
+            if (match) { const date = `${match[1]}-${match[2]}-${match[3]}`; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/ltc-community\/archive\/|content\/ltc-newsroom\/newsroom-)(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z\.json$/.exec(file);
+            if (match && calendarDate(`${match[1]}-${match[2]}-${match[3]}`) && +match[4] < 24 && +match[5] < 60 && +match[6] < 60) return { kind: 'archive' };
+            return null;
+          }
+          const isRoutineData = file => routineDataRecord(file) !== null;
           const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).sort();
           const hash=createHash('sha256');
           for(const file of files){
-            if(!lstatSync(file).isFile()||lstatSync(file).isSymbolicLink())throw Error('Non-regular tracked file');
-            if(/^content\/ltc\/(?:index|\d{4}-\d{2}-\d{2}-r[1-9]\d?)\.json$/.test(file)||file==='public/data/ltc-snapshot.json')continue;
+            const info=lstatSync(file);if(!info.isFile()||info.isSymbolicLink())throw Error('Non-regular tracked file');
+            if(isRoutineData(file))continue;
             hash.update(file+'\0');hash.update(readFileSync(file));hash.update('\0');
           }
           if(hash.digest('hex')!==expected)throw Error('Implementation changed; publication withheld');
@@ -56,27 +128,495 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22.23.2
-      - name: Install pinned tools without deployment credentials
+      - name: Install pinned tools without service credentials
         shell: bash
         run: |
-          test "${LTC_VERCEL_CLI_VERSION}" != ""
-          [[ "$LTC_VERCEL_CLI_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "${LTC_VERCEL_CLI_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           npm install --global pnpm@11.19.0 "vercel@$LTC_VERCEL_CLI_VERSION"
-      - name: Guard regression tests
-        run: node --test scripts/test-cloud-ltc-release.mjs
-      - name: Comprehensive dry run
+      - name: Guard and provider contract tests
+        run: pnpm cloud:check
+      - name: Credential-free collection and build
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
         run: node scripts/cloud-ltc-release.mjs --dry-run --receipt "$RUNNER_TEMP/ltc-receipt.json"
-      - name: Publish accepted dated edition
+      - name: Prepare exact private resource selection
         if: vars.LTC_CLOUD_PUBLISH == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
         env:
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_STATE_DOCUMENT_ID: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          LTC_EVIDENCE_OWNER_PERMISSION_ID: ${{ vars.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const directory=process.env.RUNNER_TEMP;
+          const folderId=process.env.LTC_STATE_FOLDER_ID,documentId=process.env.LTC_STATE_DOCUMENT_ID,ownerPermissionId=process.env.LTC_EVIDENCE_OWNER_PERMISSION_ID;
+          if(![folderId,documentId,ownerPermissionId].every(id=>/^[A-Za-z0-9_-]{8,160}$/.test(id||'')))throw Error('Exact private resource selection required');
+          writeFileSync(directory+'/ltc-state-config.json',JSON.stringify({schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId,documentId}),{flag:'wx',mode:0o600});
+          writeFileSync(directory+'/ltc-evidence-config.json',JSON.stringify({folderId,ownerPermissionId}),{flag:'wx',mode:0o600});
+          NODE
+      - name: Materialize reviewed first-run rollback manifest only
+        if: github.event_name == 'workflow_dispatch' && inputs.bootstrap_previous_manifest && !inputs.dry_run && vars.LTC_CLOUD_PUBLISH == 'true'
+        env:
+          LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64: ${{ secrets.LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64 }}
+          LTC_SETUP_QUARANTINE_REVIEW_JSON: ${{ secrets.LTC_SETUP_QUARANTINE_REVIEW_JSON }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          import {gunzipSync} from 'node:zlib';
+          const encoded=process.env.LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64;
+          if(typeof encoded!=='string'||encoded.length>65536||! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded))throw Error('Reviewed bootstrap manifest required');
+          const value=JSON.parse(gunzipSync(Buffer.from(encoded,'base64'),{maxOutputLength:1000000}).toString('utf8'));
+          if(!Array.isArray(value)||!value.length||!value.every(item=>typeof item.file==='string'&&/^[a-f0-9]{64}$/.test(item.sha256||'')))throw Error('Invalid bootstrap manifest');
+          writeFileSync(process.env.RUNNER_TEMP+'/ltc-bootstrap-rollback.json',JSON.stringify(value),{flag:'wx',mode:0o600});
+          NODE
+      - name: Bounded publication through durable provider operations
+        if: vars.LTC_CLOUD_PUBLISH == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+        env:
+          LTC_MIGRATION_ACCEPTANCE_JSON: ${{ secrets.LTC_MIGRATION_ACCEPTANCE_JSON }}
+          LTC_MIGRATION_ACCEPTANCE_SHA256: ${{ vars.LTC_MIGRATION_ACCEPTANCE_SHA256 }}
           GITHUB_TOKEN: ${{ github.token }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: node scripts/cloud-ltc-release.mjs --publish --receipt "$RUNNER_TEMP/ltc-receipt.json"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        shell: bash
+        run: |
+          set -- --publish --state-config "$RUNNER_TEMP/ltc-state-config.json" --evidence-config "$RUNNER_TEMP/ltc-evidence-config.json" --receipt "$RUNNER_TEMP/ltc-receipt.json"
+          if [[ -f "$RUNNER_TEMP/ltc-bootstrap-rollback.json" ]]; then
+            set -- "$@" --rollback-manifest "$RUNNER_TEMP/ltc-bootstrap-rollback.json"
+          fi
+          node scripts/cloud-ltc-release.mjs "$@"
+      - name: Sanitized result only
         if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,readFileSync,appendFileSync} from 'node:fs';
+          const file=process.env.RUNNER_TEMP+'/ltc-receipt.json';if(!existsSync(file))process.exit(0);
+          const receipt=JSON.parse(readFileSync(file,'utf8'));
+          // Keep always-run summary independent of possibly withheld source code.
+          const phases=new Set(['folder-metadata','folder-permissions','upload-preflight','upload-post','readback-metadata','readback-permissions','readback-media','readback-integrity','id-allocation']);
+          const reasons=new Set(['authorization','transport','timeout','http-status','redirect','body','integrity','not-found']);
+          const safeEvidenceDiagnostic=d=>({provider:'drive-evidence',phase:phases.has(d?.phase)?d.phase:'unknown',reason:reasons.has(d?.reason)?d.reason:'unknown',httpStatus:Number.isInteger(d?.httpStatus)&&d.httpStatus>=100&&d.httpStatus<=599?d.httpStatus:null,timedOut:d?.timedOut===true,postAttempted:d?.postAttempted===true});
+          const result={mode:receipt.mode,status:receipt.status,source:receipt.source,edition:receipt.edition,published:receipt.published,paused:receipt.paused,routineEnabled:receipt.routineEnabled,firstFreshProofCompleted:receipt.firstFreshProofCompleted,failure:receipt.failure,...(receipt.providerFailure?{providerFailure:safeEvidenceDiagnostic(receipt.providerFailure)}:{})};
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,'```json\n'+JSON.stringify(result,null,2)+'\n```\n');
+          NODE
+
+  acceptance-probe:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.acceptance_probe && (inputs.acceptance_mode == '' || inputs.acceptance_mode == 'none')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ltc-production
+    permissions:
+      contents: read
+    env:
+      LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
+      LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256 }}
+      LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          name: ltc-release-receipt-${{ github.run_id }}
-          path: ${{ runner.temp }}/ltc-receipt.json
-          if-no-files-found: ignore
-          retention-days: 30
+          ref: ${{ vars.LTC_SOURCE_BRANCH }}
+          persist-credentials: false
+      - name: Verify reviewed source and exact implementation
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          import {readFileSync,lstatSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const expected=process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256;
+          if(!/^[a-f0-9]{64}$/.test(expected||''))throw Error('Accepted implementation digest missing');
+          const config=JSON.parse(readFileSync('config/ltc-cloud-source.json','utf8'));
+          if(config.repository!=='Satnam-Satoshi/Satoshi-Langar'||config.branch!==process.env.LTC_SOURCE_BRANCH||!/^agent\/[a-z0-9][a-z0-9/-]{0,150}$/.test(config.branch)||config.branch.includes('..')||config.branch.includes('//')||config.branch.endsWith('/'))throw Error('Reviewed source branch mismatch');
+          // Reviewed exact data shapes shared by the implementation guard and mutation gate.
+          // Classification is not publication approval: sources and immutable-history checks
+          // must also pass. No directory-wide exclusion or unknown JSON file is permitted.
+          const pointers = new Set([
+            'content/ltc/index.json', 'public/data/ltc-snapshot.json',
+            'content/ltc-community/latest.json', 'content/ltc-newsroom/latest.json',
+            'content/ltc-newsroom-selections/latest.json',
+            'content/research/litecoin-distribution-latest.json',
+          ]);
+          function calendarDate(value) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            const parsed = new Date(`${value}T00:00:00.000Z`);
+            return Number.isFinite(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+          }
+          function routineDataRecord(file) {
+            if (typeof file !== 'string') return null;
+            if (pointers.has(file)) return { kind: 'pointer' };
+            const graphic = /^public\/magazine\/daily\/(\d{4}-\d{2}-\d{2}-r[1-9]\d?)\/(?:social\.(?:png|svg)|graphic\.json)$/.exec(file);
+            if (graphic) return calendarDate(graphic[1].slice(0, 10)) ? { kind: 'graphic', date: graphic[1].slice(0, 10), editionId: graphic[1] } : null;
+            let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/daily-features\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);
+            if (match) { const date = match[1] || match[2] || match[3]; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/research|public\/data)\/litecoin-distribution-(\d{4})(\d{2})(\d{2})\.json$/.exec(file);
+            if (match) { const date = `${match[1]}-${match[2]}-${match[3]}`; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/ltc-community\/archive\/|content\/ltc-newsroom\/newsroom-)(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z\.json$/.exec(file);
+            if (match && calendarDate(`${match[1]}-${match[2]}-${match[3]}`) && +match[4] < 24 && +match[5] < 60 && +match[6] < 60) return { kind: 'archive' };
+            return null;
+          }
+          const isRoutineData = file => routineDataRecord(file) !== null;
+          const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).sort();
+          const hash=createHash('sha256');
+          for(const file of files){
+            const info=lstatSync(file);if(!info.isFile()||info.isSymbolicLink())throw Error('Non-regular tracked file');
+            if(isRoutineData(file))continue;
+            hash.update(file+'\0');hash.update(readFileSync(file));hash.update('\0');
+          }
+          if(hash.digest('hex')!==expected)throw Error('Implementation changed; publication withheld');
+          NODE
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.2
+      - name: Read selected Google folder through cloud owner authorization
+        id: google_folder
+        continue-on-error: true
+        env:
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: node scripts/cloud-ltc-access-probe.mjs --receipt "$RUNNER_TEMP/ltc-google-folder-probe.json"
+      - name: Read exact configured website and social paused ledgers
+        id: google_ledgers
+        continue-on-error: true
+        env:
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_STATE_DOCUMENT_ID: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          LTC_SOCIAL_STATE_DOCUMENT_ID: ${{ vars.LTC_SOCIAL_STATE_DOCUMENT_ID }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: node scripts/cloud-ltc-access-probe.mjs --ledgers --receipt "$RUNNER_TEMP/ltc-paused-ledgers-probe.json"
+      - name: Read fixed Vercel project and team deployment controls
+        id: vercel_project
+        continue-on-error: true
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: node scripts/cloud-ltc-access-probe.mjs --vercel --receipt "$RUNNER_TEMP/ltc-vercel-project-probe.json"
+      - name: Discover official Buffer schemas and verify cloud account/queue readback
+        id: buffer
+        continue-on-error: true
+        env:
+          LTC_BUFFER_API_KEY: ${{ secrets.LTC_BUFFER_API_KEY }}
+        run: node scripts/cloud-ltc-social.mjs --probe --receipt "$RUNNER_TEMP/ltc-buffer-cloud-probe.json"
+      - name: Report only safe protocol shapes and access outcomes
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,readFileSync,appendFileSync} from 'node:fs';
+          import {publicBufferProbeStructure} from './scripts/cloud-ltc-social.mjs';
+          const folder=process.env.RUNNER_TEMP+'/ltc-google-folder-probe.json',buffer=process.env.RUNNER_TEMP+'/ltc-buffer-cloud-probe.json';
+          const ledgers=process.env.RUNNER_TEMP+'/ltc-paused-ledgers-probe.json',vercel=process.env.RUNNER_TEMP+'/ltc-vercel-project-probe.json';
+          const value={mode:'read-only-cloud-acceptance-probes',cloudPublishingActive:false,google:{folderPrivateVerified:false,readResultAvailable:false},buffer:{identityVerified:false,queueReadComplete:false,readResultAvailable:false},ledgers:{allLedgersVerified:false,readResultAvailable:false},vercel:{projectMetadataVerified:false,readResultAvailable:false}};
+          if(existsSync(folder))value.google={...JSON.parse(readFileSync(folder,'utf8')),readResultAvailable:true};
+          if(existsSync(ledgers))value.ledgers={...JSON.parse(readFileSync(ledgers,'utf8')),readResultAvailable:true};
+          if(existsSync(vercel))value.vercel={...JSON.parse(readFileSync(vercel,'utf8')),readResultAvailable:true};
+          if(existsSync(buffer))value.buffer={...publicBufferProbeStructure(JSON.parse(readFileSync(buffer,'utf8'))),readResultAvailable:true};
+          value.allReadOnlyProbesVerified=value.google.folderPrivateVerified===true&&value.ledgers.allLedgersVerified===true&&value.vercel.projectMetadataVerified===true&&value.buffer.identityVerified===true&&value.buffer.queueReadComplete===true;
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,'```json\n'+JSON.stringify(value,null,2)+'\n```\n');
+          if(!value.allReadOnlyProbesVerified)process.exitCode=1;
+          NODE
+      # No raw account/post evidence is uploaded to this public repository's artifacts.
+
+
+  stage-acceptance:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine' || inputs.acceptance_mode == 'promotion-proof' || inputs.acceptance_mode == 'promotion-reconcile' || inputs.acceptance_mode == 'promotion-rollback' || inputs.acceptance_mode == 'activate-cloud' || inputs.acceptance_mode == 'social-inspect' || inputs.acceptance_mode == 'social-bootstrap' || inputs.acceptance_mode == 'social-private-draft' || inputs.acceptance_mode == 'social-reconcile-private-draft' || inputs.acceptance_mode == 'pre-effect-retire' || inputs.acceptance_mode == 'continue-staged' || inputs.acceptance_mode == 'retire-staged' || inputs.acceptance_mode == 'inspect-upload-failure' || inputs.acceptance_mode == 'quarantine-uploads' || inputs.acceptance_mode == 'recover-promotion-checkpoint' || inputs.acceptance_mode == 'retire-routine-uploads')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: ltc-production
+    permissions:
+      contents: read
+      actions: read
+    env:
+      LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
+      LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256 }}
+      LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
+      LTC_VERCEL_CLI_VERSION: ${{ vars.LTC_VERCEL_CLI_VERSION }}
+      LTC_CLOUD_PUBLISH: ${{ vars.LTC_CLOUD_PUBLISH }}
+      LTC_ACCEPTANCE_ENVIRONMENT: ltc-production
+      LTC_ACCEPTANCE_MANUAL: 'true'
+      LTC_ACCEPTANCE_MODE: ${{ inputs.acceptance_mode }}
+      LTC_ACCEPTANCE_SOURCE_COMMIT: ${{ inputs.acceptance_source_commit }}
+      LTC_ACCEPTANCE_ID: ${{ inputs.acceptance_id }}
+      LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT: ${{ inputs.acceptance_previous_deployment }}
+      LTC_ACCEPTANCE_CRASH_AFTER: ${{ inputs.acceptance_crash_after }}
+      LTC_ACCEPTANCE_PLAN_SHA256: ${{ inputs.acceptance_plan_sha256 }}
+      LTC_ACCEPTANCE_FENCE: ${{ inputs.acceptance_fence }}
+      LTC_SETUP_INCIDENT_SHA256: ${{ vars.LTC_SETUP_INCIDENT_SHA256 }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ vars.LTC_SOURCE_BRANCH }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify reviewed source and exact implementation
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          import {readFileSync,lstatSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const expected=process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256;
+          if(!/^[a-f0-9]{64}$/.test(expected||''))throw Error('Accepted implementation digest missing');
+          const config=JSON.parse(readFileSync('config/ltc-cloud-source.json','utf8'));
+          if(config.repository!=='Satnam-Satoshi/Satoshi-Langar'||config.branch!==process.env.LTC_SOURCE_BRANCH||!/^agent\/[a-z0-9][a-z0-9/-]{0,150}$/.test(config.branch)||config.branch.includes('..')||config.branch.includes('//')||config.branch.endsWith('/'))throw Error('Reviewed source branch mismatch');
+          // Reviewed exact data shapes shared by the implementation guard and mutation gate.
+          // Classification is not publication approval: sources and immutable-history checks
+          // must also pass. No directory-wide exclusion or unknown JSON file is permitted.
+          const pointers = new Set([
+            'content/ltc/index.json', 'public/data/ltc-snapshot.json',
+            'content/ltc-community/latest.json', 'content/ltc-newsroom/latest.json',
+            'content/ltc-newsroom-selections/latest.json',
+            'content/research/litecoin-distribution-latest.json',
+          ]);
+          function calendarDate(value) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            const parsed = new Date(`${value}T00:00:00.000Z`);
+            return Number.isFinite(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+          }
+          function routineDataRecord(file) {
+            if (typeof file !== 'string') return null;
+            if (pointers.has(file)) return { kind: 'pointer' };
+            const graphic = /^public\/magazine\/daily\/(\d{4}-\d{2}-\d{2}-r[1-9]\d?)\/(?:social\.(?:png|svg)|graphic\.json)$/.exec(file);
+            if (graphic) return calendarDate(graphic[1].slice(0, 10)) ? { kind: 'graphic', date: graphic[1].slice(0, 10), editionId: graphic[1] } : null;
+            let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/daily-features\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);
+            if (match) { const date = match[1] || match[2] || match[3]; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/research|public\/data)\/litecoin-distribution-(\d{4})(\d{2})(\d{2})\.json$/.exec(file);
+            if (match) { const date = `${match[1]}-${match[2]}-${match[3]}`; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/ltc-community\/archive\/|content\/ltc-newsroom\/newsroom-)(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z\.json$/.exec(file);
+            if (match && calendarDate(`${match[1]}-${match[2]}-${match[3]}`) && +match[4] < 24 && +match[5] < 60 && +match[6] < 60) return { kind: 'archive' };
+            return null;
+          }
+          const isRoutineData = file => routineDataRecord(file) !== null;
+          const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).sort();
+          const hash=createHash('sha256');
+          for(const file of files){
+            const info=lstatSync(file);if(!info.isFile()||info.isSymbolicLink())throw Error('Non-regular tracked file');
+            if(isRoutineData(file))continue;
+            hash.update(file+'\0');hash.update(readFileSync(file));hash.update('\0');
+          }
+          if(hash.digest('hex')!==expected)throw Error('Implementation changed; publication withheld');
+          NODE
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.2
+      - name: Validate explicit acceptance scope before credentials
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          const e=process.env;
+          if(e.LTC_CLOUD_PUBLISH!==(e.LTC_ACCEPTANCE_MODE==='activate-cloud'?'true':'false')||! /^[a-f0-9]{40}$/.test(e.LTC_ACCEPTANCE_SOURCE_COMMIT||'')||! /^\d+\.\d+\.\d+$/.test(e.LTC_VERCEL_CLI_VERSION||''))throw Error('Explicit reviewed acceptance context required');
+          if(e.LTC_ACCEPTANCE_MODE==='stage'){
+            if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||! /^[a-z0-9][a-z0-9_-]{0,47}$/.test(e.LTC_ACCEPTANCE_ID||'')||! /^dpl_[A-Za-z0-9]+$/.test(e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||'')||! ['none','first-effect','stage-effect'].includes(e.LTC_ACCEPTANCE_CRASH_AFTER))throw Error('Stage scope mismatch');
+          }else if(['recover','quarantine'].includes(e.LTC_ACCEPTANCE_MODE)){
+            if(! /^[a-f0-9]{64}$/.test(e.LTC_ACCEPTANCE_PLAN_SHA256||'')||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Recovery scope mismatch');
+            if(e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT)throw Error('Unexpected recovery/quarantine inputs');
+          }else if(e.LTC_ACCEPTANCE_MODE==='retire-routine-uploads'){
+            if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||e.LTC_ACCEPTANCE_FENCE!=='12'||e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PLAN_SHA256||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact routine retirement scope required');
+          }else if(e.LTC_ACCEPTANCE_MODE==='recover-promotion-checkpoint'){
+            if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||e.LTC_ACCEPTANCE_FENCE!=='10'||e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PLAN_SHA256||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact checkpoint recovery scope required');
+          }else if(e.LTC_ACCEPTANCE_MODE==='inspect-upload-failure'){
+            if(! /^gha-[1-9]\d*-[1-9]\d*@[a-f0-9]{40}$/.test(e.LTC_ACCEPTANCE_ID||'')||! /^[a-f0-9]{64}$/.test(e.LTC_ACCEPTANCE_PLAN_SHA256||'')||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact read-only upload snapshot required');
+          }else if(['promotion-proof','promotion-reconcile','promotion-rollback','activate-cloud','social-inspect','social-bootstrap','social-private-draft','social-reconcile-private-draft','pre-effect-retire','continue-staged','retire-staged','quarantine-uploads'].includes(e.LTC_ACCEPTANCE_MODE)){
+            if(e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Unexpected controlled proof inputs');
+            if(['promotion-reconcile','promotion-rollback','pre-effect-retire','continue-staged','retire-staged','quarantine-uploads'].includes(e.LTC_ACCEPTANCE_MODE)&&! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||''))throw Error('Exact controlled fence required');
+          }else throw Error('Unknown acceptance mode');
+          NODE
+      - name: Install pinned tools and test without service credentials
+        run: |
+          npm install --global pnpm@11.19.0 "vercel@$LTC_VERCEL_CLI_VERSION"
+          pnpm install --frozen-lockfile
+          pnpm cloud:check
+      - name: Build exact committed source without preparing new daily data
+        if: inputs.acceptance_mode == 'stage'
+        run: |
+          pnpm check
+          pnpm release:prepare
+      - name: Select exact private resources and accepted public hash baseline
+        env:
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_STATE_DOCUMENT_ID: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          LTC_SOCIAL_STATE_DOCUMENT_ID: ${{ vars.LTC_SOCIAL_STATE_DOCUMENT_ID }}
+          LTC_EVIDENCE_OWNER_PERMISSION_ID: ${{ vars.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
+          LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64: ${{ secrets.LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64 }}
+          LTC_SETUP_QUARANTINE_REVIEW_JSON: ${{ secrets.LTC_SETUP_QUARANTINE_REVIEW_JSON }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {mkdirSync,writeFileSync} from 'node:fs';import {gunzipSync} from 'node:zlib';
+          const e=process.env,d=e.RUNNER_TEMP;
+          const folderId=e.LTC_STATE_FOLDER_ID,documentId=e.LTC_STATE_DOCUMENT_ID,social=e.LTC_SOCIAL_STATE_DOCUMENT_ID,ownerPermissionId=e.LTC_EVIDENCE_OWNER_PERMISSION_ID;
+          if(! [folderId,documentId,social,ownerPermissionId].every(id=>/^[A-Za-z0-9_-]{8,160}$/.test(id||''))||new Set([folderId,documentId,social]).size!==3)throw Error('Exact private selection required');
+          const save=(name,value)=>writeFileSync(d+'/'+name,JSON.stringify(value)+'\n',{flag:'wx',mode:0o600});
+          save('ltc-accept-website.json',{schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId,documentId});
+          save('ltc-accept-social.json',{schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId,documentId:social,ledgerKey:'social'});
+          save('ltc-accept-evidence.json',{folderId,ownerPermissionId});
+          if(['stage','quarantine','pre-effect-retire','quarantine-uploads'].includes(e.LTC_ACCEPTANCE_MODE)){
+            const encoded=e.LTC_BOOTSTRAP_ROLLBACK_MANIFEST_GZIP_BASE64;
+            if(typeof encoded!=='string'||encoded.length>65536||! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded))throw Error('Approved public rollback baseline required');
+            const previous=JSON.parse(gunzipSync(Buffer.from(encoded,'base64'),{maxOutputLength:1000000}).toString('utf8'));
+            if(!Array.isArray(previous)||!previous.length||!previous.every(r=>typeof r.file==='string'&&/^[a-f0-9]{64}$/.test(r.sha256||'')))throw Error('Invalid rollback baseline');
+            save('ltc-accept-previous.json',previous);
+            if(e.LTC_ACCEPTANCE_MODE==='stage'){
+              mkdirSync(d+'/ltc-acceptance-evidence',{mode:0o700});
+              writeFileSync(d+'/ltc-acceptance-evidence/source.json',JSON.stringify({source:e.LTC_ACCEPTANCE_SOURCE_COMMIT,implementationSha256:e.LTC_ACCEPTED_IMPLEMENTATION_SHA256,mode:'exact-committed-artifact-no-new-observations'})+'\n',{flag:'wx',mode:0o600});
+            }
+          }
+            if(e.LTC_ACCEPTANCE_MODE==='quarantine'){
+              const review=e.LTC_SETUP_QUARANTINE_REVIEW_JSON;
+              if(typeof review!=='string'||Buffer.byteLength(review)>65536)throw Error('Protected incident review required');
+              save('ltc-setup-quarantine-review.json',JSON.parse(review));
+            }
+          NODE
+      - name: Bind exact prepared artifact plan before any provider effect
+        if: inputs.acceptance_mode == 'stage'
+        run: |
+          EDITION_ID=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('content/ltc/index.json','utf8')).sort((a,b)=>b.date.localeCompare(a.date)||b.revision-a.revision)[0].id)")
+          node scripts/cloud-ltc-acceptance.mjs --mode plan --root "$GITHUB_WORKSPACE" --evidence-dir "$RUNNER_TEMP/ltc-acceptance-evidence" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --social-state-config "$RUNNER_TEMP/ltc-accept-social.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --edition-id "$EDITION_ID" --acceptance-id "$LTC_ACCEPTANCE_ID" --previous-deployment "$LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json" --receipt "$RUNNER_TEMP/ltc-accept-plan.json"
+          node --input-type=module <<'NODE'
+          import {readFileSync,appendFileSync} from 'node:fs';import {acceptanceHash} from './scripts/cloud-ltc-acceptance.mjs';
+          const plan=JSON.parse(readFileSync(process.env.RUNNER_TEMP+'/ltc-accept-plan.json','utf8')),sha=acceptanceHash(plan);
+          appendFileSync(process.env.GITHUB_ENV,'LTC_ACCEPTANCE_PLAN_SHA256='+sha+'\n');
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:'stage-only-plan',planSha256:sha,source:plan.source,publicationEnabled:false})+'\n');
+          NODE
+      - name: Explicitly approved stage-only effect or fresh-proof recovery
+        env:
+          LTC_ROUTINE_RETIREMENT_REVIEW_JSON: ${{ inputs.acceptance_mode == 'retire-routine-uploads' && secrets.LTC_ROUTINE_RETIREMENT_REVIEW_JSON || '' }}
+          LTC_ROUTINE_RETIREMENT_REVIEW_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_REVIEW_SHA256 }}
+          LTC_PROMOTION_CHECKPOINT_REVIEW_JSON: ${{ inputs.acceptance_mode == 'recover-promotion-checkpoint' && secrets.LTC_PROMOTION_CHECKPOINT_REVIEW_JSON || '' }}
+          LTC_PROMOTION_CHECKPOINT_REVIEW_SHA256: ${{ vars.LTC_PROMOTION_CHECKPOINT_REVIEW_SHA256 }}
+          LTC_UPLOAD_QUARANTINE_REVIEW_JSON: ${{ inputs.acceptance_mode == 'quarantine-uploads' && secrets.LTC_UPLOAD_QUARANTINE_REVIEW_JSON || '' }}
+          LTC_UPLOAD_QUARANTINE_REVIEW_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_REVIEW_SHA256 }}
+          LTC_STAGE_RETIREMENT_REVIEW_JSON: ${{ inputs.acceptance_mode == 'retire-staged' && secrets.LTC_STAGE_RETIREMENT_REVIEW_JSON || '' }}
+          LTC_STAGE_RETIREMENT_REVIEW_SHA256: ${{ vars.LTC_STAGE_RETIREMENT_REVIEW_SHA256 }}
+          LTC_STAGED_CONTINUATION_REVIEW_JSON: ${{ inputs.acceptance_mode == 'continue-staged' && secrets.LTC_STAGED_CONTINUATION_REVIEW_JSON || '' }}
+          LTC_STAGED_CONTINUATION_REVIEW_SHA256: ${{ vars.LTC_STAGED_CONTINUATION_REVIEW_SHA256 }}
+          LTC_PRE_EFFECT_RECOVERY_REVIEW_JSON: ${{ inputs.acceptance_mode == 'pre-effect-retire' && secrets.LTC_PRE_EFFECT_RECOVERY_REVIEW_JSON || '' }}
+          LTC_PRE_EFFECT_RECOVERY_REVIEW_SHA256: ${{ vars.LTC_PRE_EFFECT_RECOVERY_REVIEW_SHA256 }}
+          LTC_BUFFER_API_KEY: ${{ startsWith(inputs.acceptance_mode, 'social-') && secrets.LTC_BUFFER_API_KEY || '' }}
+          LTC_SOCIAL_SETUP_BUNDLE_GZIP_BASE64: ${{ startsWith(inputs.acceptance_mode, 'social-') && secrets.LTC_SOCIAL_SETUP_BUNDLE_GZIP_BASE64 || '' }}
+          LTC_SOCIAL_ACCEPTANCE_POLICY_SHA256: ${{ vars.LTC_SOCIAL_ACCEPTANCE_POLICY_SHA256 }}
+          LTC_CLOUD_SOCIAL_PUBLISH: 'false'
+          LTC_SOCIAL_CLOUD_PUBLISH: 'false'
+          LTC_SOCIAL_PUBLISH: 'false'
+          LTC_CONTROLLED_PROMOTION_REVIEW_JSON: ${{ inputs.acceptance_mode != 'inspect-upload-failure' && secrets.LTC_CONTROLLED_PROMOTION_REVIEW_JSON || '' }}
+          LTC_CONTROLLED_PROMOTION_REVIEW_SHA256: ${{ vars.LTC_CONTROLLED_PROMOTION_REVIEW_SHA256 }}
+          LTC_MIGRATION_ACCEPTANCE_JSON: ${{ inputs.acceptance_mode != 'inspect-upload-failure' && secrets.LTC_MIGRATION_ACCEPTANCE_JSON || '' }}
+          LTC_MIGRATION_ACCEPTANCE_SHA256: ${{ vars.LTC_MIGRATION_ACCEPTANCE_SHA256 }}
+          LTC_SETUP_QUARANTINE_REVIEW_JSON: ${{ inputs.acceptance_mode != 'inspect-upload-failure' && secrets.LTC_SETUP_QUARANTINE_REVIEW_JSON || '' }}
+          GITHUB_TOKEN: ${{ github.token }}
+          VERCEL_TOKEN: ${{ inputs.acceptance_mode != 'inspect-upload-failure' && secrets.VERCEL_TOKEN || '' }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        shell: bash
+        run: |
+          set -- --mode "$LTC_ACCEPTANCE_MODE" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --social-state-config "$RUNNER_TEMP/ltc-accept-social.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          if [[ "$LTC_ACCEPTANCE_MODE" == stage ]]; then
+            set -- "$@" --root "$GITHUB_WORKSPACE" --evidence-dir "$RUNNER_TEMP/ltc-acceptance-evidence" --plan "$RUNNER_TEMP/ltc-accept-plan.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json"
+            if [[ "$LTC_ACCEPTANCE_CRASH_AFTER" == first-effect ]]; then set -- "$@" --crash-after first-effect; fi
+            if [[ "$LTC_ACCEPTANCE_CRASH_AFTER" == stage-effect ]]; then set -- "$@" --crash-after "accept-${LTC_ACCEPTANCE_PLAN_SHA256:0:24}-stage"; fi
+          else
+            set -- "$@" --expected-fence "$LTC_ACCEPTANCE_FENCE"
+            if [[ "$LTC_ACCEPTANCE_MODE" == quarantine ]]; then
+              set -- "$@" --review-file "$RUNNER_TEMP/ltc-setup-quarantine-review.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json"
+            fi
+          fi
+          if [[ "$LTC_ACCEPTANCE_MODE" == retire-routine-uploads ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_ROUTINE_RETIREMENT_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>65536)throw Error('Protected routine retirement review required');
+          writeFileSync(process.env.RUNNER_TEMP+'/ltc-routine-retirement-review.json',JSON.stringify(JSON.parse(value))+'\n',{flag:'wx',mode:0o600});
+          NODE
+            node scripts/cloud-ltc-retire-routine-uploads.mjs --review-file "$RUNNER_TEMP/ltc-routine-retirement-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == recover-promotion-checkpoint ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_PROMOTION_CHECKPOINT_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>131072)throw Error('Protected promotion checkpoint review required');
+          JSON.parse(value);writeFileSync(process.env.RUNNER_TEMP+'/ltc-promotion-checkpoint-review.json',value,{flag:'wx',mode:0o600});
+          NODE
+            node scripts/cloud-ltc-recover-checkpoint.mjs --review-file "$RUNNER_TEMP/ltc-promotion-checkpoint-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == quarantine-uploads ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_UPLOAD_QUARANTINE_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>65536)throw Error('Protected upload quarantine review required');
+          JSON.parse(value);writeFileSync(process.env.RUNNER_TEMP+'/ltc-upload-quarantine-review.json',value,{flag:'wx',mode:0o600});
+          NODE
+            node scripts/cloud-ltc-quarantine-uploads.mjs --review "$RUNNER_TEMP/ltc-upload-quarantine-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == inspect-upload-failure ]]; then
+            node scripts/cloud-ltc-inspect-upload-failure.mjs --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == retire-staged ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_STAGE_RETIREMENT_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>65536)throw Error('Protected archive-only retirement review required');
+          JSON.parse(value);writeFileSync(process.env.RUNNER_TEMP+'/ltc-stage-retirement-review.json',value,{flag:'wx',mode:0o600});
+          NODE
+            node scripts/cloud-ltc-retire-staged.mjs --review-file "$RUNNER_TEMP/ltc-stage-retirement-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == continue-staged ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_STAGED_CONTINUATION_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>65536)throw Error('Protected staged continuation review required');
+          JSON.parse(value);writeFileSync(process.env.RUNNER_TEMP+'/ltc-staged-continuation-review.json',value,{flag:'wx',mode:0o600});
+          NODE
+            node scripts/cloud-ltc-continue-staged.mjs --review-file "$RUNNER_TEMP/ltc-staged-continuation-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == pre-effect-retire ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_PRE_EFFECT_RECOVERY_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>65536)throw Error('Protected pre-effect retirement review required');
+          JSON.parse(value);writeFileSync(process.env.RUNNER_TEMP+'/ltc-pre-effect-review.json',value,{flag:'wx',mode:0o600});
+          NODE
+            node scripts/cloud-ltc-pre-effect-recovery.mjs --review "$RUNNER_TEMP/ltc-pre-effect-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == activate-cloud ]]; then
+            node scripts/cloud-ltc-activate.mjs --state-config "$RUNNER_TEMP/ltc-accept-website.json" --social-state-config "$RUNNER_TEMP/ltc-accept-social.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == social-* ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';import {gunzipSync} from 'node:zlib';
+          const encoded=process.env.LTC_SOCIAL_SETUP_BUNDLE_GZIP_BASE64;
+          if(typeof encoded!=='string'||encoded.length>65536||! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded))throw Error('Protected social setup bundle required');
+          const bundle=JSON.parse(gunzipSync(Buffer.from(encoded,'base64'),{maxOutputLength:1800000}).toString('utf8'));
+          for(const [key,file] of [['policyJson','ltc-social-policy.json'],['canonicalLedgerJson','ltc-social-canonical.json'],['historicalCopyEvidenceJson','ltc-social-historical.json']]){
+            if(typeof bundle[key]!=='string'||Buffer.byteLength(bundle[key])>600000)throw Error('Invalid private social bundle');
+            JSON.parse(bundle[key]);writeFileSync(process.env.RUNNER_TEMP+'/'+file,bundle[key],{flag:'wx',mode:0o600});
+          }
+          NODE
+            MODE="${LTC_ACCEPTANCE_MODE#social-}"
+            set -- --mode "$MODE" --social-state-config "$RUNNER_TEMP/ltc-accept-social.json" --policy "$RUNNER_TEMP/ltc-social-policy.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+            if [[ "$MODE" == bootstrap ]]; then set -- "$@" --canonical-ledger "$RUNNER_TEMP/ltc-social-canonical.json" --historical-copy-evidence "$RUNNER_TEMP/ltc-social-historical.json"; fi
+            node scripts/cloud-ltc-social-acceptance.mjs "$@"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == promotion-* ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_CONTROLLED_PROMOTION_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>131072)throw Error('Protected controlled review required');
+          writeFileSync(process.env.RUNNER_TEMP+'/ltc-controlled-review.json',value,{flag:'wx',mode:0o600});
+          NODE
+            MODE=exercise
+            if [[ "$LTC_ACCEPTANCE_MODE" == promotion-reconcile ]]; then MODE=reconcile; fi
+            if [[ "$LTC_ACCEPTANCE_MODE" == promotion-rollback ]]; then MODE=complete-rollback; fi
+            set -- --mode "$MODE" --review "$RUNNER_TEMP/ltc-controlled-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --social-state-config "$RUNNER_TEMP/ltc-accept-social.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+            if [[ "$MODE" != exercise ]]; then set -- "$@" --expected-fence "$LTC_ACCEPTANCE_FENCE"; fi
+            node scripts/cloud-ltc-controlled-promotion.mjs "$@"
+          else
+            node scripts/cloud-ltc-acceptance.mjs "$@"
+          fi
+      - name: Safe acceptance result; preserve held fences after any failure
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,readFileSync,appendFileSync} from 'node:fs';
+          const f=process.env.RUNNER_TEMP+'/ltc-stage-acceptance-receipt.json';
+          if(existsSync(f)){
+            const r=JSON.parse(readFileSync(f,'utf8'));
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,failure:r.failure,failurePhase:r.failurePhase,providerFailure:r.providerFailure,planSha256:r.planSha256,fence:r.lease?.fence??r.fence,leaseReleased:r.leaseReleased,uncertainObservation:r.uncertain?.[0]?.observed,readbackDiagnostic:r.uncertain?.[0]?.diagnostic,pendingNotAuthorized:r.pendingNotAuthorized,confirmedRetained:r.confirmedRetained,stateChanged:r.stateChanged,incidentSha256:r.incidentSha256,newFence:r.newFence,originalOutcome:r.originalOutcome,accepted:r.accepted,productionAuthorized:r.productionAuthorized,retiredFence:r.retiredFence,paused:r.paused,receiptSha256:r.receiptSha256,effectsReissued:r.effectsReissued,publicationPerformed:r.publicationPerformed,retiredOperationCount:r.retiredOperationCount,archiveSha256:r.archiveSha256,nextFreshDate:r.nextFreshDate,routineEnabled:r.routineEnabled,socialActivationPerformed:r.socialActivationPerformed,aliasesRestored:r.aliasesRestored,publicationEnabled:false})+'\n');
+          }
+          NODE
+      # No private artifacts, plans, source evidence or ledger snapshots are uploaded to GitHub artifacts.

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "collectedAt": "2026-10-15T17:58:34.154Z",
+  "sourceStatus": [
+    {
+      "id": "litecoin-foundation-news",
+      "sourceName": "Litecoin Foundation news",
+      "url": "https://litecoin.com/news/rss.xml",
+      "status": "unavailable",
+      "checkedAt": "2026-10-15T17:58:34.153Z",
+      "sha256": "2577da91ae413c110fdc34beb0c282fc50efda7f3efb745196ab96e9324a327b",
+      "errorCode": "invalid_feed_identity"
+    },
+    {
+      "id": "litecoin-foundation-nexus",
+      "sourceName": "Litecoin Foundation · Nexus releases",
+      "url": "https://api.github.com/repos/litecoin-foundation/nexus/releases?per_page=10",
+      "status": "collected",
+      "checkedAt": "2026-10-15T17:58:34.123Z",
+      "sha256": "6cd66e558f7e8a1bfebaa33526a6a5349a27de13b5e5d72e90e880e45cb0d7e8",
+      "errorCode": null
+    }
+  ],
+  "items": [
+    {
+      "id": "litecoin-foundation-nexus-fc811453aa4a221850d1",
+      "sourceId": "litecoin-foundation-nexus",
+      "sourceName": "Litecoin Foundation · Nexus releases",
+      "title": "Nexus v1.3.3",
+      "url": "https://github.com/litecoin-foundation/nexus/releases/tag/v1.3.3",
+      "publishedAt": "2026-08-05T18:21:31.000Z",
+      "summaryClassification": "official-software-release"
+    }
+  ]
+}

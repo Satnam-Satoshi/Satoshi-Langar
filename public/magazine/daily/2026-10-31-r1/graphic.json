@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "width": 1200,
+  "height": 630,
+  "editionId": "2026-10-31-r1",
+  "date": "2026-10-31",
+  "featureDate": "2026-10-31",
+  "headline": "Before the next block: verify what you run.",
+  "stories": [
+    {
+      "id": "lnd-operator-readiness",
+      "title": "A fresh Lightning release puts operator readiness first",
+      "desk": "Bitcoin / Lightning",
+      "classification": "Official release; attributed security notice",
+      "sourceDates": [
+        "2026-10-30T23:21:55Z"
+      ],
+      "sourceURLs": [
+        "https://github.com/lightningnetwork/lnd/releases/tag/v0.21.6-beta"
+      ]
+    },
+    {
+      "id": "lester-read-the-status",
+      "title": "A Litecoin builder checkpoint: read the status before connecting",
+      "desk": "Litecoin / Community tools",
+      "classification": "Undated status check",
+      "sourceDates": [
+        "Publication date not supplied"
+      ],
+      "sourceURLs": [
+        "https://www.lester-labs.com/litvm-launchpad",
+        "https://www.lester-labs.com/docs"
+      ]
+    },
+    {
+      "id": "builder-delivery-watch",
+      "title": "Two Litecoin delivery paths, with different next proofs",
+      "desk": "Litecoin / Builders and institutions",
+      "classification": "Dated announcements",
+      "sourceDates": [
+        "2026-10-27",
+        "Publication date not supplied",
+        "2026-10-29"
+      ],
+      "sourceURLs": [
+        "https://www.litvm.com/blog/introducing-litvm-v2",
+        "https://docs.litvm.com/get-started-on-testnet/add-to-wallet",
+        "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/"
+      ]
+    }
+  ],
+  "sourceDates": [
+    "2026-10-30T23:21:55Z",
+    "Publication date not supplied",
+    "2026-10-27",
+    "2026-10-29"
+  ],
+  "publishedAt": "2026-10-31T04:12:06.198Z",
+  "attribution": "AI-prepared · LTC Media · Read the dated sourcebook",
+  "readURL": "https://ltcmagazine.org/conversations/editions/2026-10-31-r1/",
+  "design": "content-led-news-map-v1",
+  "pngSha256": "578f4dc19bb366b13c2d0e08237488db0ec12d07500da1953a8fbca83c094ab7",
+  "svgSha256": "fef1409184a94f107db95e19a05a662715c31c767514d7f194c267c3b61110e5",
+  "pngBytes": 100442,
+  "renderer": "Next ImageResponse · original SVG · explicit Liberation Sans glyphs"
+}

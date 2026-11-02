@@ -1,13 +1,19 @@
+import {publicEditions,excludedPublicationPath} from './lib/ltc-public-editions.mjs';
+import {createHash} from 'node:crypto';
 import {readCommunityArchive} from './lib/community-archive.mjs';
 import {readdir,readFile,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {validateLtcArchive} from './validate-ltc-archive.mjs';
 import {buildSeoSitemaps,validatePageSeo} from './lib/site-seo.mjs';
-const editions=await validateLtcArchive();
+const validatedArchive=await validateLtcArchive(); // Validate every raw immutable record, including never-public preparations.
+const exclusions=JSON.parse(await readFile('config/ltc-publication-exclusions.json','utf8'));
+const editions=publicEditions(validatedArchive,exclusions);
+for(const excluded of exclusions.editions){const bytes=await readFile(`content/ltc/${excluded.id}.json`);if(createHash('sha256').update(bytes).digest('hex')!==excluded.editionSha256)throw Error('Excluded raw edition changed');}
 const root=path.resolve('dist'); let count=0; const failures=[];
 const seoPages=[]; const assetPaths=new Set();
 async function listAssets(dir){for(const entry of await readdir(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())await listAssets(file);else assetPaths.add(path.relative(root,file).split(path.sep).join('/'));}}
 await listAssets(root);
+for(const file of assetPaths)if(excludedPublicationPath(file,exclusions,editions))failures.push(`Never-public edition asset exported: ${file}`);
 const fileCache=new Map();
 async function content(file){if(!fileCache.has(file))fileCache.set(file,await readFile(file,'utf8'));return fileCache.get(file);}
 async function walk(dir){
@@ -16,6 +22,7 @@ async function walk(dir){
   if(entry.isDirectory()){await walk(file);continue;}
   if(!entry.name.endsWith('.html'))continue;
   count++; const html=await readFile(file,'utf8');
+  for(const excluded of exclusions.editions){const identities=[excluded.id,...(editions.some(record=>record.date===excluded.date)?[]:[excluded.date])];for(const id of identities)if(html.includes(`editions/${id}/`)||html.includes(`ltc-editions/${id}.json`))failures.push(`${file}: never-public edition remains discoverable ${id}`);}
   const seo=validatePageSeo(html,path.relative(root,file).split(path.sep).join('/'),{editions,assetPaths});
   failures.push(...seo.failures.map(message=>`${file}: SEO ${message}`));
   if(seo.model)seoPages.push(seo.model);
@@ -25,11 +32,15 @@ async function walk(dir){
    // validatePageSeo checks its keys, values, serialization and complete schema.
    if(/^\s+type="application\/ld\+json" data-site-seo="v1"\s*$/.test(attrs))continue;
    const src=attrs.match(/\bsrc="([^"]+)"/)?.[1];
-   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js','ecosystem-help.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
+   if(body.trim() || !src || !['community.js','auth.js','learning.js','copy-address.js','ecosystem-help.js','open-money.js','timechain-live.js','market-live.js','register-live.js','morpho-live.js'].includes(path.basename(src)) || !path.resolve(path.dirname(file),src).startsWith(path.join(root,'scripts')+path.sep))failures.push(`${file}: script outside enhancement allowlist`);
    if(src && path.basename(src)==='copy-address.js' && !/\bdata-address-copy(?:=|\s|>)/.test(html))failures.push(`${file}: address-copy script without its scoped marker`);
    if(src && path.basename(src)==='ecosystem-help.js' && !/\bdata-ecosystem-help(?:=|\s|>)/.test(html))failures.push(`${file}: ecosystem-help script without its scoped marker`);
   }
   if(/\bdata-ecosystem-help(?:=|\s|>)/.test(html) && !/<script\b[^>]*src="[^"]*\/ecosystem-help\.js"/.test(html))failures.push(`${file}: community guide is missing its browser enhancement`);
+  if(/\bdata-open-money="(?:learning|timechain|finance)"/.test(html) !== /<script\b[^>]*src="[^"]*\/open-money\.js"/.test(html))failures.push(`${file}: open-money enhancement marker mismatch`);
+  if(html.includes('data-live-timechain="true"') !== /<script\b[^>]*src="[^"]*\/timechain-live\.js"/.test(html))failures.push(`${file}: live timechain enhancement marker mismatch`);
+  if(html.includes('data-live-market="true"') !== /<script\b[^>]*src="[^"]*\/market-live\.js"/.test(html))failures.push(`${file}: live market enhancement marker mismatch`);
+  for(const [marker,bundle] of [['data-live-morpho="true"','morpho-live'],['data-register-live="true"','register-live']])if(html.includes(marker)!==new RegExp('<script[^>]*src="[^"]*/'+bundle+'[.]js"').test(html))failures.push(`${file}: cloud reader enhancement marker mismatch ${bundle}`);
   for(const [tag] of html.matchAll(/<form\b[^>]*>/gi))if(!/\bdata-(?:plan|guide)-form(?:=|\s|>)/.test(tag)||/\baction=/.test(tag)||(/\bdata-guide-form(?:=|\s|>)/.test(tag)&&!/\bhidden(?:=|\s|>)/.test(tag)))failures.push(`${file}: unexpected network form`);
   for(const [,attr,url] of html.matchAll(/\b(href|src)="([^"]+)"/g)){
    if(/^(https?:|mailto:|data:)/.test(url))continue;
@@ -58,9 +69,10 @@ for (const record of readCommunityArchive('content/ltc-community/archive')) {
 }
 await stat(path.join(root,'conversations/community/index.html'));
 const exportedIndex=JSON.parse(await readFile(path.join(root,'data/ltc-editions/index.json'),'utf8'));
-if(JSON.stringify(exportedIndex)!==JSON.stringify(editions)) failures.push('Exported edition index differs from validated archive');
+if(JSON.stringify(exportedIndex)!==JSON.stringify(editions)) failures.push('Exported edition index differs from validated public archive');
 const rss=await readFile(path.join(root,'conversations/feed.xml'),'utf8');
 const dailyRss=await readFile(path.join(root,'conversations/daily.xml'),'utf8');
+for(const feed of ['conversations/feed.xml','conversations/daily.xml','conversations/newsletter.xml','sitemap.xml','sitemap-magazine.xml','sitemap-community.xml']){const text=await readFile(path.join(root,feed),'utf8');for(const excluded of exclusions.editions)if(text.includes(`ltc:edition:${excluded.id}`)||text.includes(`/editions/${excluded.id}/`)||(!editions.some(record=>record.date===excluded.date)&&text.includes(`/editions/${excluded.date}/`)))failures.push(`${feed}: never-public edition remains discoverable`);}
 const expectedDailyIds=[...editions].sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)||b.date.localeCompare(a.date)||b.revision-a.revision).map(edition=>`ltc:edition:${edition.id}`);
 const dailyIds=[...dailyRss.matchAll(/<guid isPermaLink="false">([^<]+)<\/guid>/g)].map(match=>match[1]);
 if(JSON.stringify(dailyIds)!==JSON.stringify(expectedDailyIds))failures.push('Daily feed must contain only daily edition publication events in publication order');
@@ -108,3 +120,6 @@ for(let p=1;p<=84;p++) {
 }
 if(failures.length){console.error(failures.join('\n'));process.exit(1);}
 console.log(`PASS: ${count} static pages; internal links/assets resolve; scripts allowlisted and no network forms; links remain inside a subpath or IPFS directory.`);
+
+const newsletterRss=await readFile(path.join(root,'conversations/newsletter.xml'),'utf8');
+if(!newsletterRss.includes('https://ltcmagazine.org/conversations/newsletter.xml')||!newsletterRss.includes('ltc:edition:')||newsletterRss.includes('ltc:feature:'))throw Error('Invalid newsletter feed export');

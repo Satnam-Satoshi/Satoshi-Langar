@@ -1,0 +1,11 @@
+const supported=['satnamsatoshi.com','ltcmagazine.org','localhost','127.0.0.1'].includes(location.hostname);
+for(const root of document.querySelectorAll('[data-register-live]')){
+ const status=root.querySelector('[data-register-status]'),body=root.querySelector('tbody');
+ const number=value=>new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(value);
+ let busy=false;async function update(){if(!supported||busy||document.hidden)return;busy=true;try{const response=await fetch('/api/litecoin-register',{credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(9500)});if(!response.ok)throw Error();const data=await response.json();if(data.schemaVersion!==1||data.source!=='https://litecoinregister.com/ltc_data.json'||!Array.isArray(data.rows)||data.rows.length>10||!Number.isFinite(data.total)||(!Number.isFinite(Date.parse(data.checkedAt))||Math.abs(Date.now()-Date.parse(data.checkedAt))>600000))throw Error();
+ const validDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v;
+ if(!validDate(data.asOf)||!validDate(data.baselineDate)||Date.parse(data.asOf)-Date.parse(data.baselineDate)!==30*86400000)throw Error();
+ const rows=data.rows.map(row=>{if(typeof row.name!=='string'||row.name.length>300||!Number.isFinite(row.current)||row.current<0||!validDate(row.observedAt)||row.observedAt>data.asOf||(row.change!==null&&!Number.isFinite(row.change))||(row.baseline!==null&&(!Number.isFinite(row.baseline)||row.baseline<0)))throw Error();const tr=document.createElement('tr');for(const value of [row.name,number(row.current),row.observedAt,row.change===null?'Unknown baseline':number(row.change)]){const td=document.createElement(tr.children.length?'td':'th');if(td.tagName==='TH')td.scope='row';td.textContent=value;tr.append(td);}return tr;});body.replaceChildren(...rows);status.textContent=`Source checked ${data.checkedAt}. ${data.records} eligible records; recorded aggregate ${number(data.total)} LTC. Window ${data.baselineDate} to ${data.asOf}. Balances retain their source dates.`;
+ }catch{status.textContent='Refresh unavailable. The last displayed observations retain their dates; no new observation is claimed.';}finally{busy=false;}}
+ update();setInterval(update,3600000);document.addEventListener('visibilitychange',update);
+}
