@@ -41,10 +41,11 @@ async function fixture({ uncertainStage = false, badPublishedBytes = false, unce
     manifest, publicationProvenance: { editionSha256: hash('edition'), sourceDeskSha256: hash('desk'), dailyGraphicSha256: hash('graphic') }, buildOutput: [{ file: 'config.json', sha256: hash('{}') }, { file: 'static/index.html', sha256: hash('new html') }], rollbackManifest, evidenceDirectory,
     evidenceConfig: { folderId: 'fixture-folder', ownerPermissionId: 'fixture-owner' }, env: {},
     preallocateIds: async ({ count }) => Array.from({ length: count }, () => `file-fixture-${++allocated}`),
-    evidenceProviderFactory: ({ bundle, config, onDiagnostic }) => {
+    evidenceProviderFactory: ({ bundle, config, onDiagnostic, beforeCreateAttempt }) => {
       let stored;
       return {
         async apply(context) {
+          await beforeCreateAttempt(context);
           events.push('evidence-upload');
           if(evidenceDiagnostic){await onDiagnostic({phase:'upload-post',reason:'http-status',httpStatus:429,timedOut:false,postAttempted:true,raw:'PRIVATE_TOKEN response https://private.invalid/'});throw Error('PRIVATE_TOKEN provider response');}
           const intent = (await state.inspect()).intents[context.operationId];

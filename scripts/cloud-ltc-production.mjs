@@ -12,6 +12,19 @@ import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 const check = (value, code) => { if (!value) throw new Error(code); };
 const hash = value => createHash('sha256').update(value).digest('hex');
 
+// Recheck the existing durable authorization before each HTTP create attempt.
+// This is read-only: it neither grants uncertainty again nor extends the lease.
+export function createEvidenceAttemptGuard({admission,env,uploadQuarantineBinding}){
+ return async context=>{
+  const document=await admission.state.inspect(),lease=admission.lease,intent=document.intents[context.operationId];
+  check(document.paused===false&&document.restoreHold===false&&document.fence===lease.fence&&document.lease?.runId===lease.runId&&document.lease.fence===lease.fence&&document.lease.expiresAt>admission.state.clock()&&context.fence===lease.fence,'evidence_create_authorization_changed');
+  check(intent?.status==='uncertain'&&intent.runId===lease.runId&&intent.fence===lease.fence&&intent.payloadSha256===context.payloadSha256&&hash(JSON.stringify(context.payload))===context.payloadSha256&&JSON.stringify(intent.payload)===JSON.stringify(context.payload)&&intent.payload.kind==='drive-evidence'&&intent.payload.fileId===context.payload.fileId&&intent.payload.folderId===context.payload.folderId,'evidence_create_authorization_changed');
+  assertUploadQuarantineBinding(document,uploadQuarantineBinding);
+  assertFreshGenerationBinding(document,admission.firstFreshGeneration);
+  assertNoQuarantinedUploadLineage(document,{operations:[{operationId:context.operationId,payload:context.payload}],env});
+ };
+}
+
 // The coordinator already confirmed full stage identity/protected byte readback.
 // Reuse that exact immutable receipt instead of starting a second discovery and
 // full protected crawl. Promotion still checks fresh identity and old pointers.
@@ -98,7 +111,7 @@ export async function performCoordinatedRelease(options) {
   let allocatedIndex = 0;
   const evidenceOperations = bundles.map(bundle => {
     const payload = { kind: 'drive-evidence', role: 'release-artifacts', generation, artifactPackageManifestSha256: artifactPackage.manifestSha256, artifactBundleCount: bundles.length, artifactBundleIndex: bundles.indexOf(bundle), fileId: existing.intents[generationEvidenceId(generation, bundle.sha256)]?.payload?.fileId ?? allocated[allocatedIndex++], folderId: evidenceConfig.folderId, sha256: bundle.sha256, bytes: bundle.length };
-    return { operationId: generationEvidenceId(generation, bundle.sha256), payload, provider: providerFactory({ bundle, config: { ...evidenceConfig, fileId: payload.fileId }, getAccessToken: token, fetcher: fetchImpl, onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) }) };
+    return { operationId: generationEvidenceId(generation, bundle.sha256), payload, provider: providerFactory({ bundle, config: { ...evidenceConfig, fileId: payload.fileId }, getAccessToken: token, fetcher: fetchImpl, beforeCreateAttempt:createEvidenceAttemptGuard({admission,env,uploadQuarantineBinding:admission.uploadQuarantineBinding}), onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) }) };
   });
   assertNoQuarantinedUploadLineage(await admission.state.inspect(),{generation,artifactPackageManifestSha256:artifactPackage.manifestSha256,operations:evidenceOperations,env});
   // All IDs/hashes are durably saved before the first upload. An uncertain write
@@ -169,7 +182,7 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   const knownSummary = (await admission.state.inspect()).intents[summaryId]?.payload;
   const [newId] = knownSummary ? [] : await allocate({ count: 1, config: evidenceConfig, getAccessToken: token, fetcher: fetchImpl, onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) });
   const summaryPayload = { kind: 'drive-evidence', role: 'release-summary', archivedStateSha256: backup.sha256, fileId: knownSummary?.fileId ?? newId, folderId: evidenceConfig.folderId, sha256: summary.sha256, bytes: summary.length };
-  await execute({ operationId: summaryId, payload: summaryPayload, provider: providerFactory({ bundle: summary, config: { ...evidenceConfig, fileId: summaryPayload.fileId }, getAccessToken: token, fetcher: fetchImpl, onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) }) });
+  await execute({ operationId: summaryId, payload: summaryPayload, provider: providerFactory({ bundle: summary, config: { ...evidenceConfig, fileId: summaryPayload.fileId }, getAccessToken: token, fetcher: fetchImpl, beforeCreateAttempt:createEvidenceAttemptGuard({admission,env,uploadQuarantineBinding}), onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) }) });
   await admission.state.recordLatestRelease(admission.lease, { source: releaseCommit, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, publicationProvenance, artifactManifestSha256: hash(JSON.stringify(manifest)), artifactPackageManifestSha256: artifactPackageManifestSha256, ...(continuation ? { continuation } : {}), summary: { archivedStateSha256: backup.sha256, operationId: summaryId, payloadSha256: hash(JSON.stringify(summaryPayload)), fileId: summaryPayload.fileId, folderId: evidenceConfig.folderId, sha256: summary.sha256, length: summary.length } });
   assertUploadQuarantineBinding(await admission.state.inspect(),uploadQuarantineBinding);
   await admission.state.compactArchivedState(admission.lease, { backup, summaryBundle: summary, summaryOperationId: summaryId });
