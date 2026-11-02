@@ -64,14 +64,18 @@ function client(options){
  check(typeof getAccessToken==='function','missing_token_provider');
  return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown',beforePost}={})=>{
   check(/^\/(?:drive\/v3\/files\/[A-Za-z0-9_-]+(?:\/permissions)?|upload\/drive\/v3\/files)(?:\?[^#]*)?$/.test(pathname),'drive_path_not_allowed');
-  let token;try{token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');}catch{await reportDiagnostic(options,{phase,reason:'authorization',httpStatus:null,timedOut:false});throw Error('drive_request_unconfirmed');}
-  const controller=new AbortController();let timer,status=null,timedOut=false,reason='transport';
+  const controller=new AbortController();let timer,status=null,timedOut=false,reason='authorization',postAttempted=false;
   try{
    const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;controller.abort();reject(Error('drive_timeout'));},timeoutMs);});
-   return await Promise.race([(async()=>{if(method==='POST'&&beforePost){reason='authorization';await beforePost();reason='transport';}if(controller.signal.aborted)throw Error('drive_timeout');if(method==='POST'&&options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;
+   return await Promise.race([(async()=>{
+    const token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');
+    if(method==='POST'&&beforePost)await beforePost();
+    if(controller.signal.aborted)throw Error('drive_timeout');
+    reason='transport';
+    if(method==='POST'){postAttempted=true;if(options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;}
     const response=await fetcher('https://www.googleapis.com'+pathname,{method,body,redirect:'error',cache:'no-store',signal:controller.signal,headers:{authorization:`Bearer ${token}`,accept:'application/json',...(contentType?{'content-type':contentType}:{})}});
     status=response.status;if(response.redirected){reason='redirect';throw Error('drive_redirect_rejected');}if(allowMissing&&status===404)return null;if(!response.ok){reason='http-status';throw Error('drive_request_failed');}reason='body';return bounded(response,limit);})(),deadline]);
-  }catch{const failure={phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut};await reportDiagnostic(options,failure);const error=Error('drive_request_unconfirmed');error[REQUEST_FAILURE]=failure;throw error;}finally{clearTimeout(timer);controller.abort();}
+  }catch{const failure={phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut,postAttempted};await reportDiagnostic(options,failure);const error=Error('drive_request_unconfirmed');error[REQUEST_FAILURE]=failure;throw error;}finally{clearTimeout(timer);controller.abort();}
  };
 }
 const fields='id,name,mimeType,parents,trashed,ownedByMe,size,appProperties';
@@ -103,7 +107,7 @@ export async function downloadEvidence(receipt,options){
  * A resumed uncertain journal operation remains GET-only. 409 is never proof.
  */
 export async function uploadEvidence(bundle,options,context){
- options=trackedOptions(options);try{
+ options=trackedOptions({...options,config:{...options.config}});context={...context};try{
  const valid=verifyEvidenceBundle(bundle),{config}=options;configCheck(config);operationCheck(context);
  const receipt={fileId:config.fileId,folderId:config.folderId,sha256:valid.sha256,length:valid.length,operationId:context.operationId,payloadSha256:context.payloadSha256};
  const call=client(options);await verifyFolder(call,config);
@@ -117,7 +121,7 @@ export async function uploadEvidence(bundle,options,context){
  const upload=client({...options,timeoutMs:options.timeoutMs??60_000});
  for(let post=0;post<3;post++){
   let failure,failed=false;
-  try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body:Buffer.from(body),contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post',...(post?{beforePost:context.assertSameIdRetry}:{})});}
+  try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body:Buffer.from(body),contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post',...(typeof context.assertSameIdRetry==='function'?{beforePost:context.assertSameIdRetry}:{})});}
   catch(error){failed=true;failure=error[REQUEST_FAILURE]??{phase:'upload-post',reason:'authorization'};}
   if(!failed){const restored=await downloadEvidence(receipt,options);check(restored,'evidence_readback_missing');return {receipt,...restored};}
   // Readback is mandatory even for 409. A conflicting parent, owner, operation,
@@ -133,7 +137,7 @@ export async function uploadEvidence(bundle,options,context){
   // Missing metadata is UNKNOWN, not proof of absence. Google alone guarantees
   // the same pre-generated ID cannot create a second object. Do not retry auth,
   // redirects, 409 conflicts, malformed successful bodies or non-transient 4xx.
-  const transient=failure.phase==='upload-post'&&(failure.timedOut||failure.reason==='transport'||(failure.reason==='http-status'&&[500,502,503,504].includes(failure.httpStatus)));
+  const transient=failure.postAttempted===true&&failure.phase==='upload-post'&&(failure.timedOut||failure.reason==='transport'||(failure.reason==='http-status'&&[500,502,503,504].includes(failure.httpStatus)));
   if(post===2||!safeToRetry||!transient||typeof context.assertSameIdRetry!=='function')break;
   try{await(options.readbackWait??(ms=>new Promise(resolve=>setTimeout(resolve,ms))))(1000*2**post);}
   catch{break;}
@@ -149,7 +153,7 @@ export async function restoreEvidence(bundle,{directory}){
  return {directory,sha256:valid.sha256,fileCount:entries.length,restored:true};
 }
 export function createDriveEvidenceProvider(options){
- options=trackedOptions(options);
+ options=trackedOptions({...options,config:{...options.config}});
  const valid=verifyEvidenceBundle(options.bundle);configCheck(options.config);
  const bind=context=>{operationCheck(context);const p=context.payload;check(p&&p.fileId===options.config.fileId&&p.folderId===options.config.folderId&&p.sha256===valid.sha256&&p.bytes===valid.length,'evidence_payload_mismatch');check(hash(Buffer.from(JSON.stringify(p)))===context.payloadSha256,'evidence_payload_digest_mismatch');};
  return {
