@@ -111,3 +111,24 @@ test('artifact paths, incomplete sets, manifest tampering and forbidden credenti
  await assert.rejects(restoreArtifactEvidence(packed.bundles.slice(0,1),{directory:path.join(temp,'missing')}));
  await assert.rejects(restoreArtifactEvidence(packed.bundles,{directory:path.join(temp,'bad'),expectedManifestSha256:'0'.repeat(64)}),/manifest_digest/);
 });
+
+
+test('token acquisition is deadline-bounded and late completion cannot issue a request',async()=>{
+ let resolveToken,calls=0;const token=new Promise(resolve=>resolveToken=resolve);
+ await assert.rejects(uploadEvidence(bundle(),{config,getAccessToken:()=>token,timeoutMs:5,fetcher:async()=>{calls++;throw Error('unexpected network');}},context),/unconfirmed/);
+ resolveToken('fixture-token');await new Promise(resolve=>setTimeout(resolve,10));assert.equal(calls,0);
+});
+test('guard rejects token-resolution expiry before first POST; delayed guard cannot create after deadline',async()=>{
+ for(const delayed of [false,true]){
+  const f=fixture();let guards=0,release;
+  const gate=new Promise(resolve=>release=resolve);
+  const guarded={...context,assertSameIdRetry:async()=>{guards++;if(delayed)await gate;else throw Error('lease_expired');}};
+  await assert.rejects(uploadEvidence(bundle(),{...f.options,timeoutMs:5,readbackWait:async()=>{}},guarded),/outcome_unknown/);
+  release();await new Promise(resolve=>setTimeout(resolve,10));assert.equal(guards,1);assert.equal(f.posts,0);
+ }
+});
+test('provider snapshots supplied configuration; external mutation cannot change upload ID or binding',async()=>{
+ const f=fixture(),mutable={...config},provider=createDriveEvidenceProvider({bundle:bundle(),...f.options,config:mutable});
+ mutable.fileId='different_file_123';mutable.folderId='different_folder_123';
+ const result=await provider.apply(context);assert.equal(result.proof.fileId,config.fileId);assert.equal(result.proof.folderId,config.folderId);assert.equal(f.posts,1);
+});

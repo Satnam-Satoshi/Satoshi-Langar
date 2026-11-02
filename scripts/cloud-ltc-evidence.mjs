@@ -47,6 +47,7 @@ export function verifyEvidenceBundle(bundle){
  check(rebuilt.bytes.equals(bundle.bytes),'noncanonical_evidence_bundle');return rebuilt;
 }
 const DIAGNOSTIC=Symbol('private-evidence-failure');
+const REQUEST_FAILURE=Symbol('private-drive-request-failure');
 const diagnosticPhases=new Set(['folder-metadata','folder-permissions','upload-preflight','upload-post','readback-metadata','readback-permissions','readback-media','readback-integrity','id-allocation']);
 const diagnosticReasons=new Set(['authorization','transport','timeout','http-status','redirect','body','integrity','not-found']);
 export function safeEvidenceDiagnostic(value){return {provider:'drive-evidence',phase:diagnosticPhases.has(value?.phase)?value.phase:'unknown',reason:diagnosticReasons.has(value?.reason)?value.reason:'unknown',httpStatus:Number.isInteger(value?.httpStatus)&&value.httpStatus>=100&&value.httpStatus<=599?value.httpStatus:null,timedOut:value?.timedOut===true,postAttempted:value?.postAttempted===true};}
@@ -61,16 +62,20 @@ async function bounded(response,limit){
 function client(options){
  const {getAccessToken,fetcher=fetch,timeoutMs=15000}=options;
  check(typeof getAccessToken==='function','missing_token_provider');
- return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown'}={})=>{
+ return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown',beforePost}={})=>{
   check(/^\/(?:drive\/v3\/files\/[A-Za-z0-9_-]+(?:\/permissions)?|upload\/drive\/v3\/files)(?:\?[^#]*)?$/.test(pathname),'drive_path_not_allowed');
-  let token;try{token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');}catch{await reportDiagnostic(options,{phase,reason:'authorization',httpStatus:null,timedOut:false});throw Error('drive_request_unconfirmed');}
-  const controller=new AbortController();let timer,status=null,timedOut=false,reason='transport';
+  const controller=new AbortController();let timer,status=null,timedOut=false,reason='authorization',postAttempted=false;
   try{
    const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;controller.abort();reject(Error('drive_timeout'));},timeoutMs);});
-   return await Promise.race([(async()=>{if(method==='POST'&&options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;
+   return await Promise.race([(async()=>{
+    const token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');
+    if(method==='POST'&&beforePost)await beforePost();
+    if(controller.signal.aborted)throw Error('drive_timeout');
+    reason='transport';
+    if(method==='POST'){postAttempted=true;if(options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;}
     const response=await fetcher('https://www.googleapis.com'+pathname,{method,body,redirect:'error',cache:'no-store',signal:controller.signal,headers:{authorization:`Bearer ${token}`,accept:'application/json',...(contentType?{'content-type':contentType}:{})}});
     status=response.status;if(response.redirected){reason='redirect';throw Error('drive_redirect_rejected');}if(allowMissing&&status===404)return null;if(!response.ok){reason='http-status';throw Error('drive_request_failed');}reason='body';return bounded(response,limit);})(),deadline]);
-  }catch{await reportDiagnostic(options,{phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut});throw Error('drive_request_unconfirmed');}finally{clearTimeout(timer);controller.abort();}
+  }catch{const failure={phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut,postAttempted};await reportDiagnostic(options,failure);const error=Error('drive_request_unconfirmed');error[REQUEST_FAILURE]=failure;throw error;}finally{clearTimeout(timer);controller.abort();}
  };
 }
 const fields='id,name,mimeType,parents,trashed,ownedByMe,size,appProperties';
@@ -97,9 +102,12 @@ export async function downloadEvidence(receipt,options){
  return {bundle,proof:{fileId:config.fileId,folderId:config.folderId,sha256:bundle.sha256,length:bundle.length,ownerPermissionId:config.ownerPermissionId,ownerOnly:true,downloadVerified:true}};
  }catch(error){await reportDiagnostic(options,{phase:'readback-integrity',reason:'integrity',httpStatus:null,timedOut:false});throw error;}
 }
-/** Exactly one create attempt. An uncertain response MUST be reconciled by known fileId. */
+/** Bounded retries are confined to this in-flight invocation and one preallocated ID.
+ * https://developers.google.com/workspace/drive/api/guides/manage-uploads#use_a_pre-generated_id_to_upload_files
+ * A resumed uncertain journal operation remains GET-only. 409 is never proof.
+ */
 export async function uploadEvidence(bundle,options,context){
- options=trackedOptions(options);try{
+ options=trackedOptions({...options,config:{...options.config}});context={...context};try{
  const valid=verifyEvidenceBundle(bundle),{config}=options;configCheck(config);operationCheck(context);
  const receipt={fileId:config.fileId,folderId:config.folderId,sha256:valid.sha256,length:valid.length,operationId:context.operationId,payloadSha256:context.payloadSha256};
  const call=client(options);await verifyFolder(call,config);
@@ -108,23 +116,33 @@ export async function uploadEvidence(bundle,options,context){
  const boundary=`ltc_evidence_${valid.sha256}`;
  const meta={id:config.fileId,name:`ltc-evidence-${valid.sha256}.json`,mimeType:'application/json',parents:[config.folderId],appProperties:{sha256:valid.sha256,operationId:context.operationId,payloadSha256:context.payloadSha256}};
  const body=Buffer.concat([Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`),valid.bytes,Buffer.from(`\r\n--${boundary}--\r\n`)]);
- // Multipart bundles can be several MiB. Give the single create request a
- // bounded minute; metadata/readback keep their shorter existing deadline.
- // An explicit caller deadline still applies; the create request is never repeated.
+ // Snapshot the complete multipart bytes once; every request uses an identical copy.
+ // No new ID, body reconstruction, generic write retry or status-as-success rule.
  const upload=client({...options,timeoutMs:options.timeoutMs??60_000});
- try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post'});}catch{
-  // A lost create acknowledgement permits exact known-ID reads only. Neither
-  // absence nor unavailable proof authorizes a second create or not-applied.
+ for(let post=0;post<3;post++){
+  let failure,failed=false;
+  try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body:Buffer.from(body),contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post',...(typeof context.assertSameIdRetry==='function'?{beforePost:context.assertSameIdRetry}:{})});}
+  catch(error){failed=true;failure=error[REQUEST_FAILURE]??{phase:'upload-post',reason:'authorization'};}
+  if(!failed){const restored=await downloadEvidence(receipt,options);check(restored,'evidence_readback_missing');return {receipt,...restored};}
+  // Readback is mandatory even for 409. A conflicting parent, owner, operation,
+  // size, metadata or downloaded digest terminates without another create.
+  let safeToRetry=true;
   if(options[DIAGNOSTIC].postAttempted){
    for(let attempt=0;attempt<3;attempt++){
     try{const restored=await downloadEvidence(receipt,options);if(restored)return {receipt,...restored};}
-    catch(error){if(error?.message!=='drive_request_unconfirmed')break;}
-    if(attempt<2){try{await(options.readbackWait??(ms=>new Promise(resolve=>setTimeout(resolve,ms))))(1000);}catch{break;}}
+    catch(error){if(error?.message!=='drive_request_unconfirmed'){safeToRetry=false;break;}}
+    if(attempt<2){try{await(options.readbackWait??(ms=>new Promise(resolve=>setTimeout(resolve,ms))))(1000);}catch{safeToRetry=false;break;}}
    }
   }
-  throw Error('evidence_upload_outcome_unknown');
+  // Missing metadata is UNKNOWN, not proof of absence. Google alone guarantees
+  // the same pre-generated ID cannot create a second object. Do not retry auth,
+  // redirects, 409 conflicts, malformed successful bodies or non-transient 4xx.
+  const transient=failure.postAttempted===true&&failure.phase==='upload-post'&&(failure.timedOut||failure.reason==='transport'||(failure.reason==='http-status'&&[500,502,503,504].includes(failure.httpStatus)));
+  if(post===2||!safeToRetry||!transient||typeof context.assertSameIdRetry!=='function')break;
+  try{await(options.readbackWait??(ms=>new Promise(resolve=>setTimeout(resolve,ms))))(1000*2**post);}
+  catch{break;}
  }
- const restored=await downloadEvidence(receipt,options);check(restored,'evidence_readback_missing');return {receipt,...restored};
+ throw Error('evidence_upload_outcome_unknown');
  }catch(error){await reportDiagnostic(options,{phase:'upload-preflight',reason:'integrity',httpStatus:null,timedOut:false});throw error;}
 }
 export async function restoreEvidence(bundle,{directory}){
@@ -135,7 +153,7 @@ export async function restoreEvidence(bundle,{directory}){
  return {directory,sha256:valid.sha256,fileCount:entries.length,restored:true};
 }
 export function createDriveEvidenceProvider(options){
- options=trackedOptions(options);
+ options=trackedOptions({...options,config:{...options.config}});
  const valid=verifyEvidenceBundle(options.bundle);configCheck(options.config);
  const bind=context=>{operationCheck(context);const p=context.payload;check(p&&p.fileId===options.config.fileId&&p.folderId===options.config.folderId&&p.sha256===valid.sha256&&p.bytes===valid.length,'evidence_payload_mismatch');check(hash(Buffer.from(JSON.stringify(p)))===context.payloadSha256,'evidence_payload_digest_mismatch');};
  return {
@@ -211,3 +229,4 @@ export async function restoreArtifactEvidence(bundles,{directory,expectedManifes
  for(const file of restored){const target=path.join(directory,...file.path.split('/'));await mkdir(path.dirname(target),{recursive:true,mode:0o700});await writeFile(target,file.bytes,{flag:'wx',mode:0o600});check(hash(await readFile(target))===hash(file.bytes),'restore_readback_mismatch');}
  return {directory,manifestSha256,fileCount:restored.length,scopes:reconstructed.manifest.scopes,originalBytes:total,restored:true};
 }
+

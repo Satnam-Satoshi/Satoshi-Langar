@@ -40,8 +40,14 @@ export class ReleaseOperationCoordinator {
     // Writes uncertainty durably BEFORE calling provider. Concurrent calls can
     // authorize at most one effect; crash after this point requires readback.
     await this.state.assertMayMutate(this.lease,operationId);
-    try { await provider.apply({...structuredClone(context), fence:this.lease.fence}); }
+    let applying = true;
+    const assertSameIdRetry = async () => {
+      check(applying && context.payload.kind === 'drive-evidence', 'operation_reconciliation_required');
+      return this.state.assertSameIdDriveRetry(this.lease, operationId, context.payloadSha256);
+    };
+    try { await provider.apply({...structuredClone(context), fence:this.lease.fence, ...(context.payload.kind === 'drive-evidence' ? {assertSameIdRetry} : {})}); }
     catch { throw new Error('operation_outcome_uncertain'); }
+    finally { applying = false; }
     return {...await this.reconcile({operationId,payload,provider}),appliedNow:true};
   }
   async reconcile({operationId,payload,provider}) {
@@ -83,3 +89,4 @@ export async function runBoundedReleaseOperations(coordinator, steps) {
   }
   return receipts;
 }
+
