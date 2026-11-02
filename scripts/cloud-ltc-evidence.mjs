@@ -110,7 +110,7 @@ export async function uploadEvidence(bundle,options,context){
  const body=Buffer.concat([Buffer.from(`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`),valid.bytes,Buffer.from(`\r\n--${boundary}--\r\n`)]);
  // Multipart bundles can be several MiB. Give the single create request a
  // bounded minute; metadata/readback keep their shorter existing deadline.
- // An explicit caller deadline still applies, and no request is retried.
+ // An explicit caller deadline still applies; the create request is never repeated.
  const upload=client({...options,timeoutMs:options.timeoutMs??60_000});
  try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post'});}catch{
   // A lost create acknowledgement permits exact known-ID reads only. Neither
