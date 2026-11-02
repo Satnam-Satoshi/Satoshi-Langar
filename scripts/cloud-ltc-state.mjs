@@ -123,6 +123,15 @@ export class DurableCloudState {
       return intent;
     });
   }
+  // Drive's pre-generated-ID contract permits bounded identical in-flight retry,
+  // not a new authorization or resurrection of a retired/uncertain operation.
+  async assertSameIdDriveRetry(lease, operationId, payloadSha256) {
+    const document = await this.inspect(); this.#live(document, lease);
+    const intent = document.intents[operationId];
+    check(intent?.status === 'uncertain' && intent.fence === lease.fence && intent.runId === lease.runId && intent.payloadSha256 === payloadSha256 && intent.payload?.kind === 'drive-evidence' && digest(JSON.stringify(intent.payload)) === payloadSha256, 'reconciliation_required');
+    assertNoQuarantinedUploadReuse(document,{operations:[{operationId,payload:intent.payload}]});
+    return true;
+  }
   async uncertain(lease, operationId) {
     return this.#update(document => {
       const intent = document.intents[operationId];
@@ -246,3 +255,4 @@ function validateDocument(document) {
   }
   for (const id of Object.keys(document.receipts)) check(document.intents[id] && terminal(document.intents[id]), 'invalid_receipt');
 }
+
