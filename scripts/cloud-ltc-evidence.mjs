@@ -65,14 +65,17 @@ function client(options){
  check(typeof getAccessToken==='function','missing_token_provider');
  return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown',beforeFetch}={})=>{
   check(/^\/(?:drive\/v3\/files\/[A-Za-z0-9_-]+(?:\/permissions)?|upload\/drive\/v3\/files)(?:\?[^#]*)?$/.test(pathname),'drive_path_not_allowed');
-  let token;try{token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');}catch{await reportDiagnostic(options,{phase,reason:'authorization',httpStatus:null,timedOut:false});throw requestFailure({phase,reason:'authorization',httpStatus:null,timedOut:false,postAttempted:false});}
-  // Trusted live authorization runs after potentially slow token acquisition.
-  // A refusal is not a transport failure and never starts an HTTP request.
-  if(beforeFetch)await beforeFetch();
-  const controller=new AbortController();let timer,status=null,timedOut=false,reason='transport',postStarted=false;
+  // One request deadline covers token acquisition, live authorization, fetch
+  // and bounded body consumption. Timed-out continuations cannot later POST.
+  const controller=new AbortController();let timer,status=null,timedOut=false,reason='authorization',postStarted=false;
   try{
    const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;controller.abort();reject(Error('drive_timeout'));},timeoutMs);});
-   return await Promise.race([(async()=>{if(method==='POST'){postStarted=true;if(options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;}
+   return await Promise.race([(async()=>{
+    const token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');
+    if(controller.signal.aborted)throw Error('drive_timeout');
+    if(beforeFetch)await beforeFetch();
+    if(controller.signal.aborted)throw Error('drive_timeout');
+    reason='transport';if(method==='POST'){postStarted=true;if(options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;}
     const response=await fetcher('https://www.googleapis.com'+pathname,{method,body,redirect:'error',cache:'no-store',signal:controller.signal,headers:{authorization:`Bearer ${token}`,accept:'application/json',...(contentType?{'content-type':contentType}:{})}});
     status=response.status;if(response.redirected){reason='redirect';throw Error('drive_redirect_rejected');}if(allowMissing&&status===404)return null;if(!response.ok){reason='http-status';throw Error('drive_request_failed');}reason='body';return bounded(response,limit);})(),deadline]);
   }catch{await reportDiagnostic(options,{phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut});throw requestFailure({phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut,postAttempted:postStarted});}finally{clearTimeout(timer);controller.abort();}
@@ -105,7 +108,7 @@ export async function downloadEvidence(receipt,options){
 /** Bounded, guarded retries reuse one pre-generated ID and captured immutable body. */
 export async function uploadEvidence(bundle,options,context){
  options=trackedOptions(options);try{
- const valid=verifyEvidenceBundle(bundle),{config}=options;configCheck(config);operationCheck(context);
+ const valid=verifyEvidenceBundle(bundle),{config}=options;configCheck(config);operationCheck(context);const assertApplyActive=context.assertApplyActive;
  const receipt={fileId:config.fileId,folderId:config.folderId,sha256:valid.sha256,length:valid.length,operationId:context.operationId,payloadSha256:context.payloadSha256};
  const call=client(options);await verifyFolder(call,config);
  const prior=await metadata(call,config.fileId,'upload-preflight');
@@ -128,13 +131,13 @@ export async function uploadEvidence(bundle,options,context){
  for(let attempt=0;attempt<3;attempt++){
   assertBinding();
   try{
-   await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post',beforeFetch:async()=>{if(options.beforeCreateAttempt)await options.beforeCreateAttempt({...structuredClone(context),attempt:attempt+1});assertBinding();}});
+   await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post',beforeFetch:async()=>{assertApplyActive?.();if(options.beforeCreateAttempt)await options.beforeCreateAttempt({...structuredClone(context),attempt:attempt+1});assertBinding();assertApplyActive?.();}});
   }catch(error){
    const failure=error?.[REQUEST_FAILURE];
    // Readback is mandatory before considering another HTTP create with this ID.
    if(failure?.reason==='authorization'||failure?.reason==='redirect'||failure?.reason==='http-status'&&[401,403].includes(failure.httpStatus))throw Error('evidence_upload_outcome_unknown');
    if(failure?.postAttempted){const restored=await readKnown();if(restored)return {receipt,...restored};}
-   const retryable=failure?.postAttempted&&(failure.reason==='transport'||failure.reason==='timeout'||failure.reason==='http-status'&&[500,502,503,504].includes(failure.httpStatus));
+   const retryable=failure?.postAttempted&&((failure.httpStatus===null&&(failure.reason==='transport'||failure.reason==='timeout'))||failure.reason==='http-status'&&[500,502,503,504].includes(failure.httpStatus));
    // Legacy/finite callers without an exact live-intent guard keep one create.
    if(!retryable||attempt===2||typeof options.beforeCreateAttempt!=='function')throw Error('evidence_upload_outcome_unknown');
    try{await wait(1000*2**attempt);}catch{throw Error('evidence_upload_outcome_unknown');}

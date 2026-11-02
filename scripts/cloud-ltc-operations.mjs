@@ -40,8 +40,12 @@ export class ReleaseOperationCoordinator {
     // Writes uncertainty durably BEFORE calling provider. Concurrent calls can
     // authorize at most one effect; crash after this point requires readback.
     await this.state.assertMayMutate(this.lease,operationId);
-    try { await provider.apply({...structuredClone(context), fence:this.lease.fence}); }
+    let applying=true;const applyContext={...structuredClone(context),fence:this.lease.fence};
+    // Invocation lifetime is additional to the provider's exact durable guard.
+    if(context.payload.kind==='drive-evidence')Object.defineProperty(applyContext,'assertApplyActive',{value:()=>check(applying,'operation_reconciliation_required')});
+    try { await provider.apply(applyContext); }
     catch { throw new Error('operation_outcome_uncertain'); }
+    finally { applying=false; }
     return {...await this.reconcile({operationId,payload,provider}),appliedNow:true};
   }
   async reconcile({operationId,payload,provider}) {

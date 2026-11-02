@@ -67,3 +67,13 @@ test('unsafe plans and non-JSON payloads are rejected before provider effects',a
   for(const payload of [{x:undefined},{x:NaN},new Date(),{x:BigInt(2)}])await assert.rejects(f.coordinator.execute({operationId:'unsafe',payload,provider:p}),/invalid_operation_payload/);
   assert.equal(p.calls,0);
 });
+
+
+test('Drive apply-lifetime capability expires before readback and after apply failure',async()=>{
+ for(const fail of[false,true]){
+  const f=await setup();let capability,applies=0;
+  const input={operationId:'drive-lifetime',payload:{kind:'drive-evidence'},provider:{apply:async context=>{applies++;capability=context.assertApplyActive;assert.equal(typeof capability,'function');capability();assert(!Object.keys(context).includes('assertApplyActive'));assert.doesNotThrow(()=>structuredClone(context));if(fail)throw Error('private');},readback:async context=>{assert.throws(capability,/operation_reconciliation_required/);return {...context,status:'applied',proof:{verified:true}};}}};
+  if(fail)await assert.rejects(f.coordinator.execute(input),/operation_outcome_uncertain/);else await f.coordinator.execute(input);
+  assert.throws(capability,/operation_reconciliation_required/);await f.coordinator.execute(input).catch(()=>{});assert.equal(applies,1);
+ }
+});

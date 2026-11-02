@@ -6,14 +6,14 @@ async function fixture(actions,{hook=true,readFailure=null}={}){
  const config={folderId:'fixed_fixture_folder',fileId:'pregenerated_fixture_id',ownerPermissionId:'fixture_owner'},bundle=packageEvidence([{path:'fixture.json',bytes:Buffer.from('immutable authorized bytes')}]),payload={kind:'drive-evidence',role:'release-artifacts',generation:'f1-fixture',artifactPackageManifestSha256:'b'.repeat(64),fileId:config.fileId,folderId:config.folderId,sha256:bundle.sha256,bytes:bundle.length};
  const state=new DurableCloudState(new MemoryStateAdapter(),'website',{clock:()=>now});await state.setPaused(false);const lease=await state.acquire('gha-777-1',3600000),admission={state,lease,firstFreshGeneration:null},guard=createEvidenceAttemptGuard({admission,env:{},uploadQuarantineBinding:null}),posts=[],events=[],waits=[],diagnostics=[],guardCalls=[];
  const createBody=body=>{const delimiter='--ltc_evidence_'+bundle.sha256,parts=body.split(delimiter);remote=JSON.parse(parts[1].split('\r\n\r\n')[1].trim());remoteBytes=Buffer.from(parts[2].split('\r\n\r\n')[1].replace(/\r\n$/,''));remote={...remote,size:String(remoteBytes.length),ownedByMe:true,trashed:false};};
- const options={bundle,config,getAccessToken:async()=>{await options.onToken?.();return 'synthetic-token';},timeoutMs:25,readbackWait:async ms=>{events.push('wait');waits.push(ms);await options.onWait?.(ms);},onDiagnostic:d=>diagnostics.push(d),...(hook?{beforeCreateAttempt:async context=>{guardCalls.push(context.attempt);await guard(context);}}:{}),fetcher:async(url,o)=>{
+ const options={bundle,config,getAccessToken:async()=>{await options.onToken?.();return 'synthetic-token';},timeoutMs:25,readbackWait:async ms=>{events.push('wait');waits.push(ms);await options.onWait?.(ms);},onDiagnostic:d=>diagnostics.push(d),...(hook?{beforeCreateAttempt:async context=>{guardCalls.push(context.attempt);await options.onGuard?.(context);await guard(context);}}:{}),fetcher:async(url,o)=>{
   const u=new URL(url);assert.equal(u.origin,'https://www.googleapis.com');assert(['GET','POST'].includes(o.method));assert.equal(o.redirect,'error');
   if(o.method==='POST'){
    if(posts.length)assert.equal(events.at(-1),'file-get','Every additional create follows a fresh exact-ID GET');
    assert.equal(typeof o.body,'string','Captured multipart body is an immutable primitive');posts.push({body:o.body,contentType:o.headers['content-type']});events.push('post');const action=actions[Math.min(posts.length-1,actions.length-1)];
    const metadata=JSON.parse(o.body.split('\r\n\r\n')[1].split('\r\n--')[0]);assert.equal(metadata.id,config.fileId);assert.deepEqual(metadata.parents,[config.folderId]);assert.equal(metadata.appProperties.operationId,'fixture-upload');assert.equal(metadata.appProperties.payloadSha256,hash(payload));
    if(action.store)createBody(o.body);if(action.mismatch==='owner')remote.owner=false;if(action.mismatch==='hash')remote.appProperties.sha256='f'.repeat(64);if(action.mismatch==='parent')remote.parents=['different-folder'];
-   if(action.timeout)return new Promise(()=>{});if(action.transport)throw Error('PRIVATE_TOKEN transport response');return new Response(action.status>=400?'PRIVATE_TOKEN body':JSON.stringify({id:config.fileId}),{status:action.status});
+   if(action.bodyTimeout)return new Response(new ReadableStream({start(){}}),{status:200});if(action.timeout)return new Promise(()=>{});if(action.transport)throw Error('PRIVATE_TOKEN transport response');return new Response(action.status>=400?'PRIVATE_TOKEN body':JSON.stringify({id:config.fileId}),{status:action.status});
   }
   if(u.pathname.endsWith('/'+config.folderId)){events.push('folder-get');return Response.json({id:config.folderId,mimeType:'application/vnd.google-apps.folder',ownedByMe:true,trashed:false});}
   if(u.pathname.endsWith('/permissions')){events.push('permissions-get');return Response.json({permissions:[{id:config.ownerPermissionId,type:'user',role:'owner'},...(remote?.owner===false&&u.pathname.includes(config.fileId)?[{id:'public',type:'anyone',role:'reader'}]:[])]});}
@@ -67,4 +67,20 @@ test('token acquisition cannot carry an additional create past expiry or emergen
   f.options.onToken=async()=>{if(!interrupted&&f.posts.length===1&&f.waits.length===3&&f.events.at(-1)==='file-get'){interrupted=true;await Promise.resolve();if(mode==='expire')f.setNow(f.lease.expiresAt+1);else await f.state.setPaused(true);}};
   await assert.rejects(f.execute(),/operation_outcome_uncertain/);assert.equal(interrupted,true);assert.equal(f.posts.length,1);assert.equal((await f.state.inspect()).intents['fixture-upload'].status,'uncertain');assert.deepEqual(f.guardCalls,[1,2]);
  }
+});
+
+
+test('shared request deadline bounds token and guard; late resolution cannot send a POST',async()=>{
+ for(const phase of['token','guard']){
+  const f=await fixture([{status:200,store:true}]);let release,entered=false;const blocked=new Promise(resolve=>{release=resolve;});
+  if(phase==='token')f.options.onToken=async()=>{if(f.events.at(-1)==='file-get'){entered=true;await blocked;}};
+  else f.options.onGuard=async()=>{entered=true;await blocked;};
+  await assert.rejects(f.execute(),/operation_outcome_uncertain/);assert.equal(entered,true);assert.equal(f.posts.length,0);assert.equal(f.diagnostics[0].phase,'upload-post');assert.equal(f.diagnostics[0].timedOut,true);assert.equal(f.diagnostics[0].postAttempted,false);
+  release();await new Promise(resolve=>setTimeout(resolve,40));assert.equal(f.posts.length,0);assert.equal((await f.state.inspect()).intents['fixture-upload'].status,'uncertain');
+ }
+});
+
+
+test('acknowledged create200 with stalled response body is bounded and never causes another create',async()=>{
+ const f=await fixture([{bodyTimeout:true}]);await assert.rejects(f.execute(),/operation_outcome_uncertain/);assert.equal(f.posts.length,1);assert.equal(f.diagnostics[0].httpStatus,200);assert.equal(f.diagnostics[0].timedOut,true);assert.equal(f.diagnostics[0].postAttempted,true);assert.equal((await f.state.inspect()).intents['fixture-upload'].status,'uncertain');
 });
