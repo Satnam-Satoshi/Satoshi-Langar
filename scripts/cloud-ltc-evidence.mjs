@@ -63,9 +63,12 @@ async function bounded(response,limit){
 function client(options){
  const {getAccessToken,fetcher=fetch,timeoutMs=15000}=options;
  check(typeof getAccessToken==='function','missing_token_provider');
- return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown'}={})=>{
+ return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown',beforeFetch}={})=>{
   check(/^\/(?:drive\/v3\/files\/[A-Za-z0-9_-]+(?:\/permissions)?|upload\/drive\/v3\/files)(?:\?[^#]*)?$/.test(pathname),'drive_path_not_allowed');
   let token;try{token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');}catch{await reportDiagnostic(options,{phase,reason:'authorization',httpStatus:null,timedOut:false});throw requestFailure({phase,reason:'authorization',httpStatus:null,timedOut:false,postAttempted:false});}
+  // Trusted live authorization runs after potentially slow token acquisition.
+  // A refusal is not a transport failure and never starts an HTTP request.
+  if(beforeFetch)await beforeFetch();
   const controller=new AbortController();let timer,status=null,timedOut=false,reason='transport',postStarted=false;
   try{
    const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;controller.abort();reject(Error('drive_timeout'));},timeoutMs);});
@@ -124,10 +127,8 @@ export async function uploadEvidence(bundle,options,context){
  };
  for(let attempt=0;attempt<3;attempt++){
   assertBinding();
-  if(options.beforeCreateAttempt)await options.beforeCreateAttempt({...structuredClone(context),attempt:attempt+1});
-  assertBinding();
   try{
-   await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post'});
+   await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post',beforeFetch:async()=>{if(options.beforeCreateAttempt)await options.beforeCreateAttempt({...structuredClone(context),attempt:attempt+1});assertBinding();}});
   }catch(error){
    const failure=error?.[REQUEST_FAILURE];
    // Readback is mandatory before considering another HTTP create with this ID.

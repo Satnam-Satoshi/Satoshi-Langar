@@ -19,7 +19,7 @@ Each outcome has at most three readback rounds; each possible additional POST ha
 
 ## Durable authorization
 
-Production checks before every create that the exact run/fence still owns an unexpired lease, paused and restoreHold are false, and the same intent remains UNCERTAIN with the exact operation/payload/file/folder. It also checks captured generation and quarantine/retirement bindings and rejects banned lineage. The check only reads state: it does not extend the lease or authorize an uncertain operation again. The summary provider uses this same check after Git advancement without requiring the previous source head to remain current.
+After token acquisition, immediately before starting the HTTP request, production checks before every create that the exact run/fence still owns an unexpired lease, paused and restoreHold are false, and the same intent remains UNCERTAIN with the exact operation/payload/file/folder. It also checks captured generation and quarantine/retirement bindings and rejects banned lineage. The check only reads state: it does not extend the lease or authorize an uncertain operation again. The summary provider uses this same check after Git advancement without requiring the previous source head to remain current.
 
 A later invocation of the coordinator cannot replay an UNKNOWN intent. This bounded in-flight policy is not a recovery command for the existing incident.
 
