@@ -40,7 +40,7 @@ test('upload verifies selected folder, owner-only permissions, exact metadata an
  const again=await uploadEvidence(b,f.options,context);assert.equal(again.proof.sha256,b.sha256);assert.equal(f.posts,1,'Already confirmed exact ID is read back, not uploaded again');
 });
 test('lost create response reconciles known ID without another upload',async()=>{
- const f=fixture({ambiguous:true}),provider=createDriveEvidenceProvider({bundle:bundle(),...f.options});await assert.rejects(provider.apply(context),/outcome_unknown/);assert.equal(f.posts,1);
+ const f=fixture({ambiguous:true}),provider=createDriveEvidenceProvider({bundle:bundle(),...f.options});assert.equal((await provider.apply(context)).status,'applied');assert.equal(f.posts,1);
  const readback=await provider.readback(context);assert.equal(readback.status,'applied');assert.equal(readback.operationId,context.operationId);assert.equal(readback.payloadSha256,context.payloadSha256);assert.equal(f.posts,1);
 });
 test('owner-only checks, wrong parent and corrupted media fail closed',async()=>{
@@ -73,7 +73,7 @@ test('one multipart create gets a bounded minute while reads keep shorter deadli
 test('an uncertain single multipart create is never retried with the longer default',async t=>{
  const deadlines=[],original=globalThis.setTimeout;
  t.mock.method(globalThis,'setTimeout',(callback,delay,...args)=>{deadlines.push(delay);return original(callback,delay,...args);});
- const f=fixture({ambiguous:true});await assert.rejects(uploadEvidence(bundle(),f.options,context),/evidence_upload_outcome_unknown/);
+ const f=fixture({ambiguous:true});assert.equal((await uploadEvidence(bundle(),f.options,context)).proof.downloadVerified,true);
  assert.equal(f.posts,1);assert.equal(deadlines.filter(n=>n===60_000).length,1);
  const readback=await createDriveEvidenceProvider({bundle:bundle(),...f.options}).readback(context);
  assert.equal(readback.status,'applied');assert.equal(f.posts,1);

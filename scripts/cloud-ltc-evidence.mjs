@@ -46,53 +46,64 @@ export function verifyEvidenceBundle(bundle){
  }));
  check(rebuilt.bytes.equals(bundle.bytes),'noncanonical_evidence_bundle');return rebuilt;
 }
+const DIAGNOSTIC=Symbol('private-evidence-failure');
+const diagnosticPhases=new Set(['folder-metadata','folder-permissions','upload-preflight','upload-post','readback-metadata','readback-permissions','readback-media','readback-integrity','id-allocation']);
+const diagnosticReasons=new Set(['authorization','transport','timeout','http-status','redirect','body','integrity','not-found']);
+export function safeEvidenceDiagnostic(value){return {provider:'drive-evidence',phase:diagnosticPhases.has(value?.phase)?value.phase:'unknown',reason:diagnosticReasons.has(value?.reason)?value.reason:'unknown',httpStatus:Number.isInteger(value?.httpStatus)&&value.httpStatus>=100&&value.httpStatus<=599?value.httpStatus:null,timedOut:value?.timedOut===true,postAttempted:value?.postAttempted===true};}
+function trackedOptions(options){return options[DIAGNOSTIC]?options:{...options,[DIAGNOSTIC]:{postAttempted:false,reported:false}};}
+async function reportDiagnostic(options,value){const tracking=options[DIAGNOSTIC];if(!tracking||tracking.reported)return;tracking.reported=true;const safe=safeEvidenceDiagnostic({...value,postAttempted:tracking.postAttempted});try{await options.onDiagnostic?.(safe);}catch{/* Diagnostic storage failure never authorizes a retry or replaces uncertainty. */}}
 function configCheck(config){check(config&&id(config.folderId)&&id(config.fileId)&&id(config.ownerPermissionId)&&config.fileId!==config.folderId,'invalid_evidence_configuration');}
 async function bounded(response,limit){
  check(response.body,'missing_drive_body');const reader=response.body.getReader();let count=0;const parts=[];
  try{for(;;){const {done,value}=await reader.read();if(done)break;count+=value.byteLength;check(count<=limit,'drive_response_too_large');parts.push(Buffer.from(value));}}finally{await reader.cancel().catch(()=>{});}
  return Buffer.concat(parts);
 }
-function client({getAccessToken,fetcher=fetch,timeoutMs=15000}){
+function client(options){
+ const {getAccessToken,fetcher=fetch,timeoutMs=15000}=options;
  check(typeof getAccessToken==='function','missing_token_provider');
- return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false}={})=>{
+ return async (pathname,{method='GET',body,contentType,limit=100_000,allowMissing=false,phase='unknown'}={})=>{
   check(/^\/(?:drive\/v3\/files\/[A-Za-z0-9_-]+(?:\/permissions)?|upload\/drive\/v3\/files)(?:\?[^#]*)?$/.test(pathname),'drive_path_not_allowed');
-  const token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');
-  const controller=new AbortController();let timer;
+  let token;try{token=await getAccessToken();check(typeof token==='string'&&token.length>0&&!/[\r\n]/.test(token),'invalid_access_token');}catch{await reportDiagnostic(options,{phase,reason:'authorization',httpStatus:null,timedOut:false});throw Error('drive_request_unconfirmed');}
+  const controller=new AbortController();let timer,status=null,timedOut=false,reason='transport';
   try{
-   const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('drive_timeout'));},timeoutMs);});
-   return await Promise.race([(async()=>{const response=await fetcher('https://www.googleapis.com'+pathname,{method,body,redirect:'error',cache:'no-store',signal:controller.signal,headers:{authorization:`Bearer ${token}`,accept:'application/json',...(contentType?{'content-type':contentType}:{})}});
-    check(!response.redirected,'drive_redirect_rejected');if(allowMissing&&response.status===404)return null;check(response.ok,'drive_request_failed');return bounded(response,limit);})(),deadline]);
-  }catch{throw Error('drive_request_unconfirmed');}finally{clearTimeout(timer);controller.abort();}
+   const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;controller.abort();reject(Error('drive_timeout'));},timeoutMs);});
+   return await Promise.race([(async()=>{if(method==='POST'&&options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;
+    const response=await fetcher('https://www.googleapis.com'+pathname,{method,body,redirect:'error',cache:'no-store',signal:controller.signal,headers:{authorization:`Bearer ${token}`,accept:'application/json',...(contentType?{'content-type':contentType}:{})}});
+    status=response.status;if(response.redirected){reason='redirect';throw Error('drive_redirect_rejected');}if(allowMissing&&status===404)return null;if(!response.ok){reason='http-status';throw Error('drive_request_failed');}reason='body';return bounded(response,limit);})(),deadline]);
+  }catch{await reportDiagnostic(options,{phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut});throw Error('drive_request_unconfirmed');}finally{clearTimeout(timer);controller.abort();}
  };
 }
 const fields='id,name,mimeType,parents,trashed,ownedByMe,size,appProperties';
-async function metadata(call,fileId){const bytes=await call(`/drive/v3/files/${fileId}?fields=${encodeURIComponent(fields)}`,{allowMissing:true});return bytes===null?null:JSON.parse(bytes.toString('utf8'));}
-async function ownerOnly(call,fileId,ownerId){
- const bytes=await call(`/drive/v3/files/${fileId}/permissions?fields=${encodeURIComponent('nextPageToken,permissions(id,type,role,deleted)')}&pageSize=100`);
+async function metadata(call,fileId,phase='readback-metadata'){const bytes=await call(`/drive/v3/files/${fileId}?fields=${encodeURIComponent(fields)}`,{allowMissing:true,phase});return bytes===null?null:JSON.parse(bytes.toString('utf8'));}
+async function ownerOnly(call,fileId,ownerId,phase='readback-permissions'){
+ const bytes=await call(`/drive/v3/files/${fileId}/permissions?fields=${encodeURIComponent('nextPageToken,permissions(id,type,role,deleted)')}&pageSize=100`,{phase});
  const result=JSON.parse(bytes.toString('utf8'));
  check(!result.nextPageToken&&Array.isArray(result.permissions)&&result.permissions.length===1,'evidence_not_owner_only');
  const p=result.permissions[0];check(p.id===ownerId&&p.type==='user'&&p.role==='owner'&&p.deleted!==true,'evidence_not_owner_only');
 }
 async function verifyFolder(call,config){
- const meta=await metadata(call,config.folderId);check(meta&&meta.id===config.folderId&&meta.mimeType==='application/vnd.google-apps.folder'&&meta.trashed===false&&meta.ownedByMe===true,'unverified_evidence_folder');await ownerOnly(call,config.folderId,config.ownerPermissionId);
+ const meta=await metadata(call,config.folderId,'folder-metadata');check(meta&&meta.id===config.folderId&&meta.mimeType==='application/vnd.google-apps.folder'&&meta.trashed===false&&meta.ownedByMe===true,'unverified_evidence_folder');await ownerOnly(call,config.folderId,config.ownerPermissionId,'folder-permissions');
 }
 function operationCheck(context){check(context&&typeof context.operationId==='string'&&/^[a-zA-Z0-9._:-]{1,120}$/.test(context.operationId)&&sha(context.payloadSha256),'invalid_evidence_operation');}
 export async function downloadEvidence(receipt,options){
+ options=trackedOptions(options);try{
  const {config}=options;configCheck(config);check(receipt&&receipt.fileId===config.fileId&&receipt.folderId===config.folderId&&sha(receipt.sha256)&&Number.isSafeInteger(receipt.length)&&receipt.length>0&&receipt.length<=MAX_BUNDLE,'invalid_evidence_receipt');
- const call=client(options);await verifyFolder(call,config);const meta=await metadata(call,config.fileId);if(!meta)return null;
+ const call=client(options);await verifyFolder(call,config);const meta=await metadata(call,config.fileId);if(!meta){await reportDiagnostic(options,{phase:'readback-metadata',reason:'not-found',httpStatus:404,timedOut:false});return null;}
  check(meta.id===config.fileId&&meta.name===`ltc-evidence-${receipt.sha256}.json`&&meta.mimeType==='application/json'&&meta.ownedByMe===true&&meta.trashed===false&&Array.isArray(meta.parents)&&meta.parents.length===1&&meta.parents[0]===config.folderId&&meta.size===String(receipt.length),'evidence_metadata_mismatch');
  check(meta.appProperties?.sha256===receipt.sha256&&meta.appProperties?.operationId===receipt.operationId&&meta.appProperties?.payloadSha256===receipt.payloadSha256,'evidence_operation_mismatch');
  await ownerOnly(call,config.fileId,config.ownerPermissionId);
- const bytes=await call(`/drive/v3/files/${config.fileId}?alt=media`,{limit:MAX_BUNDLE});
+ const bytes=await call(`/drive/v3/files/${config.fileId}?alt=media`,{limit:MAX_BUNDLE,phase:'readback-media'});
  const bundle=verifyEvidenceBundle({bytes,sha256:receipt.sha256,length:receipt.length});
  return {bundle,proof:{fileId:config.fileId,folderId:config.folderId,sha256:bundle.sha256,length:bundle.length,ownerPermissionId:config.ownerPermissionId,ownerOnly:true,downloadVerified:true}};
+ }catch(error){await reportDiagnostic(options,{phase:'readback-integrity',reason:'integrity',httpStatus:null,timedOut:false});throw error;}
 }
 /** Exactly one create attempt. An uncertain response MUST be reconciled by known fileId. */
 export async function uploadEvidence(bundle,options,context){
+ options=trackedOptions(options);try{
  const valid=verifyEvidenceBundle(bundle),{config}=options;configCheck(config);operationCheck(context);
  const receipt={fileId:config.fileId,folderId:config.folderId,sha256:valid.sha256,length:valid.length,operationId:context.operationId,payloadSha256:context.payloadSha256};
  const call=client(options);await verifyFolder(call,config);
- const prior=await metadata(call,config.fileId);
+ const prior=await metadata(call,config.fileId,'upload-preflight');
  if(prior){const restored=await downloadEvidence(receipt,options);check(restored,'evidence_readback_missing');return {receipt,...restored};}
  const boundary=`ltc_evidence_${valid.sha256}`;
  const meta={id:config.fileId,name:`ltc-evidence-${valid.sha256}.json`,mimeType:'application/json',parents:[config.folderId],appProperties:{sha256:valid.sha256,operationId:context.operationId,payloadSha256:context.payloadSha256}};
@@ -101,8 +112,20 @@ export async function uploadEvidence(bundle,options,context){
  // bounded minute; metadata/readback keep their shorter existing deadline.
  // An explicit caller deadline still applies, and no request is retried.
  const upload=client({...options,timeoutMs:options.timeoutMs??60_000});
- try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`});}catch{throw Error('evidence_upload_outcome_unknown');}
+ try{await upload('/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',body,contentType:`multipart/related; boundary=${boundary}`,phase:'upload-post'});}catch{
+  // A lost create acknowledgement permits exact known-ID reads only. Neither
+  // absence nor unavailable proof authorizes a second create or not-applied.
+  if(options[DIAGNOSTIC].postAttempted){
+   for(let attempt=0;attempt<3;attempt++){
+    try{const restored=await downloadEvidence(receipt,options);if(restored)return {receipt,...restored};}
+    catch(error){if(error?.message!=='drive_request_unconfirmed')break;}
+    if(attempt<2){try{await(options.readbackWait??(ms=>new Promise(resolve=>setTimeout(resolve,ms))))(1000);}catch{break;}}
+   }
+  }
+  throw Error('evidence_upload_outcome_unknown');
+ }
  const restored=await downloadEvidence(receipt,options);check(restored,'evidence_readback_missing');return {receipt,...restored};
+ }catch(error){await reportDiagnostic(options,{phase:'upload-preflight',reason:'integrity',httpStatus:null,timedOut:false});throw error;}
 }
 export async function restoreEvidence(bundle,{directory}){
  const valid=verifyEvidenceBundle(bundle);check(typeof directory==='string'&&path.isAbsolute(directory),'invalid_restore_directory');
@@ -112,6 +135,7 @@ export async function restoreEvidence(bundle,{directory}){
  return {directory,sha256:valid.sha256,fileCount:entries.length,restored:true};
 }
 export function createDriveEvidenceProvider(options){
+ options=trackedOptions(options);
  const valid=verifyEvidenceBundle(options.bundle);configCheck(options.config);
  const bind=context=>{operationCheck(context);const p=context.payload;check(p&&p.fileId===options.config.fileId&&p.folderId===options.config.folderId&&p.sha256===valid.sha256&&p.bytes===valid.length,'evidence_payload_mismatch');check(hash(Buffer.from(JSON.stringify(p)))===context.payloadSha256,'evidence_payload_digest_mismatch');};
  return {
@@ -121,11 +145,11 @@ export function createDriveEvidenceProvider(options){
 }
 
 /** Allocate opaque IDs only; caller must durably intend each ID before any upload. */
-export async function preallocateEvidenceIds({count,config,getAccessToken,fetcher=fetch,timeoutMs=15000}){
+export async function preallocateEvidenceIds({count,config,getAccessToken,fetcher=fetch,timeoutMs=15000,onDiagnostic}){
  check(Number.isSafeInteger(count)&&count>=1&&count<=64,'invalid_evidence_id_count');
  check(config&&id(config.folderId)&&id(config.ownerPermissionId),'invalid_evidence_configuration');
- const call=client({getAccessToken,fetcher,timeoutMs});await verifyFolder(call,config);
- const raw=await call(`/drive/v3/files/generateIds?count=${count}&space=drive&type=files`);
+ const call=client(trackedOptions({getAccessToken,fetcher,timeoutMs,onDiagnostic}));await verifyFolder(call,config);
+ const raw=await call(`/drive/v3/files/generateIds?count=${count}&space=drive&type=files`,{phase:'id-allocation'});
  const result=JSON.parse(raw.toString('utf8'));
  check(result.space==='drive'&&result.kind==='drive#generatedIds'&&Array.isArray(result.ids)&&result.ids.length===count&&result.ids.every(value=>id(value)&&value!==config.folderId)&&new Set(result.ids).size===count,'invalid_generated_evidence_ids');
  return result.ids;
