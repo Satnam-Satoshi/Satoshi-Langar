@@ -22,7 +22,7 @@ on:
       acceptance_mode:
         description: Explicit reviewed acceptance action; promotion proof temporarily changes public aliases
         type: choice
-        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint]
+        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint, retire-routine-uploads]
         default: none
       acceptance_source_commit:
         description: Exact reviewed acceptance source commit
@@ -65,6 +65,8 @@ jobs:
     env:
       LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
       LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256 }}
       LTC_CLOUD_PUBLISH: ${{ vars.LTC_CLOUD_PUBLISH }}
       LTC_VERCEL_CLI_VERSION: ${{ vars.LTC_VERCEL_CLI_VERSION }}
       LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
@@ -190,7 +192,11 @@ jobs:
           import {existsSync,readFileSync,appendFileSync} from 'node:fs';
           const file=process.env.RUNNER_TEMP+'/ltc-receipt.json';if(!existsSync(file))process.exit(0);
           const receipt=JSON.parse(readFileSync(file,'utf8'));
-          const result={mode:receipt.mode,status:receipt.status,source:receipt.source,edition:receipt.edition,published:receipt.published,paused:receipt.paused,routineEnabled:receipt.routineEnabled,firstFreshProofCompleted:receipt.firstFreshProofCompleted,failure:receipt.failure};
+          // Keep always-run summary independent of possibly withheld source code.
+          const phases=new Set(['folder-metadata','folder-permissions','upload-preflight','upload-post','readback-metadata','readback-permissions','readback-media','readback-integrity','id-allocation']);
+          const reasons=new Set(['authorization','transport','timeout','http-status','redirect','body','integrity','not-found']);
+          const safeEvidenceDiagnostic=d=>({provider:'drive-evidence',phase:phases.has(d?.phase)?d.phase:'unknown',reason:reasons.has(d?.reason)?d.reason:'unknown',httpStatus:Number.isInteger(d?.httpStatus)&&d.httpStatus>=100&&d.httpStatus<=599?d.httpStatus:null,timedOut:d?.timedOut===true,postAttempted:d?.postAttempted===true});
+          const result={mode:receipt.mode,status:receipt.status,source:receipt.source,edition:receipt.edition,published:receipt.published,paused:receipt.paused,routineEnabled:receipt.routineEnabled,firstFreshProofCompleted:receipt.firstFreshProofCompleted,failure:receipt.failure,...(receipt.providerFailure?{providerFailure:safeEvidenceDiagnostic(receipt.providerFailure)}:{})};
           appendFileSync(process.env.GITHUB_STEP_SUMMARY,'```json\n'+JSON.stringify(result,null,2)+'\n```\n');
           NODE
 
@@ -204,6 +210,8 @@ jobs:
     env:
       LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
       LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256 }}
       LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -314,7 +322,7 @@ jobs:
 
 
   stage-acceptance:
-    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine' || inputs.acceptance_mode == 'promotion-proof' || inputs.acceptance_mode == 'promotion-reconcile' || inputs.acceptance_mode == 'promotion-rollback' || inputs.acceptance_mode == 'activate-cloud' || inputs.acceptance_mode == 'social-inspect' || inputs.acceptance_mode == 'social-bootstrap' || inputs.acceptance_mode == 'social-private-draft' || inputs.acceptance_mode == 'social-reconcile-private-draft' || inputs.acceptance_mode == 'pre-effect-retire' || inputs.acceptance_mode == 'continue-staged' || inputs.acceptance_mode == 'retire-staged' || inputs.acceptance_mode == 'inspect-upload-failure' || inputs.acceptance_mode == 'quarantine-uploads' || inputs.acceptance_mode == 'recover-promotion-checkpoint')
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine' || inputs.acceptance_mode == 'promotion-proof' || inputs.acceptance_mode == 'promotion-reconcile' || inputs.acceptance_mode == 'promotion-rollback' || inputs.acceptance_mode == 'activate-cloud' || inputs.acceptance_mode == 'social-inspect' || inputs.acceptance_mode == 'social-bootstrap' || inputs.acceptance_mode == 'social-private-draft' || inputs.acceptance_mode == 'social-reconcile-private-draft' || inputs.acceptance_mode == 'pre-effect-retire' || inputs.acceptance_mode == 'continue-staged' || inputs.acceptance_mode == 'retire-staged' || inputs.acceptance_mode == 'inspect-upload-failure' || inputs.acceptance_mode == 'quarantine-uploads' || inputs.acceptance_mode == 'recover-promotion-checkpoint' || inputs.acceptance_mode == 'retire-routine-uploads')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: ltc-production
@@ -324,6 +332,8 @@ jobs:
     env:
       LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
       LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256 }}
       LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
       LTC_VERCEL_CLI_VERSION: ${{ vars.LTC_VERCEL_CLI_VERSION }}
       LTC_CLOUD_PUBLISH: ${{ vars.LTC_CLOUD_PUBLISH }}
@@ -405,6 +415,8 @@ jobs:
           }else if(['recover','quarantine'].includes(e.LTC_ACCEPTANCE_MODE)){
             if(! /^[a-f0-9]{64}$/.test(e.LTC_ACCEPTANCE_PLAN_SHA256||'')||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Recovery scope mismatch');
             if(e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT)throw Error('Unexpected recovery/quarantine inputs');
+          }else if(e.LTC_ACCEPTANCE_MODE==='retire-routine-uploads'){
+            if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||e.LTC_ACCEPTANCE_FENCE!=='12'||e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PLAN_SHA256||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact routine retirement scope required');
           }else if(e.LTC_ACCEPTANCE_MODE==='recover-promotion-checkpoint'){
             if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||e.LTC_ACCEPTANCE_FENCE!=='10'||e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PLAN_SHA256||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact checkpoint recovery scope required');
           }else if(e.LTC_ACCEPTANCE_MODE==='inspect-upload-failure'){
@@ -472,6 +484,8 @@ jobs:
           NODE
       - name: Explicitly approved stage-only effect or fresh-proof recovery
         env:
+          LTC_ROUTINE_RETIREMENT_REVIEW_JSON: ${{ inputs.acceptance_mode == 'retire-routine-uploads' && secrets.LTC_ROUTINE_RETIREMENT_REVIEW_JSON || '' }}
+          LTC_ROUTINE_RETIREMENT_REVIEW_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_REVIEW_SHA256 }}
           LTC_PROMOTION_CHECKPOINT_REVIEW_JSON: ${{ inputs.acceptance_mode == 'recover-promotion-checkpoint' && secrets.LTC_PROMOTION_CHECKPOINT_REVIEW_JSON || '' }}
           LTC_PROMOTION_CHECKPOINT_REVIEW_SHA256: ${{ vars.LTC_PROMOTION_CHECKPOINT_REVIEW_SHA256 }}
           LTC_UPLOAD_QUARANTINE_REVIEW_JSON: ${{ inputs.acceptance_mode == 'quarantine-uploads' && secrets.LTC_UPLOAD_QUARANTINE_REVIEW_JSON || '' }}
@@ -511,7 +525,15 @@ jobs:
               set -- "$@" --review-file "$RUNNER_TEMP/ltc-setup-quarantine-review.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json"
             fi
           fi
-          if [[ "$LTC_ACCEPTANCE_MODE" == recover-promotion-checkpoint ]]; then
+          if [[ "$LTC_ACCEPTANCE_MODE" == retire-routine-uploads ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const value=process.env.LTC_ROUTINE_RETIREMENT_REVIEW_JSON;
+          if(typeof value!=='string'||Buffer.byteLength(value)>65536)throw Error('Protected routine retirement review required');
+          writeFileSync(process.env.RUNNER_TEMP+'/ltc-routine-retirement-review.json',JSON.stringify(JSON.parse(value))+'\n',{flag:'wx',mode:0o600});
+          NODE
+            node scripts/cloud-ltc-retire-routine-uploads.mjs --review-file "$RUNNER_TEMP/ltc-routine-retirement-review.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == recover-promotion-checkpoint ]]; then
             node --input-type=module <<'NODE'
           import {writeFileSync} from 'node:fs';
           const value=process.env.LTC_PROMOTION_CHECKPOINT_REVIEW_JSON;
