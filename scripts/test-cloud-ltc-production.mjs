@@ -10,7 +10,7 @@ import { releaseGeneration, generationEvidenceId } from './cloud-ltc-generation.
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
-async function fixture({ uncertainStage = false, badPublishedBytes = false, uncertainPromotion = false } = {}) {
+async function fixture({ uncertainStage = false, badPublishedBytes = false, uncertainPromotion = false, evidenceDiagnostic = false } = {}) {
   const scratch = await mkdtemp(path.join(tmpdir(), 'ltc-production-contract-')); const root = path.join(scratch, 'source'); const evidenceDirectory = path.join(scratch, 'evidence');
   await mkdir(root); await mkdir(evidenceDirectory);
   await writeFile(path.join(root, 'package.json'), '{}');
@@ -41,11 +41,12 @@ async function fixture({ uncertainStage = false, badPublishedBytes = false, unce
     manifest, publicationProvenance: { editionSha256: hash('edition'), sourceDeskSha256: hash('desk'), dailyGraphicSha256: hash('graphic') }, buildOutput: [{ file: 'config.json', sha256: hash('{}') }, { file: 'static/index.html', sha256: hash('new html') }], rollbackManifest, evidenceDirectory,
     evidenceConfig: { folderId: 'fixture-folder', ownerPermissionId: 'fixture-owner' }, env: {},
     preallocateIds: async ({ count }) => Array.from({ length: count }, () => `file-fixture-${++allocated}`),
-    evidenceProviderFactory: ({ bundle, config }) => {
+    evidenceProviderFactory: ({ bundle, config, onDiagnostic }) => {
       let stored;
       return {
         async apply(context) {
           events.push('evidence-upload');
+          if(evidenceDiagnostic){await onDiagnostic({phase:'upload-post',reason:'http-status',httpStatus:429,timedOut:false,postAttempted:true,raw:'PRIVATE_TOKEN response https://private.invalid/'});throw Error('PRIVATE_TOKEN provider response');}
           const intent = (await state.inspect()).intents[context.operationId];
           assert.equal(intent.status, 'uncertain');if(intent.payload.role==='release-artifacts'){assert.equal(intent.payload.generation,releaseGeneration(lease));assert.equal(intent.operationId,generationEvidenceId(releaseGeneration(lease),bundle.sha256));} assert.equal(intent.payload.fileId, config.fileId); assert.equal(intent.payload.sha256, bundle.sha256);
           stored = { operationId: context.operationId, payloadSha256: context.payloadSha256, status: 'applied', proof: { fileId: config.fileId, sha256: bundle.sha256, folderId: config.folderId, length: bundle.length, ownerOnly: true, downloadVerified: true } };
@@ -149,5 +150,13 @@ test('persisted stage proof requires exact current lease/fence, payload, leaf an
   for(const change of [d=>d.lease.runId='other',d=>d.intents[stage.operationId].fence++,d=>d.intents[stage.operationId].status='uncertain',d=>d.intents[stage.operationId].payload.commit='f'.repeat(40),d=>d.intents[stage.operationId].proof.proof.source='f'.repeat(40),d=>d.receipts[stage.operationId].sha256='f'.repeat(64),d=>delete d.receipts[stage.operationId]]){
    const document=structuredClone(original);change(document);await assert.rejects(confirmedStageFromState({state:{inspect:async()=>document},lease:f.options.admission.lease,operation}),/confirmed_stage_receipt_invalid/);
   }
+ }finally{await rm(f.scratch,{recursive:true,force:true});}
+});
+
+test('actual production evidence factory saves and logs only sanitized diagnostics before coordinator masks uncertainty',async t=>{
+ const lines=[];t.mock.method(console,'error',line=>lines.push(line));const f=await fixture({evidenceDiagnostic:true});try{
+  await assert.rejects(performCoordinatedRelease(f.options),/operation_outcome_uncertain/);
+  const d=f.saved.find(v=>v.providerFailure)?.providerFailure;assert.deepEqual(d,{provider:'drive-evidence',phase:'upload-post',reason:'http-status',httpStatus:429,timedOut:false,postAttempted:true});
+  assert.equal(lines.length,1);assert(!lines.join('').includes('PRIVATE_TOKEN'));assert(!JSON.stringify(f.saved).includes('PRIVATE_TOKEN'));assert.equal(Object.values((await f.state.inspect()).intents).filter(i=>i.status==='uncertain').length,1);assert(!f.events.includes('deploy'));
  }finally{await rm(f.scratch,{recursive:true,force:true});}
 });
