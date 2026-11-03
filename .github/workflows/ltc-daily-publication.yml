@@ -24,7 +24,7 @@ on:
       acceptance_mode:
         description: Explicit reviewed acceptance action; promotion proof temporarily changes public aliases
         type: choice
-        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint, retire-routine-uploads, retire-routine-followup]
+        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, social-reconcile-sent, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint, retire-routine-uploads, retire-routine-followup]
         default: none
       acceptance_source_commit:
         description: Exact reviewed acceptance source commit
@@ -640,3 +640,115 @@ jobs:
           }
           NODE
       # No private artifacts, plans, source evidence or ledger snapshots are uploaded to GitHub artifacts.
+
+
+  social-sent-reconciliation:
+    # Finite maintenance in the existing workflow/concurrency group, never a scheduler.
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && !inputs.dry_run && !inputs.bootstrap_previous_manifest && inputs.acceptance_mode == 'social-reconcile-sent'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ltc-production
+    permissions:
+      contents: read
+    env:
+      # Dedicated maintenance pins do not replace the website's accepted settings.
+      LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_SOCIAL_RECONCILIATION_IMPLEMENTATION_SHA256 }}
+      LTC_SOCIAL_RECONCILIATION_SOURCE_SHA: ${{ vars.LTC_SOCIAL_RECONCILIATION_SOURCE_SHA }}
+      LTC_SOCIAL_RECONCILIATION_POLICY_SHA256: ${{ vars.LTC_SOCIAL_RECONCILIATION_POLICY_SHA256 }}
+      LTC_ACCEPTANCE_SOURCE_COMMIT: ${{ inputs.acceptance_source_commit }}
+      LTC_CLOUD_PUBLISH: 'false'
+      LTC_CLOUD_SOCIAL_PUBLISH: 'false'
+      LTC_SOCIAL_CLOUD_PUBLISH: 'false'
+      LTC_SOCIAL_PUBLISH: 'false'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ vars.LTC_SOCIAL_RECONCILIATION_SOURCE_SHA }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify exact protected maintenance commit before executing source
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          const e=process.env,git=args=>execFileSync('git',args,{encoding:'utf8'}).trim();
+          if(e.GITHUB_REPOSITORY!=='Satnam-Satoshi/Satoshi-Langar'||e.GITHUB_REF!=='refs/heads/main'||e.GITHUB_EVENT_NAME!=='workflow_dispatch'||e.GITHUB_ACTOR_ID!=='268053325')throw Error('Founder manual context required');
+          if(!/^[a-f0-9]{40}$/.test(e.LTC_SOCIAL_RECONCILIATION_SOURCE_SHA||'')||e.LTC_ACCEPTANCE_SOURCE_COMMIT!==e.LTC_SOCIAL_RECONCILIATION_SOURCE_SHA||git(['rev-parse','HEAD'])!==e.LTC_SOCIAL_RECONCILIATION_SOURCE_SHA||git(['status','--porcelain=v1','--untracked-files=all']))throw Error('Exact clean maintenance source required');
+          if(!/^[a-f0-9]{64}$/.test(e.LTC_ACCEPTED_IMPLEMENTATION_SHA256||'')||!/^[a-f0-9]{64}$/.test(e.LTC_SOCIAL_RECONCILIATION_POLICY_SHA256||''))throw Error('Dedicated reviewed maintenance pins required');
+          NODE
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.2
+      - name: Verify implementation and test without service credentials
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {verifyImplementation} from './scripts/cloud-ltc-release.mjs';
+          await verifyImplementation(process.cwd(),process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256);
+          NODE
+          node --test scripts/test-cloud-ltc-social.mjs scripts/test-cloud-ltc-social-acceptance.mjs scripts/test-cloud-ltc-social-reconcile.mjs scripts/test-cloud-ltc-docs-state.mjs scripts/test-cloud-ltc-google-client.mjs scripts/test-cloud-ltc-google-runtime.mjs
+      - name: Validate protected private review bundle before service credentials
+        shell: bash
+        env:
+          LTC_SOCIAL_RECONCILIATION_BUNDLE_PARTS: ${{ vars.LTC_SOCIAL_RECONCILIATION_BUNDLE_PARTS }}
+          LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_1: ${{ secrets.LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_1 }}
+          LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_2: ${{ secrets.LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_2 }}
+          LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_3: ${{ secrets.LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_3 }}
+          LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_4: ${{ secrets.LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_4 }}
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_SOCIAL_STATE_DOCUMENT_ID: ${{ vars.LTC_SOCIAL_STATE_DOCUMENT_ID }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {mkdtempSync,writeFileSync,appendFileSync} from 'node:fs';
+          import path from 'node:path';
+          import {gunzipSync} from 'node:zlib';
+          import {execFileSync} from 'node:child_process';
+          import {loadGuardedReconciliationInputs} from './scripts/cloud-ltc-social-reconcile.mjs';
+          try {
+          const e=process.env,count=Number(e.LTC_SOCIAL_RECONCILIATION_BUNDLE_PARTS);
+          if(!/^[1-4]$/.test(e.LTC_SOCIAL_RECONCILIATION_BUNDLE_PARTS||''))throw Error('Exact private bundle part count required');
+          const parts=Array.from({length:4},(_,i)=>e['LTC_SOCIAL_RECONCILIATION_BUNDLE_PART_'+(i+1)]||'');
+          if(parts.some((part,i)=>i<count?(part.length===0||part.length>40000):part!==''))throw Error('Missing or unexpected private bundle part');
+          const encoded=parts.slice(0,count).join('');
+          if(! /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded))throw Error('Exact private reconciliation bundle required');
+          const bundle=JSON.parse(gunzipSync(Buffer.from(encoded,'base64'),{maxOutputLength:2000000}).toString('utf8'));
+          if(!bundle||Array.isArray(bundle)||Object.keys(bundle).sort().join(',')!=='inputJson,planJson,policyJson'||!Object.values(bundle).every(v=>typeof v==='string'&&Buffer.byteLength(v)<=1000000))throw Error('Invalid reconciliation bundle');
+          const folderId=e.LTC_STATE_FOLDER_ID,documentId=e.LTC_SOCIAL_STATE_DOCUMENT_ID;
+          if(![folderId,documentId].every(v=>/^[A-Za-z0-9_-]{8,160}$/.test(v||''))||folderId===documentId||!path.isAbsolute(e.RUNNER_TEMP||'')||/[\r\n]/.test(e.RUNNER_TEMP))throw Error('Exact private social selection required');
+          const directory=mkdtempSync(path.join(e.RUNNER_TEMP,'ltc-social-reconcile-'));
+          const paths={input:path.join(directory,'input.json'),plan:path.join(directory,'plan.json'),policy:path.join(directory,'policy.json'),config:path.join(directory,'social.json')};
+          for(const [key,file] of [['inputJson',paths.input],['planJson',paths.plan],['policyJson',paths.policy]])writeFileSync(file,bundle[key],{flag:'wx',mode:0o600});
+          writeFileSync(paths.config,JSON.stringify({schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId,documentId,ledgerKey:'social'}),{flag:'wx',mode:0o600});
+          const git=args=>execFileSync('git',args,{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
+          await loadGuardedReconciliationInputs({root:process.cwd(),git,paths});
+          appendFileSync(e.GITHUB_ENV,'LTC_SOCIAL_RECONCILIATION_DIRECTORY='+directory+'\n');
+          } catch { console.error('Protected reconciliation bundle validation failed; no provider calls were made.'); process.exitCode=1; }
+          NODE
+      - name: Reconcile sent receipts only; preserve every publication control
+        shell: bash
+        env:
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+          LTC_BUFFER_API_KEY: ${{ secrets.LTC_BUFFER_API_KEY }}
+        run: |
+          node scripts/cloud-ltc-social-reconcile.mjs --mode apply \
+            --input "$LTC_SOCIAL_RECONCILIATION_DIRECTORY/input.json" \
+            --plan "$LTC_SOCIAL_RECONCILIATION_DIRECTORY/plan.json" \
+            --social-state-config "$LTC_SOCIAL_RECONCILIATION_DIRECTORY/social.json" \
+            --policy "$LTC_SOCIAL_RECONCILIATION_DIRECTORY/policy.json" \
+            --receipt "$LTC_SOCIAL_RECONCILIATION_DIRECTORY/result.json"
+      - name: Report bounded maintenance outcome without private post evidence
+        if: always() && env.LTC_SOCIAL_RECONCILIATION_DIRECTORY != ''
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync,existsSync,appendFileSync} from 'node:fs';
+          const file=process.env.LTC_SOCIAL_RECONCILIATION_DIRECTORY+'/result.json';
+          if(existsSync(file)){
+            const r=JSON.parse(readFileSync(file,'utf8'));
+            if(r.mode!=='reconcile-sent'||!['applied-and-verified','already-applied','confirmed-after-readback'].includes(r.status)||r.paused!==true||r.bufferWrites!==false||r.activationAllowed!==false||!Number.isInteger(r.imported)||!Number.isInteger(r.updated)||!/^[a-f0-9]{64}$/.test(r.planSha256||''))throw Error('Invalid finite receipt');
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,imported:r.imported,updated:r.updated,planSha256:r.planSha256,paused:true,bufferWrites:false,activationAllowed:false})+'\n');
+          }else appendFileSync(process.env.GITHUB_STEP_SUMMARY,'Reconciliation has no verified completion receipt. Read the paused ledger before retrying. No publication was authorized.\n');
+          NODE
+      # No private artifacts are uploaded; the durable social ledger stores the receipt.
