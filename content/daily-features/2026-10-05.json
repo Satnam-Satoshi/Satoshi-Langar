@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-10-05",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-10-05T04:05:11Z",
+  "checkedAt": "2026-10-05",
+  "title": "Different chains. Common ground.",
+  "theme": "Proof of Work",
+  "dek": "Five original reads on public rules, open networks, useful tools and the work of building a welcoming community.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "Prepared and source-checked by AI Satoshi Ma for LTC Media, a Satnam Satoshi project. Not independently reviewed by a human editor.",
+  "freshnessPolicy": "Prepared for October 5, 2026 in America/New_York. Announcement dates remain attached to their records. Rechecking an older page does not create a new event. Future issues must not relabel this issue's reporting as fresh news.",
+  "independence": "LTC Media is an independent Satnam Satoshi project. Source links do not imply affiliation with the Litecoin Foundation, Coinbase, Circle, Morpho, Bitcoin developers or a government agency.",
+  "stories": [
+    {
+      "id": "washington-small-print",
+      "desk": "News, politics & public records",
+      "classification": "Reported fact · Public-record briefing",
+      "title": "Small print, big distinction.",
+      "dek": "An SEC custody proposal and a CFTC staff update concern different activities. Their labels matter as much as their headlines.",
+      "status": "Dated records rechecked October 5 · Not an October 5 agency announcement",
+      "eventDates": [
+        { "date": "2026-10-01", "label": "SEC proposal issued" },
+        { "date": "2026-09-24", "label": "CFTC staff FAQ update announced" }
+      ],
+      "paragraphs": [
+        "Two Washington records belong on the same reading table, with their distinctions intact. On October 1, the SEC proposed changes to how registered investment advisers and regulated funds hold crypto assets. The proposal includes conditional self-custody arrangements and the use of state trust companies. The agency's rule page still identifies S7-2026-35 as a proposal; the page was last updated October 2.",
+        "The comment clock is another detail worth preserving. The SEC says comments will be due 60 days after Federal Register publication. Its October 1 announcement alone does not establish a calendar deadline. This briefing has not confirmed that publication date or an exact closing date, and it does not present the proposed permissions as rules already in force.",
+        "The CFTC's September 24 release describes staff FAQ updates on tokenized forms of permitted customer-fund investments and blockchain recordkeeping. That is a staff-guidance announcement about specified regulated activities. It does not establish Commission approval of a token or permission for every onchain lending arrangement. The release is the evidence used here; the underlying FAQ's complete revision history was not reconciled.",
+        "The agencies have different responsibilities: the SEC administers federal securities laws, while the CFTC's stated mission concerns U.S. derivatives markets. These descriptions do not determine the treatment of any particular project. For a useful community discussion, first identify the actor, the document type, the activity covered and the action date. Disagreement is easier to examine when everyone is reading the same record."
+      ],
+      "paragraphSourceIds": [["sec-custody", "sec-rule"], ["sec-rule"], ["cftc-faq"], ["sec-mission", "cftc-mission"]],
+      "takeaway": "Keep proposal, staff guidance and effective law in separate columns.",
+      "discussionPrompt": "Which sentence in a regulatory headline would change meaning if “proposed” disappeared?",
+      "sourceIds": ["sec-custody", "sec-rule", "cftc-faq", "sec-mission", "cftc-mission"],
+      "relatedHref": "/conversations/desks/sec-cftc/",
+      "evergreenRotationTitle": "How to read an agency action"
+    },
+    {
+      "id": "two-clocks-one-habit",
+      "desk": "Bitcoin & Litecoin",
+      "classification": "Explainer · Protocol fundamentals",
+      "title": "Two clocks, one habit: verify.",
+      "dek": "Bitcoin and Litecoin reward a reader who looks beyond the ticker and asks what the network actually checks.",
+      "status": "Educational comparison · No live performance measurement",
+      "eventDates": [],
+      "paragraphs": [
+        "A Bitcoin reader and a Litecoin reader can begin with a shared question: what makes a transaction valid? Bitcoin's introduction describes signatures that authorize spending, blocks that order transactions and network rules that check those blocks. The Litecoin Foundation's directory points to Litecoin Core as full-node software for participating in its separate network. Learning the verification process is useful before forming an opinion about either asset.",
+        "The networks do run on different target clocks. The Bitcoin Core mainnet parameters specify a ten-minute block target; Litecoin Core specifies two and a half minutes. Those are protocol targets, not appointment times. They do not promise when one payment will confirm, establish a merchant's required confirmation count or measure today's fees. A faster target alone is not a complete comparison of security or payment experience.",
+        "Litecoin also offers an optional extension-block route called MWEB. The Foundation's May 20, 2022 announcement describes confidential transaction amounts and the choice to continue ordinary main-chain transactions. That feature belongs to Litecoin's own design. It should be explained with its wallet requirements and security history rather than collapsed into a claim that every Litecoin payment is anonymous.",
+        "Try this reading exercise together: draw the path from a signed transaction to a validating node and then a mined block. Add the wallet, service provider and confirmation policy your example assumes. Mark any facts you have not checked. The result is a useful comparison precisely because readers can inspect the steps, change an assumption and discuss where their priorities differ. No price forecast is needed."
+      ],
+      "paragraphSourceIds": [["bitcoin-how", "litecoin-projects"], ["bitcoin-parameters", "litecoin-parameters"], ["mweb-activation"], []],
+      "takeaway": "Compare the rule, the service and the user's actual task—not a ticker alone.",
+      "discussionPrompt": "Which part of a payment does the chain verify, and which part still depends on a person or service?",
+      "sourceIds": ["bitcoin-how", "bitcoin-parameters", "litecoin-parameters", "litecoin-projects", "mweb-activation"],
+      "relatedHref": "/sikh-bitcoin/",
+      "evergreenRotationTitle": "Protocol targets and real payment journeys"
+    },
+    {
+      "id": "privacy-maintenance-crew",
+      "desk": "Builders & Litecoin community",
+      "classification": "Explainer · Dated developer records",
+      "title": "Privacy needs a maintenance crew.",
+      "dek": "MWEB's feature list is only part of the story. Documentation, repair histories and careful review are community work too.",
+      "status": "Historical security account and current directory context · Not a new incident alert",
+      "eventDates": [
+        { "date": "2022-05-20", "label": "MWEB activation announcement" },
+        { "date": "2026-04-28", "label": "Developer postmortem published" }
+      ],
+      "paragraphs": [
+        "The Litecoin Foundation's MWEB overview describes confidential transfer amounts and the ability to prune older transaction data. Its May 20, 2022 announcement explains the optional route into and out of extension blocks. Those are useful starting points for a privacy lesson, but an honest lesson also needs the software's repair record.",
+        "David Burkett's April 28, 2026 postmortem describes a March validation flaw that allowed an inflated pegout, the coordinated recovery response and a related April disruption. The account says Litecoin Core 0.21.5.4 addressed the April failure mode. These are attributed developer findings about historical incidents. LTC Media has not reconstructed the chain, audited the fixes or established that this historical version is today's recommended release.",
+        "There is also useful work at the edge of the toolkit. The Foundation's Litecoin Development Kit listing describes a public prototype for descriptor-based wallets with native MWEB support. It explicitly says independent review of the funds path is unfinished. Its name must also be read carefully: this project is distinct from Lightning Dev Kit. A directory listing is a starting point for investigation, not a security certificate.",
+        "For an aspiring contributor, that creates a practical reading task: compare a feature claim, a known limitation and the project's own contribution instructions. A clear glossary entry or reproducible documentation correction can help the next reader find the right question. Experienced reviewers can follow the actual project's review process. Community enthusiasm becomes more useful when it makes unfinished work visible and gives the people doing it room to be precise."
+      ],
+      "paragraphSourceIds": [["mweb-overview", "mweb-activation"], ["mweb-postmortem"], ["litecoin-kit"], []],
+      "takeaway": "Read the feature, the known limitations and the repair history together.",
+      "discussionPrompt": "What is one sentence in a technical guide that a newcomer could help make clearer?",
+      "sourceIds": ["mweb-overview", "mweb-activation", "mweb-postmortem", "litecoin-kit"],
+      "relatedHref": "/conversations/litecoin/",
+      "evergreenRotationTitle": "Reading an open-source project's evidence"
+    },
+    {
+      "id": "familiar-ticker-different-keys",
+      "desk": "Tokenized assets · Arc · Morpho",
+      "classification": "Explainer · Asset and lending mechanics",
+      "title": "A familiar ticker, a different set of keys.",
+      "dek": "Native BTC and LTC, Coinbase wrappers, Circle's assets and a lending market each answer a different question.",
+      "status": "Documentation checked October 5 · No live rate, reserve audit or position assessment",
+      "eventDates": [],
+      "paragraphs": [
+        "Native BTC is recorded on Bitcoin; native LTC belongs to Litecoin. Coinbase describes cbBTC and cbLTC as transferable tokens backed one for one by assets it holds in custody. Its registry lists cbLTC on Base and cbBTC on Base, Ethereum, Solana and Arbitrum. A token carrying familiar letters therefore adds an issuer and another network to the picture. The backing statement is Coinbase's claim, not an audit performed by this magazine.",
+        "Redemption is part of that picture. Coinbase's support page describes automatic conversion for eligible transfers to its accounts and lists regional restrictions. On the page checked for this issue, the cbLTC restrictions include New York State. Possessing a token onchain does not establish that its holder can use a particular issuer's direct conversion service. Readers need the terms for the exact asset, location and route.",
+        "Arc introduces another distinction. Its documentation describes permissioned Proof-of-Authority validators and USDC as the native gas asset. Its native and ERC-20 USDC interfaces share one balance. Arc's registry separately identifies Circle's cirBTC; it is a different token from Coinbase cbBTC. Circle's USDC terms make direct redemption conditional on eligibility and an account, and describe circumstances in which services or addresses can be restricted. Dollar denomination does not remove those dependencies.",
+        "Morpho Blue adds a lending arrangement: isolated markets pair a collateral asset with a loan asset, while vaults can allocate lending across markets. The market's oracle supplies the relative price used to assess liquidation thresholds. Morpho's own guide explains that some oracles assume a wrapper or stablecoin stays at one-to-one value; such an assumption can differ from a traded price.",
+        "A useful research sketch therefore names the chain, exact token, issuer, market, oracle and exit path. It keeps Base and Arc markets separate. This explainer verifies documentation; the separate market desk reports only those rate observations that pass its identity and freshness checks. Neither section assesses a suitable borrowing amount. The educational task is to understand each layer before treating several different claims as one familiar coin."
+      ],
+      "paragraphSourceIds": [["coinbase-wrappers"], ["coinbase-help"], ["arc-consensus", "arc-usdc", "arc-contracts", "circle-terms"], ["morpho-protocols", "morpho-oracles"], []],
+      "takeaway": "A market name is shorthand. Its actual asset, issuer, network and oracle determine what is being discussed.",
+      "discussionPrompt": "Where does each layer in your diagram introduce a new assumption?",
+      "sourceIds": ["coinbase-wrappers", "coinbase-help", "arc-consensus", "arc-usdc", "arc-contracts", "circle-terms", "morpho-protocols", "morpho-oracles"],
+      "relatedHref": "/conversations/desks/wrapped-assets/",
+      "evergreenRotationTitle": "Following an asset through a lending market"
+    },
+    {
+      "id": "one-page-first-contribution",
+      "desk": "Satnam Satoshi · Service & culture",
+      "classification": "Field guide · Proposed community practice",
+      "title": "The first contribution fits on one page.",
+      "dek": "A welcoming community can begin with a clearer lesson, a thoughtful creative brief or a better service plan.",
+      "status": "Project planning context · No event, marketplace or reward launch announced",
+      "eventDates": [],
+      "paragraphs": [
+        "Satnam Satoshi connects learning, creativity and service through several public projects. Their first steps are deliberately small. The Satoshi Langar page offers a kitchen planning brief and a proposed service record. Kalakar.x offers an artist's brief covering a deliverable, audience, attribution, reuse and AI assistance. These are tools for preparing useful work; neither page establishes a completed program simply by describing its ambition.",
+        "For Langar, a first contribution could be an accessibility checklist for a human organizer to review. The project currently says no kitchen event or reward program is active. A future pilot needs an accountable local host and decisions about food safety, resources and consent. The planning material says a guest's access to food must not depend on a wallet, photograph or public proof of need. A useful draft can preserve dignity before any event exists.",
+        "For Kalakar.x, try a single illustration that explains the difference between a native coin and its wrapper. Name the audience, record the sources, agree attribution and state what others may reuse. That is an example creative brief, not a commission offer. The project's page says a marketplace and checkout are not active, and completing a plan transfers no rights.",
+        "Bring the two habits back to this magazine: make one thing easier to understand, and let another person check it. A writer might clarify a term; an artist might supply accessible image text; an organizer might identify an unanswered safety question. AI can help prepare the material, with its contribution disclosed. Human stewards still make the real-world decisions. Readers can begin with the guest contribution planner and choose how much to share."
+      ],
+      "paragraphSourceIds": [["project-langar", "project-kalakar"], ["project-langar"], ["project-kalakar"], ["project-join"]],
+      "takeaway": "Choose one useful deliverable, preserve consent and make the next human decision clear.",
+      "discussionPrompt": "What could you clarify, create or help someone plan in a single page?",
+      "sourceIds": ["project-langar", "project-kalakar", "project-join"],
+      "relatedHref": "/join/?path=ltc",
+      "evergreenRotationTitle": "A small contribution with a clear finish"
+    }
+  ],
+  "sources": [
+    { "id": "sec-custody", "title": "SEC release 2026-100: crypto custody proposal", "publisher": "U.S. Securities and Exchange Commission", "url": "https://www.sec.gov/newsroom/press-releases/2026-100-sec-proposal-would-address-how-investment-advisers-funds-can-custody-crypto-assets-under-federal", "publishedAt": "2026-10-01", "checkedAt": "2026-10-05", "classification": "Primary public record · Proposal announcement", "note": "Original agency action and date retrieved. No final-rule status or price effect inferred." },
+    { "id": "sec-rule", "title": "S7-2026-35: Adviser and Regulated Fund Custody Rules; Crypto Custody Rules", "publisher": "U.S. Securities and Exchange Commission", "url": "https://www.sec.gov/rules-regulations/2026/10/s7-2026-35", "publishedAt": "2026-10-01", "updatedAt": "2026-10-02", "checkedAt": "2026-10-05", "classification": "Primary public record · Proposed rule", "note": "Lists proposal, issue date, file number and a comment period measured from Federal Register publication. Exact closing date not established here." },
+    { "id": "cftc-faq", "title": "CFTC release 9303-26: staff crypto and blockchain FAQ update", "publisher": "Commodity Futures Trading Commission", "url": "https://www.cftc.gov/PressRoom/PressReleases/9303-26", "publishedAt": "2026-09-24", "checkedAt": "2026-10-05", "classification": "Primary public record · Staff-guidance announcement", "note": "The release supports the described scope. The underlying FAQ's full September revision was not independently reconciled." },
+    { "id": "sec-mission", "title": "SEC mission", "publisher": "U.S. Securities and Exchange Commission", "url": "https://www.sec.gov/about/mission", "publishedAt": "2023-08-09", "checkedAt": "2026-10-05", "classification": "Primary agency reference", "note": "General responsibilities; not a jurisdiction opinion about any named token or transaction." },
+    { "id": "cftc-mission", "title": "The Commission: CFTC mission", "publisher": "Commodity Futures Trading Commission", "url": "https://www.cftc.gov/About/AboutTheCommission", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Primary agency reference", "note": "The mission describes derivatives-market regulation. No publication date was displayed in the retrieved body." },
+    { "id": "bitcoin-how", "title": "How Bitcoin works", "publisher": "Bitcoin.org", "url": "https://bitcoin.org/en/how-it-works", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Project educational documentation", "note": "Signatures, mining and validation explanation. Not a live payment-time measurement." },
+    { "id": "bitcoin-parameters", "title": "Bitcoin Core mainnet chain parameters", "publisher": "Bitcoin Core contributors", "url": "https://github.com/bitcoin/bitcoin/blob/master/src/kernel/chainparams.cpp", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Primary source code", "note": "Mainnet nPowTargetSpacing inspected: 10 × 60 seconds. This is a moving source branch checked on the stated date, not a release recommendation." },
+    { "id": "litecoin-parameters", "title": "Litecoin Core mainnet chain parameters", "publisher": "Litecoin Core contributors", "url": "https://github.com/litecoin-project/litecoin/blob/master/src/chainparams.cpp", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Primary source code", "note": "Mainnet nPowTargetSpacing inspected: 2.5 × 60 seconds. Target spacing is not a delivery guarantee; the moving branch is not a release recommendation." },
+    { "id": "litecoin-projects", "title": "Litecoin Foundation project directory", "publisher": "Litecoin Foundation", "url": "https://litecoin.com/projects", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Primary project directory", "note": "Directory and Litecoin Core role retrieved. No funding counters or completeness claims reused." },
+    { "id": "mweb-activation", "title": "MWEB activation announcement", "publisher": "Litecoin Foundation", "url": "https://litecoin.com/news/mweb-has-officially-activated", "publishedAt": "2022-05-20", "checkedAt": "2026-10-05", "classification": "Historical primary announcement", "note": "The date is the article's publication date, not an exact activation timestamp. Optionality and wallet support are described by the Foundation." },
+    { "id": "mweb-overview", "title": "MWEB development overview", "publisher": "Litecoin Foundation", "url": "https://litecoin.com/projects/mweb", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Project documentation", "note": "Confidential amounts and pruning explanation; not a guarantee of total anonymity or independently audited security." },
+    { "id": "mweb-postmortem", "title": "Litecoin MWEB Security Incident Postmortem", "publisher": "David Burkett / Litecoin Foundation", "url": "https://litecoin.com/news/litecoin-mweb-security-incident-postmortem", "publishedAt": "2026-04-28", "checkedAt": "2026-10-05", "classification": "Historical developer incident account", "note": "Attribution retained. No independent chain reconstruction, present security certification or current-version recommendation performed." },
+    { "id": "litecoin-kit", "title": "Litecoin Development Kit project listing", "publisher": "Litecoin Foundation project directory", "url": "https://litecoin.com/projects/litecoin-dev-kit", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Project-status documentation", "note": "Listing describes a public prototype, incomplete independent funds-path review and distinction from Lightning Dev Kit. No deployment audit." },
+    { "id": "coinbase-wrappers", "title": "Coinbase wrapped assets: backing and network registry", "publisher": "Coinbase", "url": "https://www.coinbase.com/cbbtc", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Issuer documentation", "note": "Issuer's custody/backing and support claims. Retrieval redirected to an en-br locale; no reserve amounts or marketing return figures used." },
+    { "id": "coinbase-help", "title": "Coinbase wrapped assets: transfers and restrictions", "publisher": "Coinbase", "url": "https://help.coinbase.com/en/coinbase/trading-and-funding/sending-or-receiving-cryptocurrency/coinbase-wrapped-btc", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Issuer service documentation", "note": "cbLTC New York State restriction visible in the retrieved record. No personal eligibility assessment or transfer attempted." },
+    { "id": "arc-consensus", "title": "Arc consensus layer", "publisher": "Arc / Circle documentation", "url": "https://docs.arc.io/arc/concepts/consensus-layer", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Project architecture documentation", "note": "Read through Arc Docs MCP. Permissioned Proof-of-Authority model; no independent throughput or finality measurement." },
+    { "id": "arc-usdc", "title": "Arc stablecoin native model", "publisher": "Arc / Circle documentation", "url": "https://docs.arc.io/arc/concepts/stablecoin-native-model", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Project asset documentation", "note": "Read through Arc Docs MCP. Native and ERC-20 views share one underlying USDC balance. No balances, wallets or transfers accessed." },
+    { "id": "arc-contracts", "title": "Arc contract registry: cirBTC", "publisher": "Arc / Circle documentation", "url": "https://docs.arc.io/arc/references/contract-addresses#cirbtc", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Project asset registry", "note": "The registry identifies Circle's cirBTC separately from Coinbase cbBTC and has distinct mainnet/testnet records. No bytecode or custody audit." },
+    { "id": "circle-terms", "title": "Circle USDC Terms", "publisher": "Circle", "url": "https://www.circle.com/legal/usdc-terms", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "Issuer terms", "note": "Conditional direct redemption and service/address restrictions. Broad terms summary only; not a finding about any reader's rights or location." },
+    { "id": "morpho-protocols", "title": "The Morpho protocols", "publisher": "Morpho", "url": "https://help.morpho.org/en/articles/12165802-the-morpho-protocols", "publishedAt": "2026-05-26", "checkedAt": "2026-10-05", "classification": "Protocol documentation", "note": "Blue's isolated markets and vaults are distinguished from other Morpho products. No current rate or market recommendation." },
+    { "id": "morpho-oracles", "title": "Oracles on Morpho", "publisher": "Morpho", "url": "https://help.morpho.org/en/articles/12879577-oracles-on-morpho", "publishedAt": "2026-05-26", "checkedAt": "2026-10-05", "classification": "Protocol risk documentation", "note": "Explains collateral/loan pairs, liquidation thresholds and possible one-to-one oracle assumptions. Its example is not treated as a verified current market configuration." },
+    { "id": "project-langar", "title": "Satoshi Langar: pilot design and first-step toolkit", "publisher": "Satnam Satoshi", "url": "/langar/", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "First-party project record", "note": "Checked against app/langar/page.tsx and docs/COMMUNITY-PILOT.md in the project workspace. Plans are not completed service evidence." },
+    { "id": "project-kalakar", "title": "Kalakar.x: creator pilot design and brief", "publisher": "Satnam Satoshi", "url": "/kalakar/", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "First-party project record", "note": "Checked against app/kalakar/page.tsx. The page explicitly says marketplace and checkout are not active." },
+    { "id": "project-join", "title": "Guest contribution planner", "publisher": "Satnam Satoshi", "url": "/join/?path=ltc", "publishedAt": null, "checkedAt": "2026-10-05", "classification": "First-party participation route", "note": "Existing project route and editorial charter describe guest planning. No submission, membership, assignment or response promise is inferred." }
+  ]
+}

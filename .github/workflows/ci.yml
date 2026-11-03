@@ -1,35 +1,26 @@
 name: Build verification
-
 on:
   pull_request:
   push:
-    branches:
-      - main
-
+    branches: [main, agent/satnam-soft-launch]
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: package.json
-
-      - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Build Next.js application
-        run: npm run build
+          version: 11.19.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: satnam-satoshi-static-site
+          path: dist/

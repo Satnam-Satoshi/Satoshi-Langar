@@ -9,3 +9,10 @@ out/
 .DS_Store
 npm-debug.log*
 pnpm-debug.log*
+
+dist/
+
+# Built from reviewed sources and public configuration
+public/scripts/community.js
+public/scripts/auth.js
+public/data/community-auth.json

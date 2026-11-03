@@ -1,0 +1,883 @@
+{
+  "schemaVersion": 1,
+  "referenceDate": "2026-10-02",
+  "pdfSha256": "3dfdd0ddfbdc53ab48932f0cb7560679cb3498adb4c24b3e517b712d0c524afe",
+  "tables": [
+    {
+      "deskId": "market-opening",
+      "title": "Five assets. One clear cutoff.",
+      "page": 3,
+      "asOf": "October 2, 2026 · 08:08 ET morning observation carried into the afternoon reference",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Asset",
+        "USD / 08:08 ET",
+        "24h change"
+      ],
+      "rows": [
+        [
+          "Bitcoin",
+          "$86,430",
+          "+3.00%"
+        ],
+        [
+          "Litecoin",
+          "$69.82",
+          "+3.76%"
+        ],
+        [
+          "Stellar",
+          "$0.223874",
+          "+0.52%"
+        ],
+        [
+          "Dogecoin",
+          "$0.096556",
+          "+1.66%"
+        ],
+        [
+          "PEPE",
+          "$0.00000443",
+          "+1.14%"
+        ]
+      ],
+      "notes": [
+        "Five rows transcribed from the supplied design, not collected or revalidated by this website. Source S22 is the earlier October 2 report; a direct quote venue and original response are not established by this PDF.",
+        "These are morning prices, not afternoon or current execution prices. The PDF displays 1 BTC buys 1,237.90 LTC and 1 LTC buys 311.87 XLM, calculated from that same morning snapshot. Ratios ignore spread, fees and slippage.",
+        "The current daily collector separately samples venue-specific BTC/USD and LTC/USD last trades. Its observations must not be mixed with these historical figures or used to imply validated 24-hour returns."
+      ]
+    },
+    {
+      "deskId": "bitcoin-etf-flows",
+      "title": "Closed-session Bitcoin ETF flow windows",
+      "page": 5,
+      "asOf": "Latest completed session: October 1, 2026; windows shown in calendar days",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Window",
+        "Calendar dates",
+        "Reported net flow / USD millions"
+      ],
+      "rows": [
+        [
+          "Latest session",
+          "October 1",
+          "+102.7"
+        ],
+        [
+          "7 calendar days",
+          "September 25 – October 1",
+          "+185.7"
+        ],
+        [
+          "30 calendar days",
+          "September 2 – October 1",
+          "+2,986.9"
+        ]
+      ],
+      "notes": [
+        "Source S03, Farside, is an attributed aggregator, with sums labeled desk calculations in the PDF. These totals have not been independently recalculated here.",
+        "October 2 has no populated fund figures in the retrieved reference table: its displayed 0.0 is not a confirmed zero-flow day.",
+        "Window sums cover completed trading sessions inside the stated calendar dates. Holdings changes are not investor flows."
+      ]
+    },
+    {
+      "deskId": "bitcoin-etf-flows",
+      "title": "Recent completed sessions: reference chart labels",
+      "page": 5,
+      "asOf": "September 18 – October 1, 2026; historical chart labels",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Session / 2026",
+        "Chart label / USD millions"
+      ],
+      "rows": [
+        [
+          "09/18",
+          "433"
+        ],
+        [
+          "09/21",
+          "999"
+        ],
+        [
+          "09/22",
+          "715"
+        ],
+        [
+          "09/23",
+          "347"
+        ],
+        [
+          "09/24",
+          "191"
+        ],
+        [
+          "09/25",
+          "134"
+        ],
+        [
+          "09/28",
+          "31"
+        ],
+        [
+          "09/29",
+          "66"
+        ],
+        [
+          "09/30",
+          "-149"
+        ],
+        [
+          "10/01",
+          "103"
+        ]
+      ],
+      "notes": [
+        "These ten values are the rounded labels printed on the reference bar chart, not full-precision source-series observations. They must not be summed to reconstruct the more precise window totals.",
+        "The October 1 chart label is rounded to 103 while the headline total is +102.7 million. Both are preserved with their original precision.",
+        "S03 is the PDF source. No October 2 zero is added."
+      ]
+    },
+    {
+      "deskId": "bitcoin-etf-flows",
+      "title": "October 1 flow contributors shown in the reference",
+      "page": 5,
+      "asOf": "October 1, 2026 completed session",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Product",
+        "Net flow / USD millions"
+      ],
+      "rows": [
+        [
+          "IBIT",
+          "+195.6"
+        ],
+        [
+          "FBTC",
+          "-60.7"
+        ],
+        [
+          "GBTC",
+          "-31.4"
+        ],
+        [
+          "Grayscale Mini BTC",
+          "+14.6"
+        ]
+      ],
+      "notes": [
+        "These four rows are the selected contributors printed on page 5, not a complete constituent table. Do not infer the full-session total from only these rows.",
+        "Source S03; reported, historical and not revalidated."
+      ]
+    },
+    {
+      "deskId": "bitcoin-products",
+      "title": "Bitcoin exposure: the global Top 21.",
+      "page": 6,
+      "asOf": "October 2, 2026 tracker snapshot; underlying report dates vary",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "#",
+        "Product",
+        "Structure",
+        "Reported BTC"
+      ],
+      "rows": [
+        [
+          "1",
+          "iShares Bitcoin Trust",
+          "ETF / trust",
+          "800,535"
+        ],
+        [
+          "2",
+          "Fidelity Wise Origin",
+          "ETF / trust",
+          "184,058"
+        ],
+        [
+          "3",
+          "Grayscale Bitcoin Trust",
+          "ETF / trust",
+          "131,528"
+        ],
+        [
+          "4",
+          "Grayscale Bitcoin Mini",
+          "ETF / trust",
+          "62,874"
+        ],
+        [
+          "5",
+          "Bitwise Bitcoin",
+          "ETF / trust",
+          "38,189"
+        ],
+        [
+          "6",
+          "ARK 21Shares Bitcoin",
+          "ETF / trust",
+          "35,026"
+        ],
+        [
+          "7",
+          "CoinShares Physical BTC",
+          "ETP",
+          "21,270"
+        ],
+        [
+          "8",
+          "CoinShares Tracker One",
+          "Certificate",
+          "20,850"
+        ],
+        [
+          "9",
+          "WisdomTree Physical BTC",
+          "ETP",
+          "19,260"
+        ],
+        [
+          "10",
+          "Purpose Bitcoin",
+          "ETF",
+          "18,373"
+        ],
+        [
+          "11",
+          "iShares Bitcoin ETP",
+          "ETP",
+          "18,002"
+        ],
+        [
+          "12",
+          "Fidelity Advantage BTC",
+          "ETF",
+          "14,898"
+        ],
+        [
+          "13",
+          "VanEck Bitcoin Trust",
+          "ETF / trust",
+          "14,767"
+        ],
+        [
+          "14",
+          "Bitwise Physical BTC",
+          "ETC",
+          "10,771"
+        ],
+        [
+          "15",
+          "Morgan Stanley BTC Trust",
+          "ETF / trust",
+          "10,436"
+        ],
+        [
+          "16",
+          "21Shares Bitcoin",
+          "ETP",
+          "8,195"
+        ],
+        [
+          "17",
+          "VanEck Bitcoin",
+          "ETN",
+          "8,195"
+        ],
+        [
+          "18",
+          "CI Galaxy Bitcoin",
+          "ETF",
+          "8,016"
+        ],
+        [
+          "19",
+          "CoinShares Valkyrie",
+          "ETF / trust",
+          "6,410"
+        ],
+        [
+          "20",
+          "Franklin Bitcoin",
+          "ETF / trust",
+          "6,331"
+        ],
+        [
+          "21",
+          "Invesco Physical BTC",
+          "ETN",
+          "4,402"
+        ]
+      ],
+      "notes": [
+        "All 21 rows and their structure labels are transcribed from page 6. Source S04 ranks reported BTC balances within a retrieved tracker universe; exchanges and mixed-asset baskets were excluded.",
+        "This is a holdings-based proxy for physical exposure, not an exhaustive issuer-verified global AUM ranking. Liabilities, currencies and reporting dates can alter AUM order. Source labels are not verified legal classifications.",
+        "The reference tracker balance for IBIT differs from the separately collected issuer record used by this site. Those dates and methods are not synchronized."
+      ]
+    },
+    {
+      "deskId": "institution-profiles",
+      "title": "A fund. A treasury. A capital strategy.",
+      "page": 7,
+      "asOf": "October 2, 2026 reference; IBIT flow refers to October 1; individual metric timestamps vary",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Profile",
+        "Exposure category",
+        "Reference checkpoint",
+        "Evidence boundary"
+      ],
+      "rows": [
+        [
+          "IBIT",
+          "Fund exposure",
+          "800,535 BTC; October 1 flow +$195.6M",
+          "Tracker holdings; fund collateral is not BlackRock corporate treasury"
+        ],
+        [
+          "Strategy",
+          "Corporate exposure",
+          "847,666 BTC",
+          "Reference attributes this to primary metrics page; common equity and preferred claims differ"
+        ],
+        [
+          "Strive",
+          "Capital-structure watch",
+          "27,462 BTC",
+          "Tracker-reported; issuer IR read failed in this pass"
+        ]
+      ],
+      "notes": [
+        "Three original profiles are preserved; sources S03, S04, S05, S23 and S24. They are not comparable securities or equally verified measurements.",
+        "Holdings growth alone does not establish common-share return. Cash, debt, preferred claims, dilution, restrictions and acquisition evidence require filing-level reconciliation.",
+        "A failed historical Strive IR read is a reference limitation, not a claim about whether its site is available now."
+      ]
+    },
+    {
+      "deskId": "bitcoin-treasuries",
+      "title": "Reported Bitcoin leaders: the 21 rows printed on page 8",
+      "page": 8,
+      "asOf": "October 2, 2026 tracker snapshot; issuer reconciliation incomplete",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "#",
+        "Company",
+        "Ticker",
+        "Reported BTC"
+      ],
+      "rows": [
+        [
+          "1",
+          "Strategy",
+          "MSTR",
+          "847,666"
+        ],
+        [
+          "2",
+          "Twenty One",
+          "XXI",
+          "43,514"
+        ],
+        [
+          "3",
+          "Metaplanet",
+          "MPJPY",
+          "43,000"
+        ],
+        [
+          "4",
+          "MARA",
+          "MARA",
+          "35,577"
+        ],
+        [
+          "5",
+          "Strive",
+          "ASST",
+          "27,462"
+        ],
+        [
+          "6",
+          "Bullish",
+          "BLSH",
+          "22,000"
+        ],
+        [
+          "7",
+          "Coinbase",
+          "COIN",
+          "17,311"
+        ],
+        [
+          "8",
+          "CleanSpark",
+          "CLSK",
+          "13,703"
+        ],
+        [
+          "9",
+          "Trump Media",
+          "DJT",
+          "12,062"
+        ],
+        [
+          "10",
+          "Tesla",
+          "TSLA",
+          "11,509"
+        ],
+        [
+          "11",
+          "Riot",
+          "RIOT",
+          "11,380"
+        ],
+        [
+          "12",
+          "Hut 8",
+          "HUT",
+          "10,278"
+        ],
+        [
+          "13",
+          "Block",
+          "XYZ",
+          "9,117"
+        ],
+        [
+          "14",
+          "American Bitcoin",
+          "ABTC",
+          "8,300"
+        ],
+        [
+          "15",
+          "GD Culture",
+          "GDC",
+          "7,500"
+        ],
+        [
+          "16",
+          "Galaxy",
+          "GLXY",
+          "6,894"
+        ],
+        [
+          "17",
+          "Next Technology",
+          "NXTT",
+          "5,833"
+        ],
+        [
+          "18",
+          "Gemini",
+          "GEMI",
+          "5,528"
+        ],
+        [
+          "19",
+          "Silvia",
+          "SVIA",
+          "5,130"
+        ],
+        [
+          "20",
+          "Boyaa",
+          "0434.HK",
+          "4,468"
+        ],
+        [
+          "21",
+          "Nakamoto Inc",
+          "NAKA",
+          "4,467"
+        ]
+      ],
+      "notes": [
+        "The PDF headline says “Twenty reported Bitcoin leaders” but its visible table contains 21 rows. Page 27 explains the addition of Nakamoto Inc at 4,467 BTC. This transcription preserves all 21 rows and records the headline inconsistency.",
+        "Source S05. Reported, not audited. The reference excludes SpaceX pending independent listing confirmation and excludes unranked Bitcoin Standard Treasury.",
+        "Corporate identity, listing status and issuer balances were not independently reconciled here. A ticker is transcribed as shown, not certified as the current or primary listing."
+      ]
+    },
+    {
+      "deskId": "mnav",
+      "title": "mNAV.com indexed extract: unreconciled reference",
+      "page": 9,
+      "asOf": "No reliable observation time established by the October 2 reference",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Extract field",
+        "Displayed"
+      ],
+      "rows": [
+        [
+          "Strategy / MSTR",
+          "846,000 BTC"
+        ],
+        [
+          "mNAV",
+          "1.06x"
+        ],
+        [
+          "Share price",
+          "$154.7 / -1.6%"
+        ],
+        [
+          "Full terminal capture",
+          "UNAVAILABLE"
+        ]
+      ],
+      "notes": [
+        "S06 / S23. The 846,000 BTC indexed extract conflicts with the reference’s Strategy primary-page figure of 847,666 BTC. No synchronized valuation is asserted.",
+        "The source was a search-index extract, not a captured live terminal. Its Strategy-page title changed between reads. These values must not be treated as current.",
+        "The reference distinguishes equity mNAV (market capitalization / gross BTC value), enterprise mNAV ((market cap + debt + preferred − cash) / BTC value), and common NAV. These are methodological examples; actual issuer definitions and capital-stack dates need their own versioned reconciliation."
+      ]
+    },
+    {
+      "deskId": "litecoin-register",
+      "title": "Litecoin Register sector balances",
+      "page": 10,
+      "asOf": "Afternoon October 2, 2026 tracker extract",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Sector",
+        "Displayed LTC / millions"
+      ],
+      "rows": [
+        [
+          "Exchange",
+          "11.329M"
+        ],
+        [
+          "Investment",
+          "2.478M"
+        ],
+        [
+          "Ecosystem",
+          "1.302M"
+        ],
+        [
+          "Treasury",
+          "0.868M"
+        ],
+        [
+          "Miner",
+          "0.335M"
+        ],
+        [
+          "Government",
+          "0.011M"
+        ]
+      ],
+      "notes": [
+        "The reference headline reports 77 entities and 16,323,256 LTC, compared with 76 entities in its morning edition. It attributes the difference to the tracker universe including Bitget and a changed JVCEA balance, not verified market buying.",
+        "The displayed sector values are rounded in millions. The PDF additionally states that underlying sector sums differ from the headline by 1 LTC; that reconciliation cannot be reproduced from these rounded chart labels alone.",
+        "S07 is secondary tracker research. Exchange custody, wrapped reserves, protocol state and beneficial corporate ownership are distinct and may overlap. This is not a deduplicated ownership census."
+      ]
+    },
+    {
+      "deskId": "litecoin-products",
+      "title": "Twenty product rows. One honest taxonomy.",
+      "page": 11,
+      "asOf": "October 2, 2026 Litecoin Register snapshot",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "#",
+        "Product",
+        "Type",
+        "Reported LTC"
+      ],
+      "rows": [
+        [
+          "1",
+          "Grayscale LTC Trust",
+          "Trust",
+          "1,956,554"
+        ],
+        [
+          "2",
+          "Canary LTCC",
+          "ETF",
+          "214,124"
+        ],
+        [
+          "3",
+          "CoinShares Physical LTC",
+          "ETP",
+          "151,145"
+        ],
+        [
+          "4",
+          "Bitwise Physical LTC",
+          "ETP",
+          "93,076"
+        ],
+        [
+          "5",
+          "Bitwise 10",
+          "Basket",
+          "26,439"
+        ],
+        [
+          "6",
+          "Virtune LTC",
+          "ETP",
+          "20,617"
+        ],
+        [
+          "7",
+          "WisdomTree Altcoins",
+          "Basket",
+          "4,016"
+        ],
+        [
+          "8",
+          "Valour LTC SEK",
+          "ETP",
+          "3,360"
+        ],
+        [
+          "9",
+          "Bitwise MSCI Select 20",
+          "Basket",
+          "2,769"
+        ],
+        [
+          "10",
+          "CoinShares XBT LTC",
+          "ETP",
+          "1,398"
+        ],
+        [
+          "11",
+          "CoinShares Top 10",
+          "Basket",
+          "1,150"
+        ],
+        [
+          "12",
+          "WisdomTree CoinDesk 20",
+          "Basket",
+          "937"
+        ],
+        [
+          "13",
+          "CoinShares Finanzen Top 10",
+          "Basket",
+          "750"
+        ],
+        [
+          "14",
+          "21Shares Select 10",
+          "Basket",
+          "692"
+        ],
+        [
+          "15",
+          "Hashdex Momentum",
+          "Basket",
+          "570"
+        ],
+        [
+          "16",
+          "Virtune Coinbase 50",
+          "Basket",
+          "524"
+        ],
+        [
+          "17",
+          "21Shares Future of Crypto",
+          "Basket",
+          "239"
+        ],
+        [
+          "18",
+          "WisdomTree Mega Cap",
+          "Basket",
+          "0"
+        ],
+        [
+          "19",
+          "Grayscale Large Cap",
+          "Basket",
+          "0"
+        ],
+        [
+          "20",
+          "21Shares Crypto Basket",
+          "Basket",
+          "0"
+        ]
+      ],
+      "notes": [
+        "All 20 rows are preserved: 17 positive-exposure entries and three zero-display entries, with source order used for zero ties. No twenty-first row is invented.",
+        "This is an ETF/ETP/trust/basket register, not 20 Litecoin ETFs. Multi-asset basket rows show LTC exposure only. A displayed zero does not establish no holdings.",
+        "Source S07; product type, exposure, date, instrument identity and eligibility remain tracker-attributed rather than independently issuer-reconciled."
+      ]
+    },
+    {
+      "deskId": "litecoin-treasuries",
+      "title": "A smaller corporate universe, fully named.",
+      "page": 12,
+      "asOf": "October 2 reference tracker; Lite Strategy checkpoint: holdings July 17, 2026, release July 30",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Company",
+        "Reported LTC"
+      ],
+      "rows": [
+        [
+          "Lite Strategy",
+          "819,070"
+        ],
+        [
+          "Luxxfolio",
+          "25,275"
+        ],
+        [
+          "Consensus Mining",
+          "13,724"
+        ],
+        [
+          "Datacentrex",
+          "3,395"
+        ],
+        [
+          "FRMO",
+          "2,116"
+        ],
+        [
+          "DeFi Technologies",
+          "1,395"
+        ],
+        [
+          "Horizon Kinetics",
+          "1,290"
+        ],
+        [
+          "Winland",
+          "1,245"
+        ],
+        [
+          "BTC Digital",
+          "430"
+        ],
+        [
+          "Z Squared",
+          "1"
+        ],
+        [
+          "SOLAI",
+          "0"
+        ]
+      ],
+      "notes": [
+        "Eleven rows, as in the reference. No additional rows are created to reach twenty or twenty-one. SOLAI’s zero display is inclusion in the source universe, not verified positive exposure.",
+        "S07 / S09. The reference attributes 819,070 LTC and 31,882,648 shares to a July 30 SEC exhibit with July 17 holdings; approximately 0.025690 LTC/share is a historical calculation, not a current ratio.",
+        "The cited release describes buybacks funded by LTC sales and covered-call premiums and identifies preliminary estimates. Other companies remain tracker-reported pending issuer-by-issuer filing checks."
+      ]
+    },
+    {
+      "deskId": "morpho",
+      "title": "Two collateral markets. Two liquidity realities.",
+      "page": 19,
+      "asOf": "October 2, 2026 · approximately 19:35–19:45 UTC official-UI extract · Base",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Metric",
+        "cbLTC / USDC",
+        "cbBTC / USDC"
+      ],
+      "rows": [
+        [
+          "Borrow rate / 6h",
+          "6.53%",
+          "4.94%"
+        ],
+        [
+          "Instant borrow rate",
+          "6.28%",
+          "4.89%"
+        ],
+        [
+          "Lend rate / 6h",
+          "5.73%",
+          "4.44%"
+        ],
+        [
+          "24h / 7d borrow average",
+          "6.64% / 6.85%",
+          "4.93% / 4.90%"
+        ],
+        [
+          "Liquidation LTV",
+          "62.5%",
+          "86.0%"
+        ],
+        [
+          "Displayed penalty",
+          "12.67%",
+          "4.38%"
+        ],
+        [
+          "Utilization",
+          "86.74%",
+          "90.04%"
+        ],
+        [
+          "Market size / loans",
+          "$1.22M / $1.06M",
+          "$1.68B / $1.51B"
+        ],
+        [
+          "Displayed liquidity",
+          "$3.84M / CONFLICT",
+          "$167.17M"
+        ],
+        [
+          "Oracle price / USDC",
+          "68.37 / cbLTC",
+          "84,161.80 / cbBTC"
+        ]
+      ],
+      "notes": [
+        "S16 / S17. These variable-rate interface observations are historical, not executable offers, fixed quotes or current rates. The interface labels windows; APR/APY basis was not independently confirmed.",
+        "The cbLTC displayed liquidity exceeds its own reported market size and conflicts with size/loans/utilization. It is preserved as a source defect, not verified available borrowing liquidity. The reference says rounded cbBTC fields are broadly coherent, not independently reconciled.",
+        "The capture was not atomic to one block. No executable fixed-rate quote, maturity or liquidation terms were captured; a fixed-rate button does not establish an offer. Reward rates and personal-position health were unavailable."
+      ]
+    },
+    {
+      "deskId": "wrapped-assets",
+      "title": "Morpho market identities printed in the reference",
+      "page": 20,
+      "asOf": "October 2, 2026 design reference · Base · not independently revalidated",
+      "classification": "Historical design reference · not revalidated",
+      "columns": [
+        "Collateral / loan / chain",
+        "Market ID",
+        "Oracle"
+      ],
+      "rows": [
+        [
+          "cbLTC / USDC / Base",
+          "0x9125d0fa03c3137166df68bcc72283477830de2a4a5536512374c573ad4583c3",
+          "0x47f961E6653423A77b1EF8Fb680eE53bf7d8a00d"
+        ],
+        [
+          "cbBTC / USDC / Base",
+          "0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836",
+          "0x663BECd10daE6C4A3Dcd89F1d76c1174199639B9"
+        ]
+      ],
+      "notes": [
+        "S16 / S17 / S18 / S19. These are the market identifiers and oracle strings printed on page 20. They are not wallet receiving addresses, connection credentials, a recommendation or approval to transact.",
+        "Canonical token addresses, deployed bytecode and matching audit scope were not independently reconciled in the reference. Protocol-level audits do not certify each token/oracle/curator combination.",
+        "Wrapper network support, custodian backing and redemption eligibility require separate current issuer evidence. The historical page notes cbLTC regional restrictions including New York; it does not establish a reader’s eligibility.",
+        "No wallet was connected, user position inspected or transaction submitted for the reference."
+      ]
+    }
+  ]
+}

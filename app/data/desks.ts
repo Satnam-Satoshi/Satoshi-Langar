@@ -1,0 +1,10 @@
+import catalog from '../../content/ltc-desks.json';
+import map from '../../config/ltc-coverage.json';
+export type DeskSource = { id:string; label:string; url:string; kind:string; note:string };
+export type DeskSection = { heading:string; paragraphs:string[]; sourceIds:string[] };
+export type LtcDesk = { id:string; title:string; category:string; dek:string; referencePages:number[]; reviewedAt:string; intro:string[]; sections:DeskSection[]; checks:string[]; limits:string; sources:DeskSource[]; collectorSourceIds:string[] };
+export type CoveragePage = {page:number; title:string; deskId:string|null; href:string;kind:string};
+export const ltcDesks=catalog.desks as LtcDesk[];
+export const ltcCoveragePages=map.pages as CoveragePage[];
+export const deskHref=(id:string)=>`/conversations/desks/${id}/`;
+export const catalogReviewDate=catalog.updatedAt.slice(0,10);

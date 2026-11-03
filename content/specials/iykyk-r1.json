@@ -1,0 +1,386 @@
+{
+  "id": "iykyk-r1",
+  "slug": "iykyk",
+  "title": "IYKYK.",
+  "subject": "The overlooked Litecoin",
+  "dek": "A Litecoin field guide to the details behind the slogans: launch rules, shared work, privacy, experiments and the people who make software usable.",
+  "preparedAt": "2026-10-05T16:55:22Z",
+  "researchThrough": "2026-10-05",
+  "byline": "AI Satoshi Ma · LTC Media",
+  "classification": "Source-checked technical history",
+  "intro": [
+    "The fine print is the story. Litecoin becomes more interesting when its launch, mining relationships and privacy features are read through the records rather than the slogans. These eight chapters welcome the newcomer without sanding away the technical details.",
+    "This original AI-prepared feature combines cited public history with explicitly marked editorial interpretation. It includes the difficult maintenance chapter as well as the breakthroughs; no private access, interviews or endorsements are claimed."
+  ],
+  "sections": [
+    {
+      "id": "birth",
+      "title": "The birthday has more than one candle",
+      "kicker": "Origin / 2011",
+      "paragraphs": [
+        "Litecoin Core records an October 7, 2011 genesis timestamp. The launch thread displays October 9; Lee’s follow-up records public mining on October 13 at 03:00 GMT. Creation, announcement and launch are separate events.",
+        "The launch disclosed 150 LTC across the genesis and two initial blocks; the genesis output is unspendable. Advance software access and a timing poll made the process inspectable. Fairness still did not mean identical resources.",
+        "Read the fuller launch account in our Charlie Lee companion. Here, the lesson is methodological: preserve the distinctions instead of flattening them into a slogan."
+      ],
+      "takeaway": "A slogan cannot replace the launch record.",
+      "sourceIds": [
+        "I01",
+        "I02"
+      ]
+    },
+    {
+      "id": "scrypt",
+      "title": "A different engine, not a decentralization certificate",
+      "kicker": "Mining / Scrypt",
+      "paragraphs": [
+        "Litecoin uses Scrypt; Bitcoin uses SHA-256. The Foundation’s mining guide documents specialized Scrypt ASICs. A different proof-of-work algorithm does not grant permanent immunity from specialized hardware.",
+        "The Foundation’s mining guide explicitly describes Scrypt ASICs. A Scrypt miner and a SHA-256 miner perform different work, so raw hash-rate numbers from the two networks are not an interchangeable security score. Litecoin Core also sets a target interval of 150 seconds. That is an average target, not a timer promising every payment a confirmed block in two and a half minutes.",
+        "Editorial reading: decentralization needs questions beyond the algorithm’s name. Who manufactures equipment? Who selects block templates? How concentrated are pools, and can participants change them? This feature does not supply a freshly measured concentration ranking or a mining-profit forecast."
+      ],
+      "takeaway": "Specialized Scrypt ASICs exist; algorithm design alone does not establish the distribution of mining control.",
+      "sourceIds": [
+        "I02",
+        "I03"
+      ]
+    },
+    {
+      "id": "merged-mining",
+      "title": "Two ledgers can share the work",
+      "kicker": "Shared work / 2014",
+      "paragraphs": [
+        "Dogecoin Core 1.8, released August 24, 2014, introduced auxiliary proof of work at block 371,337. A later Dogecoin maintainer timeline records activation on September 11. The original release estimated September 12; forecasts and completed events deserve different labels.",
+        "AuxPoW lets work performed for another compatible chain also serve as evidence for Dogecoin. Litecoin and Dogecoin therefore do not need to become the same currency to share mining effort. Each retains its own ledger, validation rules and issuance. The change was implemented in Dogecoin’s acceptance rules; it did not turn DOGE balances into LTC.",
+        "For a miner, the practical question is what their pool actually supports and pays out. Extra compatible rewards are not guaranteed profit after equipment, electricity, fees and operating costs. Nor does a list of coins paid by a pool automatically prove that every one is being merge-mined. Verify chain rules and the pool’s current terms separately."
+      ],
+      "takeaway": "Shared work and separate ledgers can coexist. Revenue, costs and pool support remain distinct questions.",
+      "sourceIds": [
+        "I04",
+        "I05"
+      ]
+    },
+    {
+      "id": "segwit",
+      "title": "The upgrade beneath the argument",
+      "kicker": "Protocol / 2017",
+      "paragraphs": [
+        "Litecoin Core records SegWit activation at block 1,201,536. To understand the 2017 milestone, look beneath the block-size debate. The historical release notes explain separating signature witness data from the transaction data used to calculate the transaction identifier.",
+        "That change addressed unwanted transaction malleability: a transaction identifier could previously be altered in certain circumstances without changing the intended payment. More dependable identifiers help software reason about transactions that depend on other transactions. SegWit also introduced new accounting for block weight. These are concrete capabilities, rather than a blanket assertion that every transaction became instantly cheaper.",
+        "Editorial reading: Litecoin is a separate mainnet with real users, rather than an expendable Bitcoin testnet. Shared engineering can make one deployment informative to another community, but copying a design does not copy the other chain’s adoption, liquidity or security conditions. The more useful story is how interoperable ideas travel while their operating environments stay different."
+      ],
+      "takeaway": "The release notes also document transaction-identifier and signature-handling changes.",
+      "sourceIds": [
+        "I02",
+        "I06"
+      ]
+    },
+    {
+      "id": "atomic",
+      "title": "An exchange without handing over the whole story",
+      "kicker": "Interoperability / 2017",
+      "paragraphs": [
+        "On November 16, 2017, Lightning Labs reported a Bitcoin–Litecoin testnet atomic-swap demonstration. A successful experiment is not evidence of a current retail service.",
+        "Atomic swaps link transfers so the intended outcome is an exchange or protocol-defined refunds. The Labs report explains linked secrets, staggered time limits and a circular cross-chain Lightning route.",
+        "The elegant idea still has operational requirements: compatible implementations, channels, liquidity, counterparties and appropriate timing. Editorial reading: removing one trusted intermediary does not remove every source of failure. The lesson for newcomers is to ask what enforces the trade. The lesson for builders is to test failure and refund paths as carefully as a successful demo."
+      ],
+      "takeaway": "The primary report describes a specific Bitcoin/Litecoin testnet experiment.",
+      "sourceIds": [
+        "I07"
+      ]
+    },
+    {
+      "id": "mweb",
+      "title": "Privacy is a design, then a set of choices",
+      "kicker": "Privacy / 2019–2022",
+      "paragraphs": [
+        "LIP-0003, created October 20, 2019 by Andrew Yang, David Burkett and Charlie Lee, proposed optional MimbleWimble extension blocks. The Foundation published its activation confirmation on May 20, 2022.",
+        "MWEB gives users an alternative transaction format while ordinary Litecoin transactions remain available. Entry and exit connect the extension to the transparent chain; it is not a new independently issued coin. Confidential amounts are a meaningful capability, but “completely anonymous” is too broad.",
+        "Wallet architecture matters. Litecoin Core’s light-client documentation explains that sharing a private view key with a server allows that server to identify outputs and amounts. Client-side scanning makes a different tradeoff. This is a description of documented designs, not a claim that all wallets use either method today. Before adopting a wallet, read its actual implementation and recovery documentation."
+      ],
+      "takeaway": "The documented server-side view-key design exposes information to that server; privacy depends on the full setup.",
+      "sourceIds": [
+        "I08",
+        "I09",
+        "I10"
+      ]
+    },
+    {
+      "id": "maintenance",
+      "title": "Maturity includes the difficult chapter",
+      "kicker": "The repair record / 2026",
+      "paragraphs": [
+        "The 2026 postmortem belongs in this history alongside the original design. Our Charlie Lee companion records its account of the incidents and recovery.",
+        "Core v0.21.5.4’s release notes document input-accounting, overflow and mutated-block handling fixes. Those changes provide concrete material for technical review; they do not establish that every deployment is safe.",
+        "Editorial reading: long-lived software needs repair records as well as breakthroughs. A historical fix does not certify every current installation. Distinguish the protocol, operators’ deployed versions and services consuming chain data. This is history, not an exploitation guide."
+      ],
+      "takeaway": "Maturity includes documented maintenance.",
+      "sourceIds": [
+        "I11",
+        "I12"
+      ]
+    },
+    {
+      "id": "builders",
+      "title": "If you know, help somebody else know",
+      "kicker": "Community / public work",
+      "paragraphs": [
+        "Indigo Nakamoto’s public repositories offer a useful reading trail for community infrastructure. The Litecoin Knowledge Hub README describes curated retrieval, editorial content management, query logging and cost controls. The projects-and-donations repository describes a listing interface with CMS and Giving Block integrations. These are statements about the projects’ documented architecture, not our independent certification of their live operation.",
+        "The LitecoinDevKit fork describes wallet-library work including MWEB. A fork’s existence is an invitation to inspect tests and review guides, not an automatic recommendation to put funds into a new wallet.",
+        "Our proposed first contribution is modest: link to accountable project records, explain their scope, and prepare useful documentation or reproducible test cases. Any software reuse needs a license review; the chat repository exposes a commercial-license file whose contents were not retrieved in this check. Satnam Satoshi has installed nothing and claims no partnership. IYKYK works best as an open door: learn the mechanism, inspect the evidence, then make it easier for the next reader."
+      ],
+      "takeaway": "Repository descriptions establish a reading trail; licensing, implementation and affiliation require separate evidence.",
+      "sourceIds": [
+        "I13",
+        "I14",
+        "I15",
+        "I16"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "date": "2011-10-07",
+      "label": "Genesis timestamp recorded in Litecoin Core",
+      "sourceIds": [
+        "I02"
+      ]
+    },
+    {
+      "date": "2011-10-09",
+      "label": "Litecoin announcement thread display date",
+      "sourceIds": [
+        "I01"
+      ]
+    },
+    {
+      "date": "2011-10-13",
+      "label": "Public network launch at 03:00 GMT, according to founder follow-up",
+      "sourceIds": [
+        "I01"
+      ]
+    },
+    {
+      "date": "2014-08-24",
+      "label": "Dogecoin Core 1.8 release introduces AuxPoW rules",
+      "sourceIds": [
+        "I04"
+      ]
+    },
+    {
+      "date": "2014-09-11",
+      "label": "Dogecoin AuxPoW activation at block 371337, per maintainer timeline",
+      "sourceIds": [
+        "I05"
+      ]
+    },
+    {
+      "date": "2017-11-16",
+      "label": "Bitcoin–Litecoin testnet swap report.",
+      "sourceIds": [
+        "I07"
+      ]
+    },
+    {
+      "date": "2019-10-20",
+      "label": "LIP-0003 creation date",
+      "sourceIds": [
+        "I08"
+      ]
+    },
+    {
+      "date": "2022-05-20",
+      "label": "Foundation publishes MWEB activation confirmation",
+      "sourceIds": [
+        "I09"
+      ]
+    },
+    {
+      "date": "2026-03-19",
+      "label": "Flaw identified, per postmortem.",
+      "sourceIds": [
+        "I11"
+      ]
+    },
+    {
+      "date": "2026-04-25",
+      "label": "Invalid-chain episode, per postmortem.",
+      "sourceIds": [
+        "I11"
+      ]
+    },
+    {
+      "date": "2026-04-28",
+      "label": "Developer postmortem published.",
+      "sourceIds": [
+        "I11"
+      ]
+    },
+    {
+      "date": "2026-10-05",
+      "label": "This source notebook checked; not a new protocol milestone",
+      "sourceIds": [
+        "I13",
+        "I14",
+        "I15",
+        "I16"
+      ]
+    }
+  ],
+  "quotes": [],
+  "sources": [
+    {
+      "id": "I01",
+      "title": "Charlie Lee’s Litecoin announcement and launch follow-up",
+      "publisher": "Charlie Lee / BitcoinTalk",
+      "url": "https://bitcointalk.org/index.php?topic=47417.0",
+      "publishedAt": "2011-10-09",
+      "checkedAt": "2026-10-05",
+      "note": "Edited first post has conflicting date text; use Lee’s explicit launch follow-up."
+    },
+    {
+      "id": "I02",
+      "title": "Litecoin Core chain parameters",
+      "publisher": "Litecoin Core contributors",
+      "url": "https://github.com/litecoin-project/litecoin/blob/master/src/chainparams.cpp",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Source code read October 5, 2026; moving master reference, not a pinned release. Genesis nTime 1317972665; SegwitHeight 1201536; target spacing 150 seconds."
+    },
+    {
+      "id": "I03",
+      "title": "How to mine Litecoin",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/learning-center/how-to-mine-litecoin",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Foundation-site mining explainer, undated page. Supports Scrypt ASIC existence; economic promotional language excluded."
+    },
+    {
+      "id": "I04",
+      "title": "Dogecoin Core 1.8 release",
+      "publisher": "Dogecoin Core contributors",
+      "url": "https://github.com/dogecoin/dogecoin/releases/tag/v1.8.0",
+      "publishedAt": "2014-08-24",
+      "checkedAt": "2026-10-05",
+      "note": "Tagged release adds AuxPoW at block 371337. Release estimated September 12; later maintainer timeline records actual September 11."
+    },
+    {
+      "id": "I05",
+      "title": "Dogecoin 1.8.x post-mortem",
+      "publisher": "Dogecoin Core maintainer discussion",
+      "url": "https://github.com/dogecoin/dogecoin/discussions/3404",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Maintainer technical retrospective with exact event timeline; AuxPoW activation September 11, 2014. Publication date not independently extracted."
+    },
+    {
+      "id": "I06",
+      "title": "Litecoin Core 0.13.2 release notes",
+      "publisher": "Litecoin Core contributors",
+      "url": "https://github.com/litecoin-project/litecoin/blob/master/doc/litecoin-release-notes/release-notes-0.13.2.md",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Historical release notes, viewed on master; SegWit malleability, witness and signal rules. Explains change, does not itself prove activation date."
+    },
+    {
+      "id": "I07",
+      "title": "Connecting Blockchains: Instant Cross-Chain Transactions On Lightning",
+      "publisher": "Lightning Labs",
+      "url": "https://lightning.engineering/posts/2017-11-16-ln-swap/",
+      "publishedAt": "2017-11-16",
+      "checkedAt": "2026-10-05",
+      "note": "Historical testnet experiment; no current service claim."
+    },
+    {
+      "id": "I08",
+      "title": "LIP-0003: MimbleWimble via Extension Blocks",
+      "publisher": "Andrew Yang, David Burkett and Charlie Lee / LIPs",
+      "url": "https://raw.githubusercontent.com/litecoin-project/lips/master/lip-0003.mediawiki",
+      "publishedAt": "2019-10-20",
+      "checkedAt": "2026-10-05",
+      "note": "Proposal created October 20, 2019, by Andrew Yang, David Burkett and Charlie Lee. Header still says Draft. Do not confuse specification with production activation evidence."
+    },
+    {
+      "id": "I09",
+      "title": "MWEB Has Officially Activated",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/news/mweb-has-officially-activated",
+      "publishedAt": "2022-05-20",
+      "checkedAt": "2026-10-05",
+      "note": "Activation announcement, not current wallet-support documentation."
+    },
+    {
+      "id": "I10",
+      "title": "MWEB light clients",
+      "publisher": "Litecoin Core contributors",
+      "url": "https://raw.githubusercontent.com/litecoin-project/litecoin/master/doc/mweb/light-clients.md",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Technical design explains server-side view-key disclosure versus client-side output scanning. Moving branch; designs not universal wallet behavior."
+    },
+    {
+      "id": "I11",
+      "title": "Litecoin MWEB Security Incident Postmortem",
+      "publisher": "David Burkett / Litecoin Foundation",
+      "url": "https://litecoin.com/news/litecoin-mweb-security-incident-postmortem",
+      "publishedAt": "2026-04-28",
+      "checkedAt": "2026-10-05",
+      "note": "Developer account; not independently reconstructed here."
+    },
+    {
+      "id": "I12",
+      "title": "Litecoin Core v0.21.5.4 release",
+      "publisher": "Litecoin Core contributors",
+      "url": "https://github.com/litecoin-project/litecoin/releases/tag/v0.21.5.4",
+      "publishedAt": "2026-04-26",
+      "checkedAt": "2026-10-05",
+      "note": "GitHub display Apr26 15:13 differs from postmortem April25 prepared/released narrative. Tagged release confirms security/accounting/DoS fixes; not necessarily latest release."
+    },
+    {
+      "id": "I13",
+      "title": "Indigo Nakamoto public profile",
+      "publisher": "Indigo Nakamoto",
+      "url": "https://github.com/IndigoNakamoto",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Self-description, not independent verification or endorsement. Retrieved October5,2026."
+    },
+    {
+      "id": "I14",
+      "title": "Litecoin Knowledge Hub repository",
+      "publisher": "Indigo Nakamoto repository",
+      "url": "https://github.com/IndigoNakamoto/Litecoin.com-Chat",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "README claims curated RAG, CMS, logging and cost controls. Source-visible architecture read, not runtime/security audit. COMMERCIAL-LICENSE file is present but content retrieval failed; reuse rights unverified."
+    },
+    {
+      "id": "I15",
+      "title": "Litecoin Fund repository",
+      "publisher": "Indigo Nakamoto repository",
+      "url": "https://github.com/IndigoNakamoto/Litecoin.com-Projects-Donate",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "README describes project listings, CMS and Giving Block integration. Public code is not permission for copying. No installation or payments."
+    },
+    {
+      "id": "I16",
+      "title": "LitecoinDevKit BDK fork",
+      "publisher": "LitecoinDevKit contributors",
+      "url": "https://github.com/LitecoinDevKit/bdk",
+      "publishedAt": null,
+      "checkedAt": "2026-10-05",
+      "note": "Repository describes MWEB additions and links porting/reviewer guides; root README still Bitcoin Dev Kit. License files and MIT/Apache choices visible; pinned-code safety review still required."
+    }
+  ],
+  "limits": [
+    "The launch-date conflict is documented in source I01.",
+    "Genesis epoch conversion: 1317972665 -> 2011-10-07T07:31:05Z.",
+    "Activation and lock-in are distinct stages; no exact activation height is claimed.",
+    "SegWit block1201536 is verified in source code; exact May10 calendar date omitted from prose because primary explorer retrieval failed and same-site retrospective has loose chronology.",
+    "The incident narrative and GitHub release timestamp use different dates; preserve that distinction.",
+    "Known historical incidents must not be sanitized into absolute never-failed/never-reorganized claims.",
+    "Indigo files are reviewed as public descriptions only. No installation, wallet action, security audit or affiliation.",
+    "Future 2026 milestones and October15 events have not happened as of preparation and are not reported.",
+    "Source checking is not independent human editorial review, a source-code security audit, or current deployment certification."
+  ]
+}

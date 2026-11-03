@@ -29,3 +29,16 @@ Older materials are preserved for context, not treated as a current deployment i
 - `ADR/` preserves existing architecture decisions. The new documentation does not adopt a second constitution or silently approve old proposals.
 
 When documents disagree about what is live, use [STATUS.md](STATUS.md), dated evidence and the current source/PR. Open a correction with links to both records. Revisit status after each accepted release or material change.
+
+## Expanded community program
+
+- [Ecosystem plan and request coverage](ECOSYSTEM-PLAN.md)
+- [Community launch playbook and social account pack](COMMUNITY-LAUNCH-PLAYBOOK.md)
+- [Agent roles, permissions and handoffs](AGENT-TEAM.md)
+- [LTC source collection and publishing](LTC-PIPELINE.md)
+- [Three learning tracks and curriculum review](LEARNING-CURRICULUM.md)
+- [Optional identity setup and deletion handoff](COMMUNITY-ACCOUNTS.md)
+- [LTC editorial charter and source record](LTC-EDITORIAL.md)
+
+- [LTC agent charters](LTC-AGENTS.md)
+- [LTC daily release and stop procedure](LTC-RELEASE-RUNBOOK.md)

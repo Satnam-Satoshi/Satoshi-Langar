@@ -1,0 +1,2 @@
+import { programs } from '../data/ecosystem';
+export function ProgramGrid(){return <div className="launch-project-grid ecosystem-cards">{programs.map(p=><article className="launch-project" key={p.name}><div className="project-top"><span>{p.number}</span><span className="program-glyph" aria-hidden="true">{p.glyph}</span></div><p className="project-status">{p.status}</p><h3>{p.name}</h3><p className="project-verb">{p.verb}</p><p className="project-description">{p.body}</p><a href={p.href}>Explore <span aria-hidden="true">↗</span></a></article>)}</div>}

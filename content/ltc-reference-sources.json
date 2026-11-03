@@ -1,0 +1,257 @@
+[
+  {
+    "id": "S01",
+    "title": "SEC custody proposal / October 1",
+    "url": "https://www.sec.gov/newsroom/press-releases/2026-100-sec-proposal-would-address-how-investment-advisers-funds-can-custody-crypto-assets-under-federal",
+    "pages": [
+      4
+    ],
+    "note": "Primary; retrieved October 2"
+  },
+  {
+    "id": "S02",
+    "title": "CFTC crypto FAQs / September 24",
+    "url": "https://www.cftc.gov/PressRoom/PressReleases/9303-26",
+    "pages": [
+      4
+    ],
+    "note": "Primary; retrieved October 2"
+  },
+  {
+    "id": "S03",
+    "title": "US Bitcoin ETF flow series",
+    "url": "https://farside.co.uk/bitcoin-etf-flow-all-data/",
+    "pages": [
+      5,
+      7
+    ],
+    "note": "Reported aggregator; closed sessions through October 1"
+  },
+  {
+    "id": "S04",
+    "title": "Global BTC product holdings",
+    "url": "https://bitcointreasuries.net/etfs-and-exchanges",
+    "pages": [
+      6,
+      7,
+      27
+    ],
+    "note": "Reported; October 2 web snapshot; mixed universe filtered"
+  },
+  {
+    "id": "S05",
+    "title": "Public BTC treasury ranking",
+    "url": "https://bitcointreasuries.net/",
+    "pages": [
+      7,
+      8,
+      27
+    ],
+    "note": "Reported; October 2 snapshot; issuer checks incomplete"
+  },
+  {
+    "id": "S06",
+    "title": "mNAV terminal",
+    "url": "https://www.mnav.com/",
+    "pages": [
+      9
+    ],
+    "note": "Search-index extract only; full terminal not captured"
+  },
+  {
+    "id": "S07",
+    "title": "Litecoin Register",
+    "url": "https://litecoinregister.com/",
+    "pages": [
+      10,
+      11,
+      12,
+      14,
+      27
+    ],
+    "note": "Reported; afternoon web snapshot; 77 entities"
+  },
+  {
+    "id": "S08",
+    "title": "Canary Litecoin ETF",
+    "url": "https://canaryetfs.com/ltcc/",
+    "pages": [],
+    "note": "Primary; issuer NAV / market data as of October 1"
+  },
+  {
+    "id": "S09",
+    "title": "Lite Strategy SEC exhibit",
+    "url": "https://www.sec.gov/Archives/edgar/data/1262104/000119312526325026/lits-ex99_1.htm",
+    "pages": [
+      12
+    ],
+    "note": "Primary; July 30 release / July 17 holdings; historical"
+  },
+  {
+    "id": "S10",
+    "title": "Litecoin Foundation news",
+    "url": "https://litecoin.com/news",
+    "pages": [
+      13,
+      21,
+      26
+    ],
+    "note": "Primary; most recent retrieved headline dated May 28"
+  },
+  {
+    "id": "S11",
+    "title": "MWEB security postmortem",
+    "url": "https://litecoin.com/news/litecoin-mweb-security-incident-postmortem",
+    "pages": [
+      14
+    ],
+    "note": "Primary; April 28; background, not a new incident"
+  },
+  {
+    "id": "S12",
+    "title": "Litecoin Core releases",
+    "url": "https://github.com/litecoin-project/litecoin/releases",
+    "pages": [
+      14,
+      21
+    ],
+    "note": "Primary; latest listed 0.21.5.8 / September 12"
+  },
+  {
+    "id": "S13",
+    "title": "Bitcoin Core 31.1",
+    "url": "https://bitcoincore.org/en/releases/31.1/",
+    "pages": [
+      15
+    ],
+    "note": "Primary; latest listed version at retrieval"
+  },
+  {
+    "id": "S14",
+    "title": "LND releases",
+    "url": "https://github.com/lightningnetwork/lnd/releases",
+    "pages": [
+      16
+    ],
+    "note": "Primary; 0.21.4-beta listed latest / October 1"
+  },
+  {
+    "id": "S15",
+    "title": "Timechain Calendar",
+    "url": "https://timechaincalendar.com/",
+    "pages": [
+      17
+    ],
+    "note": "Page requires JavaScript; numeric snapshot unavailable"
+  },
+  {
+    "id": "S16",
+    "title": "Morpho cbLTC / USDC",
+    "url": "https://app.morpho.org/base/variable/0x9125d0fa03c3137166df68bcc72283477830de2a4a5536512374c573ad4583c3/usdc-cbltc",
+    "pages": [
+      19,
+      20,
+      25
+    ],
+    "note": "Primary UI; afternoon October 2; internally inconsistent liquidity"
+  },
+  {
+    "id": "S17",
+    "title": "Morpho cbBTC / USDC",
+    "url": "https://app.morpho.org/base/variable/0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836/usdc-cbbtc",
+    "pages": [
+      19,
+      20,
+      25
+    ],
+    "note": "Primary UI; afternoon October 2; rates are observations"
+  },
+  {
+    "id": "S18",
+    "title": "Coinbase wrapped assets",
+    "url": "https://help.coinbase.com/en/coinbase/trading-and-funding/sending-or-receiving-cryptocurrency/coinbase-wrapped-btc",
+    "pages": [
+      20
+    ],
+    "note": "Primary; network support and regional restrictions"
+  },
+  {
+    "id": "S19",
+    "title": "Morpho audits",
+    "url": "https://docs.morpho.org/get-started/resources/audits/",
+    "pages": [
+      20
+    ],
+    "note": "Primary index; exact deployed bytecode audit mapping incomplete"
+  },
+  {
+    "id": "S20",
+    "title": "LitVM",
+    "url": "https://www.litvm.com/",
+    "pages": [
+      21,
+      26
+    ],
+    "note": "Primary; ecosystem statements; production status not certified"
+  },
+  {
+    "id": "S21",
+    "title": "LiteForge testnet",
+    "url": "https://testnet.litvm.com/",
+    "pages": [
+      21,
+      26
+    ],
+    "note": "Morning report reference; testnet"
+  },
+  {
+    "id": "S22",
+    "title": "Original October 2 edition",
+    "url": "/magazine/LTC-2026-10-02-design-review.pdf",
+    "pages": [
+      3,
+      21,
+      22,
+      23,
+      24
+    ],
+    "note": "Original private report reference. Use the already-published design PDF; its inherited prices are not primary venue records."
+  },
+  {
+    "id": "S23",
+    "title": "Strategy metrics",
+    "url": "https://www.strategy.com/",
+    "pages": [
+      7,
+      9
+    ],
+    "note": "Primary; 847,666 BTC retrieved; mixed metric timestamps"
+  },
+  {
+    "id": "S24",
+    "title": "Strive investor relations",
+    "url": "https://ir.strive.com/",
+    "pages": [
+      7
+    ],
+    "note": "Read failed; holdings shown only as tracker-reported"
+  },
+  {
+    "id": "S25",
+    "title": "Circle Arc introduction",
+    "url": "https://www.circle.com/blog/introducing-arc-an-open-layer-1-blockchain-purpose-built-for-stablecoin-finance",
+    "pages": [
+      25
+    ],
+    "note": "Primary; August 2025 product vision"
+  },
+  {
+    "id": "S26",
+    "title": "Circle official updates",
+    "url": "https://www.circle.com/blog",
+    "pages": [
+      25
+    ],
+    "note": "Primary; October 1, 2026 MiCA post visible"
+  }
+]

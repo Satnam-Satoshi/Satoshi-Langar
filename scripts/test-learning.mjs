@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {lessons,courses} from '../app/data/courses.ts';
+import {quizAnswers} from '../app/data/learning-quiz-answers.ts';
+import {satChallenges,utxos,balanceTransaction,signingThreshold,trustChallenges} from './lib/learning-lab.mjs';
+test('Every lesson has a complete explicit quiz answer map',()=>{assert.deepEqual(Object.keys(quizAnswers).sort(),lessons.map(l=>l.slug).sort());for(const l of lessons){assert.equal(quizAnswers[l.slug].length,l.quiz.length);for(const [i,n] of quizAnswers[l.slug].entries())assert.ok(Number.isInteger(n)&&n>=0&&n<l.quiz[i].options.length);}});
+test('Original lesson order and all 3 open paths remain complete',()=>{for(const c of courses){const ls=lessons.filter(l=>l.courseId===c.id);assert.equal(ls.length,21);assert.deepEqual(ls.map(l=>l.order),Array.from({length:21},(_,i)=>i+1));}});
+test('Satoshi challenge answers use exact unit quantities',()=>{for(const c of satChallenges){assert.equal(Number(c.btc)*100000000,c.sats);assert.equal(Number(c.options[c.answer].replaceAll(',','')),c.sats);}});
+test('All input combinations preserve accounting or expose a shortfall',()=>{for(let mask=0;mask<8;mask++){const selected=utxos.map((_,i)=>i).filter(i=>mask&(1<<i));const b=balanceTransaction(selected);if(b.funded)assert.equal(b.input,b.recipient+b.fee+b.change);else{assert.equal(b.shortfall,b.recipient+b.fee-b.input);assert.equal(b.change,0);}}assert.equal(balanceTransaction([0,2]).change,500);assert.throws(()=>balanceTransaction([0,0]));assert.throws(()=>balanceTransaction([99]));});
+test('2-of-3 counts distinct signers and every pair meets the fictional threshold',()=>{for(const pair of [['A','B'],['A','C'],['B','C']])assert.equal(signingThreshold(pair).met,true);assert.equal(signingThreshold(['A']).met,false);assert.equal(signingThreshold([]).met,false);assert.throws(()=>signingThreshold(['A','A']));assert.throws(()=>signingThreshold(['D']));});
+test('Trust challenges never turn a passing check into permission to pay',()=>{assert.equal(trustChallenges.length,4);assert.deepEqual(trustChallenges.map(c=>c.answer),['stop','review','stop','review']);assert.ok(trustChallenges.every(c=>c.prompt&&c.explanation));});
+test('Learning enhancement is local only with no wallet, credential, network or remote script access',async()=>{const text=await readFile('scripts/browser/learning.mjs','utf8');assert.doesNotMatch(text,/\bfetch\s*\(|XMLHttpRequest|sendBeacon|ethereum|requestAccounts|supabase|https?:\/\//);assert.match(text,/satnam-satoshi-learning-v1:/);assert.match(text,/data-quiz-fallback/);});

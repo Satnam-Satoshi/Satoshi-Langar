@@ -1,0 +1,10 @@
+{
+  "purpose": "Voluntary support for open education and humanitarian seva",
+  "recipient": "Founder-controlled Satnam Satoshi project support",
+  "authorizationDate": "2026-09-30",
+  "controlEvidence": "Founder-supplied in prior LTC draft and reaffirmed for this website in the project chat; no cryptographic proof of control or test transfer performed",
+  "destinations": [
+    {"asset":"BTC","network":"Bitcoin mainnet","hrp":"bc","scheme":"bitcoin","address":"bc1q3qxtztzjp6wllmszv9fryp4rln8wt0er2xz8rx","uri":"bitcoin:bc1q3qxtztzjp6wllmszv9fryp4rln8wt0er2xz8rx","qr":"/payments/btc.svg"},
+    {"asset":"LTC","network":"Litecoin mainnet","hrp":"ltc","scheme":"litecoin","address":"ltc1q78882zg99eedjnscxlv43we2r4exxua4e5c63j","uri":"litecoin:ltc1q78882zg99eedjnscxlv43we2r4exxua4e5c63j","qr":"/payments/ltc.svg"}
+  ]
+}
