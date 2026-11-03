@@ -1,6 +1,7 @@
 import{assertNoQuarantinedUploadReuse}from'./cloud-ltc-upload-quarantine-proof.mjs';
 import { createHash } from 'node:crypto';
 import { verifyEvidenceBundle } from './cloud-ltc-evidence.mjs';
+import { assertPublicationDate, publicationDate, validPublicationDate } from './cloud-ltc-daily-admission.mjs';
 
 const check = (condition, code) => { if (!condition) throw new Error(code); };
 const digest = value => createHash('sha256').update(value).digest('hex');
@@ -82,17 +83,20 @@ export class DurableCloudState {
     check(!document.paused && !document.restoreHold, 'publication_paused');
     check(document.lease?.runId === lease?.runId && document.lease?.fence === lease?.fence, 'lease_fenced');
     check(document.lease.expiresAt > this.clock(), 'lease_expired');
+    assertPublicationDate(document.lease, this.clock());
   }
-  async acquire(runId, ttlMs = 60_000, admissionCheck) {
+  async acquire(runId, ttlMs = 60_000, admissionCheck, date) {
     check(validKey(runId) && Number.isInteger(ttlMs) && ttlMs >= 1000 && ttlMs <= 3_600_000, 'invalid_lease');
+    if (date !== undefined) check(date === publicationDate(this.clock()), 'publication_date_changed');
     return this.#update(document => {
       check(!document.paused && !document.restoreHold, 'publication_paused');
-      const admissionResult=admissionCheck?.(copy(document));
-      check(!admissionResult||typeof admissionResult.then!=='function','invalid_admission_check');
       // Expiry never silently authorizes another writer. Explicit recovery first.
       check(!document.lease, 'lease_held');
       check(Object.values(document.intents).every(terminal), 'reconciliation_required');
-      document.lease = { runId, fence: ++document.fence, expiresAt: this.clock() + ttlMs };
+      const admissionResult=admissionCheck?.(copy(document));
+      check(!admissionResult||typeof admissionResult.then!=='function','invalid_admission_check');
+      if (date !== undefined) check(date === publicationDate(this.clock()), 'publication_date_changed');
+      document.lease = { runId, fence: ++document.fence, expiresAt: this.clock() + ttlMs, ...(date === undefined ? {} : {publicationDate: date}) };
       return document.lease;
     });
   }
@@ -234,6 +238,7 @@ function validateDocument(document) {
   check(JSON.stringify(document).length <= 900_000, 'state_capacity_exceeded');
   check(document?.schemaVersion === 1 && typeof document.paused === 'boolean' && typeof document.restoreHold === 'boolean' && Number.isSafeInteger(document.fence) && document.fence >= 0 && document.intents && document.receipts && !Array.isArray(document.intents) && !Array.isArray(document.receipts), 'invalid_state_document');
   if (document.lease) check(validKey(document.lease.runId) && Number.isSafeInteger(document.lease.fence) && document.lease.fence > 0 && document.lease.fence <= document.fence && Number.isFinite(document.lease.expiresAt), 'invalid_state_document');
+  if (document.lease?.publicationDate !== undefined) check(validPublicationDate(document.lease.publicationDate), 'invalid_state_document');
   if (document.archiveHead !== undefined) {
     const head = document.archiveHead;
     check(head?.schemaVersion === 1 && validKey(head.summaryOperationId) && typeof head.summaryFileId === 'string' && /^[A-Za-z0-9_-]{8,160}$/.test(head.summaryFileId) && typeof head.summaryFolderId === 'string' && /^[A-Za-z0-9_-]{8,160}$/.test(head.summaryFolderId) && ['summarySha256','backupSha256','archiveProofSha256'].every(key => validHash(head[key])) && (head.previousArchiveSha256 === null || validHash(head.previousArchiveSha256)) && Number.isSafeInteger(head.archivedIntentCount) && head.archivedIntentCount >= 0 && head.archivedReceiptCount === head.archivedIntentCount, 'invalid_archive_head');

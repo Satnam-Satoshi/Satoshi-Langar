@@ -9,6 +9,7 @@ import { chunkEvidence, packageEvidence, packageArtifactEvidence, createDriveEvi
 import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
 import { releaseGeneration, generationEvidenceId, completeFirstFreshGeneration, captureFreshGenerationBinding, assertFreshGenerationBinding, pauseOwnedFreshGeneration } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
+import { assertPublicationDate } from './cloud-ltc-daily-admission.mjs';
 const check = (value, code) => { if (!value) throw new Error(code); };
 const hash = value => createHash('sha256').update(value).digest('hex');
 
@@ -17,6 +18,7 @@ const hash = value => createHash('sha256').update(value).digest('hex');
 export function createEvidenceAttemptGuard({admission,env,uploadQuarantineBinding}){
  return async context=>{
   const document=await admission.state.inspect(),lease=admission.lease,intent=document.intents[context.operationId];
+  assertPublicationDate(document.lease, admission.state.clock());
   check(document.paused===false&&document.restoreHold===false&&document.fence===lease.fence&&document.lease?.runId===lease.runId&&document.lease.fence===lease.fence&&document.lease.expiresAt>admission.state.clock()&&context.fence===lease.fence,'evidence_create_authorization_changed');
   check(intent?.status==='uncertain'&&intent.runId===lease.runId&&intent.fence===lease.fence&&intent.payloadSha256===context.payloadSha256&&hash(JSON.stringify(context.payload))===context.payloadSha256&&JSON.stringify(intent.payload)===JSON.stringify(context.payload)&&intent.payload.kind==='drive-evidence'&&intent.payload.fileId===context.payload.fileId&&intent.payload.folderId===context.payload.folderId,'evidence_create_authorization_changed');
   assertUploadQuarantineBinding(document,uploadQuarantineBinding);

@@ -4,6 +4,7 @@ import { ReleaseOperationCoordinator } from './cloud-ltc-operations.mjs';
 import { GoogleDocsStateAdapter } from './cloud-ltc-docs-state.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 import { admitDurablePublication, requireDurableAdapter, runRelease, assertMigrationAcceptance } from './cloud-ltc-release.mjs';
+import { dailyPublicationFixture } from './lib/test-daily-publication-fixture.mjs';
 const documentId = 'ledger-fixture'; const folderId = 'folder-fixture';
 function fixture() {
   let revision = 1; let raw = ''; const calls = []; let ambiguous = false; let status = 200;
@@ -148,4 +149,39 @@ test('explicit protected quarantine pin rejects an unbound fixture before any le
   assert.deepEqual(await f.adapter.read('website'),before);
   assert.equal((await state.inspect()).lease,null);
   assert.equal((await state.inspect()).fence,0);
+});
+
+test('manual and delayed scheduled attempts skip a verified day without even a ledger write', async () => {
+  const f = fixture(), document = dailyPublicationFixture();
+  f.setRaw(JSON.stringify({schemaVersion:1,key:'website',value:document}));
+  const before = await f.adapter.read('website');
+  for (const event of ['workflow_dispatch','schedule']) {
+    const result = await admitDurablePublication({adapter:f.adapter,runId:'gha-201-1',clock:()=>Date.parse('2026-11-03T14:00:00Z'),env:{GITHUB_EVENT_NAME:event}});
+    assert.equal(result.lease,null);
+    assert.equal(result.alreadyPublished.editionId,'2026-11-03-r1');
+    assert.equal(result.publicationDate,'2026-11-03');
+  }
+  assert.equal(f.calls.length,0);
+  assert.deepEqual(await f.adapter.read('website'),before);
+});
+
+test('next-day simultaneous scheduler and manual admission have one durable CAS winner', async () => {
+  const f = fixture();
+  f.setRaw(JSON.stringify({schemaVersion:1,key:'website',value:dailyPublicationFixture()}));
+  const attempts = await Promise.allSettled(['gha-201-1','gha-202-1'].map(runId=>admitDurablePublication({adapter:f.adapter,runId,clock:()=>Date.parse('2026-11-04T12:00:00Z'),env:{}})));
+  assert.equal(attempts.filter(r=>r.status==='fulfilled').length,1);
+  assert.equal(attempts.filter(r=>r.status==='rejected').length,1);
+  assert.match(attempts.find(r=>r.status==='rejected').reason.message,/state_conflict|lease_held/);
+  const {value} = await f.adapter.read('website');
+  assert.equal(value.fence,8);
+  assert.equal(value.lease.publicationDate,'2026-11-04');
+});
+
+test('a paused or unresolved same-day state is a blocker, not a successful skip', async () => {
+  for (const mutate of [d=>d.paused=true,d=>d.restoreHold=true,d=>d.lease={runId:'gha-100-1',fence:7,expiresAt:1}]) {
+    const f=fixture(), document=dailyPublicationFixture();mutate(document);
+    f.setRaw(JSON.stringify({schemaVersion:1,key:'website',value:document}));
+    await assert.rejects(admitDurablePublication({adapter:f.adapter,runId:'gha-201-1',clock:()=>Date.parse('2026-11-03T14:00:00Z'),env:{}}),/publication_paused|lease_held/);
+    assert.equal(f.calls.length,0);
+  }
 });

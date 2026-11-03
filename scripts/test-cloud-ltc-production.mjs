@@ -9,6 +9,7 @@ import { performCoordinatedRelease, confirmedStageFromState } from './cloud-ltc-
 import { releaseGeneration, generationEvidenceId } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
+import { assertDailyPublicationAvailable, DailyPublicationComplete, publicationDate } from './cloud-ltc-daily-admission.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
 async function fixture({ uncertainStage = false, badPublishedBytes = false, uncertainPromotion = false, evidenceDiagnostic = false } = {}) {
   const scratch = await mkdtemp(path.join(tmpdir(), 'ltc-production-contract-')); const root = path.join(scratch, 'source'); const evidenceDirectory = path.join(scratch, 'evidence');
@@ -71,6 +72,11 @@ test('production wiring archives complete source/static/function evidence before
     const document = await f.state.inspect();
     assert.equal(document.lease, null); assert.equal(document.latestRelease.deployment, 'dpl_Candidate');
     assert.equal(document.latestRelease.artifactManifestSha256, hash(JSON.stringify(f.options.manifest)));
+    const effectsBeforeDuplicate = [...f.events];
+    const stateBeforeDuplicate = await f.state.backup();
+    await assert.rejects(f.state.acquire('gha-duplicate-1',3_600_000,doc=>assertDailyPublicationAvailable(doc,publicationDate()),publicationDate()),DailyPublicationComplete);
+    assert.deepEqual(f.events,effectsBeforeDuplicate);
+    assert.deepEqual(await f.state.backup(),stateBeforeDuplicate);
     assert.ok(Object.values(document.intents).every(intent => intent.status === 'confirmed' && intent.payload && intent.proof));
   } finally { await rm(f.scratch, { recursive: true, force: true }); }
 });

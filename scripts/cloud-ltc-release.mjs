@@ -13,6 +13,7 @@ import { performCoordinatedRelease, loadPreviousReleaseManifest } from './cloud-
 import { assertVercelProjectPolicy } from './cloud-ltc-release-providers.mjs';
 import { assertFreshGenerationAdmission, captureFreshGenerationBinding, assertFreshGenerationEdition } from './cloud-ltc-generation.mjs';
 import { assertReviewedMigrationAcceptance } from './cloud-ltc-migration-gate.mjs';
+import { publicationDate, assertPublicationDate, assertDailyPublicationAvailable, DailyPublicationComplete } from './cloud-ltc-daily-admission.mjs';
 
 // Default mode never commits or deploys. Publication requires protected evidence/policy and durable admission.
 export const TARGET = Object.freeze({
@@ -264,8 +265,18 @@ export async function admitDurablePublication({adapter, runId, key = 'website', 
   // acquire validates pause/restoreHold, unresolved intents and active lease,
   // then persists its fencing token using the real adapter's revision CAS.
   let firstFreshGeneration=null;
-  const lease = await state.acquire(runId, 3_600_000, document => {assertFreshGenerationAdmission(document, {env, now: clock()});firstFreshGeneration=captureFreshGenerationBinding(document);});
-  return {state, lease, firstFreshGeneration};
+  const date = publicationDate(clock());
+  try {
+    const lease = await state.acquire(runId, 3_600_000, document => {
+      assertFreshGenerationAdmission(document, {env, now: clock()});
+      firstFreshGeneration=captureFreshGenerationBinding(document);
+      assertDailyPublicationAvailable(document, date);
+    }, date);
+    return {state, lease, firstFreshGeneration};
+  } catch (error) {
+    if (!(error instanceof DailyPublicationComplete)) throw error;
+    return {state, lease: null, alreadyPublished: error.release, publicationDate: date};
+  }
 }
 export async function releaseUnusedAdmission(admission) {
   try {
@@ -310,6 +321,11 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
       record.migrationProof = assertMigrationAcceptance({ document: await new DurableCloudState(stateAdapter, 'website').inspect(), configuration: migration, currentControllerImplementationSha256: options.expected });
       record.migrationConfigurationSha256 = sha(JSON.stringify(migration));
       admission = await admitDurablePublication({adapter:stateAdapter, runId:`gha-${env.GITHUB_RUN_ID}-${env.GITHUB_RUN_ATTEMPT}`, env});
+      if (admission.alreadyPublished) {
+        Object.assign(record, {status: 'already-published-today', publicationDate: admission.publicationDate, edition: admission.alreadyPublished.editionId, releaseCommit: admission.alreadyPublished.source, candidateDeployment: admission.alreadyPublished.deployment, completedAt: time()});
+        await save();
+        return {status: record.status, receipt: receiptPath, published: false};
+      }
       record.durableAdmission = {key:'website', ...admission.lease};
       await save();
       // An interrupted external intent retains its fence; owner-reviewed proof
@@ -320,7 +336,7 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     await verifyImplementation(clone, options.expected);
     const policy = JSON.parse(await readFile(path.join(clone, 'config/ltc-publication.json'), 'utf8'));
     assertControls({ policy, cloudValue: 'true', remoteHead: source, expectedHead: source });
-    const date = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    const date = admission?.lease.publicationDate ?? publicationDate();
     const archive = JSON.parse(await readFile(path.join(clone, 'content/ltc/index.json'), 'utf8'));
     let edition = archive.filter(item => item.date === date).sort((a, b) => b.revision - a.revision)[0];
     // Private observations are always refreshed, even when today's immutable issue exists.
@@ -332,7 +348,10 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     record.evidence = await Promise.all(Object.entries(inputs).map(async ([kind, file]) => ({ kind, sha256: sha(await readFile(file)) })));
     if (!edition) edition = JSON.parse(await readFile(path.join(clone, `content/ltc/${date}-r1.json`), 'utf8'));
     const preparedEdition=JSON.parse(await readFile(path.join(clone,`content/ltc/${edition.id}.json`),'utf8'));
-    const verifyFirstFreshEdition=()=>{if(admission?.firstFreshGeneration)assertFreshGenerationEdition(preparedEdition,{now:Date.now(),notBeforeDate:admission.firstFreshGeneration.notBeforeDate});};
+    const verifyFirstFreshEdition=()=>{
+      if(admission?.lease)assertPublicationDate(admission.lease,Date.now());
+      if(admission?.firstFreshGeneration)assertFreshGenerationEdition(preparedEdition,{now:Date.now(),notBeforeDate:admission.firstFreshGeneration.notBeforeDate});
+    };
     verifyFirstFreshEdition(); // Before any source/private/archive/deployment effect.
     record.distributionSourceSha256 = sha(await readFile(path.join(evidence, 'litecoin-distribution-raw.json')));
     record.edition = edition.id;
@@ -466,6 +485,7 @@ export function safeFailure(error) {
   const message = typeof error?.message === 'string' ? error.message : '';
   const known = new Set(['routine_followup_rows_changed','routine_followup_proof_required','routine_followup_prior_record_changed','routine_followup_reconstruction_changed','routine_followup_delta_fields_changed','routine_followup_delta_collision','routine_followup_original_changed','routine_followup_context_changed','routine_followup_readback_changed','routine_followup_historical_marker_changed','routine_followup_old_lineage_active','routine_followup_manual_admission_required','routine_followup_fresh_proof_required','routine_followup_independent_acceptance_required','routine_followup_fresh_independent_acceptance_required','routine_followup_manual_fresh_only','routine_followup_lineage_banned','routine_followup_binding_changed','routine_followup_fresh_checkpoint_required','routine_followup_fresh_checkpoint_readback_changed','routine_retirement_proof_required','routine_retirement_original_changed','routine_retirement_context_changed','routine_retirement_readback_changed','routine_retirement_historical_marker_changed','routine_retirement_old_lineage_active','routine_retirement_manual_admission_required','routine_retirement_fresh_proof_required','routine_retirement_independent_acceptance_required','routine_retirement_fresh_independent_acceptance_required','routine_retirement_manual_fresh_only','routine_retirement_lineage_banned','routine_retirement_binding_changed','routine_retirement_fresh_checkpoint_required','routine_retirement_fresh_summary_required','routine_retirement_fresh_checkpoint_readback_changed','operation_outcome_uncertain', 'operation_reconciliation_required', 'reconciliation_required', 'release_operation_not_confirmed', 'state_conflict', 'lease_held', 'lease_fenced', 'lease_expired', 'storage_read_failed', 'storage_write_uncertain', 'google_refresh_credentials_required', 'google_refresh_failed', 'google_refresh_scope_mismatch', 'bootstrap_rollback_manifest_required', 'rollback_manifest_unavailable', 'rollback_manifest_changed', 'evidence_file_ids_required', 'evidence_too_large', 'artifact_source_set_too_large', 'state_capacity_exceeded', 'incomplete_release_artifact_backup', 'protected_candidate_read_failed', 'pinned_cli_version_required', 'pinned_cli_version_mismatch', 'production_recovery_configuration_required', 'collector_failed', 'invalid_collector_snapshot', 'migration_acceptance_pending', 'accepted_digest_required', 'implementation_changed', 'publication_paused', 'cloud_publication_disabled', 'remote_head_changed', 'routine_revision_required', 'release_changes_outside_allowlist', 'immutable_edition_changed', 'invalid_edition_id', 'network_request_failed', 'response_too_large', 'deployed_artifact_mismatch', 'deployment_credential_missing', 'invalid_api_response', 'invalid_remote_policy', 'commit_not_confirmed', 'invalid_arguments', 'invalid_accepted_source', 'durable_adapter_required', 'invalid_cloud_run_id', 'built_output_changed', 'tracked_checkout_not_clean', 'approved_actions_context_required', 'wrong_vercel_project', 'native_git_link_requires_owner_resolution', 'verified_rollback_target_required', 'invalid_cli_path', 'invalid_candidate_url', 'invalid_deployment_output', 'invalid_candidate_manifest', 'candidate_identity_failed', 'competing_production_release', 'promotion_identity_failed', 'rollback_not_confirmed', 'promotion_or_public_verification_failed', 'non_regular_tracked_file']);
   for (const code of ['redirect_target_missing_from_manifest', 'reviewed_redirect_changed', 'unexpected_artifact_status', 'invalid_protected_http_response', 'deployment_discovery_uncertain', 'confirmed_stage_receipt_invalid']) known.add(code);
+  for (const code of ['invalid_publication_clock', 'invalid_publication_date', 'publication_date_changed', 'daily_checkpoint_invalid', 'publication_clock_before_checkpoint']) known.add(code);
   for(const code of ["fresh_generation_acceptance_required", "fresh_generation_binding_changed", "fresh_generation_checkpoint_invalid", "fresh_generation_checkpoint_readback_changed", "fresh_generation_displayed_ticker_expired", "fresh_generation_edition_invalid", "fresh_generation_manual_proof_required", "fresh_generation_proof_required", "fresh_generation_retirement_proof_required", "fresh_generation_same_day_withheld", "invalid_release_generation", "invalid_retired_issue_date"]) known.add(code);
   return known.has(message) || /^http_[1-5]\d{2}$/.test(message) || /^command_failed_(?:node|git|pnpm|vercel)$/.test(message) ? message : 'release_failed_details_withheld';
 }
