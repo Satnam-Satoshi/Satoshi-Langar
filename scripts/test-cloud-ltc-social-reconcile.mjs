@@ -73,6 +73,21 @@ test('changed copy requires hash-matching original edit history; changes to time
     const f = fixture(); change(f); assert.throws(() => planPausedSentReconciliation(f.input));
   }
 });
+test('legacy keyless canonical entries preserve the unique imported key; timestamp keys remain valid', async () => {
+  const f = fixture(); delete f.input.canonical.posts[0].key; delete f.input.canonical.posts[0].date;
+  f.input.canonical.posts[1].key = 'campaign:x:2026-11-03T11:00:00.000Z'; f.plan = planPausedSentReconciliation(f.input);
+  await applyPausedSentReconciliation(f); assert.equal(f.value().records['original-0'].postId, id(1)); assert.ok(f.value().records['campaign:x:2026-11-03T11:00:00.000Z']);
+  const g = fixture(); delete g.input.canonical.posts[1].key; assert.throws(() => planPausedSentReconciliation(g.input), /binding_mismatch/);
+});
+test('stale canonical media requires the exact referenced archived readback; wrong archives fail', () => {
+  const f = fixture(), p = f.input.canonical.posts[0]; p.altText = 'Obsolete description'; p.queueReceipt = '/private/original-readbacks.json';
+  const rawJson = JSON.stringify(f.input.evidence.map(r => ({...r,status:'scheduled',sentAt:null})));
+  f.input.historicalMediaEvidence = [{sourcePath:p.queueReceipt,rawJson}];
+  const plan = planPausedSentReconciliation(f.input); assert.equal(plan.changes[0].after.deliveryObservation.historicalMediaEvidenceSha256, hash(rawJson));
+  for(const mutate of [x=>x[0].sourcePath='/different',x=>x[0].rawJson='[]',x=>x[0].rawJson=JSON.stringify([{...f.input.evidence[0],text:'different'}]),x=>x.push(x[0])]){
+    const bad=structuredClone(f.input);mutate(bad.historicalMediaEvidence);assert.throws(()=>planPausedSentReconciliation(bad));
+  }
+});
 test('later provider changes, partial probe, stale evidence and plan tampering cause zero state writes', async () => {
   for (const change of [f => f.probe.queueReadComplete = false, f => f.probe.identityVerified = false, f => f.now = '2026-11-05T18:00:00Z', f => f.plan.changes[0].after.kind = 'update', f => { f.client.callTool = async () => ({ structuredContent: { ...f.input.evidence[0], text: 'edited after review' } }); }]) {
     const f = fixture(); change(f); await assert.rejects(applyPausedSentReconciliation(f)); assert.equal(f.writes(), 0);

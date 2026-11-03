@@ -46,11 +46,12 @@ function sourceEvents(record, receipt) {
   return [...new Set(urls.map(hash))].sort();
 }
 
-export function planPausedSentReconciliation({ snapshot, canonical, evidence, observedAt }) {
+export function planPausedSentReconciliation({ snapshot, canonical, evidence, observedAt, historicalMediaEvidence = [] }) {
   check(typeof snapshot?.version === 'string' && snapshot.version.length > 0 && typeof snapshot.documentId === 'string' && instant(observedAt), 'reconciliation_snapshot_required');
   const value = snapshot.value; pausedIdle(value);
   check(canonical?.schemaVersion === 1 && canonical.timezone === 'America/New_York' && Array.isArray(canonical.posts) && canonical.posts.length <= 5000, 'canonical_ledger_required');
   check(Array.isArray(evidence) && evidence.length > 0 && evidence.length <= 100, 'bounded_sent_evidence_required');
+  check(Array.isArray(historicalMediaEvidence) && historicalMediaEvidence.length <= 10 && historicalMediaEvidence.every(e => exact(e, ['sourcePath', 'rawJson']) && typeof e.sourcePath === 'string' && typeof e.rawJson === 'string' && Buffer.byteLength(e.rawJson) <= 500000), 'historical_media_evidence_invalid');
   const receipts = evidence.map(sentReceipt).sort((a, b) => a.postId.localeCompare(b.postId));
   check(new Set(receipts.map(p => p.postId)).size === receipts.length, 'duplicate_sent_identity');
   const records = Object.values(value.records), linked = records.map(r => r.postId).filter(Boolean);
@@ -60,20 +61,41 @@ export function planPausedSentReconciliation({ snapshot, canonical, evidence, ob
     const matches = canonical.posts.filter(p => p.bufferPostId === receipt.postId);
     check(matches.length === 1, 'canonical_identity_missing_or_ambiguous');
     const original = matches[0], platform = Object.keys(BUFFER_TARGET.channels).find(p => BUFFER_TARGET.channels[p] === receipt.channelId);
-    check(canonical.posts.filter(p => p.key === original.key).length === 1, 'canonical_key_collision');
-    check(/^[a-zA-Z0-9][a-zA-Z0-9:_-]{0,199}$/.test(original.key ?? '') && original.platform === platform && (!original.channelId || original.channelId === receipt.channelId) && (original.text ?? original.copy) === receipt.text && instant(original.dueAt) && Date.parse(original.dueAt) === Date.parse(receipt.dueAt) && original.date === dateInNewYork(receipt.dueAt) && ['scheduled', 'scheduled-verified', 'sent', 'published'].includes(original.status), 'canonical_sent_binding_mismatch');
+    // Early imports used a hash of the entire canonical record as their key.
+    // Preserve that known cloud key by exact unique provider ID, never rehash a
+    // subsequently updated canonical record or invent a key for an unknown ID.
+    const key = original.key ?? records.find(r => r.postId === receipt.postId)?.key;
+    if (original.key) check(canonical.posts.filter(p => p.key === original.key).length === 1, 'canonical_key_collision');
+    const date = original.date ?? (instant(original.dueAt) ? dateInNewYork(original.dueAt) : null);
+    check(/^[a-zA-Z0-9][a-zA-Z0-9:_.-]{0,199}$/.test(key ?? '') && original.platform === platform && (!original.channelId || original.channelId === receipt.channelId) && (original.text ?? original.copy) === receipt.text && instant(original.dueAt) && Date.parse(original.dueAt) === Date.parse(receipt.dueAt) && date === dateInNewYork(receipt.dueAt) && ['scheduled', 'scheduled-verified', 'sent', 'published'].includes(original.status), 'canonical_sent_binding_mismatch');
     if (original.textSha256) check(original.textSha256 === hash(receipt.text), 'canonical_copy_hash_mismatch');
-    if (original.assetUrl) check(receipt.assets.some(a => a.url === original.assetUrl && (!original.altText || a.altText === original.altText)), 'canonical_media_mismatch');
-    const before = value.records[original.key] ?? null;
-    check(!records.some(r => r.postId === receipt.postId && r.key !== original.key), 'canonical_key_collision');
+    let mediaEvidenceSha256 = null;
+    if (original.assetUrl && !receipt.assets.some(a => a.url === original.assetUrl && (!original.altText || a.altText === original.altText))) {
+      // Some legacy canonical records retained an old alt-text field after a
+      // verified edit. Accept only the original referenced readback file, bound
+      // into the reviewed input, whose exact identity/copy/time/media match now.
+      const archives = historicalMediaEvidence.filter(e => e.sourcePath === original.queueReceipt);
+      check(archives.length === 1, 'canonical_media_mismatch');
+      const archived = JSON.parse(archives[0].rawJson);
+      check(Array.isArray(archived), 'historical_media_evidence_invalid');
+      const matches = archived.filter(p => p.id === receipt.postId);
+      check(matches.length === 1 && ['scheduled', 'sent'].includes(matches[0].status), 'historical_media_evidence_invalid');
+      const prior = sentReceipt({ ...matches[0], status: 'sent', sentAt: receipt.sentAt });
+      check(hashJSON(prior) === hashJSON(receipt), 'historical_media_evidence_mismatch');
+      mediaEvidenceSha256 = hash(archives[0].rawJson);
+    }
+    const before = value.records[key] ?? null;
+    check(!records.some(r => r.postId === receipt.postId && r.key !== key), 'canonical_key_collision');
     if (before) {
-      check(before.key === original.key && before.postId === receipt.postId && before.platform === platform && before.date === original.date && Date.parse(before.dueAt) === Date.parse(receipt.dueAt) && ['scheduled', 'scheduled-verified', 'sent', 'published'].includes(before.status), 'existing_receipt_binding_mismatch');
+      check(before.key === key && before.postId === receipt.postId && before.platform === platform && before.date === date && Date.parse(before.dueAt) === Date.parse(receipt.dueAt) && ['scheduled', 'scheduled-verified', 'sent', 'published'].includes(before.status), 'existing_receipt_binding_mismatch');
       if (before.contentHash !== hash(receipt.text)) check(original.editHistory?.some(edit => typeof edit.text === 'string' && hash(edit.text) === before.contentHash && edit.textSha256 === before.contentHash && Date.parse(edit.dueAt) === Date.parse(receipt.dueAt)), 'canonical_edit_history_required');
     }
     const kind = /policy/.test(original.type ?? '') ? 'update' : /daily|routine|evergreen-invitation|^owner-authorized-learning-campaign$/.test(original.type ?? '') ? 'invitation' : 'owner-reserved';
-    const after = { ...(before ?? { key: original.key, platform, date: original.date, kind, sourceIds: [...(original.sourceIds ?? []), ...(original.sourceId ? [original.sourceId] : [])] }), status: before?.status === 'published' ? 'published' : 'sent', postId: receipt.postId, contentHash: hash(receipt.text), dueAt: receipt.dueAt, sentAt: receipt.sentAt, sentDate: dateInNewYork(receipt.sentAt), sourceEventKeys: [...new Set([...(before?.sourceEventKeys ?? []), ...sourceEvents(original, receipt)])].sort(), readbackSha256: hashJSON(receipt), deliveryObservation: { status: 'sent', observedAt, provider: 'official-buffer-mcp', publicVerification: 'not-performed', mediaMetadataSha256: hashJSON(receipt.assets) } };
-    return { key: original.key, before, after, canonicalRecordSha256: hashJSON(original), receipt };
+    const after = { ...(before ?? { key, platform, date, kind, sourceIds: [...(original.sourceIds ?? []), ...(original.sourceId ? [original.sourceId] : [])] }), status: before?.status === 'published' ? 'published' : 'sent', postId: receipt.postId, contentHash: hash(receipt.text), dueAt: receipt.dueAt, sentAt: receipt.sentAt, sentDate: dateInNewYork(receipt.sentAt), sourceEventKeys: [...new Set([...(before?.sourceEventKeys ?? []), ...sourceEvents(original, receipt)])].sort(), readbackSha256: hashJSON(receipt), deliveryObservation: { status: 'sent', observedAt, provider: 'official-buffer-mcp', publicVerification: 'not-performed', mediaMetadataSha256: hashJSON(receipt.assets) } };
+    if (mediaEvidenceSha256) after.deliveryObservation.historicalMediaEvidenceSha256 = mediaEvidenceSha256;
+    return { key, before, after, canonicalRecordSha256: hashJSON(original), receipt };
   });
+  check(new Set(changes.map(c => c.key)).size === changes.length, 'canonical_key_collision');
   const nextRecords = { ...value.records, ...Object.fromEntries(changes.map(c => [c.key, c.after])) };
   const dates = [...new Set(changes.map(c => c.after.sentDate))].sort();
   const dailyCounts = dates.flatMap(date => Object.keys(BUFFER_TARGET.channels).map(platform => {
