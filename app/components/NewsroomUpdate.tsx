@@ -1,5 +1,5 @@
 import {newsroom} from '../data/newsroom';
-import community from '../../content/ltc-community/latest.json';
+import {communitySnapshot as community} from '../data/community-snapshot';
 import styles from './newsroom-update.module.css';
 const num=(v:string|null)=>v===null?'Withheld':new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(Number(v));
 export default function NewsroomUpdate(){

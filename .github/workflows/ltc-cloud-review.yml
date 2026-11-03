@@ -5,6 +5,9 @@ on:
     branches: [agent/wall-street-20261011]
     paths:
       - '.github/workflows/ltc-cloud-review.yml'
+      - 'app/components/NewsroomUpdate.tsx'
+      - 'app/data/community-*.ts'
+      - 'scripts/test-community-snapshot-types.mjs'
       - 'scripts/cloud-ltc-*.mjs'
       - 'scripts/test-cloud-ltc-*.mjs'
       - 'scripts/collect-litecoin-distribution.mjs'
