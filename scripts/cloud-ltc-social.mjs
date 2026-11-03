@@ -140,7 +140,7 @@ export function planDailyCampaign({ edition, sourceDesk, releaseProof, graphic, 
   check(graphic?.editionId === edition.id && digest(graphic.pngSha256) && releaseProof.dailyGraphicSha256 === graphic.pngSha256 && graphic.width === 1200 && graphic.height === 630, 'verified_daily_graphic_required');
   const imported = canonicalRecords(canonicalLedger);
   if (cloudLedger) check(cloudLedger.kind === 'ltc-cloud-social' && plain(cloudLedger.records), 'invalid_social_ledger');
-  const records = [...new Map([...imported, ...Object.values(cloudLedger?.records ?? {})].map(record => [record.key, record])).values()]; const consumed = platform => records.filter(record => record.platform === platform && record.date === date); const planned = []; const gaps = [];
+  const records = [...new Map([...imported, ...Object.values(cloudLedger?.records ?? {})].map(record => [record.key, record])).values()]; const consumed = platform => records.filter(record => record.platform === platform && (record.date === date || record.sentDate === date)); const planned = []; const gaps = [];
   const seenEvents = new Set(records.flatMap(record => record.sourceEventKeys)); const seenSourceIds = new Set(records.flatMap(record => record.sourceIds ?? [])); const lead = edition.features?.stories?.[0]; check(lead && typeof lead.title === 'string', 'daily_feature_required');
   const leadSource = edition.features.sources.find(source => source.id === lead.sourceIds[0]);
   const originalDate = leadSource?.publishedAt?.slice(0, 10) ?? 'not supplied';
@@ -196,7 +196,7 @@ export class CloudSocialLedger {
     check(/^(?:daily-\d{4}-\d{2}-\d{2}-(?:x|instagram)|update-\d{4}-\d{2}-\d{2}-[a-f0-9]{24})$/.test(post.key ?? '') && ['x', 'instagram'].includes(post.platform) && (post.kind !== 'update' || post.platform === 'x') && !/@|\$|\b(?:guaranteed|buy now|sell now|APY)\b/i.test(post.text) && dateInNewYork(this.clock()) === post.date && Date.parse(post.dueAt) > this.clock() && post.channelId === BUFFER_TARGET.channels[post.platform] && ['invitation', 'update'].includes(post.kind) && dateInNewYork(post.dueAt) === post.date && hash(post.text) === post.contentHash && digest(post.mediaSha256) && safeURL(post.mediaURL, true), 'invalid_social_reservation');
     const planHash = hash(JSON.stringify(post));
     return this.update(value => { this.live(value, lease); if (value.records[post.key]) { check(value.records[post.key].planHash === planHash, 'social_idempotency_conflict'); return value.records[post.key]; }
-      const records = Object.values(value.records); const day = records.filter(record => record.platform === post.platform && record.date === post.date);
+      const records = Object.values(value.records); const day = records.filter(record => record.platform === post.platform && (record.date === post.date || record.sentDate === post.date));
       check(day.length < BUFFER_TARGET.maximum[post.platform] && (post.kind !== 'invitation' || !day.some(record => record.kind === 'invitation')) && (post.kind !== 'update' || day.filter(record => record.kind === 'update').length < 2), 'social_daily_cap_reserved');
       check(post.kind !== 'update' || !records.some(record => record.sourceEventKeys?.some(event => post.sourceEventKeys.includes(event))), 'social_source_event_reserved');
       value.records[post.key] = { ...structuredClone(post), planHash, status: 'reserved', postId: null, fence: lease.fence }; return value.records[post.key]; });

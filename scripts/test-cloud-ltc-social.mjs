@@ -110,6 +110,15 @@ async function ledgerFixture(post, { migration = true } = {}) {
   if (migration) await adapter.conditionalWrite('social', { schemaVersion: 1, kind: 'ltc-cloud-social', paused: false, migration: { canonicalSha256: hash('canonical'), cutoverReceiptSha256: hash('accepted owner cutover') }, fence: 0, lease: null, records: {} }, null);
   const lease = migration ? await ledger.acquire('test-social-job', hash('canonical')) : null; return { ledger, lease, adapter };
 }
+test('a receipt delivered on a later New York day consumes that day in planning and final reservation', async () => {
+  const input = await planningInput(), baseline = planDailyCampaign(input), post = baseline.posts.find(p => p.platform === 'x' && p.kind === 'invitation');
+  const historical = { key: 'historical-late-delivery', platform: 'x', date: '2026-10-14', sentDate: '2026-10-15', kind: 'invitation', status: 'sent', sourceEventKeys: [], contentHash: hash('historical') };
+  input.cloudLedger = { kind: 'ltc-cloud-social', records: { [historical.key]: historical } };
+  assert.ok(!planDailyCampaign(input).posts.some(p => p.platform === 'x' && p.kind === 'invitation'));
+  const f = await ledgerFixture(post), current = await f.adapter.read('social'); current.value.records[historical.key] = historical;
+  await f.adapter.conditionalWrite('social', current.value, current.version);
+  await assert.rejects(f.ledger.reserve(f.lease, post), /social_daily_cap_reserved/);
+});
 test('durable reservation is CAS-safe; competing jobs and unknown outcomes hold rather than consume another slot', async () => {
   const post = planDailyCampaign(await planningInput()).posts[0]; const f = await ledgerFixture(post);
   const reserved = await Promise.allSettled([f.ledger.reserve(f.lease, post), f.ledger.reserve(f.lease, post)]); assert.ok(reserved.some(result => result.status === 'fulfilled'));
