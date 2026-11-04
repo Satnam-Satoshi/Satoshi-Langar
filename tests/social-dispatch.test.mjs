@@ -18,15 +18,46 @@ test('manual mode cannot run for cron, another owner/repo/ref, dry runs, probes 
   assert.equal(vm.runInNewContext(condition, base), true);
   for(const mutate of [c=>c.github.event_name='schedule',c=>c.github.repository='other/repo',c=>c.github.ref='refs/heads/other',c=>c.github.event.sender.id=1,c=>c.inputs.dry_run=true,c=>c.inputs.acceptance_probe=true,c=>c.inputs.bootstrap_previous_manifest=true,c=>c.inputs.acceptance_mode='none']) { const c=structuredClone(base);mutate(c);assert.equal(vm.runInNewContext(condition,c),false); }
 });
-test('existing global writer lock and early schedule remain; only a finite job is added', () => {
+function assertReviewedWebsiteBoundary(workflow) {
+  const parts = workflow.split('\n  social-sent-reconciliation:\n');
+  assert.equal(parts.length, 2);
+  // Keep the original pre-social website pin. Admit only the reviewed additions
+  // immediately after their exact anchors, once in each of the three classifiers.
+  let normalized = parts[0].replace(', social-reconcile-sent', '').trimEnd();
+  const additions = [
+    ["            'content/research/litecoin-distribution-latest.json',\n", "            'content/ltc-events/latest.json', 'content/research/litecoin-clock-latest.json',\n"],
+    ["            if (pointers.has(file)) return { kind: 'pointer' };\n", String.raw`            const event = /^content\/ltc-events\/(\d{4}-\d{2}-\d{2})\.json$/.exec(file);` + "\n            if (event) return calendarDate(event[1]) ? { kind: 'dated', date: event[1] } : null;\n"],
+  ];
+  for (const [anchor, addition] of additions) {
+    assert.equal(normalized.split(anchor).length - 1, 3);
+    assert.equal(normalized.split(anchor + addition).length - 1, 3);
+    normalized = normalized.replaceAll(anchor + addition, anchor);
+  }
+  assert.equal(createHash('sha256').update(normalized).digest('hex'),'b84f83951ce69b093e492b62227041fd34b2d491c71b9983dac822b23d4327e5');
+  // Freshness work cannot alter even one byte of the reviewed social dispatcher.
+  assert.equal(createHash('sha256').update(parts[1]).digest('hex'),'a1c2643ab8de4e09ffa6a03cdbbeaf5446eefd4937bc17a49f554212627b54c8');
+}
+test('existing writer lock and early schedule retain pinned bytes except the exact reviewed freshness additions', () => {
   assert.match(source,/group: ltc-production-publication\n  cancel-in-progress: false/);
   assert.match(source,/cron: '17 5,6,7 \* \* \*'\n      timezone: America\/New_York/);
   assert.doesNotMatch(job,/concurrency:|schedule:|contents: write|actions: write|VERCEL|LTC_STATE_DOCUMENT_ID|ltc-cloud-release\.mjs --/);
   assert.equal((source.match(/social-sent-reconciliation:/g)??[]).length,1);
   const oldJobs=source.split('\n  social-sent-reconciliation:\n')[0];
-  assert.equal((oldJobs.match(/social-reconcile-sent/g)??[]).length,1); // Dispatch choice only; existing jobs do not take this mode.
-  const normalized=oldJobs.replace(', social-reconcile-sent','').trimEnd();
-  assert.equal(createHash('sha256').update(normalized).digest('hex'),'b84f83951ce69b093e492b62227041fd34b2d491c71b9983dac822b23d4327e5');
+  assert.equal((oldJobs.match(/social-reconcile-sent/g)??[]).length,1);
+  assertReviewedWebsiteBoundary(source);
+});
+test('freshness exception rejects missing, relocated or expanded paths and any other website/social change', () => {
+  const line = "            'content/ltc-events/latest.json', 'content/research/litecoin-clock-latest.json',\n";
+  for (const changed of [
+    source.replace(line,''),
+    source.replace(line,'') + line,
+    source.replace('content/ltc-events/latest.json','content/ltc-events/unreviewed.json'),
+    source.replace('content/research/litecoin-clock-latest.json','content/research/unreviewed.json'),
+    source.replace('cancel-in-progress: false','cancel-in-progress: true'),
+    source.replace("cron: '17 5,6,7 * * *'", "cron: '17 8 * * *'"),
+    source.replace('contents: read','contents: write'),
+    source + '\n',
+  ]) assert.throws(() => assertReviewedWebsiteBoundary(changed));
 });
 test('dedicated source and policy pins never replace website configuration; all publication gates are false', () => {
   assert.match(job,/LTC_ACCEPTED_IMPLEMENTATION_SHA256: \$\{\{ vars\.LTC_SOCIAL_RECONCILIATION_IMPLEMENTATION_SHA256 \}\}/);
