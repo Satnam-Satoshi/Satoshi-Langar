@@ -122,14 +122,20 @@ export function parseIbit(text, now) {
   const header = rows[headerAt];
   const currencyAt = header.indexOf('Market Currency');
   const nameAt = header.indexOf('Name');
-  if (currencyAt < 0 || nameAt < 0) throw new Error('missing_columns');
+  const classAt = header.indexOf('Asset Class');
+  if (['Ticker', 'Name', 'Quantity', 'Market Currency', 'Asset Class'].some(column => header.filter(value => value === column).length !== 1)) throw new Error('missing_columns');
   const bitcoins = rows.slice(headerAt + 1).filter(row => row[0] === 'BTC');
-  if (bitcoins.length !== 1 || bitcoins[0][currencyAt] !== 'BTC' || bitcoins[0][nameAt] !== 'BITCOIN') throw new Error('wrong_asset');
-  const quantity = decimal(bitcoins[0][header.indexOf('Quantity')]);
+  const holdings = bitcoins.filter(row => row[nameAt] === 'BITCOIN' && row[classAt] === 'Alternative' && row[currencyAt] === 'BTC');
+  const commitments = bitcoins.filter(row => row[nameAt] === 'BTC - CASH (COMMITTED)' && row[classAt] === 'Cash' && row[currencyAt] === 'BTC');
+  // The issuer can return a separate BTC cash-commitment row. It is not the
+  // BITCOIN holding. Never sum it, ignore unknown BTC rows, or accept duplicates.
+  if (holdings.length !== 1 || commitments.length > 1 || bitcoins.length !== holdings.length + commitments.length) throw new Error('wrong_asset');
+  for (const row of commitments) if (Number(decimal(row[header.indexOf('Quantity')])) > 21_000_000) throw new Error('impossible_quantity');
+  const quantity = decimal(holdings[0][header.indexOf('Quantity')]);
   if (Number(quantity) > 21_000_000) throw new Error('impossible_quantity');
   const shares = decimal(rows.find(row => row[0] === 'Shares Outstanding')?.[1]);
   return { sourceAsOf: asOf, observations: [
-    { metric: 'fund_btc_quantity', label: 'IBIT reported BTC holdings', value: quantity, unit: 'BTC', effectiveAt: asOf, timePrecision: 'date', classification: 'issuer-reported' },
+    { metric: 'fund_btc_quantity', label: 'IBIT BITCOIN row · cash commitments excluded', value: quantity, unit: 'BTC', effectiveAt: asOf, timePrecision: 'date', classification: 'issuer-reported', cashCommitmentsExcluded: true },
     { metric: 'fund_shares_outstanding', label: 'IBIT shares outstanding', value: shares, unit: 'shares', effectiveAt: asOf, timePrecision: 'date', classification: 'issuer-reported' },
   ] };
 }

@@ -149,10 +149,14 @@ test('fresh full pipeline validates candidate before any accepted-data write and
     ]);
     assert.deepEqual(calls[4], ['scripts/collect-ltc-builder-news.mjs', '--output', '/private/builders.json', '--evidence-dir', '/private/builders-raw']);
     assert.equal(calls[5][0], 'scripts/collect-litecoin-distribution.mjs');
-    assert.equal(calls[6][0], 'scripts/check-ltc-observations.mjs');
-    assert.equal(calls[7][0], 'scripts/prepare-ltc-daily-features.mjs');
-    assert.equal(calls[8][0], 'scripts/prepare-ltc-flagship.mjs');
-    assert.ok(calls[8].includes('--output')); assert.ok(!calls[8].includes('--publish'));
+    assert.deepEqual(calls[6], ['scripts/collect-ltc-events.mjs', '--output', '/private/events.json', '--evidence-dir', '/private/events-raw']);
+    assert.deepEqual(calls[7], ['scripts/collect-ltc-checkpoint.mjs', '--output', '/private/checkpoint.json']);
+    assert.equal(calls[8][0], 'scripts/check-ltc-observations.mjs');
+    assert.equal(calls[9][0], 'scripts/prepare-ltc-daily-features.mjs');
+    assert.equal(calls[10][0], 'scripts/prepare-ltc-flagship.mjs');
+    assert.ok(calls[10].includes('--output')); assert.ok(!calls[10].includes('--publish'));
+    assert.ok(calls.findIndex(args=>args[0]==='scripts/prepare-ltc-events.mjs')>10);
+    assert.deepEqual(calls.at(-4), ['scripts/collect-ltc-checkpoint.mjs', '--apply', '/private/checkpoint.json']);
     assert.equal(calls.filter(args => args.includes('--publish')).length, existingEdition ? 2 : 3);
     assert.equal(writes.filter(write => write.file.startsWith('/clone')).length, 1);
     const snapshot = writes.find(write => write.file === '/clone/public/data/ltc-snapshot.json');

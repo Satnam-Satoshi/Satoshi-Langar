@@ -65,7 +65,10 @@ function normalizeObservations(source, rule, checkedAt) {
       const value = decimal(item.value);
       assert(value === item.value && Number(value) >= 0, 'invalid_ibit_value');
       if (unit === 'BTC') assert(Number(value) <= 21_000_000, 'impossible_quantity');
-      return { metric, label, value, unit, effectiveAt: asOf, timePrecision: 'date', classification: 'issuer-reported' };
+      assert(item.cashCommitmentsExcluded === undefined || (unit === 'BTC' && item.cashCommitmentsExcluded === true), 'invalid_ibit_exclusion');
+      // Older saved observations keep their exact normalized label and brief.
+      const exclusion = item.cashCommitmentsExcluded === true;
+      return { metric, label: exclusion ? 'IBIT BITCOIN row · cash commitments excluded' : label, value, unit, effectiveAt: asOf, timePrecision: 'date', classification: 'issuer-reported', ...(exclusion ? { cashCommitmentsExcluded: true } : {}) };
     });
   }
   const releaseRule = RELEASE_RULES[rule.parser];
@@ -136,7 +139,7 @@ export function prepareEdition(snapshot, registry, policy, { now = new Date().to
     const shares = ibit.observations.find(item => item.metric === 'fund_shares_outstanding');
     const dateLabel = sourceDateLabel(ibit.sourceAsOf);
     briefs.push({ id: 'ibit-holdings', desk: 'Wall Street & institutions', headline: `IBIT’s dated holdings record: ${dateLabel}`, effectiveAt: ibit.sourceAsOf, sourceIds: [ibit.id], paragraphs: [
-      `The iShares Bitcoin Trust ETF holdings file reports ${numberText(btc.value)} BTC and ${numberText(shares.value)} shares outstanding as of ${dateLabel}. The source supplies a date, not an intraday timestamp.`,
+      btc.cashCommitmentsExcluded ? `The iShares Bitcoin Trust ETF holdings file reports ${numberText(btc.value)} BTC in its BITCOIN row and ${numberText(shares.value)} shares outstanding as of ${dateLabel}. Separate cash commitments are excluded. The source supplies a date, not an intraday timestamp.` : `The iShares Bitcoin Trust ETF holdings file reports ${numberText(btc.value)} BTC and ${numberText(shares.value)} shares outstanding as of ${dateLabel}. The source supplies a date, not an intraday timestamp.`,
       `This is an issuer-reported balance at a point in time. It is not a live price, independently audited total or measurement of money entering the fund. Holdings changes alone are not ETF flows.`,
       `For newcomers: read the “as of” date before comparing a number. For experienced readers: the source notebook preserves the exact decimal strings, parser version and retrieved-file hash for this observation.`,
     ] });

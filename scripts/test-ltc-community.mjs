@@ -6,7 +6,7 @@ import { collectCommunity, COMMUNITY_LIMITS, COMMUNITY_SOURCES, parseCommunityFe
 const now = '2026-10-05T17:00:00.000Z';
 const foundation = COMMUNITY_SOURCES[0]; const nexus = COMMUNITY_SOURCES[1];
 const rssItem = ({ title = 'Foundation &amp; community update', date = 'Mon, 05 Oct 2026 10:00:00 -0400', slug = 'community-update', extra = '' } = {}) => `<item><title>${title}</title><link>https://litecoin.com/news/${slug}</link><pubDate>${date}</pubDate><description><![CDATA[Article body is not imported.]]></description>${extra}</item>`;
-const rss = (entries = rssItem()) => `<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>Litecoin News</title><link>https://litecoin.com/news</link><description>Official source</description>${entries}</channel></rss>`;
+const rss = (entries = rssItem()) => `<?xml version="1.0" encoding="utf-8"?><rss version="2.0"><channel><title>Litecoin News</title><link>https://litecoin.com</link><description>Official source</description>${entries}</channel></rss>`;
 const release = (overrides = {}) => ({ id: 365719868, name: '<script>untrusted promotional name</script>', tag_name: 'v1.3.3', html_url: 'https://github.com/litecoin-foundation/nexus/releases/tag/v1.3.3', url: 'https://api.github.com/repos/litecoin-foundation/nexus/releases/365719868', published_at: '2026-08-05T18:21:31Z', draft: false, prerelease: false, body: 'Untrusted body with claims', ...overrides });
 const response = (text, type = 'application/rss+xml', status = 200, extra = {}) => new Response(text, { status, headers: { 'content-type': type, ...extra } });
 const goodFetcher = async url => url === foundation.url ? response(rss()) : response(JSON.stringify([release()]), 'application/json');
@@ -45,7 +45,7 @@ test('rejects impossible, future and timezone-ambiguous publication dates', () =
 });
 
 test('RSS identity and article URLs must be exact; source instructions and active markup are never executed', () => {
-  for (const bad of [rss().replace('https://litecoin.com/news</link>', 'https://example.com/news</link>'), rss().replace('https://litecoin.com/news/community-update', 'https://litecoin.com.evil.example/news/community-update'), rss().replace('https://litecoin.com/news/community-update', 'https://litecoin.com/news/community-update#fake'), rss().replace('https://litecoin.com/news/community-update', 'https://litecoin.com:443/news/community-update'), rss().replace('<item>', '<item><title>duplicate</title>'), rss().replace('</item>', '</bad>'), rss().replace('<item>', '<!DOCTYPE item [<!ENTITY x SYSTEM "file:///secret">]><item>'), rss().replace('<item>', '<item><script>attack()</script>'), rss(rssItem({ title: '&lt;img onerror=alert(1)&gt;' }))]) assert.throws(() => parseCommunityFeed(bad, foundation.id, now));
+  for (const bad of [rss().replace('https://litecoin.com</link>', 'https://example.com/news</link>'), rss().replace('https://litecoin.com/news/community-update', 'https://litecoin.com.evil.example/news/community-update'), rss().replace('https://litecoin.com/news/community-update', 'https://litecoin.com/news/community-update#fake'), rss().replace('https://litecoin.com/news/community-update', 'https://litecoin.com:443/news/community-update'), rss().replace('<item>', '<item><title>duplicate</title>'), rss().replace('</item>', '</bad>'), rss().replace('<item>', '<!DOCTYPE item [<!ENTITY x SYSTEM "file:///secret">]><item>'), rss().replace('<item>', '<item><script>attack()</script>'), rss(rssItem({ title: '&lt;img onerror=alert(1)&gt;' }))]) assert.throws(() => parseCommunityFeed(bad, foundation.id, now));
   assert.throws(() => parseCommunityFeed(rss(rssItem() + rssItem()), foundation.id, now), /duplicate_record/);
 });
 
@@ -114,4 +114,18 @@ test('snapshot rejects tampering, unavailable-source records, changed timestamps
   for (const change of mutations) { const s = structuredClone(original); change(s); assert.throws(() => validateCommunitySnapshot(s, { now })); }
   assert.throws(() => validateCommunitySnapshot(original, { now: '2026-10-06T17:00:00.001Z' }), /stale_or_future/);
   assert.throws(() => validateCommunitySnapshot(original, { now: '2026-10-05T16:59:59.999Z' }), /stale_or_future/);
+});
+
+
+test('verified Foundation root channel and repeated-hyphen publisher slugs retain exact identity', () => {
+  assert.equal(foundation.channelUrl, 'https://litecoin.com');
+  const slug = 'mobilizing-mweb-litecoin-core-v0-21-3---a-new-era-for-mobile-wallets';
+  const records = parseCommunityFeed(rss(rssItem({ slug })), foundation.id, now);
+  assert.equal(records[0].url, `https://litecoin.com/news/${slug}`);
+  for (const bad of ['https://litecoin.com/news', 'https://litecoin.com/', 'http://litecoin.com', 'https://litecoin.com.evil.example']) {
+    assert.throws(() => parseCommunityFeed(rss().replace('https://litecoin.com</link>', `${bad}</link>`), foundation.id, now), /invalid_feed_identity/);
+  }
+  for (const bad of ['-leading', 'trailing-', 'a/../b', 'a%2Db', 'a?next=b', 'a#b', 'a_b', 'a.b']) {
+    assert.throws(() => parseCommunityFeed(rss(rssItem({ slug: bad })), foundation.id, now), /invalid_record_url/);
+  }
 });

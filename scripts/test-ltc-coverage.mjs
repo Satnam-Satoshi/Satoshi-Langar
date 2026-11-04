@@ -119,7 +119,7 @@ test('actual collector normalization integrates with edition preparation and imm
   const json = payload => new Response(JSON.stringify(payload), { headers: { 'content-type': 'application/json' } });
   const sourceSnapshot = await collectSnapshot(registry, { now: generatedAt, fetcher: async url => {
     if (url.includes('api.exchange.coinbase.com')) return json({ trade_id: 7654321, price: '67000.1200', bid: '67000.00', ask: '67001.00', size: '0.01', volume: '100.00', time: '2026-10-04T17:59:00Z' });
-    if (url.includes('ishares.com')) return new Response('iShares Bitcoin Trust ETF\nFund Holdings as of,"Oct 2, 2026"\nShares Outstanding,"1,414,760,000.00"\nTicker,Name,Quantity,Market Currency\nBTC,BITCOIN,"803,343.05410",BTC\n', { headers: { 'content-type': 'text/csv' } });
+    if (url.includes('ishares.com')) return new Response('iShares Bitcoin Trust ETF\nFund Holdings as of,"Oct 2, 2026"\nShares Outstanding,"1,414,760,000.00"\nTicker,Name,Quantity,Market Currency,Asset Class\nBTC,BITCOIN,"803,343.05410",BTC,Alternative\n', { headers: { 'content-type': 'text/csv' } });
     const repo = url.includes('/litecoin-project/') ? ['litecoin-project/litecoin', 'v0.21.5.8'] : url.includes('/lightningnetwork/') ? ['lightningnetwork/lnd', 'v0.21.4-beta'] : ['bitcoin/bitcoin', 'v31.1'];
     if (url.includes('api.github.com')) return json({ tag_name: repo[1], html_url: `https://github.com/${repo[0]}/releases/tag/${repo[1]}`, published_at: '2026-10-01T15:00:00Z', draft: false, prerelease: false });
     if (url.includes('strategy.com') || url.includes('sec.gov')) return new Response('Denied', { status: 403 });
