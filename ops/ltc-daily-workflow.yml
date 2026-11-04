@@ -5,7 +5,7 @@ on:
   schedule:
     # Start early enough for the 60-minute publication budget before 09:00 ET.
     # Later triggers use the same durable daily admission and do not republish.
-    - cron: '17 5,6,7 * * *'
+    - cron: '17 5,6,7,9,12,16,20 * * *'
       timezone: America/New_York
   workflow_dispatch:
     inputs:

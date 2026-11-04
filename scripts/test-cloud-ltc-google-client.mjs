@@ -69,14 +69,14 @@ test('write opt-in, strict CAS and ledger-only request boundaries reject before 
   assert.equal(calls, 0);
 });
 
-test('non-success statuses retain status without provider text and no automatic retries', async () => {
+test('non-success statuses retain status without provider text; only retryable GETs repeat', async () => {
   for (const status of [400, 401, 403, 404, 409, 429, 500]) {
     let calls = 0; let preparing = true;
-    const client = createGoogleStateClient({ config, env, allowWrites: true, fetchImpl: async (url, request) => { calls++; if (request.method === 'GET' && url.includes('/drive/v3/files/') && preparing) return json(metadata(new URL(url).pathname.split('/').at(-1))); return json({ error: `private ${env.LTC_GOOGLE_ACCESS_TOKEN}` }, status); } });
+    const client = createGoogleStateClient({ config, env, allowWrites: true, sleep: async () => {}, fetchImpl: async (url, request) => { calls++; if (request.method === 'GET' && url.includes('/drive/v3/files/') && preparing) return json(metadata(new URL(url).pathname.split('/').at(-1))); return json({ error: `private ${env.LTC_GOOGLE_ACCESS_TOKEN}` }, status); } });
     await client.verifySelectedResources(); preparing = false; calls = 0;
     assert.deepEqual(await client.getFileMetadata(config.documentId), { status, body: null });
     assert.deepEqual(await client.batchUpdateDocument(config.documentId, batch), { status, body: null });
-    assert.equal(calls, 2);
+    assert.equal(calls, status === 429 ? 4 : 2);
   }
 });
 
@@ -111,4 +111,52 @@ test('explicit social ledger namespace is compatible but cannot edit a website l
   assert.equal(JSON.parse(calls.at(-1).request.body).requests[0].insertText.text, socialBatch.requests[0].insertText.text);
   await assert.rejects(client.batchUpdateDocument(config.documentId, batch), /invalid_google_state_batch/);
   assert.throws(() => createGoogleStateClient({ config: { ...config, ledgerKey: 'unknown' }, env }), /invalid_cloud_state_configuration/);
+});
+
+
+test('GET transport failures and selected retryable statuses are bounded to three requests', async () => {
+  for (const failure of ['network',429,502,503,504]) {
+    let calls=0;const delays=[];
+    const client=createGoogleStateClient({config,env,sleep:async ms=>delays.push(ms),fetchImpl:async()=>{
+      calls++;if(calls===3)return json(document());
+      if(failure==='network')throw Error('transport unavailable');return json({},failure);
+    }});
+    assert.equal((await client.getDocument(config.documentId,options)).status,200);
+    assert.equal(calls,3);assert.deepEqual(delays,[250,500]);
+  }
+});
+
+test('exhausted GET transport retries stop; errors remain sanitized', async () => {
+  for (const failure of ['network',429,502,503,504]) {
+    let calls=0;const delays=[];
+    const client=createGoogleStateClient({config,env,sleep:async ms=>delays.push(ms),fetchImpl:async()=>{
+      calls++;if(failure==='network')throw Error('private provider diagnostic');return json({},failure);
+    }});
+    if(failure==='network')await assert.rejects(client.getDocument(config.documentId,options),error=>error.message==='storage_read_failed');
+    else assert.deepEqual(await client.getDocument(config.documentId,options),{status:failure,body:null});
+    assert.equal(calls,3);assert.deepEqual(delays,[250,500]);
+  }
+});
+
+test('GET authorization, other statuses and schema failures never retry', async () => {
+  for(const response of [()=>json({},401),()=>json({},403),()=>json({},400),()=>json({},404),()=>json({},500),()=>new Response('not json',{headers:{'content-type':'application/json'}}),()=>json([])]) {
+    let calls=0,sleeps=0;
+    const client=createGoogleStateClient({config,env,sleep:async()=>{sleeps++;},fetchImpl:async()=>{calls++;return response();}});
+    await client.getDocument(config.documentId,options).catch(error=>assert.equal(error.message,'storage_read_failed'));
+    assert.equal(calls,1);assert.equal(sleeps,0);
+  }
+});
+
+test('POST timeouts and retryable HTTP statuses are never repeated', async () => {
+  for(const failure of ['network',429,502,503,504]) {
+    let writes=0,sleeps=0;
+    const client=createGoogleStateClient({config,env,allowWrites:true,sleep:async()=>{sleeps++;},fetchImpl:async(url,request)=>{
+      if(request.method==='GET')return json(metadata(new URL(url).pathname.split('/').at(-1)));
+      writes++;if(failure==='network')throw Error('private');return json({},failure);
+    }});
+    await client.verifySelectedResources();
+    if(failure==='network')await assert.rejects(client.batchUpdateDocument(config.documentId,batch),/storage_write_uncertain/);
+    else assert.deepEqual(await client.batchUpdateDocument(config.documentId,batch),{status:failure,body:null});
+    assert.equal(writes,1);assert.equal(sleeps,0);
+  }
 });
