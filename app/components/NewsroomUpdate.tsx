@@ -1,5 +1,9 @@
 import {newsroom} from '../data/newsroom';
-import community from '../../content/ltc-community/latest.json';
+import communitySnapshot from '../../content/ltc-community/latest.json';
+import type {CommunitySnapshot} from '../data/community-wire';
+
+// Collection may legitimately return no accepted items; do not infer never[].
+const community:CommunitySnapshot=communitySnapshot;
 import styles from './newsroom-update.module.css';
 const num=(v:string|null)=>v===null?'Withheld':new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(Number(v));
 export default function NewsroomUpdate(){
