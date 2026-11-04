@@ -54,9 +54,9 @@ test('midnight fences admitted effects and renewals; unresolved work remains hel
   assert.equal((await state.inspect()).intents.effect.status, 'pending');
 });
 
-test('the scheduled entrypoint uses one concurrency group with pre-deadline Eastern attempts', () => {
+test('the scheduled entrypoint uses one concurrency group with morning and catch-up Eastern attempts', () => {
   const workflow = readFileSync(new URL('../ops/ltc-daily-workflow.yml',import.meta.url),'utf8');
-  assert.match(workflow,/cron: '17 5,6,7 \* \* \*'\s+timezone: America\/New_York/);
+  assert.match(workflow,/cron: '17 5,6,7,9,12,16,20 \* \* \*'\s+timezone: America\/New_York/);
   assert.equal((workflow.match(/cron:/g)||[]).length,1);
   assert.match(workflow,/group: ltc-production-publication\s+cancel-in-progress: false/);
   assert.match(workflow,/timeout-minutes: 60/);

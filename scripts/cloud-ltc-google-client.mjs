@@ -1,5 +1,5 @@
 // Credential-owning transport for the selected existing private resources only.
-// No OAuth initiation, refresh, credential-file discovery, resource creation or retries.
+// No OAuth initiation, refresh, credential-file discovery, resource creation or write retries.
 // Access token lifetime/refresh is the protected runtime's responsibility.
 const check = (condition, code) => { if (!condition) throw new Error(code); };
 const idPattern = /^[A-Za-z0-9_-]{5,200}$/;
@@ -11,22 +11,34 @@ export function validateCloudStateConfig(config) {
   return Object.freeze({ ...config });
 }
 
-export function createGoogleStateClient({ config, env = process.env, fetchImpl = fetch, allowWrites = false, timeoutMs = 30_000 }) {
+export function createGoogleStateClient({ config, env = process.env, fetchImpl = fetch, allowWrites = false, timeoutMs = 30_000, sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   const selected = validateCloudStateConfig(config);
   const accessToken = env.LTC_GOOGLE_ACCESS_TOKEN;
   check(typeof accessToken === 'string' && /^[A-Za-z0-9._~+\/-]{16,8192}={0,2}$/.test(accessToken), 'google_access_token_required');
-  check(typeof fetchImpl === 'function' && typeof allowWrites === 'boolean' && Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 30_000, 'invalid_google_transport_configuration');
+  check(typeof fetchImpl === 'function' && typeof sleep === 'function' && typeof allowWrites === 'boolean' && Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 30_000, 'invalid_google_transport_configuration');
 
   async function request(url, method = 'GET', body) {
     const write = method === 'POST';
     let response;
-    try {
-      response = await fetchImpl(url, {
-        method, redirect: 'error', signal: AbortSignal.timeout(timeoutMs),
-        headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json', ...(write ? { 'Content-Type': 'application/json' } : {}) },
-        ...(write ? { body: JSON.stringify(body) } : {}),
-      });
-    } catch { throw new Error(write ? 'storage_write_uncertain' : 'storage_read_failed'); }
+    for (let attempt = 0; attempt < (write ? 1 : 3); attempt++) {
+      try {
+        response = await fetchImpl(url, {
+          method, redirect: 'error', signal: AbortSignal.timeout(timeoutMs),
+          headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json', ...(write ? { 'Content-Type': 'application/json' } : {}) },
+          ...(write ? { body: JSON.stringify(body) } : {}),
+        });
+      } catch {
+        if (!write && attempt < 2) { await sleep(250 * (attempt + 1)); continue; }
+        throw new Error(write ? 'storage_write_uncertain' : 'storage_read_failed');
+      }
+      // Only bounded, read-only transport retries. Auth, redirects, malformed
+      // payloads and every POST retain their original fail-closed behavior.
+      if (!write && !response?.redirected && [429, 502, 503, 504].includes(response?.status) && attempt < 2) {
+        await response.body?.cancel?.().catch(() => {});
+        await sleep(250 * (attempt + 1)); continue;
+      }
+      break;
+    }
     check(Number.isInteger(response?.status) && response.status >= 200 && response.status <= 599 && !response.redirected, write ? 'storage_write_uncertain' : 'storage_read_failed');
     // Error responses are status-only. Provider diagnostics may contain request data.
     if (response.status >= 300) return { status: response.status, body: null };
