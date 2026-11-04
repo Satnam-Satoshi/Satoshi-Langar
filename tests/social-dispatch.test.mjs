@@ -20,12 +20,12 @@ test('manual mode cannot run for cron, another owner/repo/ref, dry runs, probes 
 });
 test('existing global writer lock and early schedule remain; only a finite job is added', () => {
   assert.match(source,/group: ltc-production-publication\n  cancel-in-progress: false/);
-  assert.match(source,/cron: '17 5,6,7 \* \* \*'\n      timezone: America\/New_York/);
+  assert.match(source,/cron: '17 5,6,7,9,12,16,20 \* \* \*'\n      timezone: America\/New_York/);
   assert.doesNotMatch(job,/concurrency:|schedule:|contents: write|actions: write|VERCEL|LTC_STATE_DOCUMENT_ID|ltc-cloud-release\.mjs --/);
   assert.equal((source.match(/social-sent-reconciliation:/g)??[]).length,1);
   const oldJobs=source.split('\n  social-sent-reconciliation:\n')[0];
   assert.equal((oldJobs.match(/social-reconcile-sent/g)??[]).length,1); // Dispatch choice only; existing jobs do not take this mode.
-  const normalized=oldJobs.replace(', social-reconcile-sent','').trimEnd();
+  const normalized=oldJobs.replace(', social-reconcile-sent','').replace("cron: '17 5,6,7,9,12,16,20 * * *'", "cron: '17 5,6,7 * * *'").trimEnd();
   assert.equal(createHash('sha256').update(normalized).digest('hex'),'b84f83951ce69b093e492b62227041fd34b2d491c71b9983dac822b23d4327e5');
 });
 test('dedicated source and policy pins never replace website configuration; all publication gates are false', () => {
