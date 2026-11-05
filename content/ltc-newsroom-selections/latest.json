@@ -1,14 +1,29 @@
 {
   "schemaVersion": 1,
-  "id": "source-desk-2026-11-04-r1",
-  "checkedAt": "2026-11-04T15:23:58.726Z",
+  "id": "source-desk-2026-11-05-r1",
+  "checkedAt": "2026-11-05T08:00:59.031Z",
   "byline": "AI Satoshi Ma · Automated source desk",
   "scope": "Deterministic source-dated selections; publisher announcements remain attributed and observations retain their clocks. No independent human review is claimed.",
   "generatedFrom": {
-    "id": "newsroom-20261104T152358Z",
-    "sha256": "6dc56f4c9d00305f5a79dd6401f73ab6fe0c2e48c59f6987c8a22db4086845fe"
+    "id": "newsroom-20261105T080059Z",
+    "sha256": "5be9d112ad89d509370f397e2d6fd9427d0c0e9fa6ff6d62b2514423cf7438bb"
   },
   "stories": [
+    {
+      "id": "lnd-release",
+      "desk": "Lightning & builders",
+      "title": "LND v0.21.6-beta: the dated upstream record",
+      "publishedAt": "2026-10-30T23:21:55Z",
+      "observedAt": "2026-10-30T23:21:55Z",
+      "dateKind": "published",
+      "classification": "Dated upstream release",
+      "summary": "The official LND repository’s latest-release endpoint returned v0.21.6-beta, published October 30, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+      "whyItMatters": "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup.",
+      "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
+      "sourceName": "LND · Lightning software releases",
+      "readMore": "/conversations/updates/#latest-update",
+      "checkedAt": "2026-11-05T07:58:20.209Z"
+    },
     {
       "id": "2d04a940108b180a0ba2",
       "desk": "Litecoin / Builders",
@@ -21,7 +36,22 @@
       "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
       "sourceName": "Luxxfolio",
       "readMore": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
-      "checkedAt": "2026-11-04T15:23:57.146Z"
+      "checkedAt": "2026-11-05T08:00:57.298Z"
+    },
+    {
+      "id": "bitcoin-core-release",
+      "desk": "Bitcoin & builders",
+      "title": "Bitcoin Core v32.1: the dated upstream record",
+      "publishedAt": "2026-10-28T14:23:53Z",
+      "observedAt": "2026-10-28T14:23:53Z",
+      "dateKind": "published",
+      "classification": "Dated upstream release",
+      "summary": "The official Bitcoin Core repository’s latest-release endpoint returned v32.1, published October 28, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+      "whyItMatters": "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup.",
+      "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
+      "sourceName": "Bitcoin Core · software releases",
+      "readMore": "/conversations/updates/#latest-update",
+      "checkedAt": "2026-11-05T07:58:20.209Z"
     },
     {
       "id": "395c4385600350aad0b6",
@@ -35,7 +65,7 @@
       "url": "https://www.litvm.com/blog/introducing-litvm-v2",
       "sourceName": "LitVM",
       "readMore": "https://www.litvm.com/blog/introducing-litvm-v2",
-      "checkedAt": "2026-11-04T15:23:57.146Z"
+      "checkedAt": "2026-11-05T08:00:57.298Z"
     },
     {
       "id": "033c478aecbbf04f48d7",
@@ -49,44 +79,56 @@
       "url": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
       "sourceName": "Luxxfolio",
       "readMore": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
-      "checkedAt": "2026-11-04T15:23:57.146Z"
+      "checkedAt": "2026-11-05T08:00:57.298Z"
+    },
+    {
+      "id": "litecoin-core-release",
+      "desk": "Litecoin & proof of work",
+      "title": "Litecoin Core v0.21.5.8: the dated upstream record",
+      "publishedAt": "2026-09-12T12:06:49Z",
+      "observedAt": "2026-09-12T12:06:49Z",
+      "dateKind": "published",
+      "classification": "Dated upstream release",
+      "summary": "The official Litecoin Core repository’s latest-release endpoint returned v0.21.5.8, published September 12, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+      "whyItMatters": "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup.",
+      "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
+      "sourceName": "Litecoin Core · software releases",
+      "readMore": "/conversations/updates/#latest-update",
+      "checkedAt": "2026-11-05T07:58:20.209Z"
     },
     {
       "id": "coinbase-btc-usd",
       "desk": "Market snapshot",
-      "title": "BTC/USD last trade: $80,642.16",
-      "publishedAt": "2026-11-04T15:20:39.346Z",
-      "observedAt": "2026-11-04T15:20:39.346Z",
+      "title": "BTC/USD last trade: $80,233.86",
+      "publishedAt": "2026-11-05T07:58:18.241Z",
+      "observedAt": "2026-11-05T07:58:18.241Z",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "Coinbase Exchange returned a BTC/USD last trade of $80,642.16, timestamped 2026-11-04T15:20:39.346Z. This venue-reported trade was retrieved at 2026-11-04T15:20:41.930Z; the two times are recorded separately.",
+      "summary": "Coinbase Exchange returned a BTC/USD last trade of $80,233.86, timestamped 2026-11-05T07:58:18.241Z. This venue-reported trade was retrieved at 2026-11-05T07:58:20.209Z; the two times are recorded separately.",
       "whyItMatters": "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
       "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
       "sourceName": "Coinbase Exchange · BTC/USD last trade",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-04T15:20:41.930Z"
+      "checkedAt": "2026-11-05T07:58:20.209Z"
     },
     {
       "id": "coinbase-ltc-usd",
       "desk": "Market snapshot",
-      "title": "LTC/USD last trade: $56.671",
-      "publishedAt": "2026-11-04T15:20:35.666Z",
-      "observedAt": "2026-11-04T15:20:35.666Z",
+      "title": "LTC/USD last trade: $55.874",
+      "publishedAt": "2026-11-05T07:58:14.590Z",
+      "observedAt": "2026-11-05T07:58:14.590Z",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "Coinbase Exchange returned a LTC/USD last trade of $56.671, timestamped 2026-11-04T15:20:35.666Z. This venue-reported trade was retrieved at 2026-11-04T15:20:41.930Z; the two times are recorded separately.",
+      "summary": "Coinbase Exchange returned a LTC/USD last trade of $55.874, timestamped 2026-11-05T07:58:14.590Z. This venue-reported trade was retrieved at 2026-11-05T07:58:20.209Z; the two times are recorded separately.",
       "whyItMatters": "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
       "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
       "sourceName": "Coinbase Exchange · LTC/USD last trade",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-04T15:20:41.930Z"
+      "checkedAt": "2026-11-05T07:58:20.209Z"
     }
   ],
   "gaps": [
     "iShares Bitcoin Trust ETF · holdings: unavailable during this collection (HTTP 200). No claim or metric is supplied from this source.",
-    "Bitcoin Core · software releases: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
-    "Litecoin Core · software releases: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
-    "LND · Lightning software releases: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
     "Strategy · mNAV definitions: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
     "CoinShares · Bitcoin ETP: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
     "SEC · official announcements: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
