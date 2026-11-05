@@ -1,0 +1,442 @@
+{
+  "checkedAt": "2026-10-15",
+  "source": "https://testnet.litvm.com/",
+  "scope": "All 87 entries visible in the official directory at collection, including the explorer. Listing is not endorsement, a security audit, mainnet availability or proof of Space participation. Project descriptions and performance claims are not independently verified.",
+  "projects": [
+    {
+      "category": "INFRASTRUCTURE",
+      "name": "LiteForge Explorer",
+      "url": "https://liteforge.explorer.caldera.xyz/"
+    },
+    {
+      "category": "INFRASTRUCTURE",
+      "name": "Lester Labs",
+      "url": "https://www.lester-labs.com/"
+    },
+    {
+      "category": "PREDICTION MARKET",
+      "name": "MidasPredict",
+      "url": "https://midashand.xyz/"
+    },
+    {
+      "category": "CODING PLATFORM",
+      "name": "Dappit",
+      "url": "https://dappit.io/"
+    },
+    {
+      "category": "LAUNCHPAD",
+      "name": "OnmiFun",
+      "url": "https://app.onmi.fun/?chain=LITVM"
+    },
+    {
+      "category": "RWA",
+      "name": "Rip & Loan",
+      "url": "https://ripandloan.xyz/"
+    },
+    {
+      "category": "AI",
+      "name": "AutoIncentive",
+      "url": "https://autoincentive.online/"
+    },
+    {
+      "category": "DEFI",
+      "name": "Ayni",
+      "url": "https://www.aynilabs.xyz/"
+    },
+    {
+      "category": "PRIVACY",
+      "name": "LitCash",
+      "url": "https://litvm.cash/"
+    },
+    {
+      "category": "DEX",
+      "name": "LiteSwap",
+      "url": "https://liteswap.app/"
+    },
+    {
+      "category": "NFT",
+      "name": "ZNS Connect",
+      "url": "https://zns.bio/"
+    },
+    {
+      "category": "PREDICTION MARKET",
+      "name": "Penny4Thots",
+      "url": "https://penny4thots.my/"
+    },
+    {
+      "category": "DEX",
+      "name": "WolfDex",
+      "url": "https://wolfdex.lovable.app/"
+    },
+    {
+      "category": "DEX",
+      "name": "LitVMSwap",
+      "url": "https://www.litvmswap.com/"
+    },
+    {
+      "category": "INFRASTRUCTURE",
+      "name": "Lit Clinic",
+      "url": "https://www.litclinic.xyz/"
+    },
+    {
+      "category": "AI",
+      "name": "AI Deathmatch",
+      "url": "https://www.aideathmatch.xyz/"
+    },
+    {
+      "category": "AUDIT",
+      "name": "LitAudit",
+      "url": "https://litaudit.online/"
+    },
+    {
+      "category": "SOCIAL",
+      "name": "OnChainGM",
+      "url": "https://onchaingm.com/"
+    },
+    {
+      "category": "DOMAINS",
+      "name": "InfinityName",
+      "url": "https://infinityname.com/litvm"
+    },
+    {
+      "category": "SOCIAL",
+      "name": "Arkada",
+      "url": "https://app.arkada.gg/en/wallet?utm_source=twitter&utm_medium=social&utm_campaign=verification_litvm"
+    },
+    {
+      "category": "DEX",
+      "name": "Addax",
+      "url": "https://www.addax.finance/"
+    },
+    {
+      "category": "NFT",
+      "name": "OmniHub",
+      "url": "https://omnihub.xyz/testnet"
+    },
+    {
+      "category": "NFT",
+      "name": "Sweep",
+      "url": "https://sweep.haus/"
+    },
+    {
+      "category": "GAMING",
+      "name": "LitBillionaire",
+      "url": "https://litlottery.xyz/"
+    },
+    {
+      "category": "DEFI",
+      "name": "Drunken Cats",
+      "url": "https://drunkencats.xyz/swap/"
+    },
+    {
+      "category": "GAMING",
+      "name": "Last Hero",
+      "url": "https://lasthero.lol/"
+    },
+    {
+      "category": "DEFI",
+      "name": "LitDeX",
+      "url": "https://litdex.test-hub.xyz/"
+    },
+    {
+      "category": "DEFI",
+      "name": "Fenus",
+      "url": "http://fenus.xyz/app"
+    },
+    {
+      "category": "NFT",
+      "name": "Mintbrush",
+      "url": "https://www.usemintbrush.xyz/"
+    },
+    {
+      "category": "NFT",
+      "name": "StampVM",
+      "url": "https://www.stampvm.xyz/"
+    },
+    {
+      "category": "SOCIAL",
+      "name": "LitNames",
+      "url": "https://www.litnames.space/"
+    },
+    {
+      "category": "DEX",
+      "name": "LitiumDEX",
+      "url": "https://litiumdex.org/"
+    },
+    {
+      "category": "PREDICTION MARKET",
+      "name": "Olympus",
+      "url": "https://olympus.omeganetwork.co/"
+    },
+    {
+      "category": "AI",
+      "name": "LitScore",
+      "url": "https://litscore.site/"
+    },
+    {
+      "category": "DEFI",
+      "name": "Multyra",
+      "url": "https://www.multyra.xyz/"
+    },
+    {
+      "category": "DEFI",
+      "name": "WheelX",
+      "url": "https://wheelx.fi/"
+    },
+    {
+      "category": "GAMING",
+      "name": "LitGames",
+      "url": "https://litgames.xyz/"
+    },
+    {
+      "category": "DEFI",
+      "name": "LitStake",
+      "url": "https://www.litstake.com/"
+    },
+    {
+      "category": "STABLECOIN",
+      "name": "Forged",
+      "url": "https://forgedusd.xyz/"
+    },
+    {
+      "category": "LAUNCHPAD",
+      "name": "LitPump",
+      "url": "https://litpump.fun/"
+    },
+    {
+      "category": "GAMING",
+      "name": "Falken",
+      "url": "https://litvm.falken.games/"
+    },
+    {
+      "category": "DEX",
+      "name": "Magentar Finance",
+      "url": "https://www.magnetarfi.xyz/"
+    },
+    {
+      "category": "RPC",
+      "name": "RPC LitVM",
+      "url": "https://rpc-litvm.pro/"
+    },
+    {
+      "category": "AI",
+      "name": "LitMart",
+      "url": "https://litmart.space/"
+    },
+    {
+      "category": "LAUNCHPAD",
+      "name": "Forge Anvil",
+      "url": "https://anvil.forgedusd.xyz/"
+    },
+    {
+      "category": "RWA",
+      "name": "TCG Oracle",
+      "url": "https://the-undesirables.com/litvm"
+    },
+    {
+      "category": "FUNDRAISING",
+      "name": "LitGive",
+      "url": "https://www.litgive.xyz/"
+    },
+    {
+      "category": "NFT",
+      "name": "BOI market",
+      "url": "https://boi.market/"
+    },
+    {
+      "category": "NFT",
+      "name": "NFTs2Me",
+      "url": "https://nfts2me.com/"
+    },
+    {
+      "category": "SOCIAL",
+      "name": "Paddyzone",
+      "url": "https://litvm.paddyzone.com/"
+    },
+    {
+      "category": "GAMING",
+      "name": "Dark Claw",
+      "url": "https://darkclaw-litvm.pages.dev/"
+    },
+    {
+      "category": "GAMING",
+      "name": "TriviaFi",
+      "url": "https://triviafi.xyz/"
+    },
+    {
+      "category": "GAMING",
+      "name": "Bucky Rewards",
+      "url": "https://buckyr.xyz/"
+    },
+    {
+      "category": "SOCIAL",
+      "name": "Hey",
+      "url": "https://hey.xyz/"
+    },
+    {
+      "category": "NFT",
+      "name": "0xPixel",
+      "url": "https://www.0xnothing.xyz/0xpixel"
+    },
+    {
+      "category": "UTILITY",
+      "name": "The Silver Void",
+      "url": "https://www.thesilvervoid.com/"
+    },
+    {
+      "category": "INFRASTRUCTURE",
+      "name": "LitAgent",
+      "url": "https://www.litagent.online/"
+    },
+    {
+      "category": "PREDICTION MARKET",
+      "name": "Novyn",
+      "url": "https://novyn.space/"
+    },
+    {
+      "category": "SOCIAL",
+      "name": "OpenGate",
+      "url": "https://www.opengate.bond/"
+    },
+    {
+      "category": "ANALYTICS",
+      "name": "LitVM Analytics",
+      "url": "https://litvm-pulse.pro/"
+    },
+    {
+      "category": "FUNDRAISING",
+      "name": "Aura",
+      "url": "https://beta.auralaunch.org/"
+    },
+    {
+      "category": "GAMING",
+      "name": "Quiz on LitVM",
+      "url": "https://quizonchain.app/"
+    },
+    {
+      "category": "PERPETUALS",
+      "name": "TachyonFi",
+      "url": "https://tachyonfi.xyz/"
+    },
+    {
+      "category": "PAYMENTS",
+      "name": "LitZap",
+      "url": "https://litzap.xyz/"
+    },
+    {
+      "category": "DEFI SUITE",
+      "name": "Athes",
+      "url": "https://www.athes.org/"
+    },
+    {
+      "category": "GAMING",
+      "name": "LitTown",
+      "url": "https://playlittown.xyz/"
+    },
+    {
+      "category": "YIELD",
+      "name": "MLT Farm",
+      "url": "https://mltfarm.xyz/app"
+    },
+    {
+      "category": "PAYMENTS",
+      "name": "LitVMPay",
+      "url": "https://app.litvmpay.xyz/"
+    },
+    {
+      "category": "ANALYTICS",
+      "name": "Vein",
+      "url": "https://usevein.xyz/"
+    },
+    {
+      "category": "GAMING",
+      "name": "Nexus Arena",
+      "url": "https://nexusarena.pro/"
+    },
+    {
+      "category": "GAMING",
+      "name": "LTC Lottery NFT",
+      "url": "https://www.ltclotterynft.com/"
+    },
+    {
+      "category": "PAYMENTS",
+      "name": "Lunaria",
+      "url": "https://lunariaprotocol.com/"
+    },
+    {
+      "category": "LAUNCHPAD",
+      "name": "0xPump",
+      "url": "https://www.0xnothing.xyz/0xPump"
+    },
+    {
+      "category": "GAMING",
+      "name": "Grassland Forest",
+      "url": "https://grasslandforest.com/"
+    },
+    {
+      "category": "QUEST PLATFORM",
+      "name": "Superboard",
+      "url": "https://www.superboard.xyz/campaigns/exploring-liteforge"
+    },
+    {
+      "category": "DEX",
+      "name": "Vibeswap",
+      "url": "https://vibeswap.net/"
+    },
+    {
+      "category": "NFT",
+      "name": "SilverPaws",
+      "url": "https://silverpaws.xyz/"
+    },
+    {
+      "category": "DEFI",
+      "name": "0xFi",
+      "url": "https://0xnothing.xyz/0xFi"
+    },
+    {
+      "category": "DEX",
+      "name": "ORVEX",
+      "url": "https://www.orvexdex.xyz/"
+    },
+    {
+      "category": "LAUNCHPAD",
+      "name": "LitVMSwap Launch",
+      "url": "https://litvmswap.com/launch"
+    },
+    {
+      "category": "DEX AGGREGATOR",
+      "name": "LitRoute",
+      "url": "https://litroute.xyz/"
+    },
+    {
+      "category": "LAUNCHPAD",
+      "name": "Bulion",
+      "url": "https://app.bulion.xyz/"
+    },
+    {
+      "category": "LAUNCHPAD",
+      "name": "Flipit",
+      "url": "https://flipit.lol/"
+    },
+    {
+      "category": "LP BONDS",
+      "name": "GonnaMakeIt",
+      "url": "https://www.gonnamakeit.com/"
+    },
+    {
+      "category": "LAUNCHPAD",
+      "name": "LitShares",
+      "url": "https://litshares.pro/"
+    },
+    {
+      "category": "GAMING",
+      "name": "LitVM Games",
+      "url": "https://www.litvm.games/"
+    },
+    {
+      "category": "LENDING",
+      "name": "Lithium",
+      "url": "https://www.lithiumlend.com/"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "eventDate": "2026-10-15",
+  "title": "Let’s get LIT — LitVM community ecosystem space #ep6",
+  "url": "https://x.com/i/spaces/1dKrPrBVwAXJX",
+  "hostPost": "https://x.com/LesterLabsHQ/status/2110770294247829596",
+  "duration": "2:14:14",
+  "method": "Reviewed a complete locally generated English machine transcript of the public replay, with project facts checked against primary websites. No speaker-separated or host-approved transcript is available. Names and technical terms can be misrecognized; we omit uncertain quotations, unverified numbers and claims of guaranteed security or compliance. Chapter times are approximate recording positions. The replay has opening silence; meaningful welcome audio begins around 05:00.",
+  "chapters": [
+    {
+      "time": "05:00",
+      "seconds": 300,
+      "label": "Welcome and audio checks"
+    },
+    {
+      "time": "07:06",
+      "seconds": 426,
+      "label": "Introductions: Shane, Player1Taco, Aztec, Roc and Mehow"
+    },
+    {
+      "time": "13:14",
+      "seconds": 794,
+      "label": "KINGDANKKUSH / Lester’s Arcade: games and ranked records"
+    },
+    {
+      "time": "17:18",
+      "seconds": 1038,
+      "label": "AI-assisted game building and Dappit"
+    },
+    {
+      "time": "20:18",
+      "seconds": 1218,
+      "label": "Chase introduces LiteSwap"
+    },
+    {
+      "time": "21:09",
+      "seconds": 1269,
+      "label": "Michael introduces Lithium lending"
+    },
+    {
+      "time": "22:47",
+      "seconds": 1367,
+      "label": "Dylan introduces DIA’s oracle work"
+    },
+    {
+      "time": "25:15",
+      "seconds": 1515,
+      "label": "Rex introduces Midas prediction markets"
+    },
+    {
+      "time": "32:34",
+      "seconds": 1954,
+      "label": "Notus: cbLTC and the Base-to-LitVM migration idea"
+    },
+    {
+      "time": "36:21",
+      "seconds": 2181,
+      "label": "LitVM update: V2, infrastructure, audits and mainnet preparation"
+    },
+    {
+      "time": "41:45",
+      "seconds": 2505,
+      "label": "Mehow: payment names, privacy and provenance"
+    },
+    {
+      "time": "51:24",
+      "seconds": 3084,
+      "label": "Privacy approaches, MWEB and a debate over mixing"
+    },
+    {
+      "time": "1:04:25",
+      "seconds": 3865,
+      "label": "Dappit update: V3 and lowering the barrier to building"
+    },
+    {
+      "time": "1:24:45",
+      "seconds": 5085,
+      "label": "Midas: why build around Litecoin liquidity?"
+    },
+    {
+      "time": "1:29:29",
+      "seconds": 5369,
+      "label": "Mainnet timing: roadmap, audits and a possible early-2027 launch"
+    },
+    {
+      "time": "1:35:05",
+      "seconds": 5705,
+      "label": "AI and human developers; a wider creative discussion"
+    },
+    {
+      "time": "1:51:31",
+      "seconds": 6691,
+      "label": "Arcade updates, mobile play and community games"
+    },
+    {
+      "time": "2:04:12",
+      "seconds": 7452,
+      "label": "Lithium: testnet now and lending plans"
+    },
+    {
+      "time": "2:09:55",
+      "seconds": 7795,
+      "label": "Invitation for community questions"
+    },
+    {
+      "time": "2:13:11",
+      "seconds": 7991,
+      "label": "The host’s closing invitation to build"
+    }
+  ]
+}

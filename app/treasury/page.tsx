@@ -1,3 +1,4 @@
+import RegisterCheckpoint from '../components/RegisterCheckpoint';
 import { ProgramJourney } from '../components/ProgramJourney';
 import type { Metadata } from "next";
 import { ArrowRight, Bitcoin, BookOpenCheck, Building2, Database, FileCheck2, Landmark, Scale, ShieldCheck, Waypoints } from "lucide-react";
@@ -100,5 +101,5 @@ export default function TreasuryPage() {
       <div className="grid gap-12 lg:grid-cols-[.72fr_1.28fr]"><div><SectionNumber>04 / READINESS</SectionNumber><h2 id="readiness-title" className="section-title mt-5">Transparency begins before launch.</h2><p className="mt-6 max-w-md leading-7 text-muted-foreground">This status is intentionally visible. Prepared architecture is not presented as live intelligence.</p></div><Card className="px-6 py-2">{pipeline.map(([label,detail,status])=><EvidenceRow key={label} label={label} value={status} detail={detail} status={status}/>)}</Card></div>
       <div className="mt-16 flex flex-wrap items-center justify-between gap-5 border-t border-border pt-8"><div className="flex items-center gap-3 text-sm text-muted-foreground"><Building2 className="size-4 text-primary" aria-hidden="true"/>Designed for institutions, researchers, communities, and public-interest reporting.</div><Link href="/conversations" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">See how research becomes a public story <ArrowRight className="size-4" aria-hidden="true"/></Link></div>
     </Reveal></section>
-  </main>;
+  <RegisterCheckpoint/></main>;
 }
