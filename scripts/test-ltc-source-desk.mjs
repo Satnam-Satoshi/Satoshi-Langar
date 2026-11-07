@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {mkdtemp,readFile,writeFile,rm}from'node:fs/promises';import{tmpdir}from'node:os';import path from'node:path';
+import {mkdtemp,readFile,writeFile,rm,readdir}from'node:fs/promises';import{tmpdir}from'node:os';import path from'node:path';
 import{sourceDeskFromNewsroom,publishSourceDesk}from'./prepare-ltc-source-desk.mjs';
+const policy={...JSON.parse(await readFile(new URL('../config/ltc-publication.json',import.meta.url),'utf8')),paused:false};
 const notebook=JSON.parse(await readFile(new URL('../content/ltc-newsroom/newsroom-20261031T055112Z.json',import.meta.url),'utf8'));
 test('validated notebook selection copies evidence and dates without new reporting claims',()=>{
  const result=sourceDeskFromNewsroom(notebook);assert.equal(result.checkedAt,notebook.preparedAt);assert.equal(result.generatedFrom.sha256,notebook.sha256);
@@ -9,8 +10,8 @@ test('validated notebook selection copies evidence and dates without new reporti
 });
 test('curated same-day scan and existing archive bytes remain untouched; new day advances once',async()=>{
  const directory=await mkdtemp(path.join(tmpdir(),'ltc-source-desk-'));
- try{const pointer=path.join(directory,'latest.json');const curated={id:'curated',checkedAt:notebook.preparedAt};const text=JSON.stringify(curated);await writeFile(pointer,text);assert.equal((await publishSourceDesk(notebook,{directory})).status,'unchanged');assert.equal(await readFile(pointer,'utf8'),text);
- await writeFile(pointer,JSON.stringify({id:'older',checkedAt:'2026-10-01T12:00:00.000Z'}));const first=await publishSourceDesk(notebook,{directory});assert.equal(first.status,'prepared');const archive=path.join(directory,`${first.id}.json`),bytes=await readFile(archive,'utf8');assert.equal((await publishSourceDesk(notebook,{directory})).status,'unchanged');assert.equal(await readFile(archive,'utf8'),bytes);
+ try{const pointer=path.join(directory,'latest.json');const curated={id:'curated',checkedAt:notebook.preparedAt};const text=JSON.stringify(curated);await writeFile(pointer,text);assert.equal((await publishSourceDesk(notebook,{directory,policy})).status,'unchanged');assert.equal(await readFile(pointer,'utf8'),text);
+ await writeFile(pointer,JSON.stringify({id:'older',checkedAt:'2026-10-01T12:00:00.000Z'}));const first=await publishSourceDesk(notebook,{directory,policy});assert.equal(first.status,'prepared');const archive=path.join(directory,`${first.id}.json`),bytes=await readFile(archive,'utf8');assert.equal((await publishSourceDesk(notebook,{directory,policy})).status,'unchanged');assert.equal(await readFile(archive,'utf8'),bytes);
  }finally{await rm(directory,{recursive:true,force:true});}
 });
 
@@ -53,4 +54,10 @@ test('controlled next-day and future-day sorting follows source dates, not a fix
   const controlled={date,preparedAt:time,id:'controlled',sha256:'fixture-only',sources,briefs,coverageGaps:[],intelligence:{gaps:[]}};const result=sourceDeskFromNewsroom(controlled,()=>{});
   assert.deepEqual(result.stories.map(story=>story.id),['newer-release','older-release','sample']);assert.equal(result.stories[0].publishedAt,time);assert.equal(result.stories[1].publishedAt,earlier);assert.equal(result.stories[2].dateKind,'observed');
  }
+});
+
+test('paused source desk publication creates no files even for a valid saved notebook',async()=>{
+ const directory=await mkdtemp(path.join(tmpdir(),'ltc-source-desk-paused-'));
+ try{await assert.rejects(publishSourceDesk(notebook,{directory,policy:{...policy,paused:true}}),/publication_paused/);assert.deepEqual(await readdir(directory),[]);}
+ finally{await rm(directory,{recursive:true,force:true});}
 });

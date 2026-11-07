@@ -16,7 +16,13 @@ test('two specials have unique navigable chapters and complete source references
 
 test('a valid unavailable ticker has null observations and still validates without dereferencing them',async()=>{
  const snapshot=structuredClone(fixture.baseSnapshot),source=snapshot.sources.find(value=>value.id==='coinbase-btc-usd');Object.assign(source,{status:'unavailable',httpStatus:503,sourceAsOf:null,sourceSha256:null,freshness:'unknown',observations:null,errorCode:'http_failure'});snapshot.failureCount=snapshot.sources.filter(value=>value.status==='unavailable').length;
- const registry=JSON.parse(await readFile(new URL('../config/ltc-sources.json',import.meta.url))),policy=JSON.parse(await readFile(new URL('../config/ltc-publication.json',import.meta.url)));
+ const registry=JSON.parse(await readFile(new URL('../config/ltc-sources.json',import.meta.url))),policy={...JSON.parse(await readFile(new URL('../config/ltc-publication.json',import.meta.url))),paused:false};
  const unavailable=prepareNewsroom({snapshot,registry,policy,intelligence:fixture.intelligence,policyRecords:fixture.policyRecords,now:fixture.preparedAt});
  assert.equal(unavailable.sources.find(value=>value.id==='coinbase-btc-usd').observations,null);assert(!unavailable.briefs.some(brief=>brief.sourceIds.includes('coinbase-btc-usd')));assert.doesNotThrow(()=>validateNewsroom(unavailable));
+});
+
+test('paused policy blocks new newsroom preparation while saved archives stay verifiable',async()=>{
+ assert.doesNotThrow(()=>validateNewsroom(fixture));
+ const paused={...JSON.parse(await readFile(new URL('../config/ltc-publication.json',import.meta.url))),paused:true};
+ assert.throws(()=>prepareNewsroom({policy:paused}),/publication_paused/);
 });

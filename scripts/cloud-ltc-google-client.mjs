@@ -11,14 +11,17 @@ export function validateCloudStateConfig(config) {
   return Object.freeze({ ...config });
 }
 
-export function createGoogleStateClient({ config, env = process.env, fetchImpl = fetch, allowWrites = false, timeoutMs = 30_000, sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
+export function createGoogleStateClient({ config, env = process.env, fetchImpl = fetch, allowWrites = false, timeoutMs = 30_000, beforeWrite = () => {}, sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   const selected = validateCloudStateConfig(config);
   const accessToken = env.LTC_GOOGLE_ACCESS_TOKEN;
   check(typeof accessToken === 'string' && /^[A-Za-z0-9._~+\/-]{16,8192}={0,2}$/.test(accessToken), 'google_access_token_required');
-  check(typeof fetchImpl === 'function' && typeof sleep === 'function' && typeof allowWrites === 'boolean' && Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 30_000, 'invalid_google_transport_configuration');
+  check(typeof fetchImpl === 'function' && typeof beforeWrite === 'function' && typeof sleep === 'function' && typeof allowWrites === 'boolean' && Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 30_000, 'invalid_google_transport_configuration');
 
   async function request(url, method = 'GET', body) {
     const write = method === 'POST';
+    // Synchronous final authorization boundary, after runtime OAuth/privacy
+    // awaits and immediately before the sole POST. Async guards are rejected.
+    if (write) check(beforeWrite() === undefined, 'invalid_google_write_guard');
     let response;
     for (let attempt = 0; attempt < (write ? 1 : 3); attempt++) {
       try {

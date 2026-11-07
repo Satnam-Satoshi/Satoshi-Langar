@@ -223,6 +223,15 @@ export async function recoverUploadOnlyLease({ state, review: input, expectedRev
   verifyOrigin(finalOrigin, review, d.now());
   verifyPublic(publicProof, document, d.now());
   for (const [index, row] of rows.filter(row => row.status === 'confirmed').entries()) verifyConfirmed(confirmed[index], row, d.now());
+  // Production transport invokes this synchronously after its own awaited
+  // revision, OAuth and privacy reads, immediately before the actual POST.
+  if (d.armWriteGuard) d.armWriteGuard(() => {
+    validateReview(review, expectedReviewSha256, d.now());
+    verifyControls(finalControls, review, d.now());
+    verifyOrigin(finalOrigin, review, d.now());
+    verifyPublic(publicProof, document, d.now());
+    for (const [index, row] of rows.filter(row => row.status === 'confirmed').entries()) verifyConfirmed(confirmed[index], row, d.now());
+  });
   // Exactly one write attempt. A lost response is inspected, never retried.
   let writeError;
   try { await state.adapter.conditionalWrite('website', next, initial.version); }

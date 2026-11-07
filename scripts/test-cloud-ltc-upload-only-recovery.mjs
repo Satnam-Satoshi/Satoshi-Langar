@@ -229,6 +229,7 @@ function withDocsAdapter(f, mode = 'success') {
       return {status:200,body:{documentId,revisionId:revision,tabs:[{tabProperties:{tabId:'tab-one'},documentTab:{body:{content:[{endIndex:1,sectionBreak:{}},{startIndex:1,endIndex:raw.length+2,paragraph:{elements:[{startIndex:1,endIndex:raw.length+2,textRun:{content:raw+'\n'}}]}}]}}}]}};
     },
     async batchUpdateDocument(id, body) {
+      if(f.transportDelay){f.now+=f.transportDelay;f.finalWriteGuard();}
       calls.push(structuredClone(body));
       assert.equal(id, documentId);
       assert.deepEqual(body.writeControl, {requiredRevisionId:'revision-1'});
@@ -271,3 +272,12 @@ for (const [mode,pattern] of [['conflict',/state_conflict/],['rejected',/write_o
     assert.deepEqual((await docs.adapter.read('website')).value,before);
   });
 }
+
+test('controller freshness guard reaches the actual adapter write boundary',async()=>{
+ const f=fixture(),docs=withDocsAdapter(f),before=structuredClone(f.document);
+ f.dependencies.armWriteGuard=guard=>{f.finalWriteGuard=guard;};
+ f.transportDelay=300001;
+ await assert.rejects(f.run(),/write_outcome_uncertain/);
+ assert.equal(docs.calls.length,0);
+ assert.deepEqual((await docs.adapter.read('website')).value,before);
+});

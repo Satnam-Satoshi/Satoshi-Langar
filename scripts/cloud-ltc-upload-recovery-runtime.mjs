@@ -16,8 +16,14 @@ const check = (v, code) => { if (!v) throw Error(code); };
 const stamp = () => new Date().toISOString();
 const workflowPath = '.github/workflows/ltc-daily-publication.yml';
 
+export function assertUploadRecoveryPolicyBarrier({policy,env}) {
+  check(env.LTC_CLOUD_PUBLISH === 'false' && policy?.schemaVersion === 1 &&
+    policy.policyId === 'bounded-daily-v1' && policy.enabled === true && policy.paused === true,
+    'upload_recovery_policy_stop_required');
+}
+
 // Read-only provider seams. No upload, dispatch, deploy, alias or gate setters.
-export function createUploadRecoveryDependencies({env, review, state, evidenceConfig, root, writerEvidenceFile, fetchImpl = fetch}) {
+export function createUploadRecoveryDependencies({env, review, state, evidenceConfig, root, writerEvidenceFile, fetchImpl = fetch, loadManifest = loadPreviousReleaseManifest, download = downloadEvidence, verifyCode = verifyImplementation, readHead = () => execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim()}) {
   check(evidenceConfig.folderId === review.folderId && evidenceConfig.ownerPermissionId === review.ownerPermissionId,
     'upload_recovery_private_binding_changed');
   const clients = createReadOnlyReleaseClients({env, fetcher:fetchImpl});
@@ -25,13 +31,15 @@ export function createUploadRecoveryDependencies({env, review, state, evidenceCo
   return {
     now: Date.now,
     async readOrigin(origin) {
+      const observedAt=stamp();
       const run = await clients.github(`/actions/runs/${origin.runId}/attempts/${origin.attempt}`);
       check(run.repository?.full_name === TARGET.repository, 'upload_recovery_origin_changed');
-      return {...run, repository:run.repository.full_name, observedAt:stamp()};
+      return {...run, repository:run.repository.full_name, observedAt};
     },
     async verifyStoppedWriters() {
-      await verifyImplementation(root, review.controllerImplementationSha256);
-      check(execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim() === review.sourceHead,
+      const startedAt=Date.now();
+      await verifyCode(root, review.controllerImplementationSha256);
+      check(readHead() === review.sourceHead,
         'upload_recovery_controller_changed');
       const source = JSON.parse(await readFile(path.join(root,'config/ltc-cloud-source.json'),'utf8'));
       check(source.repository === TARGET.repository && source.branch === env.LTC_SOURCE_BRANCH,
@@ -43,9 +51,10 @@ export function createUploadRecoveryDependencies({env, review, state, evidenceCo
       const policy = JSON.parse(Buffer.from(file.content,'base64').toString('utf8'));
       check(ref.object?.sha === review.sourceHead && main.object?.sha === review.operatorWorkflowHead &&
         hash(policy) === review.sourcePolicySha256, 'upload_recovery_source_changed');
-      // Read the actual repository switch, not a possibly stale job environment.
-      const gate = await clients.github('/actions/variables/LTC_CLOUD_PUBLISH');
-      check(gate.name === 'LTC_CLOUD_PUBLISH' && gate.value === 'false', 'upload_recovery_gate_open');
+      // The job must enter with the global switch closed. The freshly read,
+      // hash-pinned source policy is an additional live stop barrier that normal
+      // publishers already enforce; no Variables API scope is needed.
+      assertUploadRecoveryPolicyBarrier({policy, env});
       const active = [];
       for (const status of ['queued','in_progress','waiting','requested','pending']) {
         const page = await clients.github(`/actions/runs?status=${status}&per_page=100`);
@@ -66,15 +75,19 @@ export function createUploadRecoveryDependencies({env, review, state, evidenceCo
         local.kind === 'verified-local-website-writer-stop' && local.disabled === true &&
         local.activeWriterCount === 0 && Number.isFinite(observed) && observed <= Date.now() &&
         Date.now()-observed <= 300000, 'upload_recovery_local_writer_proof_required');
-      return {observedAt:stamp(), repository:TARGET.repository, sourceHead:ref.object.sha,
+      const finalRef=await clients.github(`/git/ref/heads/${source.branch}`);
+      const finalMain=await clients.github('/git/ref/heads/main');
+      check(finalRef.object?.sha === review.sourceHead && finalMain.object?.sha === review.operatorWorkflowHead, 'upload_recovery_source_changed');
+      return {observedAt:new Date(Math.min(startedAt,observed)).toISOString(), repository:TARGET.repository, sourceHead:ref.object.sha,
         sourcePolicySha256:hash(policy), cloudPublicationEnabled:false, localPublisherDisabled:true,
         otherWritersStopped:true, writerEvidenceSha256:hash(local)};
     },
     async verifyPublicBaseline(latest) {
+      const observedAt=stamp();
       const project = await clients.vercel(`/v9/projects/${TARGET.project}`);
       assertVercelProjectPolicy(project,TARGET);
       check(!project.rollingRelease, 'upload_recovery_public_policy_changed');
-      const manifest = await loadPreviousReleaseManifest({state,evidenceConfig,env,fetchImpl});
+      const manifest = await loadManifest({state,evidenceConfig,env,fetchImpl});
       check(hash(manifest) === latest.artifactManifestSha256, 'upload_recovery_public_manifest_changed');
       const domains = [];
       for (const domain of TARGET.domains) {
@@ -86,19 +99,22 @@ export function createUploadRecoveryDependencies({env, review, state, evidenceCo
         };
         await verifyPointer();
         await verifyPublicRootRouting(domain,manifest,{fetchImpl});
-        for (const record of manifest) await verifyPublicManifestRecord(domain,record,manifest,{fetchImpl});
+        for (let i=0;i<manifest.length;i+=8) {
+          await Promise.all(manifest.slice(i,i+8).map(record=>verifyPublicManifestRecord(domain,record,manifest,{fetchImpl})));
+        }
         await verifyPointer();
         domains.push({domain,deployment:latest.deployment,allManifestBytesVerified:true,verifiedCount:manifest.length});
       }
-      return {observedAt:stamp(),artifactManifestSha256:hash(manifest),manifestCount:manifest.length,domains};
+      return {observedAt,artifactManifestSha256:hash(manifest),manifestCount:manifest.length,domains};
     },
     async verifyConfirmedUpload(row) {
+      const observedAt=stamp();
       const p=row.payload;
-      const result=await downloadEvidence({operationId:row.operationId,payloadSha256:row.payloadSha256,
+      const result=await download({operationId:row.operationId,payloadSha256:row.payloadSha256,
         fileId:p.fileId,folderId:p.folderId,sha256:p.sha256,length:p.bytes},
         {config:{...evidenceConfig,fileId:p.fileId},getAccessToken:token,fetcher:fetchImpl});
       check(result?.proof,'upload_recovery_confirmed_readback_unavailable');
-      return {observedAt:stamp(),operationId:row.operationId,payloadSha256:row.payloadSha256,...result.proof};
+      return {observedAt,operationId:row.operationId,payloadSha256:row.payloadSha256,...result.proof};
     },
   };
 }
@@ -112,16 +128,23 @@ export async function runUploadRecovery(options, env=process.env) {
     review.controllerImplementationSha256 === env.LTC_ACCEPTED_IMPLEMENTATION_SHA256 &&
     review.operatorWorkflowHead === env.GITHUB_SHA && env.GITHUB_REPOSITORY === TARGET.repository &&
     env.GITHUB_EVENT_NAME === 'workflow_dispatch' && env.GITHUB_ACTOR_ID === '268053325' &&
+    env.LTC_ACCEPTANCE_MODE === 'recover-upload-only' && env.LTC_ACCEPTANCE_ENVIRONMENT === 'ltc-production' &&
+    String(review.origin?.fence) === env.LTC_ACCEPTANCE_FENCE && review.sourceHead === env.LTC_ACCEPTANCE_SOURCE_COMMIT &&
     env.LTC_CLOUD_PUBLISH === 'false', 'upload_recovery_protected_review_required');
   const config=await readJSON(options.stateConfig), evidenceConfig=await readJSON(options.evidenceConfig);
   check(config.documentId === review.websiteDocumentId && config.folderId === review.folderId &&
     (config.ledgerKey ?? 'website') === 'website', 'upload_recovery_private_binding_changed');
   // Reserve the independent receipt before any possible state mutation.
   await writeFile(options.receipt,JSON.stringify({status:'started',reviewSha256:hash(review)})+'\n',{flag:'wx',mode:0o600});
-  const runtime=await createGoogleStateRuntime({config,env});
+  let finalWriteGuard;
+  const runtime=await createGoogleStateRuntime({config,env,beforeWrite:()=>{
+    check(typeof finalWriteGuard === 'function','upload_recovery_write_guard_unarmed');
+    finalWriteGuard();
+  }});
   const state=new DurableCloudState(runtime.stateAdapter,'website');
   const result=await recoverUploadOnlyLease({state,review,expectedReviewSha256:env.LTC_UPLOAD_ONLY_RECOVERY_REVIEW_SHA256,
-    dependencies:createUploadRecoveryDependencies({env,review,state,evidenceConfig,root:options.root ?? process.cwd(),writerEvidenceFile:options.writerEvidence})});
+    dependencies:{...createUploadRecoveryDependencies({env,review,state,evidenceConfig,root:options.root ?? process.cwd(),writerEvidenceFile:options.writerEvidence}),
+      armWriteGuard:guard=>{check(!finalWriteGuard,'upload_recovery_guard_already_armed');finalWriteGuard=guard;}}});
   await writeFile(options.receipt,JSON.stringify(result)+'\n',{mode:0o600});
   return result;
 }

@@ -5,7 +5,7 @@ import { checkObservations } from './check-ltc-observations.mjs';
 import { SOURCES, validateBuilderNews } from './collect-ltc-builder-news.mjs';
 const json = async file => JSON.parse(await readFile(new URL('../' + file, import.meta.url), 'utf8'));
 const notebook = await json('content/ltc-newsroom/latest.json');
-const input = { snapshot: notebook.baseSnapshot, intelligence: notebook.intelligence, policyRecords: notebook.policyRecords, registry: await json('config/ltc-sources.json'), policy: await json('config/ltc-publication.json'), now: notebook.preparedAt, builders: { schemaVersion: 1, classification: 'Bounded primary-publisher watch', checkedAt: notebook.preparedAt, sources: SOURCES.map(source => ({ ...source, checkedAt: notebook.preparedAt, status: 'unavailable', stories: [], gaps: ['Source unavailable.'] })) } };
+const input = { snapshot: notebook.baseSnapshot, intelligence: notebook.intelligence, policyRecords: notebook.policyRecords, registry: await json('config/ltc-sources.json'), policy: {...await json('config/ltc-publication.json'),paused:false}, now: notebook.preparedAt, builders: { schemaVersion: 1, classification: 'Bounded primary-publisher watch', checkedAt: notebook.preparedAt, sources: SOURCES.map(source => ({ ...source, checkedAt: notebook.preparedAt, status: 'unavailable', stories: [], gaps: ['Source unavailable.'] })) } };
 test('pre-write observation gate validates the full real notebook while preserving explicit builder gaps', () => {
   const before = JSON.stringify(input); assert.deepEqual(checkObservations(input), { valid: true, date: notebook.date }); assert.equal(JSON.stringify(input), before);
 });

@@ -1,146 +1,89 @@
-# Upload-only lease recovery: review package
+# Upload-only recovery — implementation review
 
-Status: **isolated controller and tests, not activated**. This change adds no CLI,
-workflow wiring, secret, schedule, provider write, production deployment or
-unpause. It does not modify existing state/coordinator guards.
+Status: implemented and locally tested; not accepted or activated in production.
+The human owner remains the Satnam Satoshi founder. This finite recovery may
+retire an expired archive-only generation, retaining confirmed uploads and audit
+history. It does not publish, upload, deploy, dispatch, unpause or activate social.
 
-## Scope and governance
+## Controller and authority
 
-The human owner remains the Satnam Satoshi founder. The mission is to recover a
-failed archive-only generation without replaying uploads or publication effects.
-Responsibilities are limited to exact journal validation, independently verified
-readbacks and one revision-conditional journal update. Knowledge sources are the
-pinned source modules, originating Actions run, private journal, owner-only Drive
-artifacts and previous public artifact manifest. Permissions cover review and
-tests; production wiring requires a separately reviewed caller and fresh owner
-coordination. Stop by withholding approval or any required proof. Private review
-records and operational identifiers must never enter this public repository.
-Audit evidence is preserved in the existing private journal and an independently
-retained controller result. The module stores no credentials.
+`recoverUploadOnlyLease` requires the exact review hash, journal revision and
+snapshot hash, expired originating lease and complete contiguous archive bundle
+set. It accepts only confirmed/pending uploads. Uncertain operations, Git/Vercel
+intents, foreign writers, missing bundles and receipt-bearing pending rows stop
+recovery. A pending row proves no provider authorization was durably granted;
+a remote 404 is never sufficient evidence that a request cannot finish later.
 
-## Why a separate narrow path
+The owner-approved review expires within six hours. The protected invocation is
+founder-only, manual, main-only, exact-source/fence/implementation pinned and uses
+the existing publication concurrency group. Every proof must remain at most five
+minutes old. The knowledge sources are the original Actions attempt, protected
+review, current source policy, private journal/Drive artifacts and public release.
+Memory and audit scope are those existing private resources and a sanitized
+independent result hash. Withhold approval or leave the source paused to stop it.
 
-The coordinator durably writes `uncertain` before it invokes a provider. A
-persisted `pending` row means that authorization was never durably granted. A
-completed origin plus an unchanged revision-pinned journal therefore supplies a
-stronger proof than a Drive 404. A 404 alone is **never** proof that a request
-cannot complete later.
+## Live stopped-writer barrier
 
-Ordinary expired-lease recovery intentionally requires all terminal intents.
-Pre-effect recovery intentionally requires no current-fence intents. Neither
-should be weakened to accommodate partial archive upload generations.
+The recovery source policy is explicitly paused. The caller verifies its exact
+hash through GitHub Contents reads and rereads source/main after checking active
+runs. The global switch must also be false at job admission. This does not assume
+that the job environment is a fresh repository-variable read, and requires no
+Variables API credential or broader scope.
 
-## Accepted state and required proof
+The old durable lease remains held until the single revision-conditional write
+sets `paused=true` and clears it. Ordinary writers cannot acquire before or after
+that transition. Shared workflow concurrency and the fresh run inventory prevent
+another cloud operator. A fresh hash-bound local website-writer stop observation
+is also required; a powered-off Mac or historical cutover assertion is not proof.
+The final source checks do not claim cross-provider atomicity.
 
-`recoverUploadOnlyLease` accepts only the exact approved review hash, matching
-journal revision/hash, expired originating lease, and complete contiguous bundle
-set. Current-fence rows must be confirmed or pending owner-only archive uploads.
-There must be no uncertain rows, Git operations, Vercel operations, missing
-bundles, receipt-bearing pending rows, or foreign/nonterminal older rows.
+## Provider verification
 
-Before its sole write, the caller must provide verified reads establishing:
+The caller reads the exact original Actions attempt and verifies completion,
+repository, workflow, event and head. It verifies Vercel project/deployment
+identity and both domain pointers, downloads the prior private manifest, checks
+root routing and every public artifact hash, then rechecks pointers. Every
+confirmed Drive upload is downloaded and checked for file/folder identity,
+owner-only permissions, byte length and digest. No upload is retried or recreated.
 
-1. The exact original Actions run attempt completed with failure, cancellation or
-   timeout, with the pinned repository, event, workflow and workflow head.
-2. Cloud publication is gated off, local publication is disabled, and other
-   owners/writers are stopped. An offline computer or old observation alone is
-   not proof of this condition. The accepted source and policy remain pinned.
-3. Both public domains still point to the prior deployment and every artifact in
-   the full previous manifest matches its bytes and hash.
-4. Every confirmed upload still matches its known file, folder, bytes, length and
-   owner permission identity, with owner-only access and verified downloads.
+Proof timestamps retain the start of each observation; the controls timestamp
+also retains the older local stop observation. Slow checks expire rather than
+being stamped fresh at completion. The controller arms a synchronous transport
+guard that checks all proof/review expiry after Google revision, OAuth and privacy
+reads, immediately before the sole POST. Expiry during those awaits sends no POST.
 
-These are provider verification seams, not assertions to fabricate. The current
-module has **no production implementation of these seams**. Initial and final
-origin/writer checks bracket readback. Approval and all proof freshness are
-checked immediately before invoking CAS, after the final awaited journal read.
-Approval lasts at most six hours; individual readback proofs are at most five
-minutes old at that point. A slower audit must be refreshed, not waived.
+## Write, receipt and later publication
 
-## Exact change
+The existing Google Docs adapter uses `requiredRevisionId`; never merge revisions
+or use last-writer-wins. One write terminalizes only the approved pending IDs as
+`not-applied`, preserves the original rows/lease, all confirmed receipts, prior
+release and earlier audit fields, and leaves the ledger paused. A lost response
+is read back once; only the exact intended after-state proves success. There is
+no write retry. A separate sanitized `stateSha256` is retained in the job summary.
 
-One required-revision CAS marks only the approved pending IDs `not-applied`,
-adds hash-bound receipts proving no durable authorization, and records the
-original pending rows and lease. It retains every confirmed row, receipt, prior
-release, archive head and earlier audit field. The fence number is retained;
-the next ordinary acquisition increments it. The resulting state is paused
-with no lease. It never creates a new edition, reissues an upload, deploys,
-changes aliases, dispatches a workflow or enables publication.
+A later read-only replay needs that independently retained after-state hash; do
+not derive it from the ledger being inspected. If the job dies before saving the
+result, inspect and review the uncertain outcome rather than attempting another
+write. No private snapshots, review packets or credentials enter public artifacts.
 
-A fresh publication, if later authorized and all existing gates pass, must use a
-new generation and the actual current publication date. Do not backdate the
-failed issue or treat the partial archive as a complete recoverable artifact.
+The recovery source remains paused. Resuming needs a separately reviewed unpaused
+source/digest and verified recovery. A new issue must use a fresh generation and
+its actual New York publication date, not replay or backdate the failed issue.
 
-## Conditional-write and retry contract
+## Validation and activation decision
 
-Production wiring must use the existing Google Docs adapter with a genuine
-`requiredRevisionId`. Never use `targetRevisionId` or last-writer-wins updates.
-GitHub content-SHA versioning cannot establish a monotonic revision barrier and
-is not an acceptable production adapter for this controller.
+Tests exercise actual Docs adapter request construction, successful/lost/conflicted
+writes, immutable confirmed receipts, paused results, provider identity/content
+failures, stale local evidence, source changes during inventory, and zero POSTs
+when approval expires during OAuth, ledger or privacy reads. Independent review
+found and verified fixes for freshness timing and a source-desk write guard.
 
-There is exactly one write attempt. If the response is lost, the controller reads
-once and reports success only when the entire intended after-state matches.
-Otherwise it reports an uncertain outcome or conflict and never retries.
+Read-only archive validation remains available while paused. New newsroom
+preparation, source-desk writes and publication still enforce the pause. Positive
+unit fixtures explicitly model an open historical policy rather than inheriting
+the current operational pause.
 
-Persist the returned `stateSha256` independently of the operational ledger.
-A later replay requires that saved value as `expectedRecoveredStateSha256` and
-checks the complete after-state before returning a read-only no-op. Never derive
-this pin from the ledger being inspected. If no independent receipt was saved,
-stop for inspection and fresh review; do not run another write to obtain one.
-
-The result says recovery only. It is not publication authorization. Any later
-unpause or dispatch requires separate checked controls and owner coordination.
-
-## Verification
-
-The isolated cloud review ran 73 tests successfully under Node 24.22.1:
-
-```sh
-node --test scripts/test-cloud-ltc-upload-only-recovery.mjs \
-  scripts/test-cloud-ltc-state.mjs scripts/test-cloud-ltc-operations.mjs \
-  scripts/test-cloud-ltc-state-compaction.mjs scripts/test-cloud-ltc-evidence.mjs
-```
-
-This includes 37 new tests for the 39-confirmed/4-pending shape, immutable history,
-no effect replay, active/foreign/uncertain operations, wrong owner/readbacks,
-concurrent revisions/authorization, changed public baseline, stopped writers,
-expired proofs, delayed reads, CAS conflict, lost writes and tampered replay.
-An independent review verified the replay pin and final freshness checks.
-
-The repository's required Node 22.23.2 runtime, full `pnpm check`, actual
-Google Docs CAS integration and live owner/provider acceptance remain unverified
-by this isolated package. Do not describe the patch as production-ready or merge
-it into the accepted source without that validation. Any accepted-source change
-also requires coordinated implementation-digest acceptance; this patch does not
-change that protection.
-
-## November 7 integration work (still not activated)
-
-The controller now has four integration tests through the actual
-`GoogleDocsStateAdapter`: success, lost successful response, revision conflict,
-and rejected write. These establish the requiredRevisionId request shape and
-single-write behavior against a simulated Google transport, not a live provider.
-
-`cloud-ltc-upload-recovery-runtime.mjs` is a draft production caller. It reads the
-originating Actions attempt, accepted source/policy, current publication variable,
-active runs, public deployment pointers and complete public manifest, and downloads
-confirmed Drive uploads using the existing evidence verifier. It has no upload,
-deploy, dispatch or gate-changing methods. It leaves publication paused.
-
-Do not wire or activate this caller yet. Remaining acceptance work:
-
-- Verify that the protected runtime can read the repository publication variable.
-  GitHub documents Variables:read for that endpoint; the existing workflow token
-  must not be assumed to have it. No new credential or wider scope is authorized
-  by this draft. Resolve this capability before adding workflow wiring.
-- Obtain a fresh independently verified local website-writer stop record, not an
-  assertion inferred from the laptop being on or off. The hash-bound record must
-  remain under five minutes old at the final barrier.
-- Exercise every provider seam with fault injection, validate the complete caller
-  and workflow, and obtain exact code/recovery review before any protected write.
-- Preserve the independently saved result before any future unpause. An absent
-  result after a lost write requires read-only inspection, not another write.
-
-Validation on Node 22.23.2: all 467 cloud tests pass with the existing pinned
-Vercel CLI 65.9.0; 60 focused controller/Docs/runtime tests pass. This is not a
-live recovery proof, new build proof, deployment or autonomy activation.
+Activation requires successful full checks, owner acceptance of the exact source
+and scheduler changes, protected review/hash configuration, fresh local stop
+proof and successful live provider checks. Unit tests and a build are not live
+recovery, release verification or evidence of reliable unattended operation.
