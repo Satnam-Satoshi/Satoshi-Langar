@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { GoogleDocsStateAdapter } from './cloud-ltc-docs-state.mjs';
 import { DurableCloudState } from './cloud-ltc-state.mjs';
 import { ReleaseOperationCoordinator } from './cloud-ltc-operations.mjs';
 import { recoverUploadOnlyLease, uploadRecoveryHash as hash } from './cloud-ltc-upload-only-recovery.mjs';
@@ -215,3 +216,58 @@ test('a delayed final origin read cannot leave stale writer controls at CAS', as
   mutateRead(f, 'readOrigin', p => { if (++calls === 2) f.now += 300001; return { ...p, observedAt: new Date(f.now).toISOString() }; });
   await assert.rejects(f.run(), /stale_proof/); assert.equal(f.writes, 0);
 });
+
+// Exercise the recovery controller through the production Docs adapter rather
+// than a permissive in-memory conditionalWrite implementation.
+function withDocsAdapter(f, mode = 'success') {
+  const documentId = 'recovery-ledger-fixture', folderId = 'private-folder-id';
+  let revision = 'revision-1', raw = JSON.stringify({schemaVersion:1,key:'website',value:f.document});
+  const calls = [];
+  const client = {
+    async getFileMetadata() { return {status:200,body:{id:documentId,mimeType:'application/vnd.google-apps.document',trashed:false,ownedByMe:true,shared:false,parents:[folderId],capabilities:{canEdit:true}}}; },
+    async getDocument() {
+      return {status:200,body:{documentId,revisionId:revision,tabs:[{tabProperties:{tabId:'tab-one'},documentTab:{body:{content:[{endIndex:1,sectionBreak:{}},{startIndex:1,endIndex:raw.length+2,paragraph:{elements:[{startIndex:1,endIndex:raw.length+2,textRun:{content:raw+'\n'}}]}}]}}}]}};
+    },
+    async batchUpdateDocument(id, body) {
+      calls.push(structuredClone(body));
+      assert.equal(id, documentId);
+      assert.deepEqual(body.writeControl, {requiredRevisionId:'revision-1'});
+      assert.equal(body.requests.length, 2);
+      assert.deepEqual(body.requests[0].deleteContentRange.range,{startIndex:1,endIndex:raw.length+1,tabId:'tab-one'});
+      assert.deepEqual(body.requests[1].insertText.location,{index:1,tabId:'tab-one'});
+      if (mode === 'conflict') { revision = 'concurrent-revision'; return {status:400,body:{}}; }
+      if (mode === 'rejected') return {status:403,body:{}};
+      raw = body.requests[1].insertText.text; revision = 'revision-2';
+      if (mode === 'lost-response') throw Error('timeout');
+      return {status:200,body:{documentId,writeControl:{requiredRevisionId:revision}}};
+    }
+  };
+  const adapter = new GoogleDocsStateAdapter({documentId,folderId,client});
+  f.state = new DurableCloudState(adapter,'website',{clock:()=>f.now});
+  return {calls,adapter};
+}
+for (const mode of ['success','lost-response']) {
+  test(`actual Docs CAS recovery: ${mode} retains 39 uploads and writes once`, async () => {
+    const f=fixture(), before=structuredClone(f.document), docs=withDocsAdapter(f,mode);
+    const result=await f.run();
+    assert.equal(result.status,'recovered-paused');
+    assert.equal(result.lostWriteResponseRecovered,mode==='lost-response');
+    assert.equal(docs.calls.length,1);
+    const after=(await docs.adapter.read('website')).value;
+    assert.equal(after.paused,true); assert.equal(after.lease,null);
+    for (const row of Object.values(before.intents).filter(r=>r.status==='confirmed')) {
+      assert.deepEqual(after.intents[row.operationId],row);
+      assert.deepEqual(after.receipts[row.operationId],before.receipts[row.operationId]);
+    }
+    assert.equal((await f.run(result.stateSha256)).alreadyRecovered,true);
+    assert.equal(docs.calls.length,1);
+  });
+}
+for (const [mode,pattern] of [['conflict',/state_conflict/],['rejected',/write_outcome_uncertain/]]) {
+  test(`actual Docs CAS recovery: ${mode} never retries or clears lease`, async () => {
+    const f=fixture(),before=structuredClone(f.document),docs=withDocsAdapter(f,mode);
+    await assert.rejects(f.run(),pattern);
+    assert.equal(docs.calls.length,1);
+    assert.deepEqual((await docs.adapter.read('website')).value,before);
+  });
+}

@@ -113,3 +113,34 @@ by this isolated package. Do not describe the patch as production-ready or merge
 it into the accepted source without that validation. Any accepted-source change
 also requires coordinated implementation-digest acceptance; this patch does not
 change that protection.
+
+## November 7 integration work (still not activated)
+
+The controller now has four integration tests through the actual
+`GoogleDocsStateAdapter`: success, lost successful response, revision conflict,
+and rejected write. These establish the requiredRevisionId request shape and
+single-write behavior against a simulated Google transport, not a live provider.
+
+`cloud-ltc-upload-recovery-runtime.mjs` is a draft production caller. It reads the
+originating Actions attempt, accepted source/policy, current publication variable,
+active runs, public deployment pointers and complete public manifest, and downloads
+confirmed Drive uploads using the existing evidence verifier. It has no upload,
+deploy, dispatch or gate-changing methods. It leaves publication paused.
+
+Do not wire or activate this caller yet. Remaining acceptance work:
+
+- Verify that the protected runtime can read the repository publication variable.
+  GitHub documents Variables:read for that endpoint; the existing workflow token
+  must not be assumed to have it. No new credential or wider scope is authorized
+  by this draft. Resolve this capability before adding workflow wiring.
+- Obtain a fresh independently verified local website-writer stop record, not an
+  assertion inferred from the laptop being on or off. The hash-bound record must
+  remain under five minutes old at the final barrier.
+- Exercise every provider seam with fault injection, validate the complete caller
+  and workflow, and obtain exact code/recovery review before any protected write.
+- Preserve the independently saved result before any future unpause. An absent
+  result after a lost write requires read-only inspection, not another write.
+
+Validation on Node 22.23.2: all 467 cloud tests pass with the existing pinned
+Vercel CLI 65.9.0; 60 focused controller/Docs/runtime tests pass. This is not a
+live recovery proof, new build proof, deployment or autonomy activation.
