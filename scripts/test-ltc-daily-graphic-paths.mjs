@@ -8,7 +8,15 @@ test('routine graphics permit only new exact edition assets and preserve histori
  for(const file of rejected){assert.equal(routineDataRecord(file),null);assert.throws(()=>assertRoutineChanges([{file,status:'A'}],edition));}
  for(const file of ['public/magazine/daily/2026-10-29-r1/social.png','public/magazine/daily/2026-10-30-r2/social.png']){assert.ok(routineDataRecord(file));assert.throws(()=>assertRoutineChanges([{file,status:'A'}],edition),/outside_allowlist/);}
 });
-test('trusted workflow inline classifier agrees with implementation including graphic edge cases',async()=>{
- const workflow=await readFile(new URL('../ops/ltc-daily-workflow.yml',import.meta.url),'utf8');const start=workflow.indexOf('          const pointers = new Set('),end=workflow.indexOf('          const files=',start);assert.ok(start>0&&end>start);const classifier=workflow.slice(start,end).replace(/^          /gm,'');const context=vm.createContext({});vm.runInContext(classifier+'\nglobalThis.classify=routineDataRecord;',context);
- for(const file of [...permitted,...rejected,'public/magazine/daily/2026-10-30-r2/social.svg','content/ltc/index.json','scripts/unreviewed.mjs'])assert.equal(JSON.stringify(context.classify(file)),JSON.stringify(routineDataRecord(file)));
+test('all trusted workflow classifiers agree with implementation for graphic, event and checkpoint paths',async()=>{
+ const workflow=await readFile(new URL('../ops/ltc-daily-workflow.yml',import.meta.url),'utf8');
+ const cases=[...permitted,...rejected,'public/magazine/daily/2026-10-30-r2/social.svg','content/ltc/index.json','scripts/unreviewed.mjs','content/ltc-events/latest.json','content/ltc-events/2026-11-04.json','content/ltc-events/2026-02-30.json','content/ltc-events/unreviewed.json','content/research/litecoin-clock-latest.json','content/research/litecoin-clock-other.json'];
+ let start=0,count=0;
+ while((start=workflow.indexOf('          const pointers = new Set(',start))>=0){
+  const end=workflow.indexOf('          const files=',start);assert.ok(end>start);
+  const context=vm.createContext({});vm.runInContext(workflow.slice(start,end).replace(/^          /gm,'')+'\nglobalThis.classify=routineDataRecord;',context);
+  for(const file of cases)assert.equal(JSON.stringify(context.classify(file)),JSON.stringify(routineDataRecord(file)));
+  start=end;count++;
+ }
+ assert.equal(count,3);
 });

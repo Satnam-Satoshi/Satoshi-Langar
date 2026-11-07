@@ -433,6 +433,9 @@ export async function prepareObservations({ clone, evidence, inputs, existingEdi
   await run(['scripts/collect-ltc-builder-news.mjs', '--output', builders, '--evidence-dir', path.join(evidence, 'builders-raw')]);
   const distribution = path.join(evidence, 'litecoin-distribution-raw.json');
   await run(['scripts/collect-litecoin-distribution.mjs', '--output', distribution]);
+  const events = path.join(evidence, 'events.json'), checkpoint = path.join(evidence, 'checkpoint.json');
+  await run(['scripts/collect-ltc-events.mjs', '--output', events, '--evidence-dir', path.join(evidence, 'events-raw')]);
+  await run(['scripts/collect-ltc-checkpoint.mjs', '--output', checkpoint]);
   // Validate all observations before accepted feature/edition writes.
   await run(['scripts/check-ltc-observations.mjs', ...observationArgs, '--builders', builders]);
   await run(['scripts/prepare-ltc-daily-features.mjs', '--builders', builders, '--policy', inputs.policy, '--publish']);
@@ -445,6 +448,8 @@ export async function prepareObservations({ clone, evidence, inputs, existingEdi
   // the flagship candidate has accepted source dates/freshness; retain raw source
   // timestamps verbatim. Same-day retries must not leave a stale accepted strip.
   await save(path.join(clone, 'public/data/ltc-snapshot.json'), baseSnapshot);
+  await run(['scripts/prepare-ltc-events.mjs', '--snapshot', events, '--apply']);
+  await run(['scripts/collect-ltc-checkpoint.mjs', '--apply', checkpoint]);
   await run(['scripts/archive-ltc-community.mjs', '--snapshot', inputs.community]);
   await run(['scripts/prepare-ltc-newsroom.mjs', ...observationArgs, '--output', path.join(evidence, 'newsroom-candidate.json'), '--apply']);
   await run(['scripts/prepare-ltc-source-desk.mjs', '--notebook', path.join(clone, 'content/ltc-newsroom/latest.json'), '--builders', builders, '--apply']);

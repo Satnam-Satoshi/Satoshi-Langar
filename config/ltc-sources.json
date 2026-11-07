@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "publication": "Lunch Time Conversations",
-  "scheduleStatus": "codex-local-daily",
+  "scheduleStatus": "github-actions-single-publisher",
   "sources": [
     {
       "id": "ibit-holdings",

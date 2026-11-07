@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "parserVersion": "ltc-events-v1",
+  "checkedAt": "2026-11-04T03:04:07.667Z",
+  "asOf": "2026-11-03",
+  "timeZone": "America/New_York",
+  "events": [
+    {
+      "id": "planb-lugano-2026",
+      "name": "Plan ₿ Forum",
+      "url": "https://planb.lugano.ch/planb-forum/",
+      "start": "2026-10-23",
+      "end": "2026-10-24",
+      "timeZone": "Europe/Zurich",
+      "region": "Europe",
+      "location": "Lugano, Switzerland",
+      "venue": "Convention Centre / Palazzo dei Congressi, Villa Ciani and Ex-Asilo Ciani",
+      "phase": "past",
+      "checkedAt": "2026-11-04T03:04:07.667Z",
+      "checkStatus": "confirmed",
+      "httpStatus": 200,
+      "lastConfirmedAt": "2026-11-04T03:04:07.667Z",
+      "confirmedSourceSha256": "35b0263fb6eded846fc5deeaecea05a9eff89db78d61f17759f6b424947bccf2",
+      "errorCode": null
+    },
+    {
+      "id": "bitcoin-amsterdam-2026",
+      "name": "Bitcoin Amsterdam",
+      "url": "https://www.bitcoin.amsterdam/",
+      "start": "2026-11-05",
+      "end": "2026-11-06",
+      "timeZone": "Europe/Amsterdam",
+      "region": "Europe",
+      "location": "Halfweg, Netherlands · Amsterdam area",
+      "venue": "SugarFactory, Kristalpromenade 7, 1165 PD Halfweg",
+      "phase": "upcoming",
+      "checkedAt": "2026-11-04T03:04:07.667Z",
+      "checkStatus": "confirmed",
+      "httpStatus": 200,
+      "lastConfirmedAt": "2026-11-04T03:04:07.667Z",
+      "confirmedSourceSha256": "5a0026d0882f53f7a883df4ce5425e9ea15d6ed4cac34cb4b4d3f95599071f0a",
+      "errorCode": null
+    },
+    {
+      "id": "bitcoin-korea-2026",
+      "name": "Bitcoin Korea Conference",
+      "url": "https://www.bitcoinkoreaconference.com/en",
+      "start": "2026-11-07",
+      "end": "2026-11-08",
+      "timeZone": "Asia/Seoul",
+      "region": "Asia",
+      "location": "Seoul, South Korea",
+      "venue": "COEX, Korea Federation of Banks and Community House Masil · consult the organizer for each day’s venue",
+      "phase": "upcoming",
+      "checkedAt": "2026-11-04T03:04:07.667Z",
+      "checkStatus": "confirmed",
+      "httpStatus": 200,
+      "lastConfirmedAt": "2026-11-04T03:04:07.667Z",
+      "confirmedSourceSha256": "c86731cec38b4707a51d2335ab4304aff7d3fcc94613c63573089912bece9928",
+      "errorCode": null
+    }
+  ]
+}

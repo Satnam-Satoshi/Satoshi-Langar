@@ -6,6 +6,7 @@ const pointers = new Set([
   'content/ltc-community/latest.json', 'content/ltc-newsroom/latest.json',
   'content/ltc-newsroom-selections/latest.json',
   'content/research/litecoin-distribution-latest.json',
+  'content/ltc-events/latest.json', 'content/research/litecoin-clock-latest.json',
 ]);
 function calendarDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -15,6 +16,8 @@ function calendarDate(value) {
 export function routineDataRecord(file) {
   if (typeof file !== 'string') return null;
   if (pointers.has(file)) return { kind: 'pointer' };
+  const event = /^content\/ltc-events\/(\d{4}-\d{2}-\d{2})\.json$/.exec(file);
+  if (event) return calendarDate(event[1]) ? { kind: 'dated', date: event[1] } : null;
   const graphic = /^public\/magazine\/daily\/(\d{4}-\d{2}-\d{2}-r[1-9]\d?)\/(?:social\.(?:png|svg)|graphic\.json)$/.exec(file);
   if (graphic) return calendarDate(graphic[1].slice(0, 10)) ? { kind: 'graphic', date: graphic[1].slice(0, 10), editionId: graphic[1] } : null;
   let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/daily-features\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);

@@ -1,0 +1,11 @@
+{
+  "height": 3207024,
+  "hash": "8adb074ef6f5e869932563fa9b1894f3dc99bf105758a6f24a0dc7c12a1b7136",
+  "blockTimestamp": "2026-11-04T03:01:13.000Z",
+  "observedAt": "2026-11-04T03:02:51.275Z",
+  "checkedAt": "2026-11-04T03:04:06.379Z",
+  "source": "https://api.blockcypher.com/v1/ltc/main",
+  "blockSource": "https://api.blockcypher.com/v1/ltc/main/blocks/8adb074ef6f5e869932563fa9b1894f3dc99bf105758a6f24a0dc7c12a1b7136?txstart=1&limit=1",
+  "provider": "BlockCypher · provider observation, not our own full node",
+  "status": "dated-checkpoint"
+}

@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { collectSource, collectSnapshot, decimal, freshness, parseIbit, parseRelease, sourceDate, parseTicker, tickerFreshness } from './collect-ltc.mjs';
 
 const now = '2026-09-30T06:10:26.000Z';
-const csv = '\uFEFFiShares Bitcoin Trust ETF\nFund Holdings as of,"Sep 28, 2026"\nShares Outstanding,"1,412,720,000.00"\n\nTicker,Name,Quantity,Market Currency\n"BTC","BITCOIN","800,535.28920","BTC"\n"USD","USD CASH","22,646.77000","USD"\n';
+const csv = '\uFEFFiShares Bitcoin Trust ETF\nFund Holdings as of,"Sep 28, 2026"\nShares Outstanding,"1,412,720,000.00"\n\nTicker,Name,Quantity,Market Currency,Asset Class\n"BTC","BITCOIN","800,535.28920","BTC","Alternative"\n"USD","USD CASH","22,646.77000","USD","Cash"\n';
 const config = JSON.parse(await readFile(new URL('../config/ltc-sources.json', import.meta.url), 'utf8'));
 const ibit = config.sources.find(source => source.id === 'ibit-holdings');
 let checks = 0;
@@ -16,11 +16,20 @@ check('CSV preamble, BOM, commas, native precision, and cash exclusion', () => {
 });
 check('wrong product, duplicate asset, missing header and future dates rejected', () => {
   assert.throws(() => parseIbit(csv.replace('iShares Bitcoin Trust ETF', 'Unrelated fund'), now));
-  assert.throws(() => parseIbit(`${csv}"BTC","BITCOIN","5","BTC"\n`, now));
+  assert.throws(() => parseIbit(`${csv}"BTC","BITCOIN","5","BTC","Alternative"\n`, now));
   assert.throws(() => parseIbit(csv.replace('Quantity', 'Changed quantity'), now));
   assert.throws(() => parseIbit(csv.replace('Sep 28', 'Oct 28'), now));
   assert.throws(() => sourceDate('Feb 31, 2026', now));
   assert.throws(() => parseIbit('<html>Access denied</html>', now));
+});
+check('known BTC cash commitment is excluded; unknown, duplicated and mismatched BTC rows fail closed', () => {
+  const cash = 'BTC,BTC - CASH (COMMITTED),0.01000,BTC,Cash\n';
+  assert.equal(parseIbit(csv + cash, now).observations[0].value, '800535.28920');
+  assert.equal(parseIbit(csv + cash.replace('0.01000', '0.00000'), now).observations[0].value, '800535.28920');
+  for (const extra of [cash + cash, cash.replace('Cash', 'Alternative'), cash.replace(',BTC,Cash', ',USD,Cash'), cash.replace('BTC - CASH (COMMITTED)', 'UNRECOGNIZED BTC'), cash.replace('0.01000', '-1')]) assert.throws(() => parseIbit(csv + extra, now));
+  assert.throws(() => parseIbit(csv.replace('Alternative', 'Cash'), now));
+  assert.throws(() => parseIbit(csv.replace('Asset Class', 'Unknown'), now));
+  assert.throws(() => parseIbit(csv.replace('Market Currency,Asset Class', 'Market Currency,Quantity'), now));
 });
 check('decimal values reject negative, malformed and non-finite input; keep zero', () => {
   for (const value of ['-1', '1,2', 'NaN', '', '1e99']) assert.throws(() => decimal(value));
