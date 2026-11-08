@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -11,6 +11,7 @@ import { createReadOnlyReleaseClients } from './cloud-ltc-reconcile.mjs';
 import { TARGET, verifyImplementation, verifyPublicRootRouting, verifyPublicManifestRecord } from './cloud-ltc-release.mjs';
 import { assertVercelProjectPolicy, assertVercelDeploymentIdentity } from './cloud-ltc-release-providers.mjs';
 import { loadPreviousReleaseManifest } from './cloud-ltc-production.mjs';
+import { withUploadRecoveryReceipt } from './cloud-ltc-upload-recovery-receipt.mjs';
 
 const check = (v, code) => { if (!v) throw Error(code); };
 const stamp = () => new Date().toISOString();
@@ -135,18 +136,20 @@ export async function runUploadRecovery(options, env=process.env) {
   check(config.documentId === review.websiteDocumentId && config.folderId === review.folderId &&
     (config.ledgerKey ?? 'website') === 'website', 'upload_recovery_private_binding_changed');
   // Reserve the independent receipt before any possible state mutation.
-  await writeFile(options.receipt,JSON.stringify({status:'started',reviewSha256:hash(review)})+'\n',{flag:'wx',mode:0o600});
-  let finalWriteGuard;
-  const runtime=await createGoogleStateRuntime({config,env,beforeWrite:()=>{
-    check(typeof finalWriteGuard === 'function','upload_recovery_write_guard_unarmed');
-    finalWriteGuard();
-  }});
-  const state=new DurableCloudState(runtime.stateAdapter,'website');
-  const result=await recoverUploadOnlyLease({state,review,expectedReviewSha256:env.LTC_UPLOAD_ONLY_RECOVERY_REVIEW_SHA256,
-    dependencies:{...createUploadRecoveryDependencies({env,review,state,evidenceConfig,root:options.root ?? process.cwd(),writerEvidenceFile:options.writerEvidence}),
-      armWriteGuard:guard=>{check(!finalWriteGuard,'upload_recovery_guard_already_armed');finalWriteGuard=guard;}}});
-  await writeFile(options.receipt,JSON.stringify(result)+'\n',{mode:0o600});
-  return result;
+  return withUploadRecoveryReceipt({receipt:options.receipt,reviewSha256:hash(review)},async diagnostic=>{
+    let finalWriteGuard;
+    const runtime=await createGoogleStateRuntime({config,env,beforeWrite:()=>{
+      check(typeof finalWriteGuard === 'function','upload_recovery_write_guard_unarmed');
+      finalWriteGuard();
+      diagnostic.beforeStatePost();
+    }});
+    const state=new DurableCloudState(runtime.stateAdapter,'website');
+    diagnostic.phase('controller-verification');
+    const result=await recoverUploadOnlyLease({state,review,expectedReviewSha256:env.LTC_UPLOAD_ONLY_RECOVERY_REVIEW_SHA256,
+      dependencies:{...createUploadRecoveryDependencies({env,review,state,evidenceConfig,root:options.root ?? process.cwd(),writerEvidenceFile:options.writerEvidence}),
+        armWriteGuard:guard=>{check(!finalWriteGuard,'upload_recovery_guard_already_armed');finalWriteGuard=guard;}}});
+    return result;
+  });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
