@@ -160,3 +160,33 @@ test('POST timeouts and retryable HTTP statuses are never repeated', async () =>
     assert.equal(writes,1);assert.equal(sleeps,0);
   }
 });
+
+import {createGoogleStateRuntime} from './cloud-ltc-google-runtime.mjs';
+for (const delayAt of ['oauth','ledger-read','privacy-read']) {
+  test(`synchronous write boundary blocks expiry during ${delayAt} with zero POSTs`,async()=>{
+    let expired=false,armed=false,posts=0;
+    const runtime=await createGoogleStateRuntime({config,env,
+      authorize:async(_options,callback)=>{if(armed&&delayAt==='oauth')expired=true;return callback(env);},
+      beforeWrite:()=>{assert.equal(armed,true);if(expired)throw Error('review_expired');},
+      fetchImpl:async(url,request)=>{
+        if(request.method==='POST'){posts++;return json({documentId:config.documentId,writeControl:{requiredRevisionId:'revision-2'}});}
+        if(url.includes('/drive/v3/files/')){
+          if(armed&&delayAt==='privacy-read')expired=true;
+          return json(metadata(new URL(url).pathname.split('/').at(-1)));
+        }
+        if(armed&&delayAt==='ledger-read')expired=true;
+        return json(document());
+      }});
+    armed=true;
+    await assert.rejects(runtime.stateAdapter.conditionalWrite('website',{saved:true},null),/storage_write_uncertain/);
+    assert.equal(posts,0);
+  });
+}
+test('async write guards are rejected without sending a POST',async()=>{
+ let posts=0;
+ const client=createGoogleStateClient({config,env,allowWrites:true,beforeWrite:()=>Promise.resolve(),fetchImpl:async(url,request)=>{
+   if(request.method==='POST')posts++;
+   return json(metadata(new URL(url).pathname.split('/').at(-1)));
+ }});
+ await client.verifySelectedResources();await assert.rejects(client.batchUpdateDocument(config.documentId,batch),/invalid_google_write_guard/);assert.equal(posts,0);
+});

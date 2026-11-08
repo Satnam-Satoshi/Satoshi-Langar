@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs';
+import {validatePolicy} from './prepare-ltc-edition.mjs';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -26,7 +28,10 @@ export function sourceDeskFromNewsroom(notebook,validate=validateNewsroom,builde
   return {schemaVersion:1,id:`source-desk-${notebook.date}-r1`,checkedAt:notebook.preparedAt,byline:'AI Satoshi Ma · Automated source desk',scope:'Deterministic source-dated selections; publisher announcements remain attributed and observations retain their clocks. No independent human review is claimed.',generatedFrom:{id:notebook.id,sha256:notebook.sha256},stories:ordered,gaps:[...gaps,'This is a bounded source selection, not complete reporting or a full social feed.']};
 }
 async function optionalJson(file){try{return JSON.parse(await readFile(file,'utf8'));}catch(error){if(error.code==='ENOENT')return null;throw error;}}
-export async function publishSourceDesk(notebook,{directory='content/ltc-newsroom-selections',validate=validateNewsroom,builders=null}={}) {
+export async function publishSourceDesk(notebook,{directory='content/ltc-newsroom-selections',validate=validateNewsroom,builders=null,policy=JSON.parse(readFileSync(new URL('../config/ltc-publication.json',import.meta.url),'utf8'))}={}) {
+  // Archive validation is read-only; this entry point writes and must independently
+  // enforce the current publication stop before creating directories or files.
+  validatePolicy(policy);
   const record=sourceDeskFromNewsroom(notebook,validate,builders);
   await mkdir(directory,{recursive:true});
   const pointer=path.join(directory,'latest.json'),dated=path.join(directory,`${record.id}.json`);

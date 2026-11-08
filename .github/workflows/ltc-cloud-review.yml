@@ -61,7 +61,11 @@ jobs:
           set -euo pipefail
           # This computed digest identifies validation bytes; it cannot approve publication.
           validation_digest="$(node scripts/ltc-release-guard.mjs)"
-          node scripts/cloud-ltc-release.mjs --dry-run --expected-digest "$validation_digest" --receipt "$RUNNER_TEMP/ltc-cloud-review.json"
+          dry_run_exit=0
+          node scripts/cloud-ltc-release.mjs --dry-run --expected-digest "$validation_digest" --receipt "$RUNNER_TEMP/ltc-cloud-review.json" || dry_run_exit=$?
+          # A deliberately paused recovery source must prove the exact closed-gate
+          # outcome. Every unrelated error remains a failed review.
+          node scripts/check-cloud-ltc-review-result.mjs "$dry_run_exit"
       - name: Diagnose credential-free validation failure
         if: failure()
         run: |

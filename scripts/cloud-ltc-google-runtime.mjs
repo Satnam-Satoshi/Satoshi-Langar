@@ -6,10 +6,10 @@ import { GoogleDocsStateAdapter } from './cloud-ltc-docs-state.mjs';
 // provider operation receives a newly authorized short-lived client; a long build
 // cannot silently reuse a captured, expired access token. Reads and writes use the
 // same configured refresh identity and exact resource privacy checks.
-export async function createGoogleStateRuntime({ config, env = process.env, fetchImpl = fetch, authorize = withGoogleCloudAuthorization }) {
+export async function createGoogleStateRuntime({ config, env = process.env, fetchImpl = fetch, authorize = withGoogleCloudAuthorization, beforeWrite = () => {} }) {
   const selected = validateCloudStateConfig(config);
   const call = (method, args) => authorize({ env, fetchImpl }, async access => {
-    const raw = createGoogleStateClient({ config: selected, env: access, fetchImpl, allowWrites: method === 'batchUpdateDocument' });
+    const raw = createGoogleStateClient({ config: selected, env: access, fetchImpl, allowWrites: method === 'batchUpdateDocument', beforeWrite });
     if (method === 'batchUpdateDocument') await raw.verifySelectedResources();
     return raw[method](...args);
   });
