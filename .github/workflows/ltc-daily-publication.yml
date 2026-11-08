@@ -24,7 +24,7 @@ on:
       acceptance_mode:
         description: Explicit reviewed acceptance action; promotion proof temporarily changes public aliases
         type: choice
-        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, social-reconcile-sent, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint, retire-routine-uploads, retire-routine-followup]
+        options: [none, stage, recover, quarantine, promotion-proof, promotion-reconcile, promotion-rollback, activate-cloud, social-inspect, social-bootstrap, social-private-draft, social-reconcile-private-draft, social-reconcile-sent, pre-effect-retire, continue-staged, retire-staged, inspect-upload-failure, quarantine-uploads, recover-promotion-checkpoint, retire-routine-uploads, retire-routine-followup, recover-upload-only]
         default: none
       acceptance_source_commit:
         description: Exact reviewed acceptance source commit
@@ -328,7 +328,7 @@ jobs:
 
 
   stage-acceptance:
-    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine' || inputs.acceptance_mode == 'promotion-proof' || inputs.acceptance_mode == 'promotion-reconcile' || inputs.acceptance_mode == 'promotion-rollback' || inputs.acceptance_mode == 'activate-cloud' || inputs.acceptance_mode == 'social-inspect' || inputs.acceptance_mode == 'social-bootstrap' || inputs.acceptance_mode == 'social-private-draft' || inputs.acceptance_mode == 'social-reconcile-private-draft' || inputs.acceptance_mode == 'pre-effect-retire' || inputs.acceptance_mode == 'continue-staged' || inputs.acceptance_mode == 'retire-staged' || inputs.acceptance_mode == 'inspect-upload-failure' || inputs.acceptance_mode == 'quarantine-uploads' || inputs.acceptance_mode == 'recover-promotion-checkpoint' || inputs.acceptance_mode == 'retire-routine-uploads' || inputs.acceptance_mode == 'retire-routine-followup')
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.event.sender.id == 268053325 && !inputs.acceptance_probe && (inputs.acceptance_mode == 'stage' || inputs.acceptance_mode == 'recover' || inputs.acceptance_mode == 'quarantine' || inputs.acceptance_mode == 'promotion-proof' || inputs.acceptance_mode == 'promotion-reconcile' || inputs.acceptance_mode == 'promotion-rollback' || inputs.acceptance_mode == 'activate-cloud' || inputs.acceptance_mode == 'social-inspect' || inputs.acceptance_mode == 'social-bootstrap' || inputs.acceptance_mode == 'social-private-draft' || inputs.acceptance_mode == 'social-reconcile-private-draft' || inputs.acceptance_mode == 'pre-effect-retire' || inputs.acceptance_mode == 'continue-staged' || inputs.acceptance_mode == 'retire-staged' || inputs.acceptance_mode == 'inspect-upload-failure' || inputs.acceptance_mode == 'quarantine-uploads' || inputs.acceptance_mode == 'recover-promotion-checkpoint' || inputs.acceptance_mode == 'retire-routine-uploads' || inputs.acceptance_mode == 'retire-routine-followup' || inputs.acceptance_mode == 'recover-upload-only')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: ltc-production
@@ -423,6 +423,8 @@ jobs:
           }else if(['recover','quarantine'].includes(e.LTC_ACCEPTANCE_MODE)){
             if(! /^[a-f0-9]{64}$/.test(e.LTC_ACCEPTANCE_PLAN_SHA256||'')||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Recovery scope mismatch');
             if(e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT)throw Error('Unexpected recovery/quarantine inputs');
+          }else if(e.LTC_ACCEPTANCE_MODE==='recover-upload-only'){
+            if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||! /^[1-9]\d*$/.test(e.LTC_ACCEPTANCE_FENCE||'')||e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PLAN_SHA256||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact upload-only recovery scope required');
           }else if(e.LTC_ACCEPTANCE_MODE==='retire-routine-followup'){
             if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==e.LTC_ACCEPTANCE_SOURCE_COMMIT||e.LTC_ACCEPTANCE_FENCE!=='14'||e.LTC_ACCEPTANCE_ID||e.LTC_ACCEPTANCE_PLAN_SHA256||e.LTC_ACCEPTANCE_PREVIOUS_DEPLOYMENT||e.LTC_ACCEPTANCE_CRASH_AFTER!=='none')throw Error('Exact routine followup scope required');
           }else if(e.LTC_ACCEPTANCE_MODE==='retire-routine-uploads'){
@@ -494,6 +496,9 @@ jobs:
           NODE
       - name: Explicitly approved stage-only effect or fresh-proof recovery
         env:
+          LTC_UPLOAD_ONLY_RECOVERY_REVIEW_JSON: ${{ inputs.acceptance_mode == 'recover-upload-only' && secrets.LTC_UPLOAD_ONLY_RECOVERY_REVIEW_JSON || '' }}
+          LTC_UPLOAD_ONLY_RECOVERY_REVIEW_SHA256: ${{ vars.LTC_UPLOAD_ONLY_RECOVERY_REVIEW_SHA256 }}
+          LTC_UPLOAD_ONLY_WRITER_EVIDENCE_JSON: ${{ inputs.acceptance_mode == 'recover-upload-only' && secrets.LTC_UPLOAD_ONLY_WRITER_EVIDENCE_JSON || '' }}
           LTC_ROUTINE_FOLLOWUP_REVIEW_JSON: ${{ inputs.acceptance_mode == 'retire-routine-followup' && secrets.LTC_ROUTINE_FOLLOWUP_REVIEW_JSON || '' }}
           LTC_ROUTINE_FOLLOWUP_REVIEW_SHA256: ${{ vars.LTC_ROUTINE_FOLLOWUP_REVIEW_SHA256 }}
           LTC_ROUTINE_RETIREMENT_REVIEW_JSON: ${{ inputs.acceptance_mode == 'retire-routine-uploads' && secrets.LTC_ROUTINE_RETIREMENT_REVIEW_JSON || '' }}
@@ -537,7 +542,17 @@ jobs:
               set -- "$@" --review-file "$RUNNER_TEMP/ltc-setup-quarantine-review.json" --previous-manifest "$RUNNER_TEMP/ltc-accept-previous.json"
             fi
           fi
-          if [[ "$LTC_ACCEPTANCE_MODE" == retire-routine-followup ]]; then
+          if [[ "$LTC_ACCEPTANCE_MODE" == recover-upload-only ]]; then
+            node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          for(const [key,file] of [['LTC_UPLOAD_ONLY_RECOVERY_REVIEW_JSON','ltc-upload-only-review.json'],['LTC_UPLOAD_ONLY_WRITER_EVIDENCE_JSON','ltc-upload-only-writers.json']]){
+            const value=process.env[key];
+            if(typeof value!=='string'||Buffer.byteLength(value)>65536)throw Error('Protected upload recovery evidence required');
+            writeFileSync(process.env.RUNNER_TEMP+'/'+file,JSON.stringify(JSON.parse(value))+'\n',{flag:'wx',mode:0o600});
+          }
+          NODE
+            node scripts/cloud-ltc-upload-recovery-runtime.mjs --review-file "$RUNNER_TEMP/ltc-upload-only-review.json" --writer-evidence "$RUNNER_TEMP/ltc-upload-only-writers.json" --state-config "$RUNNER_TEMP/ltc-accept-website.json" --evidence-config "$RUNNER_TEMP/ltc-accept-evidence.json" --receipt "$RUNNER_TEMP/ltc-stage-acceptance-receipt.json"
+          elif [[ "$LTC_ACCEPTANCE_MODE" == retire-routine-followup ]]; then
             node --input-type=module <<'NODE'
           import {writeFileSync} from 'node:fs';
           const value=process.env.LTC_ROUTINE_FOLLOWUP_REVIEW_JSON;
@@ -636,7 +651,7 @@ jobs:
           const f=process.env.RUNNER_TEMP+'/ltc-stage-acceptance-receipt.json';
           if(existsSync(f)){
             const r=JSON.parse(readFileSync(f,'utf8'));
-            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,failure:r.failure,failurePhase:r.failurePhase,providerFailure:r.providerFailure,planSha256:r.planSha256,fence:r.lease?.fence??r.fence,leaseReleased:r.leaseReleased,uncertainObservation:r.uncertain?.[0]?.observed,readbackDiagnostic:r.uncertain?.[0]?.diagnostic,pendingNotAuthorized:r.pendingNotAuthorized,confirmedRetained:r.confirmedRetained,stateChanged:r.stateChanged,incidentSha256:r.incidentSha256,newFence:r.newFence,originalOutcome:r.originalOutcome,accepted:r.accepted,productionAuthorized:r.productionAuthorized,retiredFence:r.retiredFence,paused:r.paused,receiptSha256:r.receiptSha256,effectsReissued:r.effectsReissued,publicationPerformed:r.publicationPerformed,retiredOperationCount:r.retiredOperationCount,archiveSha256:r.archiveSha256,nextFreshDate:r.nextFreshDate,routineEnabled:r.routineEnabled,socialActivationPerformed:r.socialActivationPerformed,aliasesRestored:r.aliasesRestored,publicationEnabled:false})+'\n');
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify({mode:r.mode,status:r.status,stateSha256:r.stateSha256,failure:r.failure,failurePhase:r.failurePhase,providerFailure:r.providerFailure,planSha256:r.planSha256,fence:r.lease?.fence??r.fence,leaseReleased:r.leaseReleased,uncertainObservation:r.uncertain?.[0]?.observed,readbackDiagnostic:r.uncertain?.[0]?.diagnostic,pendingNotAuthorized:r.pendingNotAuthorized,confirmedRetained:r.confirmedRetained,stateChanged:r.stateChanged,incidentSha256:r.incidentSha256,newFence:r.newFence,originalOutcome:r.originalOutcome,accepted:r.accepted,productionAuthorized:r.productionAuthorized,retiredFence:r.retiredFence,paused:r.paused,receiptSha256:r.receiptSha256,effectsReissued:r.effectsReissued,publicationPerformed:r.publicationPerformed,retiredOperationCount:r.retiredOperationCount,archiveSha256:r.archiveSha256,nextFreshDate:r.nextFreshDate,routineEnabled:r.routineEnabled,socialActivationPerformed:r.socialActivationPerformed,aliasesRestored:r.aliasesRestored,publicationEnabled:false})+'\n');
           }
           NODE
       # No private artifacts, plans, source evidence or ledger snapshots are uploaded to GitHub artifacts.

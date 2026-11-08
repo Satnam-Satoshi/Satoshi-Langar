@@ -23,10 +23,12 @@ test('existing global writer lock and early schedule remain; only a finite job i
   assert.match(source,/cron: '17 5,6,7,9,12,16,20 \* \* \*'\n      timezone: America\/New_York/);
   assert.doesNotMatch(job,/concurrency:|schedule:|contents: write|actions: write|VERCEL|LTC_STATE_DOCUMENT_ID|ltc-cloud-release\.mjs --/);
   assert.equal((source.match(/social-sent-reconciliation:/g)??[]).length,1);
+  // The independently reviewed recovery mode changes only the website job.
+  assert.equal(createHash('sha256').update(job).digest('hex'),'a1c2643ab8de4e09ffa6a03cdbbeaf5446eefd4937bc17a49f554212627b54c8');
   const oldJobs=source.split('\n  social-sent-reconciliation:\n')[0];
   assert.equal((oldJobs.match(/social-reconcile-sent/g)??[]).length,1); // Dispatch choice only; existing jobs do not take this mode.
   const normalized=oldJobs.replace(', social-reconcile-sent','').replace("cron: '17 5,6,7,9,12,16,20 * * *'", "cron: '17 5,6,7 * * *'").trimEnd();
-  assert.equal(createHash('sha256').update(normalized).digest('hex'),'b84f83951ce69b093e492b62227041fd34b2d491c71b9983dac822b23d4327e5');
+  assert.equal(createHash('sha256').update(normalized).digest('hex'),'8e03a2496c395e64a79fe02ab36814c86a35797c3628571cd8c27972178b9079');
 });
 test('dedicated source and policy pins never replace website configuration; all publication gates are false', () => {
   assert.match(job,/LTC_ACCEPTED_IMPLEMENTATION_SHA256: \$\{\{ vars\.LTC_SOCIAL_RECONCILIATION_IMPLEMENTATION_SHA256 \}\}/);
