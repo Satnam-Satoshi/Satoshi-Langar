@@ -76,6 +76,19 @@ function fixture() {
 }
 function mutateRead(f, method, mutate) { const original = f.dependencies[method]; f.dependencies[method] = async (...args) => mutate(await original(...args)); }
 
+test('one captured timestamp admits exactly six hours but rejects even one extra millisecond before state reads', async () => {
+  for (const extra of [0, 1, 7]) {
+    const f = fixture();
+    const approved = f.now - 1000;
+    f.review.approvedAt = new Date(approved).toISOString();
+    f.review.expiresAt = new Date(approved + 21600000 + extra).toISOString();
+    f.dependencies.verifyStoppedWriters = async () => { throw Error('reached-first-proof'); };
+    await assert.rejects(f.run(), extra ? /upload_recovery_review_expired/ : /reached-first-proof/);
+    assert.equal(f.reads, extra ? 0 : 1);
+    assert.equal(f.writes, 0); assert.equal(f.verifications, 0);
+  }
+});
+
 test('exact 39 confirmed + 4 pending recovery is one paused CAS preserving all original history and confirmed bytes', async () => {
   const f = fixture(), before = structuredClone(f.document);
   const result = await f.run();
