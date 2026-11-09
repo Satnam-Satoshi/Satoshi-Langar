@@ -43,6 +43,7 @@ export default function ConversationsPage(){
  const palette=issue?.presentation?.cover.palette??'cobalt';
  const layout=issue?.presentation?.artDirection?.layout??(['folio','atlas','dispatch'] as const)[Number(issue?.date.slice(-2)??0)%3];
  return <main className={styles.front} data-palette={palette} data-layout={layout} data-newsroom-date={issue?.date}>
+ {issue?.date === '2026-11-09' && <p><a href="/magazine/daily/2026-11-09/full-reader.html">Read the complete November 9 editorial: all desks, tables and sources →</a></p>}
  <header className={styles.magazineMasthead}>
    <div>
      <p className={styles.eyebrow}>Lunch Time Conversations</p>

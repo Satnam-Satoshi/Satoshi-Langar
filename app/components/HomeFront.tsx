@@ -46,6 +46,7 @@ export default function HomeFront() {
         </div>
         <nav className={styles.magazineLinks} aria-label="Explore LTC Magazine">
           <a href="#home-source-desk">Source desk <span aria-hidden="true">↓</span></a>
+          {issue?.date === '2026-11-09' && <a href="/magazine/daily/2026-11-09/full-reader.html">Complete editorial reader →</a>}
           <a href="/conversations/archive/">Past issues <span aria-hidden="true">↗</span></a>
           <a href="/conversations/feed.xml">RSS <span aria-hidden="true">↗</span></a>
         </nav>
