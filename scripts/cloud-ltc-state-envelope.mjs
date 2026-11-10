@@ -44,18 +44,58 @@ function gzipMember(text) {
   return compressed;
 }
 
-function fields(value) {
-  return Object.entries(value).map(([key, field]) => [key, JSON.stringify(key) + ':' + JSON.stringify(field)]);
+const operationMaps = new Set(['intents', 'receipts']);
+function archivedRow(field, row, fence) {
+  const intent = field === 'receipts' ? row?.receipt : row;
+  return Number.isSafeInteger(fence) && Number.isSafeInteger(intent?.fence) &&
+    intent.fence < fence && ['confirmed', 'not-applied'].includes(intent.status);
 }
 
-function gzipState(value) {
-  const parts = ['{'];
-  for (const [, text] of fields(value)) {
-    if (parts.length > 1) parts.push(',');
-    parts.push(text);
+function stateMembers(key, value) {
+  const members = [{ text: '{' }];
+  for (const [field, entry] of Object.entries(value)) {
+    if (members.length > 1) members.push({ text: ',' });
+    const label = JSON.stringify(field) + ':';
+    if (key !== 'website' || !operationMaps.has(field) || !plain(entry)) {
+      members.push({ text: label + JSON.stringify(entry), field });
+      continue;
+    }
+
+    members.push({ text: label + '{' });
+    // Non-index keys append in canonical JSON order. Keep integer-index
+    // historical rows separate, since later integer keys may sort between them.
+    let run = [];
+    let runKind;
+    const flush = () => {
+      if (!run.length) return;
+      const text = run.join(',');
+      members.push(runKind === 'history'
+        ? { text, archivedIn: field, singletonBytes: run.length > 1 ? Math.max(...run.map(row => Buffer.byteLength(row))) : 0 }
+        : { text, field });
+      run = [];
+    };
+    let first = true;
+    for (const [id, row] of Object.entries(entry)) {
+      const text = JSON.stringify(id) + ':' + JSON.stringify(row);
+      const history = archivedRow(field, row, value.fence);
+      const integerIndex = /^(0|[1-9]\d*)$/.test(id) && Number(id) < 0xffff_ffff;
+      const kind = history ? 'history' : 'mutable';
+      if (runKind !== kind || (history && integerIndex)) flush();
+      if (!run.length && !first) members.push({ text: ',' });
+      runKind = kind;
+      run.push(text);
+      if (history && integerIndex) flush();
+      first = false;
+    }
+    flush();
+    members.push({ text: '}' });
   }
-  parts.push('}');
-  return Buffer.concat(parts.map(gzipMember));
+  members.push({ text: '}' });
+  return members;
+}
+
+function gzipState(key, value) {
+  return Buffer.concat(stateMembers(key, value).map(({ text }) => gzipMember(text)));
 }
 
 function compressedEnvelope(key, writeNonce, valueBytes, valueSha256, valueGzipBase64) {
@@ -63,32 +103,63 @@ function compressedEnvelope(key, writeNonce, valueBytes, valueSha256, valueGzipB
     valueBytes, valueSha256, valueGzipBase64 });
 }
 
-// charge mutable fields at their full uncompressed size, with room for the
-// planned growth and the maximum number of new fields named by the caller.
+const sampleNonce = '00000000-0000-4000-8000-000000000000';
+
+export class StateGrowthCapacityError extends Error {
+  constructor(capacity) {
+    super('state_capacity_exceeded');
+    this.capacity = Object.freeze({ ...capacity });
+  }
+}
+
+// Charge each mutable member at its full raw size. A map can have one
+// mutable run before and after each immutable group. Reserve those boundaries
+// even if inserted keys sort before old rows. New fields also need separators.
 export function assertStateEnvelopeGrowthCapacity(key, value, mutableKeys, growthBytes) {
-  check(Number.isSafeInteger(growthBytes) && growthBytes >= 0, 'state_capacity_exceeded');
-  const bytes = logicalBytes(value);
-  check(bytes.length + growthBytes <= MAX_LOGICAL_STATE_BYTES, 'state_capacity_exceeded');
-  const knownFields = fields(JSON.parse(bytes.toString('utf8')));
+  check(plain(value) && Number.isSafeInteger(growthBytes) && growthBytes >= 0, 'state_capacity_exceeded');
+  const canonical = JSON.stringify(value);
+  const logical = Buffer.byteLength(canonical);
+  const parsed = JSON.parse(canonical);
   const mutable = new Set(mutableKeys);
   let stableCompressed = 0;
-  let stableCount = 0;
+  let currentCompressed = 0;
   let mutableBytes = growthBytes;
-  for (const [field, text] of knownFields) {
-    if (mutable.has(field)) mutableBytes += Buffer.byteLength(text);
-    else {
-      stableCompressed += gzipMember(text).length;
-      stableCount++;
+  let mutableMembers = 0;
+  let archivedRuns = 0;
+  const retainedSingletons = new Map();
+  for (const { field, text, archivedIn, singletonBytes } of stateMembers(key, parsed)) {
+    const compressed = gzipMember(text).length;
+    currentCompressed += compressed;
+    if (mutable.has(archivedIn)) {
+      archivedRuns++;
+      if (singletonBytes) retainedSingletons.set(archivedIn, Math.max(retainedSingletons.get(archivedIn) ?? 0, singletonBytes));
     }
+    if (mutable.has(field)) {
+      mutableBytes += Buffer.byteLength(text);
+      mutableMembers++;
+    } else stableCompressed += compressed;
   }
-  // Sum of ceilings is at most ceil(total/1024) + member count.
-  const futureCompressed = memberBound(mutableBytes) + 40 * mutable.size;
-  const structuralBytes = gzipMember('{').length + gzipMember('}').length +
-    gzipMember(',').length * Math.max(0, stableCount + mutable.size - 1);
-  const payloadChars = 4 * Math.ceil((stableCompressed + futureCompressed + structuralBytes) / 3);
-  const metadataChars = compressedEnvelope(key, '00000000-0000-4000-8000-000000000000',
-    MAX_LOGICAL_STATE_BYTES, '0'.repeat(64), '').length;
-  check(metadataChars + payloadChars <= MAX_STORED_STATE_CHARACTERS, 'state_capacity_exceeded');
+  // The sum of independent member bounds is at most the bound on total
+  // bytes plus 40 bytes per member. Conservatively allow absent fields/runs.
+  const newMembers = mutable.size + archivedRuns + operationMaps.size;
+  // Verified compaction removes all terminal rows except its summary, so
+  // it can leave at most one row from any historical run in each map.
+  const retainedCompressed = [...retainedSingletons.values()].reduce((total, bytes) => total + memberBound(bytes), 0);
+  const futureCompressed = memberBound(mutableBytes) + 40 * (mutableMembers + newMembers);
+  const newDelimiters = gzipMember(',').length * newMembers;
+  const stored = (compressed, logicalBytes) =>
+    compressedEnvelope(key, sampleNonce, logicalBytes, '0'.repeat(64), '').length + 4 * Math.ceil(compressed / 3);
+  const legacy = JSON.stringify({ schemaVersion: 1, key, value, writeNonce: sampleNonce });
+  const capacity = {
+    logicalBytes: logical,
+    projectedLogicalBytes: logical + growthBytes,
+    storedCharacters: logical <= PLAIN_STATE_BYTES && fitsStoredDocument(legacy) ? legacy.length : stored(currentCompressed, logical),
+    projectedStoredCharacters: stored(stableCompressed + futureCompressed + newDelimiters + retainedCompressed, MAX_LOGICAL_STATE_BYTES),
+  };
+  if (capacity.projectedLogicalBytes > MAX_LOGICAL_STATE_BYTES || capacity.projectedStoredCharacters > MAX_STORED_STATE_CHARACTERS) {
+    throw new StateGrowthCapacityError(capacity);
+  }
+  return capacity;
 }
 
 export function encodeStateEnvelope(key, value, writeNonce = randomUUID()) {
@@ -99,7 +170,7 @@ export function encodeStateEnvelope(key, value, writeNonce = randomUUID()) {
 
   const compressed = compressedEnvelope(
     key, writeNonce, bytes.length, sha256(bytes),
-    gzipState(JSON.parse(bytes.toString('utf8'))).toString('base64'),
+    gzipState(key, JSON.parse(bytes.toString('utf8'))).toString('base64'),
   );
   check(fitsStoredDocument(compressed), 'state_capacity_exceeded');
   return compressed;

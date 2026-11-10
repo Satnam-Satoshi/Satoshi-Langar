@@ -6,6 +6,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isRoutineData, assertRoutineChanges } from './lib/ltc-routine-data.mjs';
 import { DurableCloudState } from './cloud-ltc-state.mjs';
+import { StateGrowthCapacityError } from './cloud-ltc-state-envelope.mjs';
 import { GoogleStateReadFailure } from './cloud-ltc-google-client.mjs';
 import { GoogleDocsStateAdapter } from './cloud-ltc-docs-state.mjs';
 import { rehearseReleaseOperations } from './cloud-ltc-rehearsal.mjs';
@@ -409,6 +410,10 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     Object.assign(record, result, { status: result.status ?? 'published', completedAt: time() }); await save();
     return { status: record.status, receipt: receiptPath, published: record.published };
   } catch (error) {
+    if (error instanceof StateGrowthCapacityError) {
+      record.stateCapacity = error.capacity;
+      console.error('LTC state capacity diagnostic: ' + JSON.stringify(record.stateCapacity));
+    }
     if(admission?.firstFreshGeneration){try{const {pauseOwnedFreshGeneration}=await import('./cloud-ltc-generation.mjs');await pauseOwnedFreshGeneration(admission);}catch{}}
     if (admission) record.unusedLeaseReleased = await releaseUnusedAdmission(admission);
     record.status = record.status === 'rolled-back' ? 'rolled-back' : 'withheld';

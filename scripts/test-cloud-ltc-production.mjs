@@ -267,3 +267,48 @@ test('a completed follow-up keeps the superseded retirement member immutable in 
   delete withoutFollowup.routineUploadFollowupRetirement;
   assert.throws(() => assertReleaseCapacity({ ...options, document: withoutFollowup }), /state_capacity_exceeded/);
 });
+
+test('capacity measures prior-fence terminal history exactly and reserves 43 bundles plus a source plan', () => {
+  const fence = 25;
+  const intents = {};
+  const receipts = {};
+  for (let index = 0; index < 87; index++) {
+    const operationId = `artifact-${index}`;
+    const status = index < 54 ? 'confirmed' : 'not-applied';
+    const row = {
+      operationId, fence: 23, status,
+      payload: { kind: 'drive-evidence', id: hash(operationId), metadata: 'archived source evidence;'.repeat(37) },
+      evidenceSha256: hash(status + operationId),
+    };
+    intents[operationId] = row;
+    receipts[operationId] = { receipt: row, sha256: hash(JSON.stringify(row)) };
+  }
+  const document = { schemaVersion: 1, fence, intents, receipts, history: randomBytes(135_000).toString('base64'), padding: '' };
+  document.padding = 'x'.repeat(995_454 - Buffer.byteLength(JSON.stringify(document)));
+  const artifacts = Array.from({ length: 43 }, (_, index) => ({
+    kind: 'drive-evidence', role: 'release-artifacts', generation: 'f25-1234567890abcdef',
+    artifactPackageManifestSha256: hash('package'), artifactBundleCount: 43,
+    artifactBundleIndex: index, fileId: 'x'.repeat(160), folderId: 'fixture-folder',
+    sha256: hash(String(index)), bytes: 2_800_000,
+  }));
+  const source = Array.from({ length: 30 }, (_, index) => ({
+    kind: 'git-blob', sha: hash(`blob-${index}`).slice(0, 40), sha256: hash(`bytes-${index}`), bytes: 100_000,
+  }));
+  source.push({ kind: 'git-tree', entries: source.map(({sha}, index) => ({ sha, path: `content/ltc/example-${index}.json` })) });
+  source.push({ kind: 'git-commit', sha: hash('commit').slice(0, 40) }, { kind: 'git-ref', branch: 'agent/review', commit: hash('commit').slice(0, 40) });
+  const options = { document, manifest: [], plannedPayloads: [...artifacts, ...source], tailContext: { deployment: 'x'.repeat(160), url: 'x'.repeat(253) } };
+  const capacity = assertReleaseCapacity(options);
+  assert.equal(capacity.logicalBytes, 995_454);
+  assert.equal(capacity.storedCharacters, encodeStateEnvelope('website', document).length);
+  assert.ok(capacity.projectedLogicalBytes < 1_500_000);
+  assert.ok(capacity.projectedStoredCharacters < 900_000);
+
+  // Changing only the fence makes the exact same history mutable, so the
+  // conservative bound refuses the candidate before any provider effects.
+  assert.throws(() => assertReleaseCapacity({ ...options, document: { ...document, fence: 23 } }), error => {
+    assert.equal(error.message, 'state_capacity_exceeded');
+    assert.ok(error.capacity.projectedStoredCharacters > 900_000);
+    assert.ok(error.capacity.projectedLogicalBytes < 1_500_000);
+    return true;
+  });
+});
