@@ -1,7 +1,8 @@
 import {createHash} from 'node:crypto';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import path from 'node:path';
-const MAX_RAW=2_500_000,MAX_BUNDLE=3_500_000,MAX_FILES=128;
+export const MAX_EVIDENCE_RAW_BYTES = 2_500_000;
+const MAX_RAW=MAX_EVIDENCE_RAW_BYTES,MAX_BUNDLE=3_500_000,MAX_FILES=128;
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const id=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{8,160}$/.test(value);
 const sha=value=>typeof value==='string'&&/^[a-f0-9]{64}$/.test(value);

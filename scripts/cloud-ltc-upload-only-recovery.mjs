@@ -1,3 +1,4 @@
+import { encodeStateEnvelope } from './cloud-ltc-state-envelope.mjs';
 import { createHash } from 'node:crypto';
 import { DurableCloudState } from './cloud-ltc-state.mjs';
 
@@ -162,8 +163,7 @@ function terminalPending(original, recoveryProof) {
 }
 async function validateState(value) {
   await new DurableCloudState({ read: async () => ({ value }) }, 'website').inspect();
-  check(JSON.stringify({ schemaVersion: 1, key: 'website', value }).length <= 900_000,
-    'state_capacity_exceeded');
+  encodeStateEnvelope('website', value);
 }
 
 export async function recoverUploadOnlyLease({ state, review: input, expectedReviewSha256, expectedRecoveredStateSha256, dependencies: d }) {

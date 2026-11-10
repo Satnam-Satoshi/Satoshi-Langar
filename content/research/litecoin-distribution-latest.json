@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "asOf": "2026-11-05",
-  "baselineDate": "2026-10-06",
-  "collectedAt": "2026-11-05T08:00:58.739Z",
+  "asOf": "2026-11-09",
+  "baselineDate": "2026-10-10",
+  "collectedAt": "2026-11-09T18:47:26.341Z",
   "source": "https://litecoinregister.com/ltc_data.json",
-  "sourceSha256": "7f7d2279b78d52ded87b4dd0a595f3a7a128244be0874d74d6d90efee7563464",
+  "sourceSha256": "5d50ede0c7f3ce6324a2936984df78d643b40833b6b3cd6a0edb5070390114c0",
   "license": "CC BY 4.0",
-  "total": 16314472.956572466,
+  "total": 16240206.492765106,
   "sectors": [
     {
       "name": "ecosystem",
-      "current": 1405489.5213790403,
-      "change": 69015.47198557004,
+      "current": 1389538.6743973102,
+      "change": 42445.54758989005,
       "missingBaseline": 0,
       "holders": 8
     },
     {
       "name": "exchange",
-      "current": 11118088.82120514,
-      "change": -217488.39583030986,
+      "current": 11070045.512140987,
+      "change": -202120.44089728018,
       "missingBaseline": 0,
       "holders": 14
     },
@@ -31,47 +31,27 @@
     },
     {
       "name": "investment",
-      "current": 2568741.320611909,
-      "change": 99125.10571902985,
+      "current": 2557429.9292149697,
+      "change": -9936.571924549944,
       "missingBaseline": 0,
       "holders": 22
     },
     {
       "name": "miner",
-      "current": 341536.4431244399,
-      "change": -683.0920780800242,
+      "current": 342562.4078981899,
+      "change": 1039.261936549998,
       "missingBaseline": 0,
       "holders": 41
     },
     {
       "name": "treasury",
-      "current": 869852.03381749,
-      "change": 1524.3470179100004,
+      "current": 869865.1526792,
+      "change": 1524.6442022800002,
       "missingBaseline": 0,
       "holders": 12
     }
   ],
   "series": [
-    {
-      "date": "2026-10-06",
-      "value": 16362979.519758346,
-      "holders": 98
-    },
-    {
-      "date": "2026-10-07",
-      "value": 16387084.102532636,
-      "holders": 98
-    },
-    {
-      "date": "2026-10-08",
-      "value": 16366814.802220296,
-      "holders": 98
-    },
-    {
-      "date": "2026-10-09",
-      "value": 16357129.311330577,
-      "holders": 98
-    },
     {
       "date": "2026-10-10",
       "value": 16407254.051858218,
@@ -199,12 +179,32 @@
     },
     {
       "date": "2026-11-04",
-      "value": 16314759.227376359,
+      "value": 16306165.54053748,
       "holders": 98
     },
     {
       "date": "2026-11-05",
-      "value": 16314472.956572466,
+      "value": 16285850.801651908,
+      "holders": 98
+    },
+    {
+      "date": "2026-11-06",
+      "value": 16277407.415210675,
+      "holders": 98
+    },
+    {
+      "date": "2026-11-07",
+      "value": 16267032.59559914,
+      "holders": 98
+    },
+    {
+      "date": "2026-11-08",
+      "value": 16256053.779585458,
+      "holders": 98
+    },
+    {
+      "date": "2026-11-09",
+      "value": 16240206.492765104,
       "holders": 98
     }
   ],
@@ -215,11 +215,11 @@
       "sector": "exchange",
       "type": "proof-of-reserves",
       "region": "global",
-      "current": 5232755.29141874,
-      "observedAt": "2026-11-04",
-      "baseline": 5483564.60437643,
-      "baselineObservedAt": "2026-10-06",
-      "change": -250809.3129576901,
+      "current": 5232755.31332568,
+      "observedAt": "2026-11-09",
+      "baseline": 5458413.40085244,
+      "baselineObservedAt": "2026-10-10",
+      "change": -225658.08752676006,
       "profile": "https://litecoinregister.com/profile/binance_exchange/"
     },
     {
@@ -228,11 +228,11 @@
       "sector": "exchange",
       "type": "proof-of-reserves",
       "region": "north-america",
-      "current": 2990885.46073686,
-      "observedAt": "2026-11-04",
-      "baseline": 2909736.08524792,
-      "baselineObservedAt": "2026-10-06",
-      "change": 81149.37548894016,
+      "current": 2981536.87068505,
+      "observedAt": "2026-11-09",
+      "baseline": 2902024.67185673,
+      "baselineObservedAt": "2026-10-10",
+      "change": 79512.19882832002,
       "profile": "https://litecoinregister.com/profile/okx/"
     },
     {
@@ -241,11 +241,11 @@
       "sector": "investment",
       "type": "single-asset",
       "region": "north-america",
-      "current": 1952002.782279,
-      "observedAt": "2026-11-05",
-      "baseline": 1956017.959955,
-      "baselineObservedAt": "2026-10-06",
-      "change": -4015.1776760001667,
+      "current": 1951735.281616,
+      "observedAt": "2026-11-09",
+      "baseline": 1955482.231066,
+      "baselineObservedAt": "2026-10-10",
+      "change": -3746.9494499999564,
       "profile": "https://litecoinregister.com/profile/ltcn/"
     },
     {
@@ -254,11 +254,11 @@
       "sector": "exchange",
       "type": "proof-of-reserves",
       "region": "middle-east",
-      "current": 1226065.35368425,
-      "observedAt": "2026-11-04",
-      "baseline": 1254315.93710557,
-      "baselineObservedAt": "2026-10-06",
-      "change": -28250.583421319956,
+      "current": 1188033.92027338,
+      "observedAt": "2026-11-09",
+      "baseline": 1221228.01091282,
+      "baselineObservedAt": "2026-10-10",
+      "change": -33194.09063944011,
       "profile": "https://litecoinregister.com/profile/bybit/"
     },
     {
@@ -319,11 +319,11 @@
       "sector": "ecosystem",
       "type": "sidechain",
       "region": "global",
-      "current": 519659.95666062,
-      "observedAt": "2026-11-04",
-      "baseline": 458477.29137848,
-      "baselineObservedAt": "2026-10-06",
-      "change": 61182.66528214002,
+      "current": 528978.52860991,
+      "observedAt": "2026-11-09",
+      "baseline": 465298.99231745,
+      "baselineObservedAt": "2026-10-10",
+      "change": 63679.53629246005,
       "profile": "https://litecoinregister.com/profile/mweb/"
     },
     {
@@ -332,11 +332,11 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 299938.84561868,
-      "observedAt": "2026-11-04",
-      "baseline": 299876.20708373,
-      "baselineObservedAt": "2026-10-06",
-      "change": 62.63853494997602,
+      "current": 299988.94660976,
+      "observedAt": "2026-11-08",
+      "baseline": 299882.5036155,
+      "baselineObservedAt": "2026-10-10",
+      "change": 106.44299425999634,
       "profile": "https://litecoinregister.com/profile/binance_miner/"
     },
     {
@@ -345,11 +345,11 @@
       "sector": "investment",
       "type": "single-asset",
       "region": "europe",
-      "current": 251215.95092346,
-      "observedAt": "2026-11-04",
-      "baseline": 151435.935676,
-      "baselineObservedAt": "2026-10-02",
-      "change": 99780.01524746002,
+      "current": 243790.76255633,
+      "observedAt": "2026-11-06",
+      "baseline": 242606.542215,
+      "baselineObservedAt": "2026-10-10",
+      "change": 1184.2203413300158,
       "profile": "https://litecoinregister.com/profile/lite-de/"
     },
     {
@@ -371,11 +371,11 @@
       "sector": "investment",
       "type": "single-asset",
       "region": "north-america",
-      "current": 221227.41,
-      "observedAt": "2026-11-05",
-      "baseline": 214101.31,
-      "baselineObservedAt": "2026-10-06",
-      "change": 7126.100000000006,
+      "current": 221204.38,
+      "observedAt": "2026-11-09",
+      "baseline": 221365.64,
+      "baselineObservedAt": "2026-10-10",
+      "change": -161.2600000000093,
       "profile": "https://litecoinregister.com/profile/ltcc/"
     },
     {
@@ -397,25 +397,12 @@
       "sector": "investment",
       "type": "single-asset",
       "region": "europe",
-      "current": 92900.86,
-      "observedAt": "2026-11-05",
-      "baseline": 93055.25,
-      "baselineObservedAt": "2026-10-06",
-      "change": -154.38999999999942,
+      "current": 87537.73,
+      "observedAt": "2026-11-09",
+      "baseline": 93034.65,
+      "baselineObservedAt": "2026-10-10",
+      "change": -5496.919999999998,
       "profile": "https://litecoinregister.com/profile/eltc/"
-    },
-    {
-      "id": "cbltc",
-      "name": "Coinbase Wrapped Litecoin",
-      "sector": "ecosystem",
-      "type": "defi",
-      "region": "global",
-      "current": 81973.88330851,
-      "observedAt": "2026-10-31",
-      "baseline": 86336.28087285,
-      "baselineObservedAt": "2026-09-26",
-      "change": -4362.39756433999,
-      "profile": "https://litecoinregister.com/profile/cbltc/"
     },
     {
       "id": "bitfinex",
@@ -423,12 +410,25 @@
       "sector": "exchange",
       "type": "hot-wallet",
       "region": "global",
-      "current": 74918.93543962,
-      "observedAt": "2026-11-04",
-      "baseline": 58709.00069943,
-      "baselineObservedAt": "2026-10-06",
-      "change": 16209.934740190009,
+      "current": 74255.62749498,
+      "observedAt": "2026-11-09",
+      "baseline": 61243.68769792,
+      "baselineObservedAt": "2026-10-10",
+      "change": 13011.939797059997,
       "profile": "https://litecoinregister.com/profile/bitfinex/"
+    },
+    {
+      "id": "cbltc",
+      "name": "Coinbase Wrapped Litecoin",
+      "sector": "ecosystem",
+      "type": "defi",
+      "region": "global",
+      "current": 69522.39222913,
+      "observedAt": "2026-11-09",
+      "baseline": 86336.28087285,
+      "baselineObservedAt": "2026-09-26",
+      "change": -16813.888643719998,
+      "profile": "https://litecoinregister.com/profile/cbltc/"
     },
     {
       "id": "f2pool_miner",
@@ -436,11 +436,11 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 28375.2593216,
-      "observedAt": "2026-11-04",
-      "baseline": 27701.53181346,
-      "baselineObservedAt": "2026-10-06",
-      "change": 673.7275081400003,
+      "current": 28726.02703285,
+      "observedAt": "2026-11-09",
+      "baseline": 28123.29975014,
+      "baselineObservedAt": "2026-10-10",
+      "change": 602.7272827100023,
       "profile": "https://litecoinregister.com/profile/f2pool_miner/"
     },
     {
@@ -449,25 +449,12 @@
       "sector": "treasury",
       "type": "public-company",
       "region": "north-america",
-      "current": 26825.1099347,
-      "observedAt": "2026-11-05",
-      "baseline": 25300.76291679,
-      "baselineObservedAt": "2026-10-06",
-      "change": 1524.3470179100004,
+      "current": 26838.22879641,
+      "observedAt": "2026-11-09",
+      "baseline": 25313.58459413,
+      "baselineObservedAt": "2026-10-10",
+      "change": 1524.6442022800002,
       "profile": "https://litecoinregister.com/profile/luxx/"
-    },
-    {
-      "id": "near_intents",
-      "name": "NEAR Intents",
-      "sector": "ecosystem",
-      "type": "defi",
-      "region": "global",
-      "current": 24074.7949449,
-      "observedAt": "2026-11-04",
-      "baseline": 12116.3502607,
-      "baselineObservedAt": "2026-10-06",
-      "change": 11958.444684200002,
-      "profile": "https://litecoinregister.com/profile/near_intents/"
     },
     {
       "id": "thorchain",
@@ -475,11 +462,11 @@
       "sector": "ecosystem",
       "type": "defi",
       "region": "global",
-      "current": 22980.90212781,
-      "observedAt": "2026-11-05",
-      "baseline": 22744.14254424,
-      "baselineObservedAt": "2026-10-06",
-      "change": 236.75958357000127,
+      "current": 23394.77911603,
+      "observedAt": "2026-11-09",
+      "baseline": 22677.58729485,
+      "baselineObservedAt": "2026-10-10",
+      "change": 717.1918211800003,
       "profile": "https://litecoinregister.com/profile/thorchain/"
     },
     {
@@ -488,11 +475,11 @@
       "sector": "investment",
       "type": "single-asset",
       "region": "europe",
-      "current": 20579.38542,
-      "observedAt": "2026-11-05",
-      "baseline": 20612.39807,
-      "baselineObservedAt": "2026-10-06",
-      "change": -33.012650000000576,
+      "current": 20577.1775,
+      "observedAt": "2026-11-09",
+      "baseline": 20607.98223,
+      "baselineObservedAt": "2026-10-10",
+      "change": -30.804729999999836,
       "profile": "https://litecoinregister.com/profile/virtune_ltc/"
     },
     {
@@ -501,11 +488,11 @@
       "sector": "investment",
       "type": "index-fund",
       "region": "europe",
-      "current": 18579.1295,
-      "observedAt": "2026-11-05",
-      "baseline": 18616.1402,
-      "baselineObservedAt": "2026-10-01",
-      "change": -37.010700000002544,
+      "current": 18576.58955,
+      "observedAt": "2026-11-09",
+      "baseline": 18612.2698,
+      "baselineObservedAt": "2026-10-10",
+      "change": -35.68024999999761,
       "profile": "https://litecoinregister.com/profile/virtune_alt/"
     },
     {
@@ -533,6 +520,19 @@
       "baselineObservedAt": "2026-07-31",
       "change": 0,
       "profile": "https://litecoinregister.com/profile/lealana/"
+    },
+    {
+      "id": "near_intents",
+      "name": "NEAR Intents",
+      "sector": "ecosystem",
+      "type": "defi",
+      "region": "global",
+      "current": 10842.99010504,
+      "observedAt": "2026-11-09",
+      "baseline": 15980.28198507,
+      "baselineObservedAt": "2026-10-10",
+      "change": -5137.291880029999,
+      "profile": "https://litecoinregister.com/profile/near_intents/"
     },
     {
       "id": "rcmp",
@@ -566,11 +566,11 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 6895.27699737,
-      "observedAt": "2026-11-04",
-      "baseline": 7375.0151071,
-      "baselineObservedAt": "2026-10-06",
-      "change": -479.73810973000036,
+      "current": 6951.73962932,
+      "observedAt": "2026-11-09",
+      "baseline": 7324.32747404,
+      "baselineObservedAt": "2026-10-10",
+      "change": -372.58784472000025,
       "profile": "https://litecoinregister.com/profile/litecoinpool_miner/"
     },
     {
@@ -598,6 +598,19 @@
       "baselineObservedAt": "2026-09-13",
       "change": 0,
       "profile": "https://litecoinregister.com/profile/altc/"
+    },
+    {
+      "id": "valour_ltc",
+      "name": "Valour Litecoin SEK ETP",
+      "sector": "investment",
+      "type": "single-asset",
+      "region": "europe",
+      "current": 3618.89962609,
+      "observedAt": "2026-11-09",
+      "baseline": 3422.08964597,
+      "baselineObservedAt": "2026-10-10",
+      "change": 196.80998011999964,
+      "profile": "https://litecoinregister.com/profile/valour_ltc/"
     },
     {
       "id": "dtcx",
@@ -631,11 +644,11 @@
       "sector": "investment",
       "type": "index-fund",
       "region": "europe",
-      "current": 2834.75,
-      "observedAt": "2026-11-05",
-      "baseline": 2769.05,
-      "baselineObservedAt": "2026-10-06",
-      "change": 65.69999999999982,
+      "current": 2834.48,
+      "observedAt": "2026-11-09",
+      "baseline": 2768.66,
+      "baselineObservedAt": "2026-10-10",
+      "change": 65.82000000000016,
       "profile": "https://litecoinregister.com/profile/da20/"
     },
     {
@@ -652,17 +665,17 @@
       "profile": "https://litecoinregister.com/profile/frmo/"
     },
     {
-      "id": "valour_ltc",
-      "name": "Valour Litecoin SEK ETP",
-      "sector": "investment",
-      "type": "single-asset",
-      "region": "europe",
-      "current": 1846.19361032,
-      "observedAt": "2026-11-03",
-      "baseline": 3541.45389933,
-      "baselineObservedAt": "2026-10-06",
-      "change": -1695.2602890099997,
-      "profile": "https://litecoinregister.com/profile/valour_ltc/"
+      "id": "hash700-pool",
+      "name": "Hash700",
+      "sector": "miner",
+      "type": "miner-reserve",
+      "region": "global",
+      "current": 1448.61169405,
+      "observedAt": "2026-11-09",
+      "baseline": 356.04362182,
+      "baselineObservedAt": "2026-10-10",
+      "change": 1092.56807223,
+      "profile": "https://litecoinregister.com/profile/hash700-pool/"
     },
     {
       "id": "xbt_physical",
@@ -761,11 +774,11 @@
       "sector": "investment",
       "type": "index-fund",
       "region": "europe",
-      "current": 680.76722762,
-      "observedAt": "2026-11-04",
-      "baseline": 691.812547,
-      "baselineObservedAt": "2026-10-06",
-      "change": -11.045319380000024,
+      "current": 680.58073504,
+      "observedAt": "2026-11-06",
+      "baseline": 691.575657,
+      "baselineObservedAt": "2026-10-09",
+      "change": -10.994921959999942,
       "profile": "https://litecoinregister.com/profile/keys/"
     },
     {
@@ -774,25 +787,12 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 590.95963861,
-      "observedAt": "2026-11-04",
-      "baseline": 683.81628887,
-      "baselineObservedAt": "2026-10-06",
-      "change": -92.85665026000004,
+      "current": 626.40264981,
+      "observedAt": "2026-11-09",
+      "baseline": 591.45774857,
+      "baselineObservedAt": "2026-10-10",
+      "change": 34.94490123999992,
       "profile": "https://litecoinregister.com/profile/kupool_miner/"
-    },
-    {
-      "id": "hash700-pool",
-      "name": "Hash700",
-      "sector": "miner",
-      "type": "miner-reserve",
-      "region": "global",
-      "current": 565.82667256,
-      "observedAt": "2026-11-04",
-      "baseline": 1186.18633601,
-      "baselineObservedAt": "2026-10-06",
-      "change": -620.3596634500001,
-      "profile": "https://litecoinregister.com/profile/hash700-pool/"
     },
     {
       "id": "dxpool_miner",
@@ -800,11 +800,11 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 563.96179128,
-      "observedAt": "2026-11-02",
-      "baseline": 526.16283218,
-      "baselineObservedAt": "2026-10-04",
-      "change": 37.79895910000005,
+      "current": 570.22001328,
+      "observedAt": "2026-11-06",
+      "baseline": 532.43389844,
+      "baselineObservedAt": "2026-10-10",
+      "change": 37.78611483999998,
       "profile": "https://litecoinregister.com/profile/dxpool_miner/"
     },
     {
@@ -813,25 +813,12 @@
       "sector": "investment",
       "type": "index-fund",
       "region": "europe",
-      "current": 523.6179,
-      "observedAt": "2026-11-05",
-      "baseline": 524.01408,
-      "baselineObservedAt": "2026-10-06",
-      "change": -0.39618000000007214,
+      "current": 523.57388,
+      "observedAt": "2026-11-09",
+      "baseline": 523.97006,
+      "baselineObservedAt": "2026-10-10",
+      "change": -0.39617999999995845,
       "profile": "https://litecoinregister.com/profile/virtune_50/"
-    },
-    {
-      "id": "antpool_miner",
-      "name": "AntPool",
-      "sector": "miner",
-      "type": "miner-reserve",
-      "region": "global",
-      "current": 507.76915285,
-      "observedAt": "2026-11-04",
-      "baseline": 370.65726435,
-      "baselineObservedAt": "2026-10-06",
-      "change": 137.11188850000002,
-      "profile": "https://litecoinregister.com/profile/antpool_miner/"
     },
     {
       "id": "miningcore-pool",
@@ -839,11 +826,11 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 463.66674271,
-      "observedAt": "2026-11-03",
+      "current": 469.90093305,
+      "observedAt": "2026-11-09",
       "baseline": 457.28782189,
       "baselineObservedAt": "2026-10-06",
-      "change": 6.378920820000019,
+      "change": 12.613111160000017,
       "profile": "https://litecoinregister.com/profile/miningcore-pool/"
     },
     {
@@ -878,11 +865,11 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 256.51676373,
-      "observedAt": "2026-11-04",
-      "baseline": 264.41353184,
-      "baselineObservedAt": "2026-10-06",
-      "change": -7.896768110000039,
+      "current": 311.29105344,
+      "observedAt": "2026-11-09",
+      "baseline": 264.68014183,
+      "baselineObservedAt": "2026-10-10",
+      "change": 46.61091160999996,
       "profile": "https://litecoinregister.com/profile/nicehash_miner/"
     },
     {
@@ -892,11 +879,24 @@
       "type": "defi",
       "region": "global",
       "current": 222.99204688,
-      "observedAt": "2026-11-05",
+      "observedAt": "2026-11-09",
       "baseline": 222.99204688,
-      "baselineObservedAt": "2026-10-06",
+      "baselineObservedAt": "2026-10-10",
       "change": 0,
       "profile": "https://litecoinregister.com/profile/wltc/"
+    },
+    {
+      "id": "antpool_miner",
+      "name": "AntPool",
+      "sector": "miner",
+      "type": "miner-reserve",
+      "region": "global",
+      "current": 163.09308897,
+      "observedAt": "2026-11-09",
+      "baseline": 225.72280003,
+      "baselineObservedAt": "2026-10-10",
+      "change": -62.629711060000005,
+      "profile": "https://litecoinregister.com/profile/antpool_miner/"
     },
     {
       "id": "viabtc_miner",
@@ -904,11 +904,11 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 206.83411374,
-      "observedAt": "2026-11-04",
-      "baseline": 288.01741084,
-      "baselineObservedAt": "2026-10-06",
-      "change": -81.18329710000003,
+      "current": 137.68469197,
+      "observedAt": "2026-11-09",
+      "baseline": 200.29796035,
+      "baselineObservedAt": "2026-10-10",
+      "change": -62.61326838000002,
       "profile": "https://litecoinregister.com/profile/viabtc_miner/"
     },
     {
@@ -956,11 +956,11 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 78.47690528,
-      "observedAt": "2026-10-19",
+      "current": 75.55761398,
+      "observedAt": "2026-11-09",
       "baseline": 84.72906892,
       "baselineObservedAt": "2026-09-04",
-      "change": -6.252163640000006,
+      "change": -9.171454940000004,
       "profile": "https://litecoinregister.com/profile/btc_com_miner/"
     },
     {
@@ -1016,6 +1016,19 @@
       "profile": "https://litecoinregister.com/profile/multipool-us/"
     },
     {
+      "id": "mining-dutch-pool",
+      "name": "Mining-Dutch",
+      "sector": "miner",
+      "type": "miner-reserve",
+      "region": "global",
+      "current": 14.12208703,
+      "observedAt": "2026-11-09",
+      "baseline": 43.82274484,
+      "baselineObservedAt": "2026-10-10",
+      "change": -29.70065781,
+      "profile": "https://litecoinregister.com/profile/mining-dutch-pool/"
+    },
+    {
       "id": "vialtc_miner",
       "name": "ViaLTC",
       "sector": "miner",
@@ -1040,19 +1053,6 @@
       "baselineObservedAt": "2021-02-24",
       "change": 0,
       "profile": "https://litecoinregister.com/profile/comiket-playmona-pool/"
-    },
-    {
-      "id": "lsoftware-dmcc-pool",
-      "name": "LSoftware DMCC",
-      "sector": "miner",
-      "type": "miner-reserve",
-      "region": "global",
-      "current": 12.51993136,
-      "observedAt": "2026-11-04",
-      "baseline": 31.35797772,
-      "baselineObservedAt": "2026-10-06",
-      "change": -18.83804636,
-      "profile": "https://litecoinregister.com/profile/lsoftware-dmcc-pool/"
     },
     {
       "id": "dpool-top",
@@ -1081,17 +1081,17 @@
       "profile": "https://litecoinregister.com/profile/monappy-come-back-pool/"
     },
     {
-      "id": "mining-dutch-pool",
-      "name": "Mining-Dutch",
+      "id": "lsoftware-dmcc-pool",
+      "name": "LSoftware DMCC",
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 7.9736,
-      "observedAt": "2026-11-03",
-      "baseline": 6.30000261,
-      "baselineObservedAt": "2026-10-05",
-      "change": 1.6735973900000003,
-      "profile": "https://litecoinregister.com/profile/mining-dutch-pool/"
+      "current": 6.26502206,
+      "observedAt": "2026-11-08",
+      "baseline": 12.50893868,
+      "baselineObservedAt": "2026-10-10",
+      "change": -6.24391662,
+      "profile": "https://litecoinregister.com/profile/lsoftware-dmcc-pool/"
     },
     {
       "id": "kryptex-pool",
@@ -1099,12 +1099,25 @@
       "sector": "miner",
       "type": "miner-reserve",
       "region": "global",
-      "current": 6.27956028,
-      "observedAt": "2026-11-01",
-      "baseline": 6.25687076,
-      "baselineObservedAt": "2026-10-06",
-      "change": 0.02268952000000013,
+      "current": 6.26376193,
+      "observedAt": "2026-11-09",
+      "baseline": 25.01928686,
+      "baselineObservedAt": "2026-10-10",
+      "change": -18.75552493,
       "profile": "https://litecoinregister.com/profile/kryptex-pool/"
+    },
+    {
+      "id": "molepool-com",
+      "name": "molepool.com",
+      "sector": "miner",
+      "type": "miner-reserve",
+      "region": "global",
+      "current": 6.25786306,
+      "observedAt": "2026-11-09",
+      "baseline": 6.2710163,
+      "baselineObservedAt": "2026-10-08",
+      "change": -0.013153240000000288,
+      "profile": "https://litecoinregister.com/profile/molepool-com/"
     },
     {
       "id": "slartibartfast-pool",
@@ -1118,19 +1131,6 @@
       "baselineObservedAt": "2024-02-07",
       "change": 0,
       "profile": "https://litecoinregister.com/profile/slartibartfast-pool/"
-    },
-    {
-      "id": "molepool-com",
-      "name": "molepool.com",
-      "sector": "miner",
-      "type": "miner-reserve",
-      "region": "global",
-      "current": 6.25216076,
-      "observedAt": "2026-11-04",
-      "baseline": 6.2501301,
-      "baselineObservedAt": "2026-10-06",
-      "change": 0.002030659999999962,
-      "profile": "https://litecoinregister.com/profile/molepool-com/"
     },
     {
       "id": "ltc_top_miner",
@@ -1216,11 +1216,11 @@
       "sector": "exchange",
       "type": "proof-of-reserves",
       "region": "eastern-asia",
-      "current": 0.04726149,
-      "observedAt": "2026-11-05",
-      "baseline": 1026.42299727,
-      "baselineObservedAt": "2026-10-06",
-      "change": -1026.37573578,
+      "current": 0.04769772,
+      "observedAt": "2026-11-09",
+      "baseline": 1031.01510953,
+      "baselineObservedAt": "2026-10-10",
+      "change": -1030.96741181,
       "profile": "https://litecoinregister.com/profile/woox/"
     },
     {
@@ -1231,9 +1231,9 @@
       "region": "global",
       "current": 0.00726859,
       "observedAt": "2026-10-25",
-      "baseline": 295.3287771,
-      "baselineObservedAt": "2026-10-06",
-      "change": -295.32150851,
+      "baseline": 332.72318839,
+      "baselineObservedAt": "2026-10-10",
+      "change": -332.7159198,
       "profile": "https://litecoinregister.com/profile/poolin_miner/"
     },
     {
@@ -1349,7 +1349,7 @@
       "current": 0,
       "observedAt": "2026-10-13",
       "baseline": 1862.93632614,
-      "baselineObservedAt": "2026-10-06",
+      "baselineObservedAt": "2026-10-10",
       "change": -1862.93632614,
       "profile": "https://litecoinregister.com/profile/bitmex/"
     },

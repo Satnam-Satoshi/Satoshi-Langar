@@ -5,13 +5,53 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { ReleaseOperationCoordinator } from './cloud-ltc-operations.mjs';
 import { prepareGitReleasePlan, createVercelReleaseProviders, executeReleaseOperation, assertVercelDeploymentIdentity } from './cloud-ltc-release-providers.mjs';
-import { chunkEvidence, packageEvidence, packageArtifactEvidence, createDriveEvidenceProvider, safeEvidenceDiagnostic, preallocateEvidenceIds, downloadEvidence } from './cloud-ltc-evidence.mjs';
+import { MAX_EVIDENCE_RAW_BYTES, chunkEvidence, packageEvidence, packageArtifactEvidence, createDriveEvidenceProvider, safeEvidenceDiagnostic, preallocateEvidenceIds, downloadEvidence } from './cloud-ltc-evidence.mjs';
 import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
 import { releaseGeneration, generationEvidenceId, completeFirstFreshGeneration, captureFreshGenerationBinding, assertFreshGenerationBinding, pauseOwnedFreshGeneration } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { assertPublicationDate } from './cloud-ltc-daily-admission.mjs';
+import { assertStateEnvelopeGrowthCapacity } from './cloud-ltc-state-envelope.mjs';
 const check = (value, code) => { if (!value) throw new Error(code); };
 const hash = value => createHash('sha256').update(value).digest('hex');
+
+// Reserve room for planned source/evidence rows, their duplicated immutable
+// receipts, and the stage/promotion/summary tail. Actual CAS and evidence
+// packaging still enforce their exact logical, physical and byte limits.
+export function assertReleaseCapacity({ document, manifest, plannedPayloads = [], receipts = [], tailContext = {} }) {
+  const tailBytes = Buffer.byteLength(JSON.stringify(tailContext));
+  // A successful tail may copy the release checkpoint into a fresh-generation
+  // proof. Count all known variable tail fields separately from fixed metadata.
+  let stateReserve = 32_768 + 4 * tailBytes;
+  let receiptReserve = 8_192 + tailBytes;
+  for (const payload of plannedPayloads) {
+    const payloadBytes = Buffer.byteLength(JSON.stringify(payload));
+    // A confirmed row is stored twice. Provider proofs contain only bounded
+    // identifiers, fixed digests and counts, plus the bounded Vercel hostname.
+    stateReserve += 2 * payloadBytes + 4_096;
+    receiptReserve += payloadBytes + 2_048;
+  }
+  const stateText = JSON.stringify(document);
+  const mutableFields = ['paused', 'lease', 'intents', 'receipts', 'latestRelease', 'archiveHead'];
+  if (tailContext.continuation) mutableFields.push('stagedDailyContinuation');
+  if (document.nextFreshGeneration?.status === 'pending-first-proof') mutableFields.push('nextFreshGeneration');
+  // The follow-up checkpoint supersedes the original retirement checkpoint.
+  // Its completion path never rewrites the original archived history member.
+  const followup = document.routineUploadFollowupRetirement;
+  if (followup) {
+    if (followup.status === 'manual-admitted') mutableFields.push('routineUploadFollowupRetirement');
+  } else if (document.routineUploadRetirement?.status === 'manual-admitted') {
+    mutableFields.push('routineUploadRetirement');
+  }
+  assertStateEnvelopeGrowthCapacity('website', document, mutableFields, stateReserve);
+  // The backup stores canonical state as a JSON string, so account for the
+  // actual escaping of today's ledger plus up to twice the added JSON bytes.
+  const backupBytes = Buffer.byteLength(JSON.stringify({
+    schemaVersion: 1, key: 'website', bytes: stateText, sha256: '0'.repeat(64),
+  }));
+  const summaryBytes = backupBytes + 2 * stateReserve + receiptReserve +
+    Buffer.byteLength(JSON.stringify(manifest)) + Buffer.byteLength(JSON.stringify(receipts));
+  check(summaryBytes <= MAX_EVIDENCE_RAW_BYTES, 'evidence_too_large');
+}
 
 // Recheck the existing durable authorization before each HTTP create attempt.
 // This is read-only: it neither grants uncertainty again nor extends the lease.
@@ -105,15 +145,34 @@ export async function performCoordinatedRelease(options) {
   const bundles = artifactPackage.bundles;
   const token = () => withGoogleCloudAuthorization({ env, fetchImpl }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
   const existing = await admission.state.inspect();
+  const evidencePayload = (bundle, index, fileId) => ({
+    kind: 'drive-evidence', role: 'release-artifacts', generation,
+    artifactPackageManifestSha256: artifactPackage.manifestSha256,
+    artifactBundleCount: bundles.length, artifactBundleIndex: index, fileId,
+    folderId: evidenceConfig.folderId, sha256: bundle.sha256, bytes: bundle.length,
+  });
+  // File IDs have not been reserved yet. Budget for their maximum allowed length.
+  assertReleaseCapacity({
+    document: existing, manifest,
+    tailContext: {
+      publicationProvenance, previousDeployment: previous[0], releaseCommit: plan.commitSha, editionId,
+      candidate: { deployment: 'dpl_' + 'x'.repeat(156), url: 'x'.repeat(253) },
+    },
+    plannedPayloads: [
+      ...bundles.map((bundle, index) => evidencePayload(bundle, index, 'x'.repeat(160))),
+      ...plan.steps.map(step => step.payload),
+    ],
+  });
   const missing = bundles.filter(bundle => !existing.intents[generationEvidenceId(generation, bundle.sha256)]);
   const allocate = options.preallocateIds ?? preallocateEvidenceIds;
   const allocated = evidenceConfig.fileIds ?? (missing.length ? await allocate({ count: missing.length, config: evidenceConfig, getAccessToken: token, fetcher: fetchImpl, onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) }) : []);
   check(allocated.length === missing.length, 'evidence_file_ids_required');
   const providerFactory = options.evidenceProviderFactory ?? createDriveEvidenceProvider;
   let allocatedIndex = 0;
-  const evidenceOperations = bundles.map(bundle => {
-    const payload = { kind: 'drive-evidence', role: 'release-artifacts', generation, artifactPackageManifestSha256: artifactPackage.manifestSha256, artifactBundleCount: bundles.length, artifactBundleIndex: bundles.indexOf(bundle), fileId: existing.intents[generationEvidenceId(generation, bundle.sha256)]?.payload?.fileId ?? allocated[allocatedIndex++], folderId: evidenceConfig.folderId, sha256: bundle.sha256, bytes: bundle.length };
-    return { operationId: generationEvidenceId(generation, bundle.sha256), payload, provider: providerFactory({ bundle, config: { ...evidenceConfig, fileId: payload.fileId }, getAccessToken: token, fetcher: fetchImpl, beforeCreateAttempt:createEvidenceAttemptGuard({admission,env,uploadQuarantineBinding:admission.uploadQuarantineBinding}), onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) }) };
+  const evidenceOperations = bundles.map((bundle, index) => {
+    const operationId = generationEvidenceId(generation, bundle.sha256);
+    const payload = evidencePayload(bundle, index, existing.intents[operationId]?.payload?.fileId ?? allocated[allocatedIndex++]);
+    return { operationId, payload, provider: providerFactory({ bundle, config: { ...evidenceConfig, fileId: payload.fileId }, getAccessToken: token, fetcher: fetchImpl, beforeCreateAttempt:createEvidenceAttemptGuard({admission,env,uploadQuarantineBinding:admission.uploadQuarantineBinding}), onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) }) };
   });
   assertNoQuarantinedUploadLineage(await admission.state.inspect(),{generation,artifactPackageManifestSha256:artifactPackage.manifestSha256,operations:evidenceOperations,env});
   // All IDs/hashes are durably saved before the first upload. An uncertain write
@@ -150,6 +209,12 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   };
   const providers = createVercelReleaseProviders({ target, vercel, cli, beforeMutation,
     verifyProtected, verifyPublic: async expected => { check(expected === hash(JSON.stringify(rollbackManifest)), 'rollback_manifest_changed'); await verifyPublic(rollbackManifest); },
+  });
+  // The confirmed stage supplies actual current ledger/receipt sizes. Catch a
+  // known oversized summary before changing public aliases.
+  assertReleaseCapacity({
+    document: await admission.state.inspect(), manifest, receipts: operationReceipts,
+    tailContext: { publicationProvenance, continuation, candidate, previousDeployment, releaseCommit, editionId },
   });
   const payload = { kind: 'vercel-promote', editionId, artifactPackageManifestSha256: artifactPackageManifestSha256, artifactManifestSha256: hash(JSON.stringify(manifest)), deployment: candidate.deployment, previous: previousDeployment, commit: releaseCommit };
   let promotion;

@@ -46,12 +46,65 @@ test('two writers using same revision cannot overwrite; UTF16 end indexes preser
   assert.equal(results.find(r=>r.status==='rejected').reason.message,'state_conflict');
   assert.ok(calls.at(-1).requests.some(r=>r.deleteContentRange));
 });
-test('ambiguous successful write is never silently retried and readback establishes stored value', async () => {
+test('lost acknowledgement succeeds with the exact nonce and revision without replaying the POST', async () => {
   const f=fixture(); f.timeout();
-  await assert.rejects(f.adapter.conditionalWrite('website',{fence:7},null),error=>error.message==='storage_write_uncertain');
+  assert.equal(await f.adapter.conditionalWrite('website',{fence:7},null),'rev-2');
   assert.equal(f.calls.length,1);
   assert.deepEqual((await f.adapter.read('website')).value,{fence:7});
   await assert.rejects(f.adapter.conditionalWrite('website',{fence:8},null),/state_conflict/);
+});
+test('identical concurrent proposals cannot both claim a lost acknowledgement', async () => {
+  const f = fixture();
+  const apply = f.client.batchUpdateDocument;
+  f.client.batchUpdateDocument = async (...args) => {
+    await apply(...args);
+    throw Error('acknowledgement unavailable');
+  };
+  const result = await Promise.allSettled([
+    f.adapter.conditionalWrite('website', { fence: 7 }, null),
+    f.adapter.conditionalWrite('website', { fence: 7 }, null),
+  ]);
+  assert.equal(result.filter(item => item.status === 'fulfilled').length, 1);
+  assert.equal(result.find(item => item.status === 'rejected').reason.message, 'storage_write_uncertain');
+  assert.equal(f.calls.length, 2);
+  const [first, second] = f.calls.map(call => JSON.parse(call.requests.at(-1).insertText.text));
+  assert.notEqual(first.writeNonce, second.writeNonce);
+});
+test('uncertain acknowledgements require exact bytes and a fresh private document revision', async () => {
+  for (const mismatch of ['stale', 'nonce', 'value', 'malformed', 'shared', 'wrong-document', 'unavailable']) {
+    const f = fixture();
+    const apply = f.client.batchUpdateDocument;
+    const read = f.client.getDocument;
+    const oldDocument = f.document();
+    f.client.batchUpdateDocument = async (...args) => {
+      await apply(...args);
+      const envelope = JSON.parse(args[1].requests.at(-1).insertText.text);
+      if (mismatch === 'nonce') f.setRaw(JSON.stringify({ ...envelope, writeNonce: '11111111-1111-4111-8111-111111111111' }));
+      if (mismatch === 'value') f.setRaw(JSON.stringify({ ...envelope, value: { fence: 8 } }));
+      if (mismatch === 'malformed') f.setRaw('malformed state');
+      if (mismatch === 'shared') f.metadata.shared = true;
+      if (mismatch === 'stale') f.client.getDocument = async () => ({ status: 200, body: oldDocument });
+      if (mismatch === 'wrong-document') f.client.getDocument = async (...readArgs) => {
+        const result = await read(...readArgs);
+        result.body.documentId = 'wrong-document';
+        return result;
+      };
+      if (mismatch === 'unavailable') f.client.getDocument = async () => { throw Error('unavailable'); };
+      throw Error('acknowledgement unavailable');
+    };
+    await assert.rejects(f.adapter.conditionalWrite('website', { fence: 7 }, null), /storage_write_uncertain/, mismatch);
+    assert.equal(f.calls.length, 1, mismatch);
+  }
+});
+test('legacy envelopes remain readable and upgrade without changing the ledger value', async () => {
+  const f = fixture();
+  const value = { fence: 7 };
+  f.setRaw(JSON.stringify({ schemaVersion: 1, key: 'website', value }));
+  const before = await f.adapter.read('website');
+  assert.deepEqual(before.value, value);
+  await f.adapter.conditionalWrite('website', value, before.version);
+  assert.deepEqual((await f.adapter.read('website')).value, value);
+  assert.match(JSON.parse(f.calls[0].requests.at(-1).insertText.text).writeNonce, /^[0-9a-f-]{36}$/);
 });
 test('arbitrary400 or ambiguous response is not treated as accepted mutation or safe retry', async () => {
   for(const result of [{status:400,body:{}},{status:200,body:{documentId,writeControl:{targetRevisionId:'merged'}}},{status:403,body:{error:'private'}},{status:200,body:{documentId:'other',writeControl:{requiredRevisionId:'x'}}}]) {
@@ -93,7 +146,16 @@ test('actual DurableCloudState interface uses remote CAS for leases and uncertai
 test('crash after durable mutation authorization leaves uncertain intent that blocks replay', async () => {
   const f=fixture(); const state=new DurableCloudState(f.adapter,'website',{clock:()=>1000});
   await state.setPaused(false);const lease=await state.acquire('run-a');await state.intend(lease,'commit','a'.repeat(64));
-  f.timeout();await assert.rejects(state.assertMayMutate(lease,'commit'),/storage_write_uncertain/);
+  const apply = f.client.batchUpdateDocument;
+  const read = f.client.getDocument;
+  f.client.batchUpdateDocument = async (...args) => {
+    await apply(...args);
+    f.client.getDocument = async () => { throw Error('readback outage'); };
+    throw Error('acknowledgement lost');
+  };
+  await assert.rejects(state.assertMayMutate(lease,'commit'),/storage_write_uncertain/);
+  f.client.getDocument = read;
+  f.client.batchUpdateDocument = apply;
   assert.equal((await state.inspect()).intents.commit.status,'uncertain');
   await assert.rejects(state.assertMayMutate(lease,'commit'),/reconciliation_required/);
   await assert.rejects(state.acquire('run-b'),/lease_held/);

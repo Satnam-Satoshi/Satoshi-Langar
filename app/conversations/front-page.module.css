@@ -27,3 +27,89 @@
 @media(max-width:600px){.front{padding-top:15px}.nameplate{padding-block:18px;border-bottom:6px solid var(--bitcoin-orange)}.dailyHero{padding-block:24px;gap:20px}.heroCopy h2{font-size:clamp(42px,10.5vw,58px)}.description{font-size:14px}.sectionHead{margin-top:30px}.departments{gap:0 18px;border-bottom:1px solid var(--litecoin-blue)}.newsCard{padding:20px}.jacketStage{padding:18px 23px;background:var(--silver)}}
 /* Keep keyboard focus distinct on dark feature panels. */
 .front :is(.special,.miikey) a:focus-visible{outline-color:var(--on-dark-accent)}
+
+.magazineMasthead {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding-block: clamp(14px, 2.8vw, 32px) 16px;
+  border-bottom: 5px solid var(--bitcoin-orange);
+}
+
+.magazineMasthead .eyebrow { margin-bottom: 5px; }
+
+.magazineMasthead h1 {
+  margin: 0;
+  font: 400 clamp(2.45rem, 6.4vw, 6.2rem)/.95 var(--font-serif);
+  letter-spacing: -.06em;
+}
+
+.magazineMasthead h1 span { color: var(--litecoin-blue); }
+
+.magazineMasthead > p {
+  max-width: 28ch;
+  margin: 0;
+  color: var(--editorial-muted);
+  font: 400 .92rem/1.5 var(--font-sans);
+}
+
+.issueLead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(14px, 6vw, 96px);
+  margin-top: 18px;
+  padding: clamp(18px, 4vw, 52px);
+  color: var(--on-dark);
+  background: var(--litecoin-blue);
+  border-bottom: 6px solid var(--silver-deep);
+}
+
+.issueLeadCopy { min-width: 0; }
+.issueLeadCopy .eyebrow { color: var(--on-dark-accent); }
+
+.issueLead h2 {
+  max-width: 18ch;
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 5.5vw, 5.25rem);
+  line-height: 1.02;
+  overflow-wrap: anywhere;
+}
+
+.issueDek {
+  max-width: 42ch;
+  margin-bottom: 18px;
+  color: var(--on-dark-muted);
+  font: 400 clamp(.96rem, 1.55vw, 1.3rem)/1.5 var(--font-sans);
+}
+
+.issueLead .actions { gap: 0 18px; }
+.issueLead .button:hover { background: var(--silver); color: var(--editorial-ink); }
+.issueLead .textLink { gap: 5px; }
+.issueLead a:focus-visible { outline-color: var(--on-dark-accent); }
+
+.issueLead .issueNote {
+  margin: 12px 0 0;
+  color: var(--on-dark-muted);
+  font: 400 .76rem/1.45 var(--font-sans);
+}
+
+.issueCover {
+  display: block;
+  flex: 0 1 clamp(90px, 25vw, 280px);
+  min-width: 0;
+  padding: 8px;
+  background: var(--silver);
+  box-shadow: 6px 6px 0 var(--editorial-ink);
+}
+
+.issueCover img { max-height: 350px; object-fit: cover; }
+
+@media (max-width: 680px) {
+  .magazineMasthead { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .magazineMasthead > p { max-width: 45ch; font-size: .83rem; }
+  .issueLead { position: relative; align-items: flex-start; }
+  .issueCover { flex: 0 0 clamp(64px, 22vw, 120px); padding: 4px; }
+  .issueLead .button { min-height: 44px; padding: 10px 12px; gap: 8px; }
+}

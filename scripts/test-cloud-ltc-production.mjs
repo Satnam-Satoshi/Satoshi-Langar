@@ -1,14 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { performCoordinatedRelease, confirmedStageFromState } from './cloud-ltc-production.mjs';
+import { performCoordinatedRelease, confirmedStageFromState, assertReleaseCapacity } from './cloud-ltc-production.mjs';
 import { releaseGeneration, generationEvidenceId } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
+import { encodeStateEnvelope } from './cloud-ltc-state-envelope.mjs';
 import { assertDailyPublicationAvailable, DailyPublicationComplete, publicationDate } from './cloud-ltc-daily-admission.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
 async function fixture({ uncertainStage = false, badPublishedBytes = false, uncertainPromotion = false, evidenceDiagnostic = false } = {}) {
@@ -166,4 +167,103 @@ test('actual production evidence factory saves and logs only sanitized diagnosti
   const d=f.saved.find(v=>v.providerFailure)?.providerFailure;assert.deepEqual(d,{provider:'drive-evidence',phase:'upload-post',reason:'http-status',httpStatus:429,timedOut:false,postAttempted:true});
   assert.equal(lines.length,1);assert(!lines.join('').includes('PRIVATE_TOKEN'));assert(!JSON.stringify(f.saved).includes('PRIVATE_TOKEN'));assert.equal(Object.values((await f.state.inspect()).intents).filter(i=>i.status==='uncertain').length,1);assert(!f.events.includes('deploy'));
  }finally{await rm(f.scratch,{recursive:true,force:true});}
+});
+
+test('release capacity stops before allocating evidence IDs or authorizing effects', async () => {
+  for (const [history, failure] of [
+    ['x'.repeat(1_470_000), /state_capacity_exceeded/],
+    ['\\'.repeat(700_000), /evidence_too_large/],
+  ]) {
+    const f = await fixture();
+    try {
+      const { value, version } = await f.state.adapter.read('website');
+      value.fixtureHistory = history;
+      await f.state.adapter.conditionalWrite('website', value, version);
+      f.options.preallocateIds = async () => assert.fail('capacity must be checked before allocating evidence IDs');
+      await assert.rejects(performCoordinatedRelease(f.options), failure);
+      assert.deepEqual(f.events, ['old-public-readback']);
+      assert.deepEqual((await f.state.inspect()).intents, {});
+    } finally {
+      await rm(f.scratch, { recursive: true, force: true });
+    }
+  }
+});
+
+
+test('release capacity reserves a 43-bundle generation against a representative recovered ledger', () => {
+  const incident = { outcome: 'UNKNOWN', accepted: false };
+  const document = { schemaVersion: 1, intents: {}, receipts: {}, incident, history: '' };
+  document.history = 'r'.repeat(841_224 - Buffer.byteLength(JSON.stringify(document)));
+  assert.equal(Buffer.byteLength(JSON.stringify(document)), 841_224);
+  const plannedPayloads = Array.from({ length: 43 }, (_, index) => ({
+    kind: 'drive-evidence', role: 'release-artifacts', generation: 'f23-1234567890abcdef',
+    artifactPackageManifestSha256: hash('package'), artifactBundleCount: 43,
+    artifactBundleIndex: index, fileId: 'x'.repeat(160), folderId: 'fixture-folder',
+    sha256: hash(String(index)), bytes: 2_800_000,
+  }));
+  const manifest = Array.from({ length: 600 }, (_, index) => ({
+    file: `conversations/example-${index}/index.html`, sha256: hash(String(index)), length: 50_000,
+  }));
+  const original = hash(JSON.stringify(document));
+  assert.doesNotThrow(() => assertReleaseCapacity({ document, manifest, plannedPayloads }));
+  assert.equal(hash(JSON.stringify(document)), original);
+});
+
+
+test('projected storage rejects a high-entropy ledger before its logical limit is exhausted', () => {
+  const document = {
+    schemaVersion: 1, intents: {}, receipts: {},
+    history: randomBytes(637_500).toString('base64'),
+  };
+  const plannedPayloads = [{ kind: 'git-tree', entries: randomBytes(95_000).toString('base64') }];
+  const logicalProjection = Buffer.byteLength(JSON.stringify(document)) +
+    2 * Buffer.byteLength(JSON.stringify(plannedPayloads[0])) + 32_768 + 4_096;
+  assert.ok(logicalProjection < 1_500_000);
+  assert.doesNotThrow(() => encodeStateEnvelope('website', document));
+  const projected = {
+    ...document,
+    intents: { tree: { payload: plannedPayloads[0] } },
+    receipts: { tree: { receipt: { payload: plannedPayloads[0] } } },
+  };
+  assert.throws(() => encodeStateEnvelope('website', projected), /state_capacity_exceeded/);
+  assert.throws(() => assertReleaseCapacity({ document, plannedPayloads, manifest: [] }), /state_capacity_exceeded/);
+});
+
+test('release preflight charges the actual provenance and continuation before alias effects', async () => {
+  const f = await fixture();
+  try {
+    f.options.publicationProvenance.extra = 'x'.repeat(400_000);
+    f.options.preallocateIds = async () => assert.fail('capacity must be checked before allocating evidence IDs');
+    await assert.rejects(performCoordinatedRelease(f.options), /state_capacity_exceeded/);
+    assert.deepEqual(f.events, ['old-public-readback']);
+    const document = await f.state.inspect();
+    assert.throws(() => assertReleaseCapacity({
+      document, manifest: [], tailContext: { continuation: { detail: 'x'.repeat(400_000) } },
+    }), /state_capacity_exceeded/);
+  } finally {
+    await rm(f.scratch, { recursive: true, force: true });
+  }
+});
+
+
+test('a completed follow-up keeps the superseded retirement member immutable in capacity planning', () => {
+  const original = { status: 'manual-admitted', archive: 'original UNKNOWN receipt;'.repeat(14_000) };
+  const document = {
+    schemaVersion: 1,
+    history: 'stable retained records;'.repeat(14_000),
+    routineUploadRetirement: original,
+    routineUploadFollowupRetirement: { status: 'routine-enabled' },
+    intents: { confirmed: { data: 'x'.repeat(57_000) } },
+    receipts: { confirmed: { data: 'x'.repeat(61_000) } },
+  };
+  const plannedPayloads = Array.from({ length: 43 }, (_, index) => ({
+    kind: 'drive-evidence', artifactBundleIndex: index, data: 'x'.repeat(540),
+  }));
+  const options = { document, plannedPayloads, manifest: [] };
+  const before = hash(JSON.stringify(document));
+  assert.doesNotThrow(() => assertReleaseCapacity(options));
+  assert.equal(hash(JSON.stringify(document)), before);
+  const withoutFollowup = { ...document };
+  delete withoutFollowup.routineUploadFollowupRetirement;
+  assert.throws(() => assertReleaseCapacity({ ...options, document: withoutFollowup }), /state_capacity_exceeded/);
 });

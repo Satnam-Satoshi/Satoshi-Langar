@@ -178,7 +178,7 @@ for (const delayAt of ['oauth','ledger-read','privacy-read']) {
         return json(document());
       }});
     armed=true;
-    await assert.rejects(runtime.stateAdapter.conditionalWrite('website',{saved:true},null),/storage_write_uncertain/);
+    await assert.rejects(runtime.stateAdapter.conditionalWrite('website',{saved:true},null),/storage_write_not_attempted/);
     assert.equal(posts,0);
   });
 }
