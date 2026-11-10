@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { performCoordinatedRelease, confirmedStageFromState } from './cloud-ltc-production.mjs';
+import { performCoordinatedRelease, confirmedStageFromState, assertReleaseCapacity } from './cloud-ltc-production.mjs';
 import { releaseGeneration, generationEvidenceId } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
@@ -166,4 +166,44 @@ test('actual production evidence factory saves and logs only sanitized diagnosti
   const d=f.saved.find(v=>v.providerFailure)?.providerFailure;assert.deepEqual(d,{provider:'drive-evidence',phase:'upload-post',reason:'http-status',httpStatus:429,timedOut:false,postAttempted:true});
   assert.equal(lines.length,1);assert(!lines.join('').includes('PRIVATE_TOKEN'));assert(!JSON.stringify(f.saved).includes('PRIVATE_TOKEN'));assert.equal(Object.values((await f.state.inspect()).intents).filter(i=>i.status==='uncertain').length,1);assert(!f.events.includes('deploy'));
  }finally{await rm(f.scratch,{recursive:true,force:true});}
+});
+
+test('release capacity stops before allocating evidence IDs or authorizing effects', async () => {
+  for (const [history, failure] of [
+    ['x'.repeat(1_470_000), /state_capacity_exceeded/],
+    ['\\'.repeat(700_000), /evidence_too_large/],
+  ]) {
+    const f = await fixture();
+    try {
+      const { value, version } = await f.state.adapter.read('website');
+      value.fixtureHistory = history;
+      await f.state.adapter.conditionalWrite('website', value, version);
+      f.options.preallocateIds = async () => assert.fail('capacity must be checked before allocating evidence IDs');
+      await assert.rejects(performCoordinatedRelease(f.options), failure);
+      assert.deepEqual(f.events, ['old-public-readback']);
+      assert.deepEqual((await f.state.inspect()).intents, {});
+    } finally {
+      await rm(f.scratch, { recursive: true, force: true });
+    }
+  }
+});
+
+
+test('release capacity reserves a 43-bundle generation against a representative recovered ledger', () => {
+  const incident = { outcome: 'UNKNOWN', accepted: false };
+  const document = { schemaVersion: 1, intents: {}, receipts: {}, incident, history: '' };
+  document.history = 'r'.repeat(841_224 - Buffer.byteLength(JSON.stringify(document)));
+  assert.equal(Buffer.byteLength(JSON.stringify(document)), 841_224);
+  const plannedPayloads = Array.from({ length: 43 }, (_, index) => ({
+    kind: 'drive-evidence', role: 'release-artifacts', generation: 'f23-1234567890abcdef',
+    artifactPackageManifestSha256: hash('package'), artifactBundleCount: 43,
+    artifactBundleIndex: index, fileId: 'x'.repeat(160), folderId: 'fixture-folder',
+    sha256: hash(String(index)), bytes: 2_800_000,
+  }));
+  const manifest = Array.from({ length: 600 }, (_, index) => ({
+    file: `conversations/example-${index}/index.html`, sha256: hash(String(index)), length: 50_000,
+  }));
+  const original = hash(JSON.stringify(document));
+  assert.doesNotThrow(() => assertReleaseCapacity({ document, manifest, plannedPayloads }));
+  assert.equal(hash(JSON.stringify(document)), original);
 });
