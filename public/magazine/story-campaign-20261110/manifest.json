@@ -1,0 +1,156 @@
+[
+  {
+    "id": "daily",
+    "title": "Money talks. We listen.",
+    "altText": "LTC Magazine November 10, 2026 campaign cover, Money talks. We listen. An open document faces a blue circular reading desk with Bitcoin and Litecoin labels. Original conceptual editorial graphic.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "9fe230fd256a870723b60c15a71c3e14fbea482b52b77bae24c16996bcd0c485",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "canton",
+    "title": "cLTC: follow the claim.",
+    "altText": "Three document folios show announcement, implementation and live evidence as separate reporting stages. Only the announcement document is orange. Conceptual illustration, not a claim that cLTC has launched.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "95c30617c328be0ef31fdd121f3b53d42f1aa5e67c7a8253522ac7d4e6b7c181",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "litvm",
+    "title": "V2. Read the architecture.",
+    "altText": "LitVM V2 editorial card with an architectural stack beside three checks: architecture, network stage and release evidence. The stack is conceptual and does not represent a deployed network topology.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "fa85f24da71c62a684a739f3d2c1ebb96ddfc54d2f0b95eb2a8c0787348536db",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "assets",
+    "title": "Same letters. Different claims.",
+    "altText": "Three separate circles labeled LTC, cbLTC and cLTC. Native network, issuer representation and separate design are distinguished, with no arrows suggesting shared security or automatic interoperability.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "da5ed30a70b7355408b030d0e78ab36e25b1cbf62783ab88735c30beb4badaad",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "wallstreet",
+    "title": "Read beyond the ticker.",
+    "altText": "A blue filing cabinet has separate drawers for holdings, NAV and flows. A circular reading lens emphasizes definition plus date. There are no financial figures or performance claims.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "6f4a1757d9dcd796a52e17ed8b92ac71b865118f5269cf9c9365dce4fb216982",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "distribution",
+    "title": "Count the categories.",
+    "altText": "Overlapping outlined circles illustrate possible overlap among custody, fund and treasury records. A panel reads Records do not equal unique coins. This is a conceptual overlap diagram, not measured distribution.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "e8707bbdd16dfc6097223b29299be76bbae295a471be71a2c765221078fdae3a",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "timechain",
+    "title": "A clock made of blocks.",
+    "altText": "A sequence of six symbolic blocks sits over a shared-work line. Text distinguishes block height from an estimated halving date and shared mining work from separate network rules. Letters mark conceptual blocks, not actual heights.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "5a3b27d11b083c78a853ac8d25ff419cd2943ba27e8c8728336b0a40fd07218d",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "school",
+    "title": "Keep your recovery private.",
+    "altText": "An abstract backup card contains only blank bars, never actual recovery words. Beside it is a blue lock and the words Offline, Private, Protected. Educational security illustration.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "d2c712ca74fe94b6409203012c76888476f20a10920f3a1942f32fb0aaf47cf4",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "builders",
+    "title": "Show the work.",
+    "altText": "A source document, a code terminal and a verification mark illustrate three ways to inspect builder progress: document, demonstrate and verify. No project endorsement is implied.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "58971a2575f8329ab2504f38a21c0c1b7ee993afd7fc0a02209051b13240f0f3",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "charlie",
+    "title": "One interview. Many questions.",
+    "altText": "An abstract video player with four unnumbered watch markers accompanies the themes origins, privacy, builders and open questions. It is a guide to the Charlie Lee interview, not a transcript or a portrait.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "e1ad90727baa4c5aceb3761f8b1501dacc675ef2ff0732526f57ab464d1cabd6",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "jack",
+    "title": "Build bridges. Check history.",
+    "altText": "An original bridge illustration connects people, sources and context. This promotes the Jack Mallers reading feature without claiming a specific first transaction, academic credential or endorsement.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "0b938added11f217603c3d9f3ff20f152c9477290644993ae57d1f1c25b61d31",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "community",
+    "title": "Bring one useful question.",
+    "altText": "Seven abstract people sit around a blue oval reading table with open source documents. Labels invite people to learn, build and contribute. Original conceptual community illustration.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "3c6503434a90a31cb1f5cec580a435a9fc55429b0c2ea5a17bbbed9b8ff1bae6",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "support",
+    "title": "Help the next reader.",
+    "altText": "An open silver book with blue text lines and an orange spine illustrates voluntary support for the next reader. No payment address, tax claim or promised reward appears.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "79532fadb1e2cf80421183ff39f012255a57673019426cb80c9a0bca8f6c3503",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  },
+  {
+    "id": "privacy",
+    "title": "Privacy has a design.",
+    "altText": "A silver shield sits over blue network lines with an orange center. The MWEB learning card asks readers to understand mechanisms and tradeoffs, without promising perfect anonymity.",
+    "width": 1200,
+    "height": 675,
+    "sha256": "6f0f088d5db89e5b4bf8435153e06ce90175029958b04a7ad58fc57bd18951d2",
+    "original": true,
+    "renderer": "Original code-native SVG rendered with sharp; no AI-generated photographic content",
+    "conceptual": true
+  }
+]
