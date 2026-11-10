@@ -1,3 +1,4 @@
+import { MAX_LOGICAL_STATE_BYTES } from './cloud-ltc-state-envelope.mjs';
 import { validateStageAcceptanceReceipt, receiptHash as hash } from './cloud-ltc-acceptance-proof.mjs';
 import { FOUNDER_ACTOR_ID } from './cloud-ltc-setup-quarantine.mjs';
 
@@ -27,7 +28,7 @@ function controlledReview(review) {
 // execution. No API, credential, state mutation, deployment or activation here.
 export function validatePromotionRollbackReceipt({ document, pins, currentControllerImplementationSha256 }) {
   let encoded; try { encoded = JSON.stringify(document); } catch { throw Error('migration_receipt_state_invalid'); }
-  check(typeof encoded === 'string' && encoded.length <= 900_000, 'migration_receipt_state_invalid');
+  check(typeof encoded === 'string' && Buffer.byteLength(encoded) <= MAX_LOGICAL_STATE_BYTES, 'migration_receipt_state_invalid');
   check(plain(document) && document.schemaVersion === 1 && Number.isSafeInteger(document.fence) && document.fence > 0 && plain(document.intents) && plain(document.receipts), 'migration_receipt_state_invalid');
   check(plain(pins) && plain(pins.stagePins) && ['reviewSha256', 'completionSha256', 'completionControllerImplementationSha256', 'currentControllerImplementationSha256'].every(key => digest(pins[key])), 'migration_receipt_pins_required');
   check(digest(currentControllerImplementationSha256) && currentControllerImplementationSha256 === pins.currentControllerImplementationSha256 && pins.stagePins.currentControllerImplementationSha256 === currentControllerImplementationSha256, 'migration_receipt_controller_mismatch');

@@ -1,3 +1,4 @@
+import { MAX_LOGICAL_STATE_BYTES } from './cloud-ltc-state-envelope.mjs';
 import{assertNoQuarantinedUploadReuse}from'./cloud-ltc-upload-quarantine-proof.mjs';
 import { createHash } from 'node:crypto';
 import { verifyEvidenceBundle } from './cloud-ltc-evidence.mjs';
@@ -235,7 +236,7 @@ export class DurableCloudState {
 }
 
 function validateDocument(document) {
-  check(JSON.stringify(document).length <= 900_000, 'state_capacity_exceeded');
+  check(Buffer.byteLength(JSON.stringify(document)) <= MAX_LOGICAL_STATE_BYTES, 'state_capacity_exceeded');
   check(document?.schemaVersion === 1 && typeof document.paused === 'boolean' && typeof document.restoreHold === 'boolean' && Number.isSafeInteger(document.fence) && document.fence >= 0 && document.intents && document.receipts && !Array.isArray(document.intents) && !Array.isArray(document.receipts), 'invalid_state_document');
   if (document.lease) check(validKey(document.lease.runId) && Number.isSafeInteger(document.lease.fence) && document.lease.fence > 0 && document.lease.fence <= document.fence && Number.isFinite(document.lease.expiresAt), 'invalid_state_document');
   if (document.lease?.publicationDate !== undefined) check(validPublicationDate(document.lease.publicationDate), 'invalid_state_document');

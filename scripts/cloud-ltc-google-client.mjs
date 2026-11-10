@@ -1,3 +1,5 @@
+import { decodeStateEnvelope, MAX_STORED_STATE_CHARACTERS, MAX_DOCS_RESPONSE_BYTES } from './cloud-ltc-state-envelope.mjs';
+
 // Credential-owning transport for the selected existing private resources only.
 // No OAuth initiation, refresh, credential-file discovery, resource creation or write retries.
 // Access token lifetime/refresh is the protected runtime's responsibility.
@@ -5,17 +7,6 @@ const check = (condition, code) => { if (!condition) throw new Error(code); };
 const idPattern = /^[A-Za-z0-9_-]{5,200}$/;
 const metadataFields = 'id,mimeType,trashed,ownedByMe,shared,parents,driveId,capabilities(canEdit),permissions(id,type,role)';
 const plain = value => value && Object.getPrototypeOf(value) === Object.prototype;
-
-// Legacy ledger envelopes have no write nonce. New nonces identify an individual
-// CAS invocation even when two callers propose exactly the same ledger value.
-export function isStateEnvelope(envelope, ledgerKey) {
-  if (!plain(envelope) || envelope.schemaVersion !== 1 || envelope.key !== ledgerKey || !plain(envelope.value)) return false;
-  const keys = Object.keys(envelope).sort().join(',');
-  if (keys === 'key,schemaVersion,value') return true;
-  return keys === 'key,schemaVersion,value,writeNonce' &&
-    typeof envelope.writeNonce === 'string' &&
-    /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(envelope.writeNonce);
-}
 
 export function validateCloudStateConfig(config) {
   check(plain(config) && ['documentId,folderId,provider,publicationEnabled,schemaVersion', 'documentId,folderId,ledgerKey,provider,publicationEnabled,schemaVersion'].includes(Object.keys(config).sort().join(',')) && ['website', 'social'].includes(config.ledgerKey ?? 'website') && config.schemaVersion === 1 && config.provider === 'google-docs' && config.publicationEnabled === false && idPattern.test(config.folderId ?? '') && idPattern.test(config.documentId ?? '') && config.folderId !== config.documentId, 'invalid_cloud_state_configuration');
@@ -59,7 +50,7 @@ export function createGoogleStateClient({ config, env = process.env, fetchImpl =
     try {
       check(response.headers.get('content-type')?.toLowerCase().includes('application/json'), 'invalid_google_response');
       const declared = response.headers.get('content-length');
-      check(declared === null || (/^\d+$/.test(declared) && Number(declared) <= 1_100_000), 'invalid_google_response');
+      check(declared === null || (/^\d+$/.test(declared) && Number(declared) <= MAX_DOCS_RESPONSE_BYTES), 'invalid_google_response');
       check(response.body && typeof response.body.getReader === 'function', 'invalid_google_response');
       const reader = response.body.getReader(); const chunks = []; let total = 0;
       try {
@@ -67,7 +58,7 @@ export function createGoogleStateClient({ config, env = process.env, fetchImpl =
           const { done, value } = await reader.read();
           if (done) break;
           total += value.byteLength;
-          check(total <= 1_100_000, 'invalid_google_response');
+          check(total <= MAX_DOCS_RESPONSE_BYTES, 'invalid_google_response');
           chunks.push(value);
         }
       } finally { await reader.cancel().catch(() => {}); }
@@ -112,11 +103,11 @@ export function createGoogleStateClient({ config, env = process.env, fetchImpl =
 function validateStateBatch(body, ledgerKey) {
   check(plain(body) && Object.keys(body).sort().join(',') === 'requests,writeControl' && plain(body.writeControl) && Object.keys(body.writeControl).join(',') === 'requiredRevisionId' && typeof body.writeControl.requiredRevisionId === 'string' && body.writeControl.requiredRevisionId.length > 0 && body.writeControl.requiredRevisionId.length <= 2048 && Array.isArray(body.requests) && [1, 2].includes(body.requests.length), 'invalid_google_state_batch');
   const insert = body.requests.at(-1)?.insertText;
-  check(plain(insert) && Object.keys(body.requests.at(-1)).join(',') === 'insertText' && Object.keys(insert).sort().join(',') === 'location,text' && plain(insert.location) && Object.keys(insert.location).sort().join(',') === 'index,tabId' && insert.location.index === 1 && typeof insert.location.tabId === 'string' && insert.location.tabId.length > 0 && typeof insert.text === 'string' && insert.text.length <= 900_000 && !insert.text.includes('\n'), 'invalid_google_state_batch');
-  let envelope; try { envelope = JSON.parse(insert.text); } catch { throw new Error('invalid_google_state_batch'); }
-  check(isStateEnvelope(envelope, ledgerKey) && JSON.stringify(envelope) === insert.text, 'invalid_google_state_batch');
+  check(plain(insert) && Object.keys(body.requests.at(-1)).join(',') === 'insertText' && Object.keys(insert).sort().join(',') === 'location,text' && plain(insert.location) && Object.keys(insert.location).sort().join(',') === 'index,tabId' && insert.location.index === 1 && typeof insert.location.tabId === 'string' && insert.location.tabId.length > 0 && typeof insert.text === 'string' && insert.text.length <= MAX_STORED_STATE_CHARACTERS && !insert.text.includes('\n'), 'invalid_google_state_batch');
+  try { decodeStateEnvelope(insert.text, ledgerKey); }
+  catch { throw new Error('invalid_google_state_batch'); }
   if (body.requests.length === 2) {
     const remove = body.requests[0]?.deleteContentRange;
-    check(plain(remove) && Object.keys(body.requests[0]).join(',') === 'deleteContentRange' && Object.keys(remove).join(',') === 'range' && plain(remove.range) && Object.keys(remove.range).sort().join(',') === 'endIndex,startIndex,tabId' && remove.range.startIndex === 1 && Number.isSafeInteger(remove.range.endIndex) && remove.range.endIndex > 1 && remove.range.endIndex <= 900_001 && remove.range.tabId === insert.location.tabId, 'invalid_google_state_batch');
+    check(plain(remove) && Object.keys(body.requests[0]).join(',') === 'deleteContentRange' && Object.keys(remove).join(',') === 'range' && plain(remove.range) && Object.keys(remove.range).sort().join(',') === 'endIndex,startIndex,tabId' && remove.range.startIndex === 1 && Number.isSafeInteger(remove.range.endIndex) && remove.range.endIndex > 1 && remove.range.endIndex <= MAX_STORED_STATE_CHARACTERS + 1 && remove.range.tabId === insert.location.tabId, 'invalid_google_state_batch');
   }
 }

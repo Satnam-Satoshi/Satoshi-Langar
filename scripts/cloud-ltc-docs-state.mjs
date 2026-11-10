@@ -1,5 +1,4 @@
-import { randomUUID } from 'node:crypto';
-import { isStateEnvelope } from './cloud-ltc-google-client.mjs';
+import { decodeStateEnvelope, encodeStateEnvelope, MAX_DOCS_STATE_CHARACTERS } from './cloud-ltc-state-envelope.mjs';
 
 // OFFLINE-REVIEWED ADAPTER ONLY. No credential lookup, resource creation or runner activation.
 // Injected methods return {status, body}. Same OAuth identity must serve every call.
@@ -18,7 +17,7 @@ function noSuggestions(value) {
 }
 function parseDocument(doc, documentId, key) {
   check(doc?.documentId === documentId && revision(doc.revisionId), 'invalid_state_document');
-  check(JSON.stringify(doc).length <= 1_000_000, 'state_capacity_exceeded');
+  check(JSON.stringify(doc).length <= MAX_DOCS_STATE_CHARACTERS, 'state_capacity_exceeded');
   noSuggestions(doc);
   check(Array.isArray(doc.tabs) && doc.tabs.length === 1 && !doc.body, 'invalid_state_document');
   const tab = doc.tabs[0];
@@ -41,9 +40,10 @@ function parseDocument(doc, documentId, key) {
   check(paragraph.endIndex === index && text.endsWith('\n') && !text.slice(0,-1).includes('\n'), 'invalid_state_document');
   const raw = text.slice(0,-1);
   if (!raw) return { value: null, version: null, revision: doc.revisionId, endIndex: index, tabId: tab.tabProperties.tabId };
-  let envelope; try { envelope = JSON.parse(raw); } catch { throw new Error('invalid_state_document'); }
-  check(isStateEnvelope(envelope, key) && JSON.stringify(envelope) === raw, 'invalid_state_document');
-  return { raw, value: envelope.value, version: doc.revisionId, revision: doc.revisionId, endIndex: index, tabId: tab.tabProperties.tabId };
+  let value;
+  try { value = decodeStateEnvelope(raw, key); }
+  catch { throw new Error('invalid_state_document'); }
+  return { raw, value, version: doc.revisionId, revision: doc.revisionId, endIndex: index, tabId: tab.tabProperties.tabId };
 }
 // Only the production runtime, which controls the request boundary, can
 // distinguish a failed preflight from a request that might have reached Docs.
@@ -78,8 +78,7 @@ export class GoogleDocsStateAdapter {
     // Re-read even on bootstrap: never equate absent provider resource with blank provisioned ledger.
     const current = await this.#read(key);
     check(current.version === expectedVersion, 'state_conflict');
-    const text = JSON.stringify({schemaVersion:1,key,value,writeNonce:randomUUID()});
-    check(text.length <= 900_000, 'state_capacity_exceeded');
+    const text = encodeStateEnvelope(key, value);
     const requests = [];
     if (current.endIndex > 2) requests.push({deleteContentRange:{range:{startIndex:1,endIndex:current.endIndex-1,tabId:current.tabId}}});
     requests.push({insertText:{location:{index:1,tabId:current.tabId},text}});
