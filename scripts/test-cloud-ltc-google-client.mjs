@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createGoogleStateClient, validateCloudStateConfig } from './cloud-ltc-google-client.mjs';
+import { safeFailure } from './cloud-ltc-release.mjs';
 import { GoogleDocsStateAdapter } from './cloud-ltc-docs-state.mjs';
 const config = { schemaVersion: 1, provider: 'google-docs', publicationEnabled: false, folderId: 'fixture-folder', documentId: 'fixture-document' };
 const env = { LTC_GOOGLE_ACCESS_TOKEN: 'fixture-token-for-unit-tests-only' };
@@ -76,7 +77,7 @@ test('non-success statuses retain status without provider text; only retryable G
     await client.verifySelectedResources(); preparing = false; calls = 0;
     assert.deepEqual(await client.getFileMetadata(config.documentId), { status, body: null });
     assert.deepEqual(await client.batchUpdateDocument(config.documentId, batch), { status, body: null });
-    assert.equal(calls, status === 429 ? 4 : 2);
+    assert.equal(calls, [429, 500].includes(status) ? 4 : 2);
   }
 });
 
@@ -115,7 +116,7 @@ test('explicit social ledger namespace is compatible but cannot edit a website l
 
 
 test('GET transport failures and selected retryable statuses are bounded to three requests', async () => {
-  for (const failure of ['network',429,502,503,504]) {
+  for (const failure of ['network',429,500,502,503,504]) {
     let calls=0;const delays=[];
     const client=createGoogleStateClient({config,env,sleep:async ms=>delays.push(ms),fetchImpl:async()=>{
       calls++;if(calls===3)return json(document());
@@ -127,7 +128,7 @@ test('GET transport failures and selected retryable statuses are bounded to thre
 });
 
 test('exhausted GET transport retries stop; errors remain sanitized', async () => {
-  for (const failure of ['network',429,502,503,504]) {
+  for (const failure of ['network',429,500,502,503,504]) {
     let calls=0;const delays=[];
     const client=createGoogleStateClient({config,env,sleep:async ms=>delays.push(ms),fetchImpl:async()=>{
       calls++;if(failure==='network')throw Error('private provider diagnostic');return json({},failure);
@@ -139,7 +140,7 @@ test('exhausted GET transport retries stop; errors remain sanitized', async () =
 });
 
 test('GET authorization, other statuses and schema failures never retry', async () => {
-  for(const response of [()=>json({},401),()=>json({},403),()=>json({},400),()=>json({},404),()=>json({},500),()=>new Response('not json',{headers:{'content-type':'application/json'}}),()=>json([])]) {
+  for(const response of [()=>json({},401),()=>json({},403),()=>json({},400),()=>json({},404),()=>new Response('not json',{headers:{'content-type':'application/json'}}),()=>json([])]) {
     let calls=0,sleeps=0;
     const client=createGoogleStateClient({config,env,sleep:async()=>{sleeps++;},fetchImpl:async()=>{calls++;return response();}});
     await client.getDocument(config.documentId,options).catch(error=>assert.equal(error.message,'storage_read_failed'));
@@ -148,7 +149,7 @@ test('GET authorization, other statuses and schema failures never retry', async 
 });
 
 test('POST timeouts and retryable HTTP statuses are never repeated', async () => {
-  for(const failure of ['network',429,502,503,504]) {
+  for(const failure of ['network',429,500,502,503,504]) {
     let writes=0,sleeps=0;
     const client=createGoogleStateClient({config,env,allowWrites:true,sleep:async()=>{sleeps++;},fetchImpl:async(url,request)=>{
       if(request.method==='GET')return json(metadata(new URL(url).pathname.split('/').at(-1)));
@@ -189,4 +190,79 @@ test('async write guards are rejected without sending a POST',async()=>{
    return json(metadata(new URL(url).pathname.split('/').at(-1)));
  }});
  await client.verifySelectedResources();await assert.rejects(client.batchUpdateDocument(config.documentId,batch),/invalid_google_write_guard/);assert.equal(posts,0);
+});
+
+function interruptedBody() {
+  return new Response(new ReadableStream({
+    start(controller) { controller.error(new Error('private provider stream failure')); },
+  }), { headers: { 'content-type': 'application/json' } });
+}
+
+test('GET headers, HTTP status and body interruption share one three-attempt budget', async () => {
+  const delays = [];
+  let calls = 0;
+  const client = createGoogleStateClient({ config, env, sleep: async delay => delays.push(delay), fetchImpl: async () => {
+    calls++;
+    if (calls === 1) throw new Error('private transport details');
+    if (calls === 2) return json({}, 500);
+    if (calls === 3) return interruptedBody();
+    throw new Error('unexpected fourth attempt');
+  } });
+  await assert.rejects(client.getDocument(config.documentId, options), error => safeFailure(error) === 'storage_read_failed (docs-document/body)');
+  assert.equal(calls, 3);
+  assert.deepEqual(delays, [250, 500]);
+});
+
+test('interrupted GET body recovers while an interrupted POST body remains uncertain after one POST', async () => {
+  let reads = 0;
+  let writes = 0;
+  const client = createGoogleStateClient({ config, env, allowWrites: true, sleep: async () => {}, fetchImpl: async (url, request) => {
+    if (request.method === 'POST') { writes++; return interruptedBody(); }
+    if (url.includes('/drive/v3/files/')) return json(metadata(new URL(url).pathname.split('/').at(-1)));
+    return ++reads === 1 ? interruptedBody() : json(document());
+  } });
+  await client.verifySelectedResources();
+  assert.equal((await client.getDocument(config.documentId, options)).status, 200);
+  assert.equal(reads, 2);
+  await assert.rejects(client.batchUpdateDocument(config.documentId, batch), /storage_write_uncertain/);
+  assert.equal(writes, 1);
+});
+
+test('adapter diagnostics distinguish HTTP, invalid responses and privacy failure without provider data', async () => {
+  for (const [response, expected] of [
+    [() => json({ private: env.LTC_GOOGLE_ACCESS_TOKEN }, 401), 'storage_read_failed (drive-metadata/http-401)'],
+    [() => json([], 200), 'storage_read_failed (drive-metadata/invalid-response)'],
+    [() => json({ ...metadata(config.documentId), shared: true }), 'private_storage_required'],
+    [() => new Response('{}', { headers: { 'content-type': 'application/json', 'content-length': '1100001' } }), 'storage_read_failed (drive-metadata/invalid-response)'],
+  ]) {
+    let calls = 0;
+    const client = createGoogleStateClient({ config, env, fetchImpl: async () => { calls++; return response(); } });
+    const adapter = new GoogleDocsStateAdapter({ ...config, client });
+    await assert.rejects(adapter.read('website'), error => safeFailure(error) === expected);
+    assert.equal(calls, 1);
+  }
+});
+
+test('OAuth transport failure is classified safely at ledger read without retrying token POST', async () => {
+  let tokenPosts = 0;
+  let providerGets = 0;
+  let now = 0;
+  const oauthEnv = {
+    LTC_GOOGLE_CLIENT_ID: 'fixture-client-id.apps.googleusercontent.com',
+    LTC_GOOGLE_CLIENT_SECRET: 'fixture-secret-please-do-not-log',
+    LTC_GOOGLE_REFRESH_TOKEN: 'fixture-refresh-please-do-not-log',
+  };
+  const runtime = await createGoogleStateRuntime({ config, env: oauthEnv, clock: () => now, fetchImpl: async (url, request) => {
+    if (url === 'https://oauth2.googleapis.com/token') {
+      assert.equal(request.method, 'POST');
+      if (++tokenPosts > 1) throw new Error(oauthEnv.LTC_GOOGLE_REFRESH_TOKEN);
+      return json({ token_type: 'Bearer', access_token: env.LTC_GOOGLE_ACCESS_TOKEN, expires_in: 3600 });
+    }
+    providerGets++;
+    return json(metadata(new URL(url).pathname.split('/').at(-1)));
+  } });
+  now = 300_000;
+  await assert.rejects(runtime.stateAdapter.read('website'), error => safeFailure(error) === 'storage_read_failed (drive-metadata/oauth-refresh)');
+  assert.equal(tokenPosts, 2);
+  assert.equal(providerGets, 2);
 });

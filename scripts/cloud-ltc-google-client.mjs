@@ -8,24 +8,62 @@ const idPattern = /^[A-Za-z0-9_-]{5,200}$/;
 const metadataFields = 'id,mimeType,trashed,ownedByMe,shared,parents,driveId,capabilities(canEdit),permissions(id,type,role)';
 const plain = value => value && Object.getPrototypeOf(value) === Object.prototype;
 
+const retryableReadStatuses = new Set([429, 500, 502, 503, 504]);
+const readResources = new Set(['drive-metadata', 'docs-document']);
+const readPhases = new Set(['headers', 'body', 'invalid-response', 'oauth-refresh', 'oauth-credentials', 'oauth-scope']);
+export class GoogleStateReadFailure extends Error {
+  constructor(resource, phase) {
+    super('storage_read_failed');
+    const validPhase = readPhases.has(phase) || /^http-[2-5]\d{2}$/.test(phase);
+    Object.defineProperty(this, 'diagnostic', { value: readResources.has(resource) && validPhase ? `${resource}/${phase}` : null });
+  }
+}
+
+class BodyReadInterrupted extends Error {}
+async function readJson(response) {
+  check(response.headers.get('content-type')?.toLowerCase().includes('application/json'), 'invalid_google_response');
+  const declared = response.headers.get('content-length');
+  check(declared === null || (/^\d+$/.test(declared) && Number(declared) <= MAX_DOCS_RESPONSE_BYTES), 'invalid_google_response');
+  check(response.body && typeof response.body.getReader === 'function', 'invalid_google_response');
+  const reader = response.body.getReader();
+  const chunks = [];
+  let total = 0;
+  try {
+    while (true) {
+      let chunk;
+      try { chunk = await reader.read(); }
+      catch { throw new BodyReadInterrupted(); }
+      if (chunk.done) break;
+      total += chunk.value.byteLength;
+      check(total <= MAX_DOCS_RESPONSE_BYTES, 'invalid_google_response');
+      chunks.push(chunk.value);
+    }
+  } finally { await reader.cancel().catch(() => {}); }
+  const result = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  check(plain(result), 'invalid_google_response');
+  return result;
+}
+
 export function validateCloudStateConfig(config) {
   check(plain(config) && ['documentId,folderId,provider,publicationEnabled,schemaVersion', 'documentId,folderId,ledgerKey,provider,publicationEnabled,schemaVersion'].includes(Object.keys(config).sort().join(',')) && ['website', 'social'].includes(config.ledgerKey ?? 'website') && config.schemaVersion === 1 && config.provider === 'google-docs' && config.publicationEnabled === false && idPattern.test(config.folderId ?? '') && idPattern.test(config.documentId ?? '') && config.folderId !== config.documentId, 'invalid_cloud_state_configuration');
   return Object.freeze({ ...config });
 }
 
-export function createGoogleStateClient({ config, env = process.env, fetchImpl = fetch, allowWrites = false, timeoutMs = 30_000, beforeWrite = () => {}, sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
+export function createGoogleStateClient({ config, env = process.env, fetchImpl = fetch, allowWrites = false, timeoutMs = 30_000, beforeWrite = () => {}, assertAccessUsable = () => {}, onUnauthorized = () => {}, sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   const selected = validateCloudStateConfig(config);
   const accessToken = env.LTC_GOOGLE_ACCESS_TOKEN;
   check(typeof accessToken === 'string' && /^[A-Za-z0-9._~+\/-]{16,8192}={0,2}$/.test(accessToken), 'google_access_token_required');
-  check(typeof fetchImpl === 'function' && typeof beforeWrite === 'function' && typeof sleep === 'function' && typeof allowWrites === 'boolean' && Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 30_000, 'invalid_google_transport_configuration');
+  check(typeof fetchImpl === 'function' && typeof beforeWrite === 'function' && typeof assertAccessUsable === 'function' && typeof onUnauthorized === 'function' && typeof sleep === 'function' && typeof allowWrites === 'boolean' && Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 30_000, 'invalid_google_transport_configuration');
 
-  async function request(url, method = 'GET', body) {
+  async function request(url, resource, method = 'GET', body) {
     const write = method === 'POST';
-    // Synchronous final authorization boundary, after runtime OAuth/privacy
-    // awaits and immediately before the sole POST. Async guards are rejected.
-    if (write) check(beforeWrite() === undefined, 'invalid_google_write_guard');
-    let response;
-    for (let attempt = 0; attempt < (write ? 1 : 3); attempt++) {
+    const attempts = write ? 1 : 3;
+    const failure = phase => write ? new Error('storage_write_uncertain') : new GoogleStateReadFailure(resource, phase);
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      let response;
+      check(assertAccessUsable() === undefined, 'invalid_google_transport_configuration');
+      // Keep the final authorization boundary immediately before the sole POST.
+      if (write) check(beforeWrite() === undefined, 'invalid_google_write_guard');
       try {
         response = await fetchImpl(url, {
           method, redirect: 'error', signal: AbortSignal.timeout(timeoutMs),
@@ -33,40 +71,31 @@ export function createGoogleStateClient({ config, env = process.env, fetchImpl =
           ...(write ? { body: JSON.stringify(body) } : {}),
         });
       } catch {
-        if (!write && attempt < 2) { await sleep(250 * (attempt + 1)); continue; }
-        throw new Error(write ? 'storage_write_uncertain' : 'storage_read_failed');
+        if (attempt === attempts) throw failure('headers');
+        await sleep(250 * attempt);
+        continue;
       }
-      // Only bounded, read-only transport retries. Auth, redirects, malformed
-      // payloads and every POST retain their original fail-closed behavior.
-      if (!write && !response?.redirected && [429, 502, 503, 504].includes(response?.status) && attempt < 2) {
+      if (!Number.isInteger(response?.status) || response.status < 200 || response.status > 599 || response.redirected) {
+        throw failure('invalid-response');
+      }
+      if (response.status === 401) onUnauthorized();
+      if (response.status >= 300) {
+        // Never ingest a provider error body, which may contain request data.
         await response.body?.cancel?.().catch(() => {});
-        await sleep(250 * (attempt + 1)); continue;
-      }
-      break;
-    }
-    check(Number.isInteger(response?.status) && response.status >= 200 && response.status <= 599 && !response.redirected, write ? 'storage_write_uncertain' : 'storage_read_failed');
-    // Error responses are status-only. Provider diagnostics may contain request data.
-    if (response.status >= 300) return { status: response.status, body: null };
-    try {
-      check(response.headers.get('content-type')?.toLowerCase().includes('application/json'), 'invalid_google_response');
-      const declared = response.headers.get('content-length');
-      check(declared === null || (/^\d+$/.test(declared) && Number(declared) <= MAX_DOCS_RESPONSE_BYTES), 'invalid_google_response');
-      check(response.body && typeof response.body.getReader === 'function', 'invalid_google_response');
-      const reader = response.body.getReader(); const chunks = []; let total = 0;
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          total += value.byteLength;
-          check(total <= MAX_DOCS_RESPONSE_BYTES, 'invalid_google_response');
-          chunks.push(value);
+        if (!write && retryableReadStatuses.has(response.status) && attempt < attempts) {
+          await sleep(250 * attempt);
+          continue;
         }
-      } finally { await reader.cancel().catch(() => {}); }
-      const raw = Buffer.concat(chunks).toString('utf8');
-      const result = JSON.parse(raw);
-      check(plain(result), 'invalid_google_response');
-      return { status: response.status, body: result };
-    } catch { throw new Error(write ? 'storage_write_uncertain' : 'storage_read_failed'); }
+        return { status: response.status, body: null };
+      }
+      try {
+        return { status: response.status, body: await readJson(response) };
+      } catch (error) {
+        if (!(error instanceof BodyReadInterrupted)) throw failure('invalid-response');
+        if (attempt === attempts) throw failure('body');
+        await sleep(250 * attempt);
+      }
+    }
   }
   function selectedId(id, documentOnly = false) {
     check(id === selected.documentId || (!documentOnly && id === selected.folderId), 'unselected_google_resource');
@@ -75,18 +104,18 @@ export function createGoogleStateClient({ config, env = process.env, fetchImpl =
   let privateResourcesVerified = false;
   const client = {
     async getFileMetadata(id) {
-      return request(`https://www.googleapis.com/drive/v3/files/${selectedId(id)}?fields=${encodeURIComponent(metadataFields)}`);
+      return request(`https://www.googleapis.com/drive/v3/files/${selectedId(id)}?fields=${encodeURIComponent(metadataFields)}`, 'drive-metadata');
     },
     async getDocument(id, options) {
       check(plain(options) && Object.keys(options).sort().join(',') === 'includeTabsContent,suggestionsViewMode' && options.includeTabsContent === true && options.suggestionsViewMode === 'SUGGESTIONS_INLINE', 'invalid_google_document_request');
-      return request(`https://docs.googleapis.com/v1/documents/${selectedId(id, true)}?includeTabsContent=true&suggestionsViewMode=SUGGESTIONS_INLINE`);
+      return request(`https://docs.googleapis.com/v1/documents/${selectedId(id, true)}?includeTabsContent=true&suggestionsViewMode=SUGGESTIONS_INLINE`, 'docs-document');
     },
     async batchUpdateDocument(id, body) {
       selectedId(id, true);
       check(allowWrites, 'google_state_writes_disabled');
       validateStateBatch(body, selected.ledgerKey ?? 'website');
       check(privateResourcesVerified, 'google_resources_unverified');
-      return request(`https://docs.googleapis.com/v1/documents/${encodeURIComponent(id)}:batchUpdate`, 'POST', body);
+      return request(`https://docs.googleapis.com/v1/documents/${encodeURIComponent(id)}:batchUpdate`, 'docs-document', 'POST', body);
     },
     async verifySelectedResources() {
       const folder = await client.getFileMetadata(selected.folderId);

@@ -92,6 +92,22 @@ export async function selectedEvidenceFiles(directory) {
   await visit(); return files;
 }
 
+// Renewal only between independently confirmed effects. It cannot revive an
+// expired lease, cross the issue date or override a concurrent owner pause.
+export async function executeArtifactBackupPlan({admission, operations, execute}) {
+  await admission.state.intendBatch(admission.lease, operations.map(({operationId, payload}) => ({operationId, payloadSha256: hash(JSON.stringify(payload)), payload})));
+  let lastRenewedAt = admission.state.clock();
+  for (const operation of operations) {
+    const receipt = await execute(operation);
+    check(receipt?.status === 'confirmed', 'release_operation_not_confirmed');
+    if (admission.state.clock() - lastRenewedAt >= 600_000) {
+      const renewed = await admission.state.renew(admission.lease, 3_600_000);
+      Object.assign(admission.lease, renewed);
+      lastRenewedAt = admission.state.clock();
+    }
+  }
+}
+
 // This function is only reachable after the runner's closed acceptance gate.
 // Each effect has a separate durable intent; no provider mutation bypasses it.
 export async function performCoordinatedRelease(options) {
@@ -103,9 +119,10 @@ export async function performCoordinatedRelease(options) {
   const coordinator = new ReleaseOperationCoordinator(admission);
   const operationReceipts = [];
   const execute = async operation => {
-    assertUploadQuarantineBinding(await admission.state.inspect(),admission.uploadQuarantineBinding);
-    assertFreshGenerationBinding(await admission.state.inspect(),admission.firstFreshGeneration);
-    assertNoQuarantinedUploadLineage(await admission.state.inspect(),{operations:[operation],env});
+    const guardSnapshot = await admission.state.inspect();
+    assertUploadQuarantineBinding(guardSnapshot,admission.uploadQuarantineBinding);
+    assertFreshGenerationBinding(guardSnapshot,admission.firstFreshGeneration);
+    assertNoQuarantinedUploadLineage(guardSnapshot,{operations:[operation],env});
     const receipt = await executeReleaseOperation(coordinator, operation);
     operationReceipts.push({ operationId: operation.operationId, payload: operation.payload, ...receipt });
     await saveReceipt({ operationReceipts });
@@ -113,7 +130,7 @@ export async function performCoordinatedRelease(options) {
   };
   const beforeMutation = async commit => {
     try{assertFreshGenerationBinding(await admission.state.inspect(),admission.firstFreshGeneration);}catch(error){if(admission.firstFreshGeneration){try{await pauseOwnedFreshGeneration(admission);}catch{}}throw error;}
-    await admission.state.renew(admission.lease, 3_600_000);
+    Object.assign(admission.lease, await admission.state.renew(admission.lease, 3_600_000));
     await verifyImplementation(); await verifyBuildOutput(); await options.verifyMigration?.(); await controls(commit);
   };
   await beforeMutation(source);
@@ -177,8 +194,7 @@ export async function performCoordinatedRelease(options) {
   assertNoQuarantinedUploadLineage(await admission.state.inspect(),{generation,artifactPackageManifestSha256:artifactPackage.manifestSha256,operations:evidenceOperations,env});
   // All IDs/hashes are durably saved before the first upload. An uncertain write
   // during this phase produces no external upload and still fails closed.
-  for (const operation of evidenceOperations) await admission.state.intend(admission.lease, operation.operationId, hash(JSON.stringify(operation.payload)), operation.payload);
-  for (const operation of evidenceOperations) await execute(operation);
+  await executeArtifactBackupPlan({admission, operations: evidenceOperations, execute});
   for (const operation of plan.steps) await execute(operation);
   await saveReceipt({ releaseCommit: plan.commitSha, rollbackDeployment: previous[0] });
   const providers = createVercelReleaseProviders({ target, vercel, cli, beforeMutation,
