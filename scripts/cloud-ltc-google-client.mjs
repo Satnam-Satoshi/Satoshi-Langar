@@ -6,6 +6,17 @@ const idPattern = /^[A-Za-z0-9_-]{5,200}$/;
 const metadataFields = 'id,mimeType,trashed,ownedByMe,shared,parents,driveId,capabilities(canEdit),permissions(id,type,role)';
 const plain = value => value && Object.getPrototypeOf(value) === Object.prototype;
 
+// Legacy ledger envelopes have no write nonce. New nonces identify an individual
+// CAS invocation even when two callers propose exactly the same ledger value.
+export function isStateEnvelope(envelope, ledgerKey) {
+  if (!plain(envelope) || envelope.schemaVersion !== 1 || envelope.key !== ledgerKey || !plain(envelope.value)) return false;
+  const keys = Object.keys(envelope).sort().join(',');
+  if (keys === 'key,schemaVersion,value') return true;
+  return keys === 'key,schemaVersion,value,writeNonce' &&
+    typeof envelope.writeNonce === 'string' &&
+    /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(envelope.writeNonce);
+}
+
 export function validateCloudStateConfig(config) {
   check(plain(config) && ['documentId,folderId,provider,publicationEnabled,schemaVersion', 'documentId,folderId,ledgerKey,provider,publicationEnabled,schemaVersion'].includes(Object.keys(config).sort().join(',')) && ['website', 'social'].includes(config.ledgerKey ?? 'website') && config.schemaVersion === 1 && config.provider === 'google-docs' && config.publicationEnabled === false && idPattern.test(config.folderId ?? '') && idPattern.test(config.documentId ?? '') && config.folderId !== config.documentId, 'invalid_cloud_state_configuration');
   return Object.freeze({ ...config });
@@ -103,7 +114,7 @@ function validateStateBatch(body, ledgerKey) {
   const insert = body.requests.at(-1)?.insertText;
   check(plain(insert) && Object.keys(body.requests.at(-1)).join(',') === 'insertText' && Object.keys(insert).sort().join(',') === 'location,text' && plain(insert.location) && Object.keys(insert.location).sort().join(',') === 'index,tabId' && insert.location.index === 1 && typeof insert.location.tabId === 'string' && insert.location.tabId.length > 0 && typeof insert.text === 'string' && insert.text.length <= 900_000 && !insert.text.includes('\n'), 'invalid_google_state_batch');
   let envelope; try { envelope = JSON.parse(insert.text); } catch { throw new Error('invalid_google_state_batch'); }
-  check(plain(envelope) && Object.keys(envelope).sort().join(',') === 'key,schemaVersion,value' && envelope.schemaVersion === 1 && envelope.key === ledgerKey && plain(envelope.value) && JSON.stringify(envelope) === insert.text, 'invalid_google_state_batch');
+  check(isStateEnvelope(envelope, ledgerKey) && JSON.stringify(envelope) === insert.text, 'invalid_google_state_batch');
   if (body.requests.length === 2) {
     const remove = body.requests[0]?.deleteContentRange;
     check(plain(remove) && Object.keys(body.requests[0]).join(',') === 'deleteContentRange' && Object.keys(remove).join(',') === 'range' && plain(remove.range) && Object.keys(remove.range).sort().join(',') === 'endIndex,startIndex,tabId' && remove.range.startIndex === 1 && Number.isSafeInteger(remove.range.endIndex) && remove.range.endIndex > 1 && remove.range.endIndex <= 900_001 && remove.range.tabId === insert.location.tabId, 'invalid_google_state_batch');

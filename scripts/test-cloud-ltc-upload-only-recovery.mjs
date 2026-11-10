@@ -265,7 +265,8 @@ for (const mode of ['success','lost-response']) {
     const f=fixture(), before=structuredClone(f.document), docs=withDocsAdapter(f,mode);
     const result=await f.run();
     assert.equal(result.status,'recovered-paused');
-    assert.equal(result.lostWriteResponseRecovered,mode==='lost-response');
+    // The Docs adapter resolves its own lost acknowledgement before returning.
+    assert.equal(result.lostWriteResponseRecovered,false);
     assert.equal(docs.calls.length,1);
     const after=(await docs.adapter.read('website')).value;
     assert.equal(after.paused,true); assert.equal(after.lease,null);

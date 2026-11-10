@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto';
+import { isStateEnvelope } from './cloud-ltc-google-client.mjs';
+
 // OFFLINE-REVIEWED ADAPTER ONLY. No credential lookup, resource creation or runner activation.
 // Injected methods return {status, body}. Same OAuth identity must serve every call.
 // Docs requiredRevisionId is CAS; targetRevisionId (merge) is never permitted.
@@ -39,9 +42,15 @@ function parseDocument(doc, documentId, key) {
   const raw = text.slice(0,-1);
   if (!raw) return { value: null, version: null, revision: doc.revisionId, endIndex: index, tabId: tab.tabProperties.tabId };
   let envelope; try { envelope = JSON.parse(raw); } catch { throw new Error('invalid_state_document'); }
-  check(envelope?.schemaVersion === 1 && envelope.key === key && envelope.value && typeof envelope.value === 'object' && !Array.isArray(envelope.value) && Object.keys(envelope).length === 3 && JSON.stringify(envelope) === raw, 'invalid_state_document');
-  return { value: envelope.value, version: doc.revisionId, revision: doc.revisionId, endIndex: index, tabId: tab.tabProperties.tabId };
+  check(isStateEnvelope(envelope, key) && JSON.stringify(envelope) === raw, 'invalid_state_document');
+  return { raw, value: envelope.value, version: doc.revisionId, revision: doc.revisionId, endIndex: index, tabId: tab.tabProperties.tabId };
 }
+// Only the production runtime, which controls the request boundary, can
+// distinguish a failed preflight from a request that might have reached Docs.
+export class GoogleStateWriteNotAttempted extends Error {
+  constructor() { super('storage_write_not_attempted'); }
+}
+
 export class GoogleDocsStateAdapter {
   constructor({ documentId, folderId, client }) {
     check(idPattern.test(documentId ?? '') && idPattern.test(folderId ?? '') && client && ['getFileMetadata','getDocument','batchUpdateDocument'].every(name => typeof client[name] === 'function'), 'invalid_storage_configuration');
@@ -69,22 +78,38 @@ export class GoogleDocsStateAdapter {
     // Re-read even on bootstrap: never equate absent provider resource with blank provisioned ledger.
     const current = await this.#read(key);
     check(current.version === expectedVersion, 'state_conflict');
-    const text = JSON.stringify({schemaVersion:1,key,value});
+    const text = JSON.stringify({schemaVersion:1,key,value,writeNonce:randomUUID()});
     check(text.length <= 900_000, 'state_capacity_exceeded');
     const requests = [];
     if (current.endIndex > 2) requests.push({deleteContentRange:{range:{startIndex:1,endIndex:current.endIndex-1,tabId:current.tabId}}});
     requests.push({insertText:{location:{index:1,tabId:current.tabId},text}});
     let response;
-    try { response = await this.client.batchUpdateDocument(this.documentId, {requests,writeControl:{requiredRevisionId:current.revision}}); }
-    catch { throw new Error('storage_write_uncertain'); }
-    // A bare 400 is not proof of a stale revision: only an independently changed
-    // revision permits conflict classification; otherwise fail closed as uncertain.
-    if (response?.status === 400) {
-      let readback; try { readback = await this.#read(key); } catch { throw new Error('storage_write_uncertain'); }
-      if (readback.revision !== current.revision) throw new Error('state_conflict');
+    try {
+      response = await this.client.batchUpdateDocument(this.documentId, {
+        requests, writeControl: { requiredRevisionId: current.revision },
+      });
+    } catch (error) {
+      if (error instanceof GoogleStateWriteNotAttempted) throw error;
+      // The POST may have committed despite a lost acknowledgement.
+    }
+    const acknowledgedRevision = response?.body?.writeControl?.requiredRevisionId;
+    if (response?.status === 200 && response.body?.documentId === this.documentId &&
+        revision(acknowledgedRevision) && acknowledgedRevision !== current.revision &&
+        !response.body.writeControl.targetRevisionId) return acknowledgedRevision;
+
+    // Compare the full canonical envelope, including this invocation's nonce.
+    // Matching ledger values alone cannot identify the winner of a concurrent CAS.
+    let observed;
+    try {
+      await this.client.verifySelectedResources?.();
+      observed = await this.#read(key);
+    } catch {
       throw new Error('storage_write_uncertain');
     }
-    check(response?.status === 200 && response.body?.documentId === this.documentId && revision(response.body?.writeControl?.requiredRevisionId) && !response.body.writeControl.targetRevisionId, 'storage_write_uncertain');
-    return response.body.writeControl.requiredRevisionId;
+    if (observed.tabId === current.tabId && observed.revision !== current.revision) {
+      if (observed.raw === text) return observed.revision;
+      if (response?.status === 400) throw new Error('state_conflict');
+    }
+    throw new Error('storage_write_uncertain');
   }
 }
