@@ -42,7 +42,7 @@ export function assertReleaseCapacity({ document, manifest, plannedPayloads = []
   } else if (document.routineUploadRetirement?.status === 'manual-admitted') {
     mutableFields.push('routineUploadRetirement');
   }
-  assertStateEnvelopeGrowthCapacity('website', document, mutableFields, stateReserve);
+  const capacity = assertStateEnvelopeGrowthCapacity('website', document, mutableFields, stateReserve);
   // The backup stores canonical state as a JSON string, so account for the
   // actual escaping of today's ledger plus up to twice the added JSON bytes.
   const backupBytes = Buffer.byteLength(JSON.stringify({
@@ -51,6 +51,7 @@ export function assertReleaseCapacity({ document, manifest, plannedPayloads = []
   const summaryBytes = backupBytes + 2 * stateReserve + receiptReserve +
     Buffer.byteLength(JSON.stringify(manifest)) + Buffer.byteLength(JSON.stringify(receipts));
   check(summaryBytes <= MAX_EVIDENCE_RAW_BYTES, 'evidence_too_large');
+  return capacity;
 }
 
 // Recheck the existing durable authorization before each HTTP create attempt.
