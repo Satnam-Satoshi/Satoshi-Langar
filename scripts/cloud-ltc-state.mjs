@@ -106,16 +106,35 @@ export class DurableCloudState {
     return this.#update(document => { this.#live(document, lease); document.lease.expiresAt = this.clock() + ttlMs; return document.lease; });
   }
   async intend(lease, operationId, payloadSha256, payload) {
-    check(validKey(operationId) && validHash(payloadSha256), 'invalid_intent');
-    if (payload !== undefined) check(digest(JSON.stringify(payload)) === payloadSha256, 'invalid_intent');
-    return this.#update(document => {
-      this.#live(document, lease);
-      assertNoQuarantinedUploadReuse(document,{operations:[{operationId,payload}]});
+    const [intent] = await this.intendBatch(lease, [{ operationId, payloadSha256, ...(payload === undefined ? {} : {payload}) }]);
+    return intent;
+  }
+  // Register a bounded plan in one CAS. Existing identical rows are a read-only
+  // result, never mutation authority: assertMayMutate still performs its own CAS.
+  async intendBatch(lease, operations) {
+    check(Array.isArray(operations) && operations.length > 0 && operations.length <= 64 && new Set(operations.map(operation => operation?.operationId)).size === operations.length, 'invalid_intent');
+    for (const operation of operations) {
+      check(operation && validKey(operation.operationId) && validHash(operation.payloadSha256), 'invalid_intent');
+      if (operation.payload !== undefined) check(digest(JSON.stringify(operation.payload)) === operation.payloadSha256, 'invalid_intent');
+    }
+    const {value, version} = await this.adapter.read(this.key);
+    const document = value ?? initial(); validateDocument(document);
+    this.#live(document, lease);
+    assertNoQuarantinedUploadReuse(document, {operations});
+    let changed = false;
+    const results = operations.map(({operationId, payloadSha256, payload}) => {
       const previous = Object.hasOwn(document.intents, operationId) ? document.intents[operationId] : null;
-      if (previous) { check(previous.payloadSha256 === payloadSha256, 'idempotency_conflict'); return previous; }
-      document.intents[operationId] = { operationId, runId: lease.runId, fence: lease.fence, payloadSha256, ...(payload === undefined ? {} : { payload: copy(payload) }), status: 'pending', evidenceSha256: null };
-      return document.intents[operationId];
+      if (previous) {
+        check(previous.payloadSha256 === payloadSha256, 'idempotency_conflict');
+        if (payload !== undefined && previous.payload !== undefined) check(JSON.stringify(previous.payload) === JSON.stringify(payload), 'idempotency_conflict');
+        return previous;
+      }
+      changed = true;
+      return document.intents[operationId] = {operationId, runId: lease.runId, fence: lease.fence, payloadSha256, ...(payload === undefined ? {} : {payload: copy(payload)}), status: 'pending', evidenceSha256: null};
     });
+    validateDocument(document);
+    if (changed) await this.adapter.conditionalWrite(this.key, document, version);
+    return copy(results);
   }
   async assertMayMutate(lease, operationId) {
     return this.#update(document => {
