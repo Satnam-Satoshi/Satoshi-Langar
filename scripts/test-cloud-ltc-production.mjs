@@ -244,3 +244,26 @@ test('release preflight charges the actual provenance and continuation before al
     await rm(f.scratch, { recursive: true, force: true });
   }
 });
+
+
+test('a completed follow-up keeps the superseded retirement member immutable in capacity planning', () => {
+  const original = { status: 'manual-admitted', archive: 'original UNKNOWN receipt;'.repeat(14_000) };
+  const document = {
+    schemaVersion: 1,
+    history: 'stable retained records;'.repeat(14_000),
+    routineUploadRetirement: original,
+    routineUploadFollowupRetirement: { status: 'routine-enabled' },
+    intents: { confirmed: { data: 'x'.repeat(57_000) } },
+    receipts: { confirmed: { data: 'x'.repeat(61_000) } },
+  };
+  const plannedPayloads = Array.from({ length: 43 }, (_, index) => ({
+    kind: 'drive-evidence', artifactBundleIndex: index, data: 'x'.repeat(540),
+  }));
+  const options = { document, plannedPayloads, manifest: [] };
+  const before = hash(JSON.stringify(document));
+  assert.doesNotThrow(() => assertReleaseCapacity(options));
+  assert.equal(hash(JSON.stringify(document)), before);
+  const withoutFollowup = { ...document };
+  delete withoutFollowup.routineUploadFollowupRetirement;
+  assert.throws(() => assertReleaseCapacity({ ...options, document: withoutFollowup }), /state_capacity_exceeded/);
+});

@@ -34,8 +34,14 @@ export function assertReleaseCapacity({ document, manifest, plannedPayloads = []
   const mutableFields = ['paused', 'lease', 'intents', 'receipts', 'latestRelease', 'archiveHead'];
   if (tailContext.continuation) mutableFields.push('stagedDailyContinuation');
   if (document.nextFreshGeneration?.status === 'pending-first-proof') mutableFields.push('nextFreshGeneration');
-  if (document.routineUploadRetirement?.status === 'manual-admitted') mutableFields.push('routineUploadRetirement');
-  if (document.routineUploadFollowupRetirement?.status === 'manual-admitted') mutableFields.push('routineUploadFollowupRetirement');
+  // The follow-up checkpoint supersedes the original retirement checkpoint.
+  // Its completion path never rewrites the original archived history member.
+  const followup = document.routineUploadFollowupRetirement;
+  if (followup) {
+    if (followup.status === 'manual-admitted') mutableFields.push('routineUploadFollowupRetirement');
+  } else if (document.routineUploadRetirement?.status === 'manual-admitted') {
+    mutableFields.push('routineUploadRetirement');
+  }
   assertStateEnvelopeGrowthCapacity('website', document, mutableFields, stateReserve);
   // The backup stores canonical state as a JSON string, so account for the
   // actual escaping of today's ledger plus up to twice the added JSON bytes.
