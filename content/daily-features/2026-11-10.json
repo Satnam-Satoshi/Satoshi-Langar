@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-11-10",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-11-10T16:17:46.649Z",
+  "checkedAt": "2026-11-10",
+  "title": "Proof of Work: read the dates.",
+  "theme": "Proof of Work",
+  "dek": "A bounded watch of builder publications and official records, with original source dates and visible coverage limits.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma · Deterministic source watch; no independent human fact-check claimed.",
+  "freshnessPolicy": "Sources older than seven days are historical context. Retrieval does not create a new event.",
+  "independence": "Independent publication; attribution is not endorsement.",
+  "stories": [
+    {
+      "id": "watch-395c4385600350aad0b6",
+      "title": "LitVM: earlier context to revisit",
+      "desk": "Litecoin / Builders",
+      "classification": "Carry-forward historical context",
+      "dek": "The linked publisher record is dated 2026-10-27; the source was checked on 2026-11-10.",
+      "status": "Source 2026-10-27 · Checked 2026-11-10 · Older than seven days; not new news",
+      "eventDates": [
+        {
+          "date": "2026-10-27",
+          "label": "Original publisher publication date"
+        }
+      ],
+      "paragraphs": [
+        "This source watch identifies a publication from LitVM dated 2026-10-27. Follow its title in the sourcebook to inspect the original record and its stated scope. The check date records retrieval, not a new announcement.",
+        "A publisher statement does not independently establish that software is deployed, reserves are audited, a commercial arrangement is complete or a proposed rule is effective. Read the terms and stated stage before comparing this record with another project.",
+        "This record is older than seven days and appears as historical context. Its presence does not establish a new development today."
+      ],
+      "takeaway": "Keep the original publication date beside the claim and verify what has actually been delivered.",
+      "discussionPrompt": "Which additional primary evidence would establish the next milestone?",
+      "sourceIds": [
+        "source-395c4385600350aad0b6"
+      ]
+    },
+    {
+      "id": "watch-2d04a940108b180a0ba2",
+      "title": "Luxxfolio: earlier context to revisit",
+      "desk": "Litecoin / Builders",
+      "classification": "Carry-forward historical context",
+      "dek": "The linked publisher record is dated 2026-10-29; the source was checked on 2026-11-10.",
+      "status": "Source 2026-10-29 · Checked 2026-11-10 · Older than seven days; not new news",
+      "eventDates": [
+        {
+          "date": "2026-10-29",
+          "label": "Original publisher publication date"
+        }
+      ],
+      "paragraphs": [
+        "This source watch identifies a publication from Luxxfolio dated 2026-10-29. Follow its title in the sourcebook to inspect the original record and its stated scope. The check date records retrieval, not a new announcement.",
+        "A publisher statement does not independently establish that software is deployed, reserves are audited, a commercial arrangement is complete or a proposed rule is effective. Read the terms and stated stage before comparing this record with another project.",
+        "This record is older than seven days and appears as historical context. Its presence does not establish a new development today."
+      ],
+      "takeaway": "Keep the original publication date beside the claim and verify what has actually been delivered.",
+      "discussionPrompt": "Which additional primary evidence would establish the next milestone?",
+      "sourceIds": [
+        "source-2d04a940108b180a0ba2"
+      ]
+    },
+    {
+      "id": "watch-033c478aecbbf04f48d7",
+      "title": "Luxxfolio: earlier context to revisit",
+      "desk": "Litecoin / Builders",
+      "classification": "Carry-forward historical context",
+      "dek": "The linked publisher record is dated 2026-10-20; the source was checked on 2026-11-10.",
+      "status": "Source 2026-10-20 · Checked 2026-11-10 · Older than seven days; not new news",
+      "eventDates": [
+        {
+          "date": "2026-10-20",
+          "label": "Original publisher publication date"
+        }
+      ],
+      "paragraphs": [
+        "This source watch identifies a publication from Luxxfolio dated 2026-10-20. Follow its title in the sourcebook to inspect the original record and its stated scope. The check date records retrieval, not a new announcement.",
+        "A publisher statement does not independently establish that software is deployed, reserves are audited, a commercial arrangement is complete or a proposed rule is effective. Read the terms and stated stage before comparing this record with another project.",
+        "This record is older than seven days and appears as historical context. Its presence does not establish a new development today."
+      ],
+      "takeaway": "Keep the original publication date beside the claim and verify what has actually been delivered.",
+      "discussionPrompt": "Which additional primary evidence would establish the next milestone?",
+      "sourceIds": [
+        "source-033c478aecbbf04f48d7"
+      ]
+    },
+    {
+      "id": "watch-2d4cce0bb25cf78f7f81",
+      "title": "SEC press releases: a dated publication to inspect",
+      "desk": "Policy / Official records",
+      "classification": "Attributed publisher announcement",
+      "dek": "The linked publisher record is dated 2026-11-04; the source was checked on 2026-11-10.",
+      "status": "Source 2026-11-04 · Checked 2026-11-10 · Within seven-day publication window",
+      "eventDates": [
+        {
+          "date": "2026-11-04",
+          "label": "Original publisher publication date"
+        }
+      ],
+      "paragraphs": [
+        "This source watch identifies a publication from SEC press releases dated 2026-11-04. Follow its title in the sourcebook to inspect the original record and its stated scope. The check date records retrieval, not a new announcement.",
+        "A publisher statement does not independently establish that software is deployed, reserves are audited, a commercial arrangement is complete or a proposed rule is effective. Read the terms and stated stage before comparing this record with another project."
+      ],
+      "takeaway": "Keep the original publication date beside the claim and verify what has actually been delivered.",
+      "discussionPrompt": "Which additional primary evidence would establish the next milestone?",
+      "sourceIds": [
+        "source-2d4cce0bb25cf78f7f81"
+      ]
+    },
+    {
+      "id": "watch-50914a0b386ea2ce3b63",
+      "title": "SEC press releases: earlier context to revisit",
+      "desk": "Policy / Official records",
+      "classification": "Carry-forward historical context",
+      "dek": "The linked publisher record is dated 2026-10-30; the source was checked on 2026-11-10.",
+      "status": "Source 2026-10-30 · Checked 2026-11-10 · Older than seven days; not new news",
+      "eventDates": [
+        {
+          "date": "2026-10-30",
+          "label": "Original publisher publication date"
+        }
+      ],
+      "paragraphs": [
+        "This source watch identifies a publication from SEC press releases dated 2026-10-30. Follow its title in the sourcebook to inspect the original record and its stated scope. The check date records retrieval, not a new announcement.",
+        "A publisher statement does not independently establish that software is deployed, reserves are audited, a commercial arrangement is complete or a proposed rule is effective. Read the terms and stated stage before comparing this record with another project.",
+        "This record is older than seven days and appears as historical context. Its presence does not establish a new development today."
+      ],
+      "takeaway": "Keep the original publication date beside the claim and verify what has actually been delivered.",
+      "discussionPrompt": "Which additional primary evidence would establish the next milestone?",
+      "sourceIds": [
+        "source-50914a0b386ea2ce3b63"
+      ]
+    },
+    {
+      "id": "watch-f20edda5e11e5510a4a1",
+      "title": "CFTC general press releases: a dated publication to inspect",
+      "desk": "Policy / Official records",
+      "classification": "Attributed publisher announcement",
+      "dek": "The linked publisher record is dated 2026-11-05; the source was checked on 2026-11-10.",
+      "status": "Source 2026-11-05 · Checked 2026-11-10 · Within seven-day publication window",
+      "eventDates": [
+        {
+          "date": "2026-11-05",
+          "label": "Original publisher publication date"
+        }
+      ],
+      "paragraphs": [
+        "This source watch identifies a publication from CFTC general press releases dated 2026-11-05. Follow its title in the sourcebook to inspect the original record and its stated scope. The check date records retrieval, not a new announcement.",
+        "A publisher statement does not independently establish that software is deployed, reserves are audited, a commercial arrangement is complete or a proposed rule is effective. Read the terms and stated stage before comparing this record with another project."
+      ],
+      "takeaway": "Keep the original publication date beside the claim and verify what has actually been delivered.",
+      "discussionPrompt": "Which additional primary evidence would establish the next milestone?",
+      "sourceIds": [
+        "source-f20edda5e11e5510a4a1"
+      ]
+    },
+    {
+      "id": "watch-e987e5922bab38f47988",
+      "title": "CFTC general press releases: a dated publication to inspect",
+      "desk": "Policy / Official records",
+      "classification": "Attributed publisher announcement",
+      "dek": "The linked publisher record is dated 2026-11-05; the source was checked on 2026-11-10.",
+      "status": "Source 2026-11-05 · Checked 2026-11-10 · Within seven-day publication window",
+      "eventDates": [
+        {
+          "date": "2026-11-05",
+          "label": "Original publisher publication date"
+        }
+      ],
+      "paragraphs": [
+        "This source watch identifies a publication from CFTC general press releases dated 2026-11-05. Follow its title in the sourcebook to inspect the original record and its stated scope. The check date records retrieval, not a new announcement.",
+        "A publisher statement does not independently establish that software is deployed, reserves are audited, a commercial arrangement is complete or a proposed rule is effective. Read the terms and stated stage before comparing this record with another project."
+      ],
+      "takeaway": "Keep the original publication date beside the claim and verify what has actually been delivered.",
+      "discussionPrompt": "Which additional primary evidence would establish the next milestone?",
+      "sourceIds": [
+        "source-e987e5922bab38f47988"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "source-395c4385600350aad0b6",
+      "url": "https://www.litvm.com/blog/introducing-litvm-v2",
+      "title": "Introducing LitVM V2: A Bigger Vision",
+      "publisher": "LitVM",
+      "publishedAt": "2026-10-27",
+      "checkedAt": "2026-11-10",
+      "note": "Publisher title excerpt; original source date retained. Claims are attributed, not independently verified.",
+      "sourceSha256": "948b4f826cc2c5b490b2e2e6873a15f4a76e5a8d895db6d4a88c4f7cca3794c7"
+    },
+    {
+      "id": "source-2d04a940108b180a0ba2",
+      "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
+      "title": "Luxxfolio Partners with Greywick Digital to Pioneer Institutional Liquidity for cLTC on the Canton Network",
+      "publisher": "Luxxfolio",
+      "publishedAt": "2026-10-29",
+      "checkedAt": "2026-11-10",
+      "note": "Publisher title excerpt; original source date retained. Claims are attributed, not independently verified.",
+      "sourceSha256": "ac059cb4d9d78da74cb975980d297443245244638c29d76d2d298a7893581d9a"
+    },
+    {
+      "id": "source-033c478aecbbf04f48d7",
+      "url": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
+      "title": "Luxxfolio Announces Launch of LuxxPool Public Beta",
+      "publisher": "Luxxfolio",
+      "publishedAt": "2026-10-20",
+      "checkedAt": "2026-11-10",
+      "note": "Publisher title excerpt; original source date retained. Claims are attributed, not independently verified.",
+      "sourceSha256": "49382b0f9c2597fe502e88fe6353f24a4833ba565a6cff1608763fe400a5a5be"
+    },
+    {
+      "id": "source-2d4cce0bb25cf78f7f81",
+      "url": "https://www.sec.gov/newsroom/press-releases/2026-112-sec-adopts-amendments-update-definitions-small-entity-investment-companies-investment-advisers",
+      "title": "SEC Adopts Amendments to Update Definitions of Small Entity for Investment Companies and Investment Advisers",
+      "publisher": "SEC press releases",
+      "publishedAt": "2026-11-04T16:28:00.000Z",
+      "checkedAt": "2026-11-10",
+      "note": "Publisher title excerpt; original source date retained. Claims are attributed, not independently verified."
+    },
+    {
+      "id": "source-50914a0b386ea2ce3b63",
+      "url": "https://www.sec.gov/newsroom/press-releases/2026-111-sec-issues-exemptive-relief-treasury-clearing-requirements-certain-inter-affiliate-non-us-repo",
+      "title": "SEC Issues Exemptive Relief from Treasury Clearing Requirements for Certain Inter-Affiliate and Non-U.S. Repo Transactions",
+      "publisher": "SEC press releases",
+      "publishedAt": "2026-10-30T19:30:00.000Z",
+      "checkedAt": "2026-11-10",
+      "note": "Publisher title excerpt; original source date retained. Claims are attributed, not independently verified."
+    },
+    {
+      "id": "source-f20edda5e11e5510a4a1",
+      "url": "https://www.cftc.gov/PressRoom/PressReleases/9323-26",
+      "title": "CFTC Issues Impartial Access Requirements Interpretation",
+      "publisher": "CFTC general press releases",
+      "publishedAt": "2026-11-05T22:00:03.000Z",
+      "checkedAt": "2026-11-10",
+      "note": "Publisher title excerpt; original source date retained. Claims are attributed, not independently verified."
+    },
+    {
+      "id": "source-e987e5922bab38f47988",
+      "url": "https://www.cftc.gov/PressRoom/PressReleases/9322-26",
+      "title": "CFTC Staff Addresses Use of Trust Companies for Daily Settlements",
+      "publisher": "CFTC general press releases",
+      "publishedAt": "2026-11-05T18:13:46.000Z",
+      "checkedAt": "2026-11-10",
+      "note": "Publisher title excerpt; original source date retained. Claims are attributed, not independently verified."
+    }
+  ],
+  "gaps": [
+    "LitVM: A linked publisher article was unavailable or did not match the accepted dated format.",
+    "Litecoin Foundation: Publisher index unavailable or changed; no alternate source or access bypass used."
+  ]
+}
