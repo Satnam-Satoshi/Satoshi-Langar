@@ -246,12 +246,13 @@ test('adapter diagnostics distinguish HTTP, invalid responses and privacy failur
 test('OAuth transport failure is classified safely at ledger read without retrying token POST', async () => {
   let tokenPosts = 0;
   let providerGets = 0;
+  let now = 0;
   const oauthEnv = {
     LTC_GOOGLE_CLIENT_ID: 'fixture-client-id.apps.googleusercontent.com',
     LTC_GOOGLE_CLIENT_SECRET: 'fixture-secret-please-do-not-log',
     LTC_GOOGLE_REFRESH_TOKEN: 'fixture-refresh-please-do-not-log',
   };
-  const runtime = await createGoogleStateRuntime({ config, env: oauthEnv, fetchImpl: async (url, request) => {
+  const runtime = await createGoogleStateRuntime({ config, env: oauthEnv, clock: () => now, fetchImpl: async (url, request) => {
     if (url === 'https://oauth2.googleapis.com/token') {
       assert.equal(request.method, 'POST');
       if (++tokenPosts > 1) throw new Error(oauthEnv.LTC_GOOGLE_REFRESH_TOKEN);
@@ -260,6 +261,7 @@ test('OAuth transport failure is classified safely at ledger read without retryi
     providerGets++;
     return json(metadata(new URL(url).pathname.split('/').at(-1)));
   } });
+  now = 300_000;
   await assert.rejects(runtime.stateAdapter.read('website'), error => safeFailure(error) === 'storage_read_failed (drive-metadata/oauth-refresh)');
   assert.equal(tokenPosts, 2);
   assert.equal(providerGets, 2);

@@ -36,6 +36,48 @@ export async function withGoogleCloudAuthorization({ env = process.env, fetchImp
   // Callback errors are not rewritten: normal state/recovery failures must remain visible.
   // Only the access token goes downstream, never the refresh token or client secret.
   const access = Object.freeze({ LTC_GOOGLE_ACCESS_TOKEN: authorization.access_token });
+  const expiresIn = authorization.expires_in;
   authorization = null;
-  return use(access);
+  return use(access, expiresIn);
+}
+
+// One protected runtime owns this cache. A refresh response is usable only
+// within its conservative lifetime measured from the request start.
+export function createScopedGoogleAuthorization({ env, fetchImpl, authorize = withGoogleCloudAuthorization, clock = () => performance.now() }) {
+  const credentials = Object.freeze({
+    LTC_GOOGLE_CLIENT_ID: env.LTC_GOOGLE_CLIENT_ID,
+    LTC_GOOGLE_CLIENT_SECRET: env.LTC_GOOGLE_CLIENT_SECRET,
+    LTC_GOOGLE_REFRESH_TOKEN: env.LTC_GOOGLE_REFRESH_TOKEN,
+  });
+  const skewMs = 30_000;
+  const maxReuseMs = 5 * 60_000;
+  let current;
+  let pending;
+  async function acquire() {
+    if (current && clock() < current.reuseUntil) return current;
+    if (!pending) {
+      const startedAt = clock();
+      pending = Promise.resolve().then(() => authorize({ env: credentials, fetchImpl }, (access, expiresIn) => {
+        const timed = Number.isInteger(expiresIn) && expiresIn >= 60 && expiresIn <= 3600;
+        const expiresAt = timed ? startedAt + expiresIn * 1000 : null;
+        if (timed) ensure(clock() < expiresAt, 'google_refresh_failed');
+        const grant = { access, expiresAt, reuseUntil: timed ? Math.min(expiresAt - skewMs, startedAt + maxReuseMs) : startedAt };
+        if (clock() < grant.reuseUntil) current = grant;
+        return grant;
+      })).finally(() => { pending = null; });
+    }
+    return pending;
+  }
+  return async use => {
+    const grant = await acquire();
+    return use(grant.access, {
+      assertUsable() {
+        ensure(!grant.invalidated && (grant.expiresAt === null || clock() < grant.expiresAt), 'google_refresh_failed');
+      },
+      invalidate() {
+        grant.invalidated = true;
+        if (current === grant) current = null;
+      },
+    });
+  };
 }

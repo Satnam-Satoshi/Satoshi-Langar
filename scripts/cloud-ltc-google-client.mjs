@@ -49,20 +49,21 @@ export function validateCloudStateConfig(config) {
   return Object.freeze({ ...config });
 }
 
-export function createGoogleStateClient({ config, env = process.env, fetchImpl = fetch, allowWrites = false, timeoutMs = 30_000, beforeWrite = () => {}, sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
+export function createGoogleStateClient({ config, env = process.env, fetchImpl = fetch, allowWrites = false, timeoutMs = 30_000, beforeWrite = () => {}, assertAccessUsable = () => {}, onUnauthorized = () => {}, sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
   const selected = validateCloudStateConfig(config);
   const accessToken = env.LTC_GOOGLE_ACCESS_TOKEN;
   check(typeof accessToken === 'string' && /^[A-Za-z0-9._~+\/-]{16,8192}={0,2}$/.test(accessToken), 'google_access_token_required');
-  check(typeof fetchImpl === 'function' && typeof beforeWrite === 'function' && typeof sleep === 'function' && typeof allowWrites === 'boolean' && Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 30_000, 'invalid_google_transport_configuration');
+  check(typeof fetchImpl === 'function' && typeof beforeWrite === 'function' && typeof assertAccessUsable === 'function' && typeof onUnauthorized === 'function' && typeof sleep === 'function' && typeof allowWrites === 'boolean' && Number.isInteger(timeoutMs) && timeoutMs >= 100 && timeoutMs <= 30_000, 'invalid_google_transport_configuration');
 
   async function request(url, resource, method = 'GET', body) {
     const write = method === 'POST';
-    // Keep the final authorization boundary immediately before the sole POST.
-    if (write) check(beforeWrite() === undefined, 'invalid_google_write_guard');
     const attempts = write ? 1 : 3;
     const failure = phase => write ? new Error('storage_write_uncertain') : new GoogleStateReadFailure(resource, phase);
     for (let attempt = 1; attempt <= attempts; attempt++) {
       let response;
+      check(assertAccessUsable() === undefined, 'invalid_google_transport_configuration');
+      // Keep the final authorization boundary immediately before the sole POST.
+      if (write) check(beforeWrite() === undefined, 'invalid_google_write_guard');
       try {
         response = await fetchImpl(url, {
           method, redirect: 'error', signal: AbortSignal.timeout(timeoutMs),
@@ -77,6 +78,7 @@ export function createGoogleStateClient({ config, env = process.env, fetchImpl =
       if (!Number.isInteger(response?.status) || response.status < 200 || response.status > 599 || response.redirected) {
         throw failure('invalid-response');
       }
+      if (response.status === 401) onUnauthorized();
       if (response.status >= 300) {
         // Never ingest a provider error body, which may contain request data.
         await response.body?.cancel?.().catch(() => {});
