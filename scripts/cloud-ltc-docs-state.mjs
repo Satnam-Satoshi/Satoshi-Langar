@@ -1,3 +1,4 @@
+import { GoogleStateReadFailure } from './cloud-ltc-google-client.mjs';
 import { decodeStateEnvelope, encodeStateEnvelope, MAX_DOCS_STATE_CHARACTERS } from './cloud-ltc-state-envelope.mjs';
 
 // OFFLINE-REVIEWED ADAPTER ONLY. No credential lookup, resource creation or runner activation.
@@ -45,6 +46,20 @@ function parseDocument(doc, documentId, key) {
   catch { throw new Error('invalid_state_document'); }
   return { raw, value, version: doc.revisionId, revision: doc.revisionId, endIndex: index, tabId: tab.tabProperties.tabId };
 }
+async function readSelected(resource, read) {
+  let result;
+  try { result = await read(); }
+  catch (error) {
+    if (error instanceof GoogleStateReadFailure) throw error;
+    throw new Error('storage_read_failed');
+  }
+  if (result?.status !== 200) {
+    const phase = Number.isInteger(result?.status) ? `http-${result.status}` : 'invalid-response';
+    throw new GoogleStateReadFailure(resource, phase);
+  }
+  return result.body;
+}
+
 // Only the production runtime, which controls the request boundary, can
 // distinguish a failed preflight from a request that might have reached Docs.
 export class GoogleStateWriteNotAttempted extends Error {
@@ -58,16 +73,10 @@ export class GoogleDocsStateAdapter {
   }
   async #read(key) {
     check(keyPattern.test(key ?? ''), 'invalid_state_key');
-    let metadata, response;
-    try { metadata = await this.client.getFileMetadata(this.documentId); }
-    catch { throw new Error('storage_read_failed'); }
-    check(metadata?.status === 200, 'storage_read_failed');
-    const file = metadata.body;
+    const file = await readSelected('drive-metadata', () => this.client.getFileMetadata(this.documentId));
     check(file?.id === this.documentId && file.mimeType === 'application/vnd.google-apps.document' && file.trashed === false && file.ownedByMe === true && file.shared === false && file.capabilities?.canEdit === true && Array.isArray(file.parents) && file.parents.length === 1 && file.parents[0] === this.folderId, 'private_storage_required');
-    try { response = await this.client.getDocument(this.documentId, { includeTabsContent: true, suggestionsViewMode: 'SUGGESTIONS_INLINE' }); }
-    catch { throw new Error('storage_read_failed'); }
-    check(response?.status === 200, 'storage_read_failed');
-    return parseDocument(response.body, this.documentId, key);
+    const body = await readSelected('docs-document', () => this.client.getDocument(this.documentId, { includeTabsContent: true, suggestionsViewMode: 'SUGGESTIONS_INLINE' }));
+    return parseDocument(body, this.documentId, key);
   }
   async read(key) {
     const {value,version} = await this.#read(key); return { value: structuredClone(value), version };

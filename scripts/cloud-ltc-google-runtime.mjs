@@ -1,4 +1,4 @@
-import { createGoogleStateClient, validateCloudStateConfig } from './cloud-ltc-google-client.mjs';
+import { createGoogleStateClient, GoogleStateReadFailure, validateCloudStateConfig } from './cloud-ltc-google-client.mjs';
 import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
 import { GoogleDocsStateAdapter, GoogleStateWriteNotAttempted } from './cloud-ltc-docs-state.mjs';
 
@@ -8,6 +8,11 @@ import { GoogleDocsStateAdapter, GoogleStateWriteNotAttempted } from './cloud-lt
 // same configured refresh identity and exact resource privacy checks.
 export async function createGoogleStateRuntime({ config, env = process.env, fetchImpl = fetch, authorize = withGoogleCloudAuthorization, beforeWrite = () => {} }) {
   const selected = validateCloudStateConfig(config);
+  const authFailures = new Map([
+    ['google_refresh_failed', 'oauth-refresh'],
+    ['google_refresh_credentials_required', 'oauth-credentials'],
+    ['google_refresh_scope_mismatch', 'oauth-scope'],
+  ]);
   const call = async (method, args) => {
     const isWrite = method === 'batchUpdateDocument';
     let postMayHaveStarted = false;
@@ -26,6 +31,9 @@ export async function createGoogleStateRuntime({ config, env = process.env, fetc
       });
     } catch (error) {
       if (isWrite && !postMayHaveStarted) throw new GoogleStateWriteNotAttempted();
+      const resource = method === 'getFileMetadata' ? 'drive-metadata' : method === 'getDocument' ? 'docs-document' : null;
+      const phase = authFailures.get(error?.message);
+      if (resource && phase) throw new GoogleStateReadFailure(resource, phase);
       throw error;
     }
   };
