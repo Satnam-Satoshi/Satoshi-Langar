@@ -62,26 +62,29 @@ function stateMembers(key, value) {
     }
 
     members.push({ text: label + '{' });
-    // A prior-fence terminal row is immutable. Encode it independently so
-    // appending, confirming or pruning other rows cannot change its size.
-    // Consecutive mutable rows share a member, including internal delimiters.
-    let changing = [];
+    // Non-index keys append in canonical JSON order. Keep integer-index
+    // historical rows separate, since later integer keys may sort between them.
+    let run = [];
+    let runKind;
     const flush = () => {
-      if (!changing.length) return;
-      members.push({ text: changing.join(','), field });
-      changing = [];
+      if (!run.length) return;
+      const text = run.join(',');
+      members.push(runKind === 'history'
+        ? { text, archivedIn: field, singletonBytes: run.length > 1 ? Math.max(...run.map(row => Buffer.byteLength(row))) : 0 }
+        : { text, field });
+      run = [];
     };
     let first = true;
     for (const [id, row] of Object.entries(entry)) {
       const text = JSON.stringify(id) + ':' + JSON.stringify(row);
-      if (archivedRow(field, row, value.fence)) {
-        flush();
-        if (!first) members.push({ text: ',' });
-        members.push({ text, archivedIn: field });
-      } else {
-        if (!changing.length && !first) members.push({ text: ',' });
-        changing.push(text);
-      }
+      const history = archivedRow(field, row, value.fence);
+      const integerIndex = /^(0|[1-9]\d*)$/.test(id) && Number(id) < 0xffff_ffff;
+      const kind = history ? 'history' : 'mutable';
+      if (runKind !== kind || (history && integerIndex)) flush();
+      if (!run.length && !first) members.push({ text: ',' });
+      runKind = kind;
+      run.push(text);
+      if (history && integerIndex) flush();
       first = false;
     }
     flush();
@@ -110,7 +113,7 @@ export class StateGrowthCapacityError extends Error {
 }
 
 // Charge each mutable member at its full raw size. A map can have one
-// mutable run before and after each immutable row. Reserve those boundaries
+// mutable run before and after each immutable group. Reserve those boundaries
 // even if inserted keys sort before old rows. New fields also need separators.
 export function assertStateEnvelopeGrowthCapacity(key, value, mutableKeys, growthBytes) {
   check(plain(value) && Number.isSafeInteger(growthBytes) && growthBytes >= 0, 'state_capacity_exceeded');
@@ -122,11 +125,15 @@ export function assertStateEnvelopeGrowthCapacity(key, value, mutableKeys, growt
   let currentCompressed = 0;
   let mutableBytes = growthBytes;
   let mutableMembers = 0;
-  let archivedRows = 0;
-  for (const { field, text, archivedIn } of stateMembers(key, parsed)) {
+  let archivedRuns = 0;
+  const retainedSingletons = new Map();
+  for (const { field, text, archivedIn, singletonBytes } of stateMembers(key, parsed)) {
     const compressed = gzipMember(text).length;
     currentCompressed += compressed;
-    if (mutable.has(archivedIn)) archivedRows++;
+    if (mutable.has(archivedIn)) {
+      archivedRuns++;
+      if (singletonBytes) retainedSingletons.set(archivedIn, Math.max(retainedSingletons.get(archivedIn) ?? 0, singletonBytes));
+    }
     if (mutable.has(field)) {
       mutableBytes += Buffer.byteLength(text);
       mutableMembers++;
@@ -134,7 +141,10 @@ export function assertStateEnvelopeGrowthCapacity(key, value, mutableKeys, growt
   }
   // The sum of independent member bounds is at most the bound on total
   // bytes plus 40 bytes per member. Conservatively allow absent fields/runs.
-  const newMembers = mutable.size + archivedRows + operationMaps.size;
+  const newMembers = mutable.size + archivedRuns + operationMaps.size;
+  // Verified compaction removes all terminal rows except its summary, so
+  // it can leave at most one row from any historical run in each map.
+  const retainedCompressed = [...retainedSingletons.values()].reduce((total, bytes) => total + memberBound(bytes), 0);
   const futureCompressed = memberBound(mutableBytes) + 40 * (mutableMembers + newMembers);
   const newDelimiters = gzipMember(',').length * newMembers;
   const stored = (compressed, logicalBytes) =>
@@ -144,7 +154,7 @@ export function assertStateEnvelopeGrowthCapacity(key, value, mutableKeys, growt
     logicalBytes: logical,
     projectedLogicalBytes: logical + growthBytes,
     storedCharacters: logical <= PLAIN_STATE_BYTES && fitsStoredDocument(legacy) ? legacy.length : stored(currentCompressed, logical),
-    projectedStoredCharacters: stored(stableCompressed + futureCompressed + newDelimiters, MAX_LOGICAL_STATE_BYTES),
+    projectedStoredCharacters: stored(stableCompressed + futureCompressed + newDelimiters + retainedCompressed, MAX_LOGICAL_STATE_BYTES),
   };
   if (capacity.projectedLogicalBytes > MAX_LOGICAL_STATE_BYTES || capacity.projectedStoredCharacters > MAX_STORED_STATE_CHARACTERS) {
     throw new StateGrowthCapacityError(capacity);

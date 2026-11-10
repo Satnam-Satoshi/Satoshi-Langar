@@ -105,3 +105,33 @@ test('mixed ledger rows retain exact byte order and growth bound after inserts, 
   assert.equal(JSON.stringify(decodeStateEnvelope(pruned, key)), JSON.stringify(next));
   assert.ok(pruned.length <= bound.projectedStoredCharacters);
 });
+
+test('grouped immutable runs preserve old v2 compatibility and cover verified singleton compaction', () => {
+  const shared = randomBytes(10_000).toString('base64');
+  const old = { fence: 7, status: 'confirmed', proof: shared };
+  const active = { fence: 8, status: 'uncertain', proof: 'active' };
+  const state = {
+    fence: 8,
+    intents: { oldOne: old, oldTwo: old, active, oldThree: old, oldSummary: old },
+    receipts: { oldOne: { receipt: old }, oldTwo: { receipt: old }, oldThree: { receipt: old }, oldSummary: { receipt: old } },
+    archive: 'historical proof;'.repeat(16_000),
+  };
+  const bytes = Buffer.from(JSON.stringify(state));
+  const legacyV2 = JSON.stringify(compressedEnvelope(bytes));
+  assert.equal(JSON.stringify(decodeStateEnvelope(legacyV2, key)), bytes.toString());
+
+  const next = structuredClone(state);
+  next.intents[2] = { fence: 8, status: 'pending', proof: randomBytes(1500).toString('base64') };
+  next.intents.next = { ...active, status: 'confirmed' };
+  next.receipts.next = { receipt: next.intents.next };
+  const growth = Buffer.byteLength(JSON.stringify(next)) - bytes.length;
+  const bound = assertStateEnvelopeGrowthCapacity(key, state, ['intents', 'receipts'], growth);
+  for (const document of [
+    next,
+    { ...next, intents: { 2: next.intents[2], active, oldSummary: old }, receipts: { oldSummary: { receipt: old } } },
+  ]) {
+    const raw = encodeStateEnvelope(key, document, writeNonce);
+    assert.equal(JSON.stringify(decodeStateEnvelope(raw, key)), JSON.stringify(document));
+    assert.ok(raw.length <= bound.projectedStoredCharacters);
+  }
+});
