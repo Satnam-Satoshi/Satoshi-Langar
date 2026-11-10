@@ -61,3 +61,15 @@ test('bounds inflate at declared bytes and enforces independent logical and phys
   assert.throws(() => encodeStateEnvelope(key, { text: randomBytes(800_000).toString('base64') }), /state_capacity_exceeded/);
   assert.throws(() => decodeStateEnvelope('x'.repeat(MAX_STORED_STATE_CHARACTERS + 1), key), /invalid_state_envelope/);
 });
+
+
+test('plaintext-to-compression threshold includes canonical value bytes exactly', () => {
+  const value = { history: '' };
+  const threshold = 256 * 1024;
+  value.history = 'x'.repeat(threshold - Buffer.byteLength(JSON.stringify(value)));
+  assert.equal(JSON.parse(encodeStateEnvelope(key, value, writeNonce)).schemaVersion, 1);
+  value.history += 'x';
+  const raw = encodeStateEnvelope(key, value, writeNonce);
+  assert.equal(JSON.parse(raw).schemaVersion, 2);
+  assert.deepEqual(decodeStateEnvelope(raw, key), value);
+});

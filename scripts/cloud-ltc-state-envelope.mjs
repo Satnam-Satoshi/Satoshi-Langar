@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { gzipSync, gunzipSync } from 'node:zlib';
 
+const PLAIN_STATE_BYTES = 256 * 1024;
 export const MAX_LOGICAL_STATE_BYTES = 1_500_000;
 export const MAX_STORED_STATE_CHARACTERS = 900_000;
 export const MAX_DOCS_STATE_CHARACTERS = 1_000_000;
@@ -27,17 +28,79 @@ function fitsStoredDocument(text) {
     Buffer.byteLength(paragraph) + 10_000 <= MAX_DOCS_RESPONSE_BYTES;
 }
 
+// Bound each member independently so future mutable fields cannot change
+// the compression of immutable audit history. The same bound is enforced
+// by the encoder and used by the release preflight.
+function memberBound(bytes) {
+  return bytes + 32 + 8 * Math.ceil(bytes / 1024);
+}
+
+function gzipMember(text) {
+  const input = Buffer.from(text);
+  let compressed = gzipSync(input);
+  const max = memberBound(input.length);
+  if (compressed.length > max) compressed = gzipSync(input, { level: 0 });
+  check(compressed.length <= max, 'state_capacity_exceeded');
+  return compressed;
+}
+
+function fields(value) {
+  return Object.entries(value).map(([key, field]) => [key, JSON.stringify(key) + ':' + JSON.stringify(field)]);
+}
+
+function gzipState(value) {
+  const parts = ['{'];
+  for (const [, text] of fields(value)) {
+    if (parts.length > 1) parts.push(',');
+    parts.push(text);
+  }
+  parts.push('}');
+  return Buffer.concat(parts.map(gzipMember));
+}
+
+function compressedEnvelope(key, writeNonce, valueBytes, valueSha256, valueGzipBase64) {
+  return JSON.stringify({ schemaVersion: 2, key, writeNonce, encoding: 'gzip+base64',
+    valueBytes, valueSha256, valueGzipBase64 });
+}
+
+// charge mutable fields at their full uncompressed size, with room for the
+// planned growth and the maximum number of new fields named by the caller.
+export function assertStateEnvelopeGrowthCapacity(key, value, mutableKeys, growthBytes) {
+  check(Number.isSafeInteger(growthBytes) && growthBytes >= 0, 'state_capacity_exceeded');
+  const bytes = logicalBytes(value);
+  check(bytes.length + growthBytes <= MAX_LOGICAL_STATE_BYTES, 'state_capacity_exceeded');
+  const knownFields = fields(JSON.parse(bytes.toString('utf8')));
+  const mutable = new Set(mutableKeys);
+  let stableCompressed = 0;
+  let stableCount = 0;
+  let mutableBytes = growthBytes;
+  for (const [field, text] of knownFields) {
+    if (mutable.has(field)) mutableBytes += Buffer.byteLength(text);
+    else {
+      stableCompressed += gzipMember(text).length;
+      stableCount++;
+    }
+  }
+  // Sum of ceilings is at most ceil(total/1024) + member count.
+  const futureCompressed = memberBound(mutableBytes) + 40 * mutable.size;
+  const structuralBytes = gzipMember('{').length + gzipMember('}').length +
+    gzipMember(',').length * Math.max(0, stableCount + mutable.size - 1);
+  const payloadChars = 4 * Math.ceil((stableCompressed + futureCompressed + structuralBytes) / 3);
+  const metadataChars = compressedEnvelope(key, '00000000-0000-4000-8000-000000000000',
+    MAX_LOGICAL_STATE_BYTES, '0'.repeat(64), '').length;
+  check(metadataChars + payloadChars <= MAX_STORED_STATE_CHARACTERS, 'state_capacity_exceeded');
+}
+
 export function encodeStateEnvelope(key, value, writeNonce = randomUUID()) {
   check(nonce(writeNonce), 'invalid_state_envelope');
   const bytes = logicalBytes(value);
   const legacy = JSON.stringify({ schemaVersion: 1, key, value, writeNonce });
-  if (fitsStoredDocument(legacy)) return legacy;
+  if (bytes.length <= PLAIN_STATE_BYTES && fitsStoredDocument(legacy)) return legacy;
 
-  const compressed = JSON.stringify({
-    schemaVersion: 2, key, writeNonce, encoding: 'gzip+base64',
-    valueBytes: bytes.length, valueSha256: sha256(bytes),
-    valueGzipBase64: gzipSync(bytes).toString('base64'),
-  });
+  const compressed = compressedEnvelope(
+    key, writeNonce, bytes.length, sha256(bytes),
+    gzipState(JSON.parse(bytes.toString('utf8'))).toString('base64'),
+  );
   check(fitsStoredDocument(compressed), 'state_capacity_exceeded');
   return compressed;
 }

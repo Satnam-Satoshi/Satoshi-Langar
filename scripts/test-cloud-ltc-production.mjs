@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { mkdtemp, mkdir, writeFile, readFile, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -9,6 +9,7 @@ import { performCoordinatedRelease, confirmedStageFromState, assertReleaseCapaci
 import { releaseGeneration, generationEvidenceId } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
+import { encodeStateEnvelope } from './cloud-ltc-state-envelope.mjs';
 import { assertDailyPublicationAvailable, DailyPublicationComplete, publicationDate } from './cloud-ltc-daily-admission.mjs';
 const hash = value => createHash('sha256').update(value).digest('hex');
 async function fixture({ uncertainStage = false, badPublishedBytes = false, uncertainPromotion = false, evidenceDiagnostic = false } = {}) {
@@ -206,4 +207,40 @@ test('release capacity reserves a 43-bundle generation against a representative 
   const original = hash(JSON.stringify(document));
   assert.doesNotThrow(() => assertReleaseCapacity({ document, manifest, plannedPayloads }));
   assert.equal(hash(JSON.stringify(document)), original);
+});
+
+
+test('projected storage rejects a high-entropy ledger before its logical limit is exhausted', () => {
+  const document = {
+    schemaVersion: 1, intents: {}, receipts: {},
+    history: randomBytes(637_500).toString('base64'),
+  };
+  const plannedPayloads = [{ kind: 'git-tree', entries: randomBytes(95_000).toString('base64') }];
+  const logicalProjection = Buffer.byteLength(JSON.stringify(document)) +
+    2 * Buffer.byteLength(JSON.stringify(plannedPayloads[0])) + 32_768 + 4_096;
+  assert.ok(logicalProjection < 1_500_000);
+  assert.doesNotThrow(() => encodeStateEnvelope('website', document));
+  const projected = {
+    ...document,
+    intents: { tree: { payload: plannedPayloads[0] } },
+    receipts: { tree: { receipt: { payload: plannedPayloads[0] } } },
+  };
+  assert.throws(() => encodeStateEnvelope('website', projected), /state_capacity_exceeded/);
+  assert.throws(() => assertReleaseCapacity({ document, plannedPayloads, manifest: [] }), /state_capacity_exceeded/);
+});
+
+test('release preflight charges the actual provenance and continuation before alias effects', async () => {
+  const f = await fixture();
+  try {
+    f.options.publicationProvenance.extra = 'x'.repeat(400_000);
+    f.options.preallocateIds = async () => assert.fail('capacity must be checked before allocating evidence IDs');
+    await assert.rejects(performCoordinatedRelease(f.options), /state_capacity_exceeded/);
+    assert.deepEqual(f.events, ['old-public-readback']);
+    const document = await f.state.inspect();
+    assert.throws(() => assertReleaseCapacity({
+      document, manifest: [], tailContext: { continuation: { detail: 'x'.repeat(400_000) } },
+    }), /state_capacity_exceeded/);
+  } finally {
+    await rm(f.scratch, { recursive: true, force: true });
+  }
 });

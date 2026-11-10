@@ -10,25 +10,33 @@ import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
 import { releaseGeneration, generationEvidenceId, completeFirstFreshGeneration, captureFreshGenerationBinding, assertFreshGenerationBinding, pauseOwnedFreshGeneration } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { assertPublicationDate } from './cloud-ltc-daily-admission.mjs';
-import { MAX_LOGICAL_STATE_BYTES, encodeStateEnvelope } from './cloud-ltc-state-envelope.mjs';
+import { assertStateEnvelopeGrowthCapacity } from './cloud-ltc-state-envelope.mjs';
 const check = (value, code) => { if (!value) throw new Error(code); };
 const hash = value => createHash('sha256').update(value).digest('hex');
 
 // Reserve room for planned source/evidence rows, their duplicated immutable
 // receipts, and the stage/promotion/summary tail. Actual CAS and evidence
 // packaging still enforce their exact logical, physical and byte limits.
-export function assertReleaseCapacity({ document, manifest, plannedPayloads = [], receipts = [] }) {
-  const tailReserve = 32_768;
-  let stateReserve = tailReserve;
-  let receiptReserve = tailReserve;
+export function assertReleaseCapacity({ document, manifest, plannedPayloads = [], receipts = [], tailContext = {} }) {
+  const tailBytes = Buffer.byteLength(JSON.stringify(tailContext));
+  // A successful tail may copy the release checkpoint into a fresh-generation
+  // proof. Count all known variable tail fields separately from fixed metadata.
+  let stateReserve = 32_768 + 4 * tailBytes;
+  let receiptReserve = 8_192 + tailBytes;
   for (const payload of plannedPayloads) {
     const payloadBytes = Buffer.byteLength(JSON.stringify(payload));
+    // A confirmed row is stored twice. Provider proofs contain only bounded
+    // identifiers, fixed digests and counts, plus the bounded Vercel hostname.
     stateReserve += 2 * payloadBytes + 4_096;
     receiptReserve += payloadBytes + 2_048;
   }
   const stateText = JSON.stringify(document);
-  check(Buffer.byteLength(stateText) + stateReserve <= MAX_LOGICAL_STATE_BYTES, 'state_capacity_exceeded');
-  encodeStateEnvelope('website', document);
+  const mutableFields = ['paused', 'lease', 'intents', 'receipts', 'latestRelease', 'archiveHead'];
+  if (tailContext.continuation) mutableFields.push('stagedDailyContinuation');
+  if (document.nextFreshGeneration?.status === 'pending-first-proof') mutableFields.push('nextFreshGeneration');
+  if (document.routineUploadRetirement?.status === 'manual-admitted') mutableFields.push('routineUploadRetirement');
+  if (document.routineUploadFollowupRetirement?.status === 'manual-admitted') mutableFields.push('routineUploadFollowupRetirement');
+  assertStateEnvelopeGrowthCapacity('website', document, mutableFields, stateReserve);
   // The backup stores canonical state as a JSON string, so account for the
   // actual escaping of today's ledger plus up to twice the added JSON bytes.
   const backupBytes = Buffer.byteLength(JSON.stringify({
@@ -140,6 +148,10 @@ export async function performCoordinatedRelease(options) {
   // File IDs have not been reserved yet. Budget for their maximum allowed length.
   assertReleaseCapacity({
     document: existing, manifest,
+    tailContext: {
+      publicationProvenance, previousDeployment: previous[0], releaseCommit: plan.commitSha, editionId,
+      candidate: { deployment: 'dpl_' + 'x'.repeat(156), url: 'x'.repeat(253) },
+    },
     plannedPayloads: [
       ...bundles.map((bundle, index) => evidencePayload(bundle, index, 'x'.repeat(160))),
       ...plan.steps.map(step => step.payload),
@@ -194,7 +206,10 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   });
   // The confirmed stage supplies actual current ledger/receipt sizes. Catch a
   // known oversized summary before changing public aliases.
-  assertReleaseCapacity({ document: await admission.state.inspect(), manifest, receipts: operationReceipts });
+  assertReleaseCapacity({
+    document: await admission.state.inspect(), manifest, receipts: operationReceipts,
+    tailContext: { publicationProvenance, continuation, candidate, previousDeployment, releaseCommit, editionId },
+  });
   const payload = { kind: 'vercel-promote', editionId, artifactPackageManifestSha256: artifactPackageManifestSha256, artifactManifestSha256: hash(JSON.stringify(manifest)), deployment: candidate.deployment, previous: previousDeployment, commit: releaseCommit };
   let promotion;
   try {
