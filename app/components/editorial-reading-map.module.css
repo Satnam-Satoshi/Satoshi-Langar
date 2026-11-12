@@ -1,13 +1,13 @@
 .map{background:#f7f2e7;color:#171b1f;border-top:5px solid #f7931a;padding:clamp(1.25rem,4vw,3.5rem);margin-block:2rem}
 .map header>p{font:800 .7rem/1.5 var(--font-sans);letter-spacing:.15em;text-transform:uppercase}
-.map h2{font:900 clamp(2rem,4vw,3.8rem)/1.02 var(--font-sans);letter-spacing:-.045em;margin:.8rem 0 1rem}
+.map.map h2{font:900 clamp(2rem,4vw,3.8rem)/1.02 var(--font-sans);letter-spacing:-.045em;margin:.8rem 0 1rem}
 .map header>span{display:block;max-width:65ch;font:.9rem/1.6 var(--font-sans)}
 .map nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#d8cdbb;border:1px solid #d8cdbb;margin-top:1.8rem}
 .map nav>a{display:grid;grid-template-columns:2.6rem minmax(0,1fr);gap:1rem;background:#fffaf1;padding:1.3rem;text-decoration:none;color:inherit}
 .map nav>a:nth-child(3){background:#171b1f;color:#fffaf1}
 .map .number{font:900 1.8rem/1 var(--font-sans);color:#a54700;font-variant-numeric:tabular-nums}
 .map nav>a:nth-child(3) .number{color:#f7931a}
-.map h3{font:800 1.1rem/1.3 var(--font-sans);margin:0 0 .5rem}
+.map.map h3{font:800 1.1rem/1.3 var(--font-sans);margin:0 0 .5rem}
 .map nav p{font:.8rem/1.6 var(--font-sans);margin:0}
 .map a:hover h3{text-decoration:underline;text-underline-offset:.2em}
 .map a:focus-visible{outline:3px solid #2054a5;outline-offset:-4px}

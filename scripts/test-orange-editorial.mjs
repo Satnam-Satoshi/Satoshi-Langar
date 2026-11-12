@@ -29,3 +29,9 @@ test('print-inspired reading map links evidence without importing PDF financial 
  const css=await read('app/components/editorial-reading-map.module.css');
  assert.match(css,/@media\(max-width:600px\)/);assert.match(css,/:focus-visible/);
 });
+
+test('visual QA fixes keep conversion contrast and reading-map typography',async()=>{
+ const [market,map]=await Promise.all([read('app/components/market-checkpoint.module.css'),read('app/components/editorial-reading-map.module.css')]);
+ assert.match(market,/conversion \{[^}]*color:#a54700/);
+ assert.match(map,/\.map\.map h2/);assert.match(map,/\.map\.map h3/);
+});

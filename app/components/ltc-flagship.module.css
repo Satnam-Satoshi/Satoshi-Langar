@@ -57,3 +57,6 @@
 .flagship .folio{background:#171b1f;color:#fffaf1;border-top:3px solid #f7931a}
 .flagship .section.community{background:#171b1f;color:#fffaf1}
 .flagship .section.markets{background:#171b1f;color:var(--on-dark)}
+
+/* Reader desk headings retain the approved bold editorial hierarchy. */
+.flagship .sectionHead h2,.flagship .opening h2,.flagship .readingHead h2,.flagship .changeDesk h2{font-family:var(--font-sans);font-weight:850}

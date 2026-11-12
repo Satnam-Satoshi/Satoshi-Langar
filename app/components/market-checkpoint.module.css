@@ -4,5 +4,5 @@
 @media(max-width:600px){.checkpoint>div>small{font-size:9px}.checkpoint>a small{display:block;margin-left:0;font-size:9px}}
 
 /* Reciprocal conversions share the accepted USD observations and their timestamps. */
-.checkpoint .conversion { display:block; color:#f7931a; font-size:12px; font-weight:750; line-height:1.5; font-variant-numeric:tabular-nums; }
+.checkpoint .conversion { display:block; color:#a54700; font-size:12px; font-weight:750; line-height:1.5; font-variant-numeric:tabular-nums; }
 @media(max-width:600px){.checkpoint .conversion{font-size:11px;overflow-wrap:anywhere}}
