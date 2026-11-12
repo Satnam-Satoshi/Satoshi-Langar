@@ -10,3 +10,11 @@ test('Moon home date and full-cover shelf presentation match revision 2',()=>{co
 test('preserved Moon archive is included in portable public export',()=>{assert.ok(read('scripts/portable-export.mjs').includes("'magazine/litecoin-to-the-moon/revision-1.json'"))});
 
 test('both homepages keep treasury research links beside Litecoin Register',()=>{for(const page of ['app/page.tsx','app/conversations/page.tsx']){const text=read(page);assert.match(text,/Litecoin Register ↗<\/a><a href="https:\/\/www\.mnav\.com\/">mNAV ↗<\/a><a href="https:\/\/bitbo\.io\/treasuries\/latest-changes\/">/)}const shared=read('app/components/CommunityJourney.tsx');for(const url of ['https://litecoinregister.com/','https://www.mnav.com/','https://bitbo.io/treasuries/latest-changes/'])assert.ok(shared.includes(url));assert.ok(shared.includes('not live data feeds'));assert.match(read('app/components/community-journey.module.css'),/\.researchLinks\{display:flex;flex-wrap:wrap/);assert.match(read('app/components/HomeFront.tsx'),/<RegisterInvitation\/>/);assert.match(read('app/conversations/page.tsx'),/<RegisterInvitation\/>/)});
+
+test('Moon is the primary homepage feature while the daily issue remains accessible',()=>{
+ const home=read('app/components/HomeFront.tsx'),magazine=read('app/conversations/page.tsx'),feature=read('app/components/MoonHomeFeature.tsx');
+ assert.ok(home.indexOf('<MoonHomeFeature primaryHeading/>')<home.indexOf('<div className={styles.lead}>'));
+ assert.ok(magazine.indexOf('<MoonHomeFeature/>')<magazine.indexOf('<section id="daily"'));
+ assert.ok(feature.includes('data-primary-feature="litecoin-to-the-moon"'));assert.ok(feature.includes('editionDateHref(latestLtcEdition.date)'));
+ assert.ok(read('scripts/qa-site-browser.mjs').includes('Moon must precede the daily issue as the first main section'));
+});
