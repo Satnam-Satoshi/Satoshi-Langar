@@ -18,3 +18,5 @@ test('Moon is the primary homepage feature while the daily issue remains accessi
  assert.ok(feature.includes('data-primary-feature="litecoin-to-the-moon"'));assert.ok(feature.includes('editionDateHref(latestLtcEdition.date)'));
  assert.ok(read('scripts/qa-site-browser.mjs').includes('Moon must precede the daily issue as the first main section'));
 });
+
+test('primary daily-link QA resolves both portable homepage URL forms',()=>{for(const [base,href]of [['https://satnamsatoshi.com/','conversations/editions/2026-11-12/index.html'],['https://satnamsatoshi.com/conversations/','editions/2026-11-12/index.html']])assert.ok(new URL(href,base).pathname.startsWith('/conversations/editions/'));assert.ok(read('scripts/qa-site-browser.mjs').includes('new URL(link.href).pathname'));});
