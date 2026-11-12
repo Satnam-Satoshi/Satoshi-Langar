@@ -1,3 +1,4 @@
+import EditorialReadingMap from '../components/EditorialReadingMap';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
 import DailyNewsMap from '../components/DailyNewsMap';
@@ -74,6 +75,7 @@ export default function ConversationsPage(){
      <LtcEditionCover edition={issue} mode="thumbnail"/>
    </a>}
  </section>
+ <EditorialReadingMap sourcebookHref={`${href}#sourcebook`}/>
  <CommunityJourney/><RegisterInvitation/>
  <section id="source-desk" aria-labelledby="source-desk-title"><div className={styles.sectionHead}><div><p className={styles.eyebrow}>Latest source scan / {new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'America/New_York' }).format(new Date(sourceDesk.checkedAt))}</p><h2 id="source-desk-title">From the source desk.</h2></div><p>{sourceDesk.byline}<br/>{sourceDesk.scope}</p></div><div className={styles.newsGrid}>{sourceDesk.stories.map((story,index)=><article className={styles.newsCard} key={story.id}><div className={styles.newsTop}><span>{String(index+1).padStart(2,'0')}</span><p className={styles.eyebrow}>{story.desk}</p></div><h3><a href={story.url}>{story.title}</a></h3><p>{story.summary}</p><p>{story.whyItMatters}</p><p className={styles.meta}>{story.classification} · {story.sourceName}</p><div className={styles.newsBottom}><time dateTime={story.publishedAt}>{'dateKind' in story && story.dateKind === 'observed' ? 'Observed' : 'Published'}: {story.publishedAt}</time><small>Checked {story.checkedAt}</small><a href={sourceDeskReadMore(story, publicationExclusionConfig).href}>{sourceDeskReadMore(story, publicationExclusionConfig).label ?? 'Keep reading'} ↗</a></div></article>)}</div><details className={styles.coverageNote}><summary>Source dates and gaps from this scan</summary><p>Checked {sourceDesk.checkedAt}. These selections retain the source dates and classifications shown on each card. Automated observations are distinct from separately researched reporting; the notebook below keeps its own preparation timestamp.</p><ul>{sourceDesk.gaps.map(gap=><li key={gap}>{gap}</li>)}</ul></details></section>
  {issue && <DailyNewsMap editionId={issue.id}/>}

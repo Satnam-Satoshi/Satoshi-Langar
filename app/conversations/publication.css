@@ -17,3 +17,15 @@ body:has([data-ltc-publication]),.publication-shell{background:var(--editorial-p
 /* Publication chrome shares the Nakamoto reading-room palette. */
 body:has([data-ltc-publication]),.publication-shell{background:var(--editorial-paper);color:var(--editorial-ink)}.publication-header{background:var(--editorial-paper);border-top:6px solid var(--bitcoin-orange);border-bottom:1px solid var(--litecoin-blue)}.publication-header-inner{min-height:74px;padding-block:11px}.publication-desktop-nav{font-weight:600}.publication-desktop-nav a:hover{color:var(--bitcoin-ink)}.publication-header .header-utility{max-width:1440px}.publication-menu nav{background:var(--editorial-paper);border-color:var(--editorial-muted)}.publication-footer{background:var(--litecoin-blue);color:var(--on-dark)}.publication-footer nav strong{color:var(--on-dark-accent)}
 @media(max-width:600px){.publication-header-inner{min-height:67px;padding-block:10px}.publication-header .header-utility{padding-inline:20px}}
+
+/* Every live publication route shares the editorial masthead and paper system. */
+.publication-header{border-top:5px solid #f7931a;border-bottom:2px solid #171b1f}
+.publication-footer{background:#171b1f;border-top:5px solid #f7931a}
+.publication-footer nav strong{color:#f7931a;font-weight:800}
+.publication-desktop-nav a[href^="https://litecoinregister"]{border-bottom:3px solid #f7931a;font-weight:800}
+.publication-shell .live-page-intro{background:#171b1f;color:#fffaf1}
+.publication-shell .live-page-intro h1{font-family:var(--font-sans);font-weight:900}
+.publication-shell .live-page-intro p{color:#fffaf1}
+.publication-shell .live-page-intro p:first-child{color:#f7931a}
+.publication-shell .live-page-intro a:focus-visible{outline-color:#f7931a}
+@media(min-width:1121px){.publication-desktop-nav{gap:16px}}

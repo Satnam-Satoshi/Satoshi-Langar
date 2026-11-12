@@ -19,3 +19,13 @@ test('orange hero links have contrasting keyboard focus', async()=>{
  const css=await read('app/components/HomeFront.module.css');
  assert.match(css,/\.communityLinks a:focus-visible\s*\{\s*outline:3px solid #102638/);
 });
+test('print-inspired reading map links evidence without importing PDF financial observations', async()=>{
+ const map=await read('app/components/EditorialReadingMap.tsx');
+ for(const desk of ['Market tape','Flows & funds','Litecoin Register','Morpho','Builders','Policy','Sourcebook']) assert.ok(map.includes(desk));
+ assert.match(map,/holdings and flows are different/);
+ assert.doesNotMatch(map,/83\.58|785,?000|3\.28/);
+ const reader=await read('app/components/LtcFlagship.tsx');
+ assert.match(reader,/<EditorialReadingMap sourcebookHref="#sourcebook"/);
+ const css=await read('app/components/editorial-reading-map.module.css');
+ assert.match(css,/@media\(max-width:600px\)/);assert.match(css,/:focus-visible/);
+});

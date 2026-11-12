@@ -287,3 +287,19 @@ body:has(main[data-site]) .launch-header{border-top:5px solid #f7931a}
 body:has(main[data-site]) .edition-notice{font-size:11px;padding-block:8px;background:#102638;color:#fffefa}
 body:has(main[data-site]) .header-join{background:#f7931a;color:#102638;font-weight:800}
 body:has(main[data-site]) .desktop-nav a[href^="https://litecoinregister"]{border-bottom:3px solid #f7931a;font-weight:800}
+
+/* Approved site-wide foundation: community pages, tools, learning and support. */
+:root{--editorial-paper:#f7f2e7;--editorial-card:#fffaf1;--editorial-ink:#171b1f;--editorial-rule:#d2c9ba}
+.launch-brand strong,.footer-identity strong{font-family:var(--font-sans);font-weight:900;letter-spacing:-.04em}
+.launch-header{border-top:5px solid #f7931a}
+.header-join{background:#f7931a;color:#171b1f;font-weight:800;border-color:#171b1f}
+.desktop-nav a[href^="https://litecoinregister"]{border-bottom:3px solid #f7931a;font-weight:800}
+.edition-notice{background:#171b1f;color:#fffaf1}
+.live-page-intro{background:#fff0da;border-top:4px solid #f7931a}
+.live-page-intro h1{font-family:var(--font-sans);font-weight:900;line-height:1.02;letter-spacing:-.05em}
+.live-page-intro h1+ p{color:#404b53}
+.section-title{font-family:var(--font-sans);font-weight:800}
+.site-card{border-radius:4px;border-top:3px solid #d2c9ba;box-shadow:none}
+.site-card h2,.site-card h3{font-family:var(--font-sans);font-weight:800}
+.launch-footer{border-top:5px solid #f7931a}
+@media(max-width:600px){.live-page-intro h1{font-size:clamp(2.3rem,10vw,3.4rem);overflow-wrap:break-word}.header-join:focus-visible{outline-color:#171b1f}}

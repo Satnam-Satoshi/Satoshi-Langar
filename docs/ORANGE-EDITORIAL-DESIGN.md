@@ -32,3 +32,11 @@ Emergency stop: stop this branch's work; existing production stays untouched.
 ## Review status
 
 This is a review branch, not a production release. It leaves all edition data, source snapshots, donation configuration, publication workflows and social state unchanged. The exact exported pages must receive desktop/mobile browser inspection before rollout. The local executor could compile and validate the static site but could not launch Chromium due its socket restrictions; the external browser could not reach the executor's localhost. Do not substitute this code review for screenshot QA.
+
+## November 11 print-edition inspiration
+The supplied 29-page LTC issue informs the warm ivory reading interiors, orange rules, bold key figures, black table headers, alternating table rows and editorial folios. A seven-stop reading map now connects market observations, funds, the independent Litecoin Register, Morpho, builders, policy and each issue's existing sourcebook. It renders as one-column navigation cards on narrow screens. Desk guides are explicitly background reading rather than fresh reporting.
+
+No PDF numerical observations or release claims were imported. The PDF's cbLTC loans/liquidity/utilization mismatch requires source reconciliation, and its release-status note is outdated. No public historical-original PDF URL was verified, so no download link was invented. Existing edition selection and source links remain the source of truth. Runtime visual QA and production release remain pending.
+
+## Site-wide rollout
+Shared root tokens, community masthead/footer, PageIntro hero typography and the reusable Card now carry the approved orange/bold/ivory design beyond the homepages. The entire conversations route tree retains its separate publication layout with an ink footer, orange rules and a primary Register link. This covers learning/course pages, community/projects, governance/help/auth pages, donation, desk guides, archives, issue readers and feature routes through their shared shells/components. Custom artwork, charts, historical standalone HTML/PDF exports and collector-special page compositions are not overwritten with generic styles. Those static originals remain historical editions, not newly redesigned exports. Full browser/viewport review is still required before claiming all route families visually verified.

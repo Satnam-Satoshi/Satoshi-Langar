@@ -46,3 +46,14 @@
 .cover .coverType {
   padding-top:7%
 }
+
+/* Print-inspired reading interiors; source observations and dates stay intact. */
+.flagship .opening,.flagship .featureCopy,.flagship .section{background:#f7f2e7}
+.flagship .section{border-top:4px solid #f7931a}
+.flagship .kicker{font-weight:800;letter-spacing:.12em}
+.flagship .bigMetric{color:#a54700;font-family:var(--font-sans);font-weight:850}
+.flagship .dataTable thead{background:#171b1f;color:#fffaf1}
+.flagship .dataTable tbody tr:nth-child(even){background:#ede5d7}
+.flagship .folio{background:#171b1f;color:#fffaf1;border-top:3px solid #f7931a}
+.flagship .section.community{background:#171b1f;color:#fffaf1}
+.flagship .section.markets{background:#171b1f;color:var(--on-dark)}
