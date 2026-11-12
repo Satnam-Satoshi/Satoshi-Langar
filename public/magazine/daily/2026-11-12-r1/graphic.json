@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "width": 1200,
+  "height": 630,
+  "editionId": "2026-11-12-r1",
+  "date": "2026-11-12",
+  "featureDate": "2026-11-12",
+  "headline": "Litecoin’s Next Build",
+  "stories": [
+    {
+      "id": "builders-migration",
+      "title": "LiteForge changes its infrastructure provider.",
+      "desk": "Litecoin / The lead",
+      "classification": "Source-linked ecosystem special · dated evidence and context",
+      "sourceDates": [
+        "2026-11-12T02:39:41Z",
+        "2026-11-11T01:01:42Z",
+        "Publication date not supplied"
+      ],
+      "sourceURLs": [
+        "https://x.com/LTCFoundation/status/2120708077544726875",
+        "https://x.com/LitecoinVM/status/2120321030875136125",
+        "https://docs.litvm.com/get-started-on-testnet/network-configuration"
+      ]
+    },
+    {
+      "id": "builders-configuration",
+      "title": "Same chain ID. New connection addresses.",
+      "desk": "Litecoin / Practical guide",
+      "classification": "Source-linked ecosystem special · dated evidence and context",
+      "sourceDates": [
+        "2026-11-12T02:39:41Z",
+        "Publication date not supplied"
+      ],
+      "sourceURLs": [
+        "https://x.com/LTCFoundation/status/2120708077544726875",
+        "https://docs.litvm.com/get-started-on-testnet/network-configuration"
+      ]
+    },
+    {
+      "id": "builders-architecture",
+      "title": "Follow the chain of trust before following the narrative.",
+      "desk": "Litecoin / Technical explainer",
+      "classification": "Source-linked ecosystem special · dated evidence and context",
+      "sourceDates": [
+        "Publication date not supplied",
+        "2026-11-11T01:01:42Z"
+      ],
+      "sourceURLs": [
+        "https://docs.litvm.com/overview/architecture",
+        "https://docs.litvm.com/other-resources/network-status",
+        "https://x.com/LitecoinVM/status/2120321030875136125"
+      ]
+    }
+  ],
+  "sourceDates": [
+    "2026-11-12T02:39:41Z",
+    "2026-11-11T01:01:42Z",
+    "Publication date not supplied"
+  ],
+  "publishedAt": "2026-11-12T19:37:02.289Z",
+  "attribution": "AI-prepared · LTC Media · Read the dated sourcebook",
+  "readURL": "https://ltcmagazine.org/conversations/editions/2026-11-12-r1/",
+  "design": "content-led-news-map-v1",
+  "pngSha256": "9527f81a150a3c7ec45e9edfcc4ce50a1d9693741b7637bc6729976a05c9f140",
+  "svgSha256": "3feb2e9b7619e6c210547ec9be8f1a993228254d80470749cd87cd89fe62a05f",
+  "pngBytes": 94382,
+  "renderer": "Next ImageResponse · original SVG · explicit Liberation Sans glyphs"
+}

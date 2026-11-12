@@ -1,6 +1,3787 @@
 [
   {
     "schemaVersion": 1,
+    "id": "2026-11-12-r1",
+    "date": "2026-11-12",
+    "revision": 1,
+    "title": "Litecoin’s Next Build",
+    "dek": "A new testnet connection, an industry award and a growing builder directory. What changed, what users need to know, and what still needs proof.",
+    "preparedAt": "2026-11-12T19:37:02.289Z",
+    "publishedAt": "2026-11-12T19:37:02.289Z",
+    "timezone": "America/New_York",
+    "status": "published",
+    "classification": "Automated source briefing",
+    "byline": "AI-prepared by LTC Media",
+    "humanReview": "Not individually reviewed by a human editor",
+    "sourceSnapshotSha256": "52aa01637bb6044ffa47f790d1a5a667994df94d4bba8d731d8a1275c8f644f6",
+    "publicationPolicy": "bounded-daily-v1",
+    "briefs": [
+      {
+        "id": "coinbase-btc-usd",
+        "desk": "Market snapshot",
+        "headline": "BTC/USD last trade: $71,466.82",
+        "effectiveAt": "2026-11-12T19:34:28.324Z",
+        "sourceIds": [
+          "coinbase-btc-usd"
+        ],
+        "paragraphs": [
+          "Coinbase Exchange returned a BTC/USD last trade of $71,466.82, timestamped 2026-11-12T19:34:28.324Z. This venue-reported trade was retrieved at 2026-11-12T19:34:30.476Z; the two times are recorded separately.",
+          "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
+          "For newcomers: a quote belongs to a venue, a trading pair and a moment. For experienced readers: inspect the exact decimal value, source timestamp and parser in the sourcebook before making comparisons."
+        ]
+      },
+      {
+        "id": "coinbase-ltc-usd",
+        "desk": "Market snapshot",
+        "headline": "LTC/USD last trade: $49.726",
+        "effectiveAt": "2026-11-12T19:34:24.028Z",
+        "sourceIds": [
+          "coinbase-ltc-usd"
+        ],
+        "paragraphs": [
+          "Coinbase Exchange returned a LTC/USD last trade of $49.726, timestamped 2026-11-12T19:34:24.028Z. This venue-reported trade was retrieved at 2026-11-12T19:34:30.476Z; the two times are recorded separately.",
+          "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
+          "For newcomers: a quote belongs to a venue, a trading pair and a moment. For experienced readers: inspect the exact decimal value, source timestamp and parser in the sourcebook before making comparisons."
+        ]
+      },
+      {
+        "id": "ibit-holdings",
+        "desk": "Wall Street & institutions",
+        "headline": "IBIT’s dated holdings record: November 10, 2026",
+        "effectiveAt": "2026-11-10",
+        "sourceIds": [
+          "ibit-holdings"
+        ],
+        "paragraphs": [
+          "The iShares Bitcoin Trust ETF holdings file reports 792,005.02580 BTC and 1,401,280,000.00 shares outstanding as of November 10, 2026. The source supplies a date, not an intraday timestamp.",
+          "This is an issuer-reported balance at a point in time. It is not a live price, independently audited total or measurement of money entering the fund. Holdings changes alone are not ETF flows.",
+          "For newcomers: read the “as of” date before comparing a number. For experienced readers: the source notebook preserves the exact decimal strings, parser version and retrieved-file hash for this observation."
+        ]
+      },
+      {
+        "id": "bitcoin-core-release",
+        "desk": "Bitcoin & builders",
+        "headline": "Bitcoin Core v32.1: the dated upstream record",
+        "effectiveAt": "2026-10-28T14:23:53Z",
+        "sourceIds": [
+          "bitcoin-core"
+        ],
+        "paragraphs": [
+          "The official Bitcoin Core repository’s latest-release endpoint returned v32.1, published October 28, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+          "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup."
+        ]
+      },
+      {
+        "id": "litecoin-core-release",
+        "desk": "Litecoin & proof of work",
+        "headline": "Litecoin Core v0.21.5.8: the dated upstream record",
+        "effectiveAt": "2026-09-12T12:06:49Z",
+        "sourceIds": [
+          "litecoin-core"
+        ],
+        "paragraphs": [
+          "The official Litecoin Core repository’s latest-release endpoint returned v0.21.5.8, published September 12, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+          "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup."
+        ]
+      },
+      {
+        "id": "lnd-release",
+        "desk": "Lightning & builders",
+        "headline": "LND v0.21.8-beta: the dated upstream record",
+        "effectiveAt": "2026-11-11T20:41:18Z",
+        "sourceIds": [
+          "lnd"
+        ],
+        "paragraphs": [
+          "The official LND repository’s latest-release endpoint returned v0.21.8-beta, published November 11, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+          "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup.",
+          "LND uses a beta suffix in the version name returned by its latest-release endpoint. Our parser preserves that suffix and rejects releases marked as drafts or prereleases by GitHub, as well as release-candidate tags. This is a description of the upstream channel, not a safety certification."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "ibit-holdings",
+        "title": "iShares Bitcoin Trust ETF · holdings",
+        "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
+        "kind": "primary",
+        "parserVersion": "ibit-csv-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-11-10",
+        "sourceSha256": "a01caf94c5766b78824263d15109cee73945e02d68e6b8d6f59b0479336e4b47",
+        "freshness": "dated-observation",
+        "observations": [
+          {
+            "metric": "fund_btc_quantity",
+            "label": "IBIT reported BTC holdings",
+            "value": "792005.02580",
+            "unit": "BTC",
+            "effectiveAt": "2026-11-10",
+            "timePrecision": "date",
+            "classification": "issuer-reported"
+          },
+          {
+            "metric": "fund_shares_outstanding",
+            "label": "IBIT shares outstanding",
+            "value": "1401280000.00",
+            "unit": "shares",
+            "effectiveAt": "2026-11-10",
+            "timePrecision": "date",
+            "classification": "issuer-reported"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "bitcoin-core",
+        "title": "Bitcoin Core · software releases",
+        "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-release-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-10-28T14:23:53Z",
+        "sourceSha256": "01ca6b013be46bfcfc6e2a30f7c3a7604aab6ea58d440fcf2285dbc43840bcd2",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "Bitcoin Core latest returned release",
+            "value": "v32.1",
+            "unit": "version",
+            "effectiveAt": "2026-10-28T14:23:53Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "litecoin-core",
+        "title": "Litecoin Core · software releases",
+        "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-litecoin-release-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-09-12T12:06:49Z",
+        "sourceSha256": "9b376ac4d99591bd10bfadd0f8577a761b30d04e41143268030ee51b1cd784da",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "Litecoin Core latest returned release",
+            "value": "v0.21.5.8",
+            "unit": "version",
+            "effectiveAt": "2026-09-12T12:06:49Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "lnd",
+        "title": "LND · Lightning software releases",
+        "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-lnd-release-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-11-11T20:41:18Z",
+        "sourceSha256": "eaa95997fd5dd6b81ab7ae0a9bac5cac4721df9dbb175b18840bba7b25c27b6d",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "LND latest returned release",
+            "value": "v0.21.8-beta",
+            "unit": "version",
+            "effectiveAt": "2026-11-11T20:41:18Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "strategy-notes",
+        "title": "Strategy · mNAV definitions",
+        "url": "https://www.strategy.com/notes",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "unavailable",
+        "httpStatus": 403,
+        "sourceAsOf": null,
+        "sourceSha256": null,
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": "http_failure"
+      },
+      {
+        "id": "coinshares-bitc",
+        "title": "CoinShares · Bitcoin ETP",
+        "url": "https://coinshares.com/etp/physical-bitcoin/",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "reference-retrieved",
+        "httpStatus": 200,
+        "sourceAsOf": null,
+        "sourceSha256": "d63fd8514993c5289252565dbc98b0a07b88f016d4c4424b9054ca6bb89f9792",
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": null
+      },
+      {
+        "id": "sec-news",
+        "title": "SEC · official announcements",
+        "url": "https://www.sec.gov/newsroom/press-releases",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "unavailable",
+        "httpStatus": 403,
+        "sourceAsOf": null,
+        "sourceSha256": null,
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": "http_failure"
+      },
+      {
+        "id": "litecoin-register",
+        "title": "Litecoin Register · community research",
+        "url": "https://www.litecoinregister.com/",
+        "kind": "secondary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "reference-retrieved",
+        "httpStatus": 200,
+        "sourceAsOf": null,
+        "sourceSha256": "96c7fe39609f4e4450316c971f8ba777c5ec50f03b31b37480a0235d201de70b",
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": null
+      },
+      {
+        "id": "coinbase-btc-usd",
+        "title": "Coinbase Exchange · BTC/USD last trade",
+        "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
+        "kind": "primary",
+        "parserVersion": "coinbase-btc-ticker-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-11-12T19:34:28.324Z",
+        "sourceSha256": "8ad0161bbb2592d741b537c426a5e861d1f0ab902c14a71e7b4c7a55b20cb0a6",
+        "freshness": "dated-observation",
+        "observations": [
+          {
+            "metric": "btc_usd_last_trade",
+            "label": "BTC/USD last trade · Coinbase Exchange",
+            "value": "71466.82",
+            "unit": "USD",
+            "effectiveAt": "2026-11-12T19:34:28.324Z",
+            "timePrecision": "second",
+            "classification": "venue-reported"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "coinbase-ltc-usd",
+        "title": "Coinbase Exchange · LTC/USD last trade",
+        "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
+        "kind": "primary",
+        "parserVersion": "coinbase-ltc-ticker-v1",
+        "checkedAt": "2026-11-12T19:34:30.476Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-11-12T19:34:24.028Z",
+        "sourceSha256": "a2b13c7e155ac7e9fabaa9eb777db2ef156321360c178465af71bc0b3c78a0ae",
+        "freshness": "dated-observation",
+        "observations": [
+          {
+            "metric": "ltc_usd_last_trade",
+            "label": "LTC/USD last trade · Coinbase Exchange",
+            "value": "49.726",
+            "unit": "USD",
+            "effectiveAt": "2026-11-12T19:34:24.028Z",
+            "timePrecision": "second",
+            "classification": "venue-reported"
+          }
+        ],
+        "errorCode": null
+      }
+    ],
+    "coverageGaps": [
+      "Strategy · mNAV definitions: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
+      "CoinShares · Bitcoin ETP: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
+      "SEC · official announcements: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
+      "Litecoin Register · community research: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
+      "A fresh common network comparison is unavailable.",
+      "Some configured Morpho fields are unavailable or stale.",
+      "Network observations, when accepted, are derived from cited explorer block metadata, not from a node operated by LTC Media. Morpho rates are variable, timestamped snapshots of four exact markets.",
+      "Agency-feed titles are dated official records, not independent adjudications or political analysis. Longer educational features retain their original research date.",
+      "No ETF/ETP flow series, company mNAV, Litecoin treasury total, composite global price, personal position assessment or community event report is produced by this issue."
+    ],
+    "presentation": {
+      "schemaVersion": 1,
+      "artDirection": {
+        "version": 2,
+        "layout": "dispatch",
+        "coverAsset": "litecoin-open-network.jpg",
+        "backAsset": "mweb-private-public.jpg",
+        "spreadOffset": 2
+      },
+      "cover": {
+        "theme": "Perspective",
+        "palette": "ember",
+        "motif": "orbits",
+        "title": "Litecoin’s Next Build",
+        "subtitle": "A new testnet connection, an industry award and a growing builder directory. What changed, what users need to know, and what still needs proof.",
+        "kicker": "LTC / BUILDERS SPECIAL / NOVEMBER 12, 2026",
+        "seed": "d2f35446be7a2725"
+      },
+      "backPage": {
+        "title": "Change the scale",
+        "prompt": "Which detail changes your understanding when you step back from the headline?",
+        "practice": "Choose one number in this edition. Write its unit, source date and what it does not measure. Compare those notes with a friend’s reading.",
+        "closingLine": "Keep the curiosity. Bring it back to the table."
+      },
+      "readingOrder": [
+        "bitcoin-core-release",
+        "litecoin-core-release",
+        "lnd-release",
+        "coinbase-btc-usd",
+        "coinbase-ltc-usd",
+        "ibit-holdings"
+      ]
+    },
+    "coverage": {
+      "schemaVersion": 1,
+      "referenceDate": "2026-10-02",
+      "generatedAt": "2026-11-12T19:37:02.289Z",
+      "catalogSha256": "0413449252066e26e15827150f238066c615ba464b44b09cee2c408f14965219",
+      "pages": [
+        {
+          "page": 1,
+          "title": "Front cover",
+          "href": "#front-cover",
+          "deskId": null,
+          "kind": "front-cover",
+          "status": "edition-design",
+          "summary": "This issue’s archived design and navigation; no market observation is implied.",
+          "sourceIds": [],
+          "sources": [],
+          "sourceChecks": []
+        },
+        {
+          "page": 2,
+          "title": "The reading room · contents",
+          "href": "#edition-record",
+          "deskId": null,
+          "kind": "contents",
+          "status": "edition-design",
+          "summary": "This issue’s archived design and navigation; no market observation is implied.",
+          "sourceIds": [],
+          "sources": [],
+          "sourceChecks": []
+        },
+        {
+          "page": 3,
+          "title": "The market opening",
+          "deskTitle": "The market opening",
+          "href": "/conversations/desks/market-opening/",
+          "deskId": "market-opening",
+          "kind": "desk",
+          "status": "sampled-observations",
+          "summary": "Accepted dated observations: BTC/USD last trade · Coinbase Exchange; LTC/USD last trade · Coinbase Exchange. These observations do not validate every field in this desk; its archived limits still apply.",
+          "sourceIds": [
+            "coinbase-btc-usd",
+            "coinbase-ltc-usd"
+          ],
+          "sources": [
+            {
+              "id": "ticker",
+              "label": "Coinbase Exchange: product ticker definition",
+              "url": "https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "coinbase-btc-usd",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-11-12T19:34:28.324Z",
+              "status": "collected",
+              "freshness": "dated-observation",
+              "metricLabels": [
+                "BTC/USD last trade · Coinbase Exchange"
+              ],
+              "onlyUpstreamReleases": false
+            },
+            {
+              "id": "coinbase-ltc-usd",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-11-12T19:34:24.028Z",
+              "status": "collected",
+              "freshness": "dated-observation",
+              "metricLabels": [
+                "LTC/USD last trade · Coinbase Exchange"
+              ],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "The reference’s opening tape includes BTC, LTC, XLM, DOGE and PEPE. Our daily collector currently supplies validated BTC/USD and LTC/USD last-trade snapshots. The other three remain named research lines, with no invented quote or daily return.",
+              "A price needs a trading pair, a venue and an observation time. The time we fetched a response is a separate field. A daily issue preserves both; it cannot remain a live terminal after publication."
+            ],
+            "sections": [
+              {
+                "heading": "Read the ratios carefully",
+                "paragraphs": [
+                  "A BTC/LTC price ratio compares two prices. It does not describe the amount a trader would actually receive after spread, fees and slippage. Use prices from the same cutoff and a stated venue before even calculating an illustrative ratio.",
+                  "A 24-hour return also needs a defined starting observation. We do not turn a single last trade into a daily-change percentage or reuse the reference’s morning prices as today’s prices."
+                ],
+                "sourceIds": [
+                  "ticker"
+                ]
+              },
+              {
+                "heading": "The five-asset watch",
+                "paragraphs": [
+                  "BTC and LTC have dated snapshots in the latest issue. XLM settlement activity, DOGE merged mining and PEPE token identity have dedicated research coverage. Their price fields remain unavailable until a specific source and parser are accepted."
+                ],
+                "sourceIds": []
+              }
+            ],
+            "checks": [
+              "Pair and venue",
+              "Trade time and collection time",
+              "Exact decimal precision",
+              "Return window and calculation",
+              "Unavailable is different from zero"
+            ],
+            "limits": "The current collector does not produce XLM/DOGE/PEPE quotes, consolidated prices, 24-hour changes or executable cross-asset prices."
+          }
+        },
+        {
+          "page": 4,
+          "title": "Washington · SEC + CFTC",
+          "deskTitle": "Washington · SEC & CFTC",
+          "href": "/conversations/desks/sec-cftc/",
+          "deskId": "sec-cftc",
+          "kind": "desk",
+          "status": "not-monitored",
+          "summary": "No accepted current observation was available from this desk’s mapped collector sources. Unavailable or stale data remains missing, never zero; educational context is preserved separately.",
+          "sourceIds": [
+            "sec-news"
+          ],
+          "sources": [
+            {
+              "id": "sec-proposal",
+              "label": "SEC: custody proposal announcement, October 1, 2026",
+              "url": "https://www.sec.gov/newsroom/press-releases/2026-100-sec-proposal-would-address-how-investment-advisers-funds-can-custody-crypto-assets-under-federal",
+              "kind": "Primary source"
+            },
+            {
+              "id": "sec-rule",
+              "label": "SEC: rule file S7-2026-35",
+              "url": "https://www.sec.gov/rules-regulations/2026/10/s7-2026-35",
+              "kind": "Primary source"
+            },
+            {
+              "id": "cftc-faq",
+              "label": "CFTC: staff FAQ update, September 24, 2026",
+              "url": "https://www.cftc.gov/PressRoom/PressReleases/9303-26",
+              "kind": "Primary source"
+            },
+            {
+              "id": "sec-faq",
+              "label": "SEC: Corporation Finance crypto-asset FAQs",
+              "url": "https://www.sec.gov/about/divisions-offices/division-corporation-finance/faqs-crypto-assets",
+              "kind": "Primary source"
+            },
+            {
+              "id": "cftc-register",
+              "label": "CFTC: Federal Register source migration",
+              "url": "https://www.cftc.gov/LawRegulation/FederalRegister/index.htm",
+              "kind": "Primary source"
+            },
+            {
+              "id": "cftc-comments",
+              "label": "CFTC: current and legacy comment records",
+              "url": "https://www.cftc.gov/LawRegulation/PublicComments/ReleasesWithComments",
+              "kind": "Primary source"
+            },
+            {
+              "id": "sec-news",
+              "label": "SEC: official press releases",
+              "url": "https://www.sec.gov/newsroom/press-releases",
+              "kind": "Primary source"
+            },
+            {
+              "id": "cftc-news",
+              "label": "CFTC: official press releases",
+              "url": "https://www.cftc.gov/PressRoom/PressReleases",
+              "kind": "Primary source"
+            },
+            {
+              "id": "sec-enforcement",
+              "label": "SEC: litigation releases",
+              "url": "https://www.sec.gov/enforcement-litigation/litigation-releases",
+              "kind": "Primary source"
+            },
+            {
+              "id": "cftc-enforcement",
+              "label": "CFTC: enforcement actions",
+              "url": "https://www.cftc.gov/LawRegulation/EnforcementActions/index.htm",
+              "kind": "Primary source"
+            },
+            {
+              "id": "sec-calendar",
+              "label": "SEC: meetings and events",
+              "url": "https://www.sec.gov/newsroom/meetings-events",
+              "kind": "Primary source"
+            },
+            {
+              "id": "cftc-calendar",
+              "label": "CFTC: events",
+              "url": "https://www.cftc.gov/PressRoom/Events",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "sec-news",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": null,
+              "status": "unavailable",
+              "freshness": "unknown",
+              "metricLabels": [],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "The SEC and CFTC have distinct responsibilities. LTC follows their original records and the legal status of each action; an agency announcement does not establish approval of a token, a lending market or our community project.",
+              "This page restores the dedicated Washington desk from the reference. The dated items below are source-linked background checked October 4, 2026. They are not an automatically complete policy feed."
+            ],
+            "sections": [
+              {
+                "heading": "SEC · Proposed rule · October 1, 2026",
+                "paragraphs": [
+                  "The SEC proposed changes concerning crypto-asset custody by registered investment advisers and regulated funds, including specified self-custody arrangements and state trust companies. The rule file is S7-2026-35. It remains a proposal, not a new blanket permission for onchain finance.",
+                  "The rule page states that comments are due 60 days after Federal Register publication. The announcement date does not establish that deadline; an exact closing date was not confirmed in this review. Publication, final action and any effective date remain separate fields."
+                ],
+                "sourceIds": [
+                  "sec-proposal",
+                  "sec-rule"
+                ]
+              },
+              {
+                "heading": "CFTC · Staff FAQ update · September 24, 2026",
+                "paragraphs": [
+                  "CFTC staff announced updated FAQs addressing tokenized forms of permitted customer-fund investments and blockchain recordkeeping. This is staff guidance concerning specified regulated activities, not a final Commission rule or blanket approval of decentralized lending.",
+                  "The release builds on earlier staff positions. The exact September revision of the underlying FAQ PDF was not independently reconciled here, so this summary stays within the September announcement and does not enumerate new eligibility rights."
+                ],
+                "sourceIds": [
+                  "cftc-faq"
+                ]
+              },
+              {
+                "heading": "SEC · Staff FAQ · Updated September 28, 2026",
+                "paragraphs": [
+                  "The Corporation Finance staff’s crypto-asset FAQ page distinguishes staff views from Commission rules. Its September 28 revision is part of the source record. A project-specific legal conclusion cannot be drawn from an isolated phrase or from an earlier version of the page."
+                ],
+                "sourceIds": [
+                  "sec-faq"
+                ]
+              },
+              {
+                "heading": "A changed route to the public record",
+                "paragraphs": [
+                  "CFTC’s Federal Register hub says its local collection stopped updating in April 2026. It directs readers to FederalRegister.gov. CFTC also directs comment files opened on or after April 28, 2026 to Regulations.gov. A working legacy link therefore does not prove current coverage.",
+                  "The newsroom follows proposals, final rules, staff guidance, comments, enforcement records and calendars as distinct channels. Allegations, settlements and court findings keep their own labels. No automated comment submission or legal-clearance service is connected."
+                ],
+                "sourceIds": [
+                  "cftc-register",
+                  "cftc-comments"
+                ]
+              }
+            ],
+            "checks": [
+              "Agency and release/docket ID",
+              "Proposal, rule, guidance or order",
+              "Announcement versus action date",
+              "Publication/effective/comment dates",
+              "Source changes and corrections"
+            ],
+            "limits": "SEC collection currently has known access failures. CFTC RSS payloads and replacement API ingestion are not verified; missing coverage must never be described as “no regulatory news.”"
+          }
+        },
+        {
+          "page": 5,
+          "title": "Bitcoin ETF flow tape",
+          "deskTitle": "Follow the flows",
+          "href": "/conversations/desks/bitcoin-etf-flows/",
+          "deskId": "bitcoin-etf-flows",
+          "kind": "desk",
+          "status": "sampled-observations",
+          "summary": "Accepted dated observations: IBIT reported BTC holdings; IBIT shares outstanding. These observations do not validate every field in this desk; its archived limits still apply.",
+          "sourceIds": [
+            "ibit-holdings"
+          ],
+          "sources": [
+            {
+              "id": "ibit",
+              "label": "iShares Bitcoin Trust ETF: holdings and product disclosures",
+              "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf",
+              "kind": "Primary source"
+            },
+            {
+              "id": "flow-reference",
+              "label": "Reference source: Farside Bitcoin ETF flows",
+              "url": "https://farside.co.uk/bitcoin-etf-flow-all-data/",
+              "kind": "Historical source reference"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "ibit-holdings",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-11-10",
+              "status": "collected",
+              "freshness": "dated-observation",
+              "metricLabels": [
+                "IBIT reported BTC holdings",
+                "IBIT shares outstanding"
+              ],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "This is the home of the Bitcoin ETF flow tape: completed-session totals, constituent products and rolling windows. The 29-page reference included these fields; the current validated daily dataset does not yet contain a comparable flow series."
+            ],
+            "sections": [
+              {
+                "heading": "What a flow table must say",
+                "paragraphs": [
+                  "Each line needs the product identifier, completed trading session, reporting currency, source and revision state. A market holiday is not automatically a zero-flow session. A missing product cannot quietly be excluded from a supposedly complete total.",
+                  "Rolling seven- or thirty-day figures must say whether they use calendar days or trading sessions, and whether they sum net creations/redemptions, cash estimates or another measure."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "Why holdings do not answer it",
+                "paragraphs": [
+                  "IBIT publishes product and holdings information with field-specific dates and valuation notes. Our accepted daily balance is useful context, but a change in the dollar value of holdings can reflect a price move. Even coin-count changes require the fund’s accounting context before being called investor cash flows."
+                ],
+                "sourceIds": [
+                  "ibit"
+                ]
+              }
+            ],
+            "checks": [
+              "Completed session only",
+              "Stable product universe",
+              "Source method and units",
+              "Calendar/trading-day window",
+              "Revisions and missing constituents"
+            ],
+            "limits": "No fresh ETF net-flow total or rolling series is published here. The reference’s October 1 flow figures remain historical, unreconciled reference observations."
+          }
+        },
+        {
+          "page": 6,
+          "title": "Global Bitcoin product register",
+          "deskTitle": "The Bitcoin product register",
+          "href": "/conversations/desks/bitcoin-products/",
+          "deskId": "bitcoin-products",
+          "kind": "desk",
+          "status": "sampled-observations",
+          "summary": "Accepted dated observations: IBIT reported BTC holdings; IBIT shares outstanding. These observations do not validate every field in this desk; its archived limits still apply.",
+          "sourceIds": [
+            "ibit-holdings",
+            "coinshares-bitc"
+          ],
+          "sources": [
+            {
+              "id": "ibit",
+              "label": "iShares Bitcoin Trust ETF: holdings and product disclosures",
+              "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf",
+              "kind": "Primary source"
+            },
+            {
+              "id": "coinshares",
+              "label": "CoinShares Physical Bitcoin: product materials",
+              "url": "https://coinshares.com/etp/physical-bitcoin/",
+              "kind": "Primary source"
+            },
+            {
+              "id": "product-reference",
+              "label": "Reference source: Bitcoin Treasuries product universe",
+              "url": "https://bitcointreasuries.net/etfs-and-exchanges",
+              "kind": "Historical source reference"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "ibit-holdings",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-11-10",
+              "status": "collected",
+              "freshness": "dated-observation",
+              "metricLabels": [
+                "IBIT reported BTC holdings",
+                "IBIT shares outstanding"
+              ],
+              "onlyUpstreamReleases": false
+            },
+            {
+              "id": "coinshares-bitc",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": null,
+              "status": "reference-retrieved",
+              "freshness": "unknown",
+              "metricLabels": [],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "A useful global register compares instruments before ranking them. The original design’s Top 21 is a coverage ambition, not evidence that twenty-one current rows have been independently reconciled."
+            ],
+            "sections": [
+              {
+                "heading": "Start with the instrument",
+                "paragraphs": [
+                  "Record the legal product name, issuer, identifier, domicile, listing currency, structure, fees and underlying exposure. One product may trade on several exchanges. Counting every listing as a separate pool can double-count the same assets.",
+                  "An issuer’s assets under management, net asset value and units of bitcoin answer different questions. Preserve their distinct dates instead of putting them in a single unlabeled ranking."
+                ],
+                "sourceIds": [
+                  "ibit",
+                  "coinshares"
+                ]
+              },
+              {
+                "heading": "Build an honest comparison",
+                "paragraphs": [
+                  "The daily issue contains a dated IBIT holdings record when its freshness gates pass. CoinShares is currently a product-reference source. These do not constitute a complete global ranking; the remaining rows need issuer-level reconciliation."
+                ],
+                "sourceIds": []
+              }
+            ],
+            "checks": [
+              "Product identifier and listing",
+              "Legal structure and issuer",
+              "BTC amount versus AUM",
+              "Currency and valuation cutoff",
+              "Cross-listing deduplication"
+            ],
+            "limits": "No current Top 21 ranking is claimed. An unfilled position stays unfilled until a comparable observation exists."
+          }
+        },
+        {
+          "page": 7,
+          "title": "IBIT · Strategy · Strive",
+          "deskTitle": "IBIT. Strategy. Strive.",
+          "href": "/conversations/desks/institution-profiles/",
+          "deskId": "institution-profiles",
+          "kind": "desk",
+          "status": "sampled-observations",
+          "summary": "Accepted dated observations: IBIT reported BTC holdings; IBIT shares outstanding. These observations do not validate every field in this desk; its archived limits still apply.",
+          "sourceIds": [
+            "ibit-holdings",
+            "strategy-notes"
+          ],
+          "sources": [
+            {
+              "id": "ibit",
+              "label": "iShares Bitcoin Trust ETF: holdings and product disclosures",
+              "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf",
+              "kind": "Primary source"
+            },
+            {
+              "id": "strategy",
+              "label": "Strategy: metric definitions and limitations",
+              "url": "https://www.strategy.com/notes",
+              "kind": "Primary source"
+            },
+            {
+              "id": "strive",
+              "label": "Strive: investor relations",
+              "url": "https://investors.strive.com/overview/",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "ibit-holdings",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-11-10",
+              "status": "collected",
+              "freshness": "dated-observation",
+              "metricLabels": [
+                "IBIT reported BTC holdings",
+                "IBIT shares outstanding"
+              ],
+              "onlyUpstreamReleases": false
+            },
+            {
+              "id": "strategy-notes",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": null,
+              "status": "unavailable",
+              "freshness": "unknown",
+              "metricLabels": [],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "A fund, an operating company and a corporate capital strategy should not be collapsed into one league table. The first task is to identify who owns the asset and what security a reader is observing."
+            ],
+            "sections": [
+              {
+                "heading": "IBIT: fund exposure",
+                "paragraphs": [
+                  "IBIT’s product materials describe fund exposure and provide dated holdings. Bitcoin held within a fund is not the asset manager’s own corporate Bitcoin treasury. Product expenses and the share mechanism belong in the profile."
+                ],
+                "sourceIds": [
+                  "ibit"
+                ]
+              },
+              {
+                "heading": "Strategy: the capital structure matters",
+                "paragraphs": [
+                  "Strategy explicitly explains that it is not an ETF or ETP. Its common equity, debt and preferred instruments are distinct claims. The company’s own definitions warn that some Bitcoin-related metrics are supplemental measures with limitations."
+                ],
+                "sourceIds": [
+                  "strategy"
+                ]
+              },
+              {
+                "heading": "Strive: use the company record",
+                "paragraphs": [
+                  "Strive describes its corporate Bitcoin strategy in investor-relations materials. The profile should pair those statements with dated filings and clearly separate corporate holdings from assets managed for clients. This page does not reproduce a current Strive holding balance."
+                ],
+                "sourceIds": [
+                  "strive"
+                ]
+              }
+            ],
+            "checks": [
+              "Exact legal entity",
+              "Security and seniority",
+              "Holdings disclosure date",
+              "Debt/preferred claims",
+              "Corporate assets versus client assets"
+            ],
+            "limits": "No buy recommendation, share-return inference or current consolidated holdings ranking is supplied."
+          }
+        },
+        {
+          "page": 8,
+          "title": "Public Bitcoin treasuries",
+          "deskTitle": "Public Bitcoin treasuries",
+          "href": "/conversations/desks/bitcoin-treasuries/",
+          "deskId": "bitcoin-treasuries",
+          "kind": "desk",
+          "status": "not-monitored",
+          "summary": "No accepted current observation was available from this desk’s mapped collector sources. Unavailable or stale data remains missing, never zero; educational context is preserved separately.",
+          "sourceIds": [
+            "strategy-notes"
+          ],
+          "sources": [
+            {
+              "id": "strategy",
+              "label": "Strategy: metric definitions and limitations",
+              "url": "https://www.strategy.com/notes",
+              "kind": "Primary source"
+            },
+            {
+              "id": "strive",
+              "label": "Strive: investor relations",
+              "url": "https://investors.strive.com/overview/",
+              "kind": "Primary source"
+            },
+            {
+              "id": "treasury-reference",
+              "label": "Reference source: Bitcoin Treasuries tracker",
+              "url": "https://bitcointreasuries.net/",
+              "kind": "Historical source reference"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "strategy-notes",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": null,
+              "status": "unavailable",
+              "freshness": "unknown",
+              "metricLabels": [],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "This desk follows corporate Bitcoin disclosures, capital raises, dilution and the difference between gross reserves and the claim attached to a share. The reference’s tracker ranking is a research lead; it is not a current, reconciled register."
+            ],
+            "sections": [
+              {
+                "heading": "A treasury record",
+                "paragraphs": [
+                  "A company entry needs the entity and ticker, filing or issuer release, as-of date, asset quantity and ownership basis. Customer custody, fund holdings and corporate reserves must occupy different fields.",
+                  "An acquisition announcement can change the reporting perimeter before a balance sheet consolidates it. Keep announcement, completion and financial reporting dates separate."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "Shareholder context",
+                "paragraphs": [
+                  "Holding more BTC does not alone establish higher per-share value. Outstanding and potentially dilutive securities, senior claims and the company’s metric conventions affect comparisons. Strategy’s public notes illustrate why definitions travel with a reported KPI."
+                ],
+                "sourceIds": [
+                  "strategy"
+                ]
+              }
+            ],
+            "checks": [
+              "Entity and ticker",
+              "Original issuer record",
+              "Gross versus encumbered holdings",
+              "Share-count definition",
+              "Acquisitions and duplicate entities"
+            ],
+            "limits": "A current Top 21 corporate ranking is not available from the accepted daily parsers. No tracker balance is silently promoted to an issuer-verified total."
+          }
+        },
+        {
+          "page": 9,
+          "title": "The mNAV lens",
+          "deskTitle": "The mNAV lens",
+          "href": "/conversations/desks/mnav/",
+          "deskId": "mnav",
+          "kind": "desk",
+          "status": "not-monitored",
+          "summary": "No accepted current observation was available from this desk’s mapped collector sources. Unavailable or stale data remains missing, never zero; educational context is preserved separately.",
+          "sourceIds": [
+            "strategy-notes"
+          ],
+          "sources": [
+            {
+              "id": "strategy",
+              "label": "Strategy: metric definitions and limitations",
+              "url": "https://www.strategy.com/notes",
+              "kind": "Primary source"
+            },
+            {
+              "id": "mnav-reference",
+              "label": "Reference source: mNAV terminal",
+              "url": "https://www.mnav.com/",
+              "kind": "Historical source reference"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "strategy-notes",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": null,
+              "status": "unavailable",
+              "freshness": "unknown",
+              "metricLabels": [],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "mNAV is not a universal formula. A useful valuation desk shows the method before the number: equity value or enterprise value, gross or adjusted asset value, securities included, prices and the common cutoff."
+            ],
+            "sections": [
+              {
+                "heading": "Show the calculation",
+                "paragraphs": [
+                  "Write down the chosen numerator and denominator explicitly. If debt, cash or preferred claims are included, state whether their values are market, face, liquidation or another convention. A seemingly precise multiple can hide incompatible definitions.",
+                  "An input changed after the cutoff cannot be spliced into an older snapshot without relabeling the result. Search snippets without a dependable observation time do not establish a current valuation."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "Keep issuer terminology attributed",
+                "paragraphs": [
+                  "Strategy’s notes describe its own definitions and their limitations. Its supplementary Bitcoin metrics are not substitutes for financial statements. Those definitions are a primary reference for that issuer; they do not automatically standardize every treasury company."
+                ],
+                "sourceIds": [
+                  "strategy"
+                ]
+              }
+            ],
+            "checks": [
+              "Formula and methodology version",
+              "Same-cutoff prices",
+              "Diluted/basic equity basis",
+              "Debt, cash and preferred treatment",
+              "Source-effective dates"
+            ],
+            "limits": "The historical mNAV extract conflicted with another holding record. No current multiple is shown until synchronized inputs and a reproducible method pass review."
+          }
+        },
+        {
+          "page": 10,
+          "title": "Litecoin Register",
+          "deskTitle": "The Litecoin Register",
+          "href": "/conversations/desks/litecoin-register/",
+          "deskId": "litecoin-register",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "A reference page was retrieved without a validated numerical parser. The archived educational context and citations are not fresh metrics or new headlines.",
+          "sourceIds": [
+            "litecoin-register"
+          ],
+          "sources": [
+            {
+              "id": "register",
+              "label": "Litecoin Register: attributed research",
+              "url": "https://www.litecoinregister.com/",
+              "kind": "Secondary research"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "litecoin-register",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": null,
+              "status": "reference-retrieved",
+              "freshness": "unknown",
+              "metricLabels": [],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "The Register supplies an attributed view of entities associated with LTC. A tracker’s entity count or aggregate can change because its classification or observed universe changes. That alone is not evidence of market buying."
+            ],
+            "sections": [
+              {
+                "heading": "Read the ownership label",
+                "paragraphs": [
+                  "Exchange balances may represent customers. Investment products may hold coins for investors. A corporate treasury, miner reserve and wrapped-asset backing each represent different relationships. Keep those sectors distinct before adding numbers.",
+                  "A chain address does not by itself identify beneficial ownership. Attribution requires records, method and an uncertainty label. Reusing the same reserve in a token and custodian total can double-count the underlying LTC."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "From discovery to a defensible snapshot",
+                "paragraphs": [
+                  "Start with the tracker’s definition and as-of time, then reconcile material rows against issuer filings or original disclosures. Retain historical snapshots so a changed row can be explained rather than interpreted as an unexplained flow."
+                ],
+                "sourceIds": [
+                  "register"
+                ]
+              }
+            ],
+            "checks": [
+              "Tracker date and universe",
+              "Sector taxonomy",
+              "Beneficial ownership evidence",
+              "Wrapped reserves and custody overlap",
+              "Changes in row membership"
+            ],
+            "limits": "The daily job checks reference availability only. No current entity total, aggregate LTC balance or acquisition flow is validated by that check."
+          }
+        },
+        {
+          "page": 11,
+          "title": "Litecoin product register",
+          "deskTitle": "The Litecoin product register",
+          "href": "/conversations/desks/litecoin-products/",
+          "deskId": "litecoin-products",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "A reference page was retrieved without a validated numerical parser. The archived educational context and citations are not fresh metrics or new headlines.",
+          "sourceIds": [
+            "litecoin-register"
+          ],
+          "sources": [
+            {
+              "id": "register",
+              "label": "Litecoin Register: attributed research",
+              "url": "https://www.litecoinregister.com/",
+              "kind": "Secondary research"
+            },
+            {
+              "id": "canary",
+              "label": "Canary Litecoin ETF: issuer product page",
+              "url": "https://canaryetfs.com/ltcc/",
+              "kind": "Project / issuer source"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "litecoin-register",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": null,
+              "status": "reference-retrieved",
+              "freshness": "unknown",
+              "metricLabels": [],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "A Litecoin trust, ETF, ETP and multi-asset basket can carry different exposure and legal structures. A basket containing LTC is not automatically a dedicated Litecoin fund. The reference’s twenty rows remain a historical research universe."
+            ],
+            "sections": [
+              {
+                "heading": "What belongs in each row",
+                "paragraphs": [
+                  "Record the issuer, exact product identifier, structure, domicile, currency, LTC exposure and report date. For a basket, separate the component’s LTC quantity from total product assets. Do not treat an unreported holding as a zero."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "Rank only comparable records",
+                "paragraphs": [
+                  "The Top 21 convention is a reading frame, not a quota. Publish fewer verified rows when that is what the evidence supports. Explain inclusion, exclusion and tied or zero values; never add a nonexistent product to complete the design.",
+                  "The Litecoin Register is a starting index for issuer work, not independent confirmation of every instrument’s balance or eligibility."
+                ],
+                "sourceIds": [
+                  "register"
+                ]
+              }
+            ],
+            "checks": [
+              "Dedicated product versus basket",
+              "Issuer documents",
+              "LTC quantity and units",
+              "Valuation date and currency",
+              "Cross-listings and missing records"
+            ],
+            "limits": "A current reconciled product ranking is not yet collected. Historical design figures are not reused as fresh holdings."
+          }
+        },
+        {
+          "page": 12,
+          "title": "Public Litecoin treasuries",
+          "deskTitle": "Public Litecoin treasuries",
+          "href": "/conversations/desks/litecoin-treasuries/",
+          "deskId": "litecoin-treasuries",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "A reference page was retrieved without a validated numerical parser. The archived educational context and citations are not fresh metrics or new headlines.",
+          "sourceIds": [
+            "litecoin-register"
+          ],
+          "sources": [
+            {
+              "id": "register",
+              "label": "Litecoin Register: attributed research",
+              "url": "https://www.litecoinregister.com/",
+              "kind": "Secondary research"
+            },
+            {
+              "id": "filing",
+              "label": "Historical Lite Strategy SEC exhibit",
+              "url": "https://www.sec.gov/Archives/edgar/data/1262104/000119312526325026/lits-ex99_1.htm",
+              "kind": "Historical source reference"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "litecoin-register",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": null,
+              "status": "reference-retrieved",
+              "freshness": "unknown",
+              "metricLabels": [],
+              "onlyUpstreamReleases": false
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "This desk follows companies reporting LTC, their original filings and the share basis behind per-share calculations. A shorter verified list is more informative than an invented twenty-company league table."
+            ],
+            "sections": [
+              {
+                "heading": "One historical checkpoint is not a live register",
+                "paragraphs": [
+                  "Each filing belongs to a reporting date. If a press release arrives later, show both dates. A ratio computed from a historical holding and share count stays attached to that same checkpoint; today’s share price does not refresh the numerator."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "Separate the claims",
+                "paragraphs": [
+                  "Maintain a record for issuer-reported holdings, a record for tracker attribution and a record for our own calculation. The calculation should expose units and rounding. Missing dilution or ownership information remains a limitation, not a reason to fill a cell with a guess."
+                ],
+                "sourceIds": [
+                  "register"
+                ]
+              }
+            ],
+            "checks": [
+              "Original filing and issuer",
+              "Holding as-of date",
+              "Share-count cutoff",
+              "Dilution and encumbrances",
+              "Computed versus reported values"
+            ],
+            "limits": "No current treasury balances or LTC-per-share comparison have been validated by the daily collector."
+          }
+        },
+        {
+          "page": 13,
+          "title": "Litecoin Foundation",
+          "deskTitle": "The Foundation desk",
+          "href": "/conversations/desks/litecoin-foundation/",
+          "deskId": "litecoin-foundation",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "foundation",
+              "label": "Litecoin Foundation: news",
+              "url": "https://litecoin.com/news",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "Foundation coverage has its own place in LTC: wallet releases, merchant tools, education, public events and engineering support. The publication date belongs beside every announcement, even when an older article remains the most recent item returned."
+            ],
+            "sections": [
+              {
+                "heading": "A dated announcement",
+                "paragraphs": [
+                  "The official news index includes a May 28, 2026 Nexus Wallet update and an April 28 MWEB security postmortem. Those are dated source records, not new October announcements. An article about a wallet feature does not by itself measure adoption or successful use."
+                ],
+                "sourceIds": [
+                  "foundation"
+                ]
+              },
+              {
+                "heading": "The daily questions",
+                "paragraphs": [
+                  "Which release or document changed? Where is the public code? Is there a reproducible demonstration, an operator guide or an event organizer record? Reporting should connect a claim to the evidence that a reader can inspect.",
+                  "LTC is an independent project. Linking the Foundation’s work does not imply a partnership, endorsement, staffing relationship or paid placement."
+                ],
+                "sourceIds": []
+              }
+            ],
+            "checks": [
+              "Announcement date",
+              "Release and repository",
+              "Feature versus observed use",
+              "Organizer confirmation",
+              "Sponsorship disclosure"
+            ],
+            "limits": "Foundation news is linked and editorially reviewed here; it is not yet parsed into automatic daily headlines."
+          }
+        },
+        {
+          "page": 14,
+          "title": "MWEB privacy + security",
+          "deskTitle": "MWEB: privacy & security",
+          "href": "/conversations/desks/mweb/",
+          "deskId": "mweb",
+          "kind": "desk",
+          "status": "dated-upstream-record",
+          "summary": "An official software release record was collected with its original publication date. It is dated context, not a claim of a new announcement today or a measurement of network activity.",
+          "sourceIds": [
+            "litecoin-core"
+          ],
+          "sources": [
+            {
+              "id": "ltccore",
+              "label": "Litecoin Core: official releases",
+              "url": "https://github.com/litecoin-project/litecoin/releases",
+              "kind": "Primary source"
+            },
+            {
+              "id": "postmortem",
+              "label": "Litecoin: MWEB security incident postmortem, April 28, 2026",
+              "url": "https://litecoin.com/news/litecoin-mweb-security-incident-postmortem",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "litecoin-core",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-09-12T12:06:49Z",
+              "status": "collected",
+              "freshness": "dated-event",
+              "metricLabels": [
+                "Litecoin Core latest returned release"
+              ],
+              "onlyUpstreamReleases": true
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "MWEB coverage follows Litecoin’s extension-block engineering, validation, wallet support and disclosed incidents. Privacy language should explain what a system hides, what remains visible and what an operator must verify."
+            ],
+            "sections": [
+              {
+                "heading": "Read the incident record",
+                "paragraphs": [
+                  "The Litecoin developer postmortem published April 28, 2026 describes an MWEB input-validation vulnerability and the response. Its date and attribution are essential: this is historical incident reporting, not a claim that a new attack is happening today."
+                ],
+                "sourceIds": [
+                  "postmortem"
+                ]
+              },
+              {
+                "heading": "Read the release as a release",
+                "paragraphs": [
+                  "The daily issue records the version returned by the official Litecoin repository. Version and publication time are useful evidence. An upgrade decision also depends on the actual release notes, running version and operator environment; a magazine is not a deployment manager.",
+                  "A software version number is not an independent audit or an assurance that every exchange, wallet or node has upgraded."
+                ],
+                "sourceIds": [
+                  "ltccore"
+                ]
+              }
+            ],
+            "checks": [
+              "Affected version and scope",
+              "Original advisory date",
+              "Fix/release evidence",
+              "Operator verification instructions",
+              "Residual uncertainty"
+            ],
+            "limits": "No independent incident investigation or monitoring of the reader’s wallet/node is performed."
+          }
+        },
+        {
+          "page": 15,
+          "title": "Bitcoin Core",
+          "deskTitle": "The Bitcoin Core desk",
+          "href": "/conversations/desks/bitcoin-core/",
+          "deskId": "bitcoin-core",
+          "kind": "desk",
+          "status": "dated-upstream-record",
+          "summary": "An official software release record was collected with its original publication date. It is dated context, not a claim of a new announcement today or a measurement of network activity.",
+          "sourceIds": [
+            "bitcoin-core"
+          ],
+          "sources": [
+            {
+              "id": "core",
+              "label": "Bitcoin Core: official releases",
+              "url": "https://bitcoincore.org/en/releases/",
+              "kind": "Primary source"
+            },
+            {
+              "id": "validation",
+              "label": "Bitcoin Core: validation and independent rule enforcement",
+              "url": "https://bitcoin.org/en/bitcoin-core/features/validation",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "bitcoin-core",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-10-28T14:23:53Z",
+              "status": "collected",
+              "freshness": "dated-event",
+              "metricLabels": [
+                "Bitcoin Core latest returned release"
+              ],
+              "onlyUpstreamReleases": true
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "Bitcoin Core coverage follows official releases, changes and verification instructions. A release label does not measure network adoption, and a downloaded binary does not prove its own origin."
+            ],
+            "sections": [
+              {
+                "heading": "Read the evidence in sequence",
+                "paragraphs": [
+                  "Start with the upstream release page and its date. Separate bug fixes, behavior changes and security communications. The accepted daily parser records stable releases from the official repository; it does not execute code or install an upgrade.",
+                  "A reproducible build or signed manifest is a verification method with its own steps. A newsroom link to those steps is not evidence that they were completed on every reader’s machine."
+                ],
+                "sourceIds": [
+                  "core"
+                ]
+              },
+              {
+                "heading": "Keep the newcomer in the room",
+                "paragraphs": [
+                  "A node independently applies the rules of the software it runs. Miners propose blocks; a node still validates them. The editorial desk should explain that relationship before presenting jargon, performance charts or mining statistics."
+                ],
+                "sourceIds": [
+                  "validation"
+                ]
+              }
+            ],
+            "checks": [
+              "Canonical repository",
+              "Version and release date",
+              "Release channel",
+              "Verification instructions",
+              "Consensus claim versus software behavior"
+            ],
+            "limits": "The daily record supplies upstream release metadata, not node telemetry or a network-wide upgrade count."
+          }
+        },
+        {
+          "page": 16,
+          "title": "Lightning Network",
+          "deskTitle": "The Lightning desk",
+          "href": "/conversations/desks/lightning/",
+          "deskId": "lightning",
+          "kind": "desk",
+          "status": "dated-upstream-record",
+          "summary": "An official software release record was collected with its original publication date. It is dated context, not a claim of a new announcement today or a measurement of network activity.",
+          "sourceIds": [
+            "lnd"
+          ],
+          "sources": [
+            {
+              "id": "lnd",
+              "label": "LND: official releases",
+              "url": "https://github.com/lightningnetwork/lnd/releases",
+              "kind": "Primary source"
+            },
+            {
+              "id": "btcpay",
+              "label": "BTCPay Server: integration guide",
+              "url": "https://docs.btcpayserver.org/Developers/api/",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "lnd",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-11-11T20:41:18Z",
+              "status": "collected",
+              "freshness": "dated-event",
+              "metricLabels": [
+                "LND latest returned release"
+              ],
+              "onlyUpstreamReleases": true
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "Lightning coverage connects software releases with the practical questions of channels, routing, liquidity and payments. A conceptual channel diagram is an illustration, not a measured map of the network."
+            ],
+            "sections": [
+              {
+                "heading": "Releases keep their own clock",
+                "paragraphs": [
+                  "The daily issue records the upstream LND release and publication timestamp. Its beta suffix is retained when present in the official version name; draft and release-candidate records do not pass the stable-release parser. The label is not a certification of safety."
+                ],
+                "sourceIds": [
+                  "lnd"
+                ]
+              },
+              {
+                "heading": "Capacity is not payment volume",
+                "paragraphs": [
+                  "Publicly visible channel capacity cannot establish private-channel capacity or the value of payments routed over an interval. A useful chart must describe visibility, sampling time and method. Do not turn a public capacity sum into a revenue or adoption estimate.",
+                  "For community and artist payments, invoices, expiry and payment-state reconciliation matter. The magazine introduces those questions without activating an invoice service or controlling funds."
+                ],
+                "sourceIds": [
+                  "btcpay"
+                ]
+              }
+            ],
+            "checks": [
+              "Software and version",
+              "Public/private visibility",
+              "Measurement window",
+              "Routing versus capacity",
+              "Invoice and settlement state"
+            ],
+            "limits": "No measured Lightning capacity, routing success or payment volume is supplied by the current daily adapters."
+          }
+        },
+        {
+          "page": 17,
+          "title": "Timechain Calendar",
+          "deskTitle": "Timechain Calendar",
+          "href": "/conversations/desks/timechain/",
+          "deskId": "timechain",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "timechain",
+              "label": "Timechain Calendar: project",
+              "url": "https://timechaincalendar.com/app",
+              "kind": "Primary source"
+            },
+            {
+              "id": "halving",
+              "label": "Bitcoin: halving schedule and estimated dates",
+              "url": "https://bitcoin.org/en/halving",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "This desk preserves the Timechain theme from the design: block height, block hash, timestamps, fees, difficulty progress and halving estimates. A live dashboard reached in a browser is not a reproducible numeric source unless the relevant observation is captured."
+            ],
+            "sections": [
+              {
+                "heading": "What a network snapshot needs",
+                "paragraphs": [
+                  "Name the network, observation method and collection time. Pair height with the block hash so the checkpoint can be identified. Fee estimates require units, confirmation targets and an estimator; difficulty progress and a projected halving date require a stated calculation."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "An estimate stays an estimate",
+                "paragraphs": [
+                  "Bitcoin’s subsidy halving is tied to block height. A calendar estimate depends on the rate of future block production and can move. The protocol event and a projected date should not share one unlabeled field."
+                ],
+                "sourceIds": [
+                  "halving"
+                ]
+              },
+              {
+                "heading": "The reference tool",
+                "paragraphs": [
+                  "Timechain Calendar describes its product as a Bitcoin protocol visualizer and explorer. We link the project as a reading tool; this site does not claim an integrated or independently verified copy of its live dashboard."
+                ],
+                "sourceIds": [
+                  "timechain"
+                ]
+              }
+            ],
+            "checks": [
+              "Height plus block hash",
+              "Node/source identity",
+              "Observation timestamp",
+              "Fee unit and target",
+              "Estimate method"
+            ],
+            "limits": "Current block, fee, difficulty and hashrate fields are not independently collected by LTC. No dashboard values are invented."
+          }
+        },
+        {
+          "page": 18,
+          "title": "Nakamoto standard",
+          "deskTitle": "The Nakamoto standard",
+          "href": "/conversations/desks/nakamoto-standard/",
+          "deskId": "nakamoto-standard",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "whitepaper",
+              "label": "Bitcoin: A Peer-to-Peer Electronic Cash System",
+              "url": "https://bitcoin.org/bitcoin.pdf",
+              "kind": "Primary source"
+            },
+            {
+              "id": "doge",
+              "label": "Dogecoin: mining and merged mining",
+              "url": "https://dogecoin.com/dogepedia/how-tos/mining-dogecoin/",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "For LTC, the Nakamoto standard is an editorial framework: examine consensus, incentives, verification and custody instead of treating a brand or price chart as proof. It is our stated approach, not a certification granted by an outside organization."
+            ],
+            "sections": [
+              {
+                "heading": "Separate the systems",
+                "paragraphs": [
+                  "Bitcoin’s white paper explains a peer-to-peer payment design using proof of work to address double spending under stated assumptions. A ledger can support transaction verification; it does not certify a real-world meal, an issuer’s solvency or every story told about a transaction."
+                ],
+                "sourceIds": [
+                  "whitepaper"
+                ]
+              },
+              {
+                "heading": "Merged mining without merged claims",
+                "paragraphs": [
+                  "Dogecoin’s official mining guide describes support for merged mining with compatible Scrypt systems. Shared mining work does not merge the ledgers, asset supplies or the measures used to describe their activity. Keep each chain’s source and units visible."
+                ],
+                "sourceIds": [
+                  "doge"
+                ]
+              },
+              {
+                "heading": "A practice for the community",
+                "paragraphs": [
+                  "Choose one claim. Identify what a node can check, what depends on an institution and what remains a forecast. This is a useful exercise for a newcomer and an experienced Bitcoiner alike."
+                ],
+                "sourceIds": []
+              }
+            ],
+            "checks": [
+              "Consensus mechanism",
+              "Verification assumptions",
+              "Independent asset identity",
+              "Comparable measurement units",
+              "Human authority over real-world service"
+            ],
+            "limits": "Raw hashrate across different algorithms is not presented as a security ranking. A project’s inclusion is not an endorsement."
+          }
+        },
+        {
+          "page": 19,
+          "title": "Morpho market intelligence",
+          "deskTitle": "Morpho market intelligence",
+          "href": "/conversations/desks/morpho/",
+          "deskId": "morpho",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "protocols",
+              "label": "Morpho: protocol and vault distinctions",
+              "url": "https://help.morpho.org/en/articles/12165802-the-morpho-protocols",
+              "kind": "Primary source"
+            },
+            {
+              "id": "borrow",
+              "label": "Morpho: borrower developer resources",
+              "url": "https://docs.morpho.org/developers/borrow/resources/all/",
+              "kind": "Primary source"
+            },
+            {
+              "id": "oracles",
+              "label": "Morpho: oracles",
+              "url": "https://help.morpho.org/en/articles/12879577-oracles-on-morpho",
+              "kind": "Primary source"
+            },
+            {
+              "id": "liquidity",
+              "label": "Morpho: vaults and available liquidity",
+              "url": "https://help.morpho.org/en/articles/14779745-morpho-vaults-and-available-liquidity",
+              "kind": "Primary source"
+            },
+            {
+              "id": "audits",
+              "label": "Morpho: security and audit documentation",
+              "url": "https://docs.morpho.org/get-started/resources/audits/",
+              "kind": "Primary source"
+            },
+            {
+              "id": "base-cbltc",
+              "label": "Reference route: Base cbLTC / USDC",
+              "url": "https://app.morpho.org/base/variable/0x9125d0fa03c3137166df68bcc72283477830de2a4a5536512374c573ad4583c3/usdc-cbltc",
+              "kind": "Historical route reference"
+            },
+            {
+              "id": "base-cbbtc",
+              "label": "Reference route: Base cbBTC / USDC",
+              "url": "https://app.morpho.org/base/variable/0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836/usdc-cbbtc",
+              "kind": "Historical route reference"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "Morpho deserves its own recurring desk: lending design, collateral, oracles, rates, liquidity and evidence about each exact deployment. The reference’s Base cbLTC/USDC and cbBTC/USDC rate observations remain historical; they are not executable offers or today’s rates."
+            ],
+            "sections": [
+              {
+                "heading": "A market is different from a vault",
+                "paragraphs": [
+                  "Morpho Blue uses isolated collateral/loan markets. A borrower supplies collateral and borrows the loan asset; a lender supplies the loan asset. A collateral deposit is not the same operation as lending for yield. Curated vaults can allocate deposits across underlying markets."
+                ],
+                "sourceIds": [
+                  "protocols"
+                ]
+              },
+              {
+                "heading": "Identity, then risk",
+                "paragraphs": [
+                  "For a Blue market, inspect the chain, market ID, loan token, collateral token, oracle, interest-rate model and liquidation loan-to-value threshold. The oracle supplies the valuation used by that market; the magazine’s exchange quote does not replace it.",
+                  "A liquidation boundary is not a suggested borrowing target. Markets with familiar token symbols can differ in oracle assumptions and liquidity. A protocol audit is not a certification of every token/oracle combination."
+                ],
+                "sourceIds": [
+                  "borrow",
+                  "oracles",
+                  "audits"
+                ]
+              },
+              {
+                "heading": "Liquidity is a separate observation",
+                "paragraphs": [
+                  "A vault’s available withdrawal path depends on underlying liquidity and its configuration. Displayed total assets do not establish an immediately available exit. Morpho’s liquidity guide distinguishes mechanics such as adapter deallocation and in-kind redemption; these need to be read for the specific vault."
+                ],
+                "sourceIds": [
+                  "liquidity"
+                ]
+              },
+              {
+                "heading": "The two reference routes",
+                "paragraphs": [
+                  "The design identifies two Base variable-rate research routes, linked below. The historical cbLTC panel contained inconsistent liquidity fields, so those values are not republished as current data. An Arc market is a separate chain/deployment check and must not be substituted for a Base market.",
+                  "Before introducing a daily rate table, the newsroom must validate source timestamps, asset addresses, decimals, rate definitions, market balances and reconciliation. This desk supplies the method and source trail; it does not connect wallets or select a trade."
+                ],
+                "sourceIds": [
+                  "base-cbltc",
+                  "base-cbbtc"
+                ]
+              }
+            ],
+            "checks": [
+              "Chain and full market identity",
+              "Collateral and loan token addresses",
+              "Oracle and interest-rate model",
+              "LLTV and liquidation mechanics",
+              "Timestamped rates and reconciled liquidity"
+            ],
+            "limits": "No current Morpho rate, market liquidity, user position or audit-to-bytecode reconciliation was validated for this update."
+          }
+        },
+        {
+          "page": 20,
+          "title": "cbBTC · cbLTC · market identity",
+          "deskTitle": "cbBTC & cbLTC",
+          "href": "/conversations/desks/wrapped-assets/",
+          "deskId": "wrapped-assets",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "registry",
+              "label": "Coinbase: wrapped-asset registry and backing statements",
+              "url": "https://www.coinbase.com/cbbtc",
+              "kind": "Primary source"
+            },
+            {
+              "id": "help",
+              "label": "Coinbase: wrapped asset transfers and restrictions",
+              "url": "https://help.coinbase.com/en/coinbase/trading-and-funding/sending-or-receiving-cryptocurrency/coinbase-wrapped-btc",
+              "kind": "Primary source"
+            },
+            {
+              "id": "btc-reserves",
+              "label": "Coinbase: cbBTC issuer reserve page",
+              "url": "https://www.coinbase.com/cbbtc/proof-of-reserves",
+              "kind": "Issuer disclosure"
+            },
+            {
+              "id": "ltc-reserves",
+              "label": "Coinbase: cbLTC issuer reserve page",
+              "url": "https://www.coinbase.com/cbltc/proof-of-reserves",
+              "kind": "Issuer disclosure"
+            },
+            {
+              "id": "arc-contracts",
+              "label": "Arc: published contract registry",
+              "url": "https://docs.arc.io/arc/references/contract-addresses",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "cbBTC and cbLTC are Coinbase-wrapped representations of Bitcoin and Litecoin. Coinbase states that it holds the underlying coins in custody with 1:1 backing. A token on another network is not a native Bitcoin or Litecoin output.",
+              "Coinbase’s current registry lists cbLTC on Base and cbBTC on Base, Ethereum, Solana and Arbitrum. This is issuer-documented network support checked October 4, 2026; it is not an onchain bytecode or reserve-solvency audit."
+            ],
+            "sections": [
+              {
+                "heading": "The custody relationship",
+                "paragraphs": [
+                  "The token holder relies on the host network, token contract and custodian/redemption arrangement as well as the underlying asset. That risk distinction follows from the documented structure. It should stay visible in any collateral comparison."
+                ],
+                "sourceIds": [
+                  "registry"
+                ]
+              },
+              {
+                "heading": "Redemption has eligibility conditions",
+                "paragraphs": [
+                  "Coinbase describes wrapping and unwrapping through supported transfers for eligible customers. Eligibility varies by asset and jurisdiction. Its cbLTC restrictions include New York State. Owning a token onchain does not itself prove access to direct Coinbase redemption; readers must check their own applicable terms."
+                ],
+                "sourceIds": [
+                  "help"
+                ]
+              },
+              {
+                "heading": "Reserves: read the method before the total",
+                "paragraphs": [
+                  "Coinbase provides public cbBTC and cbLTC reserve pages. This research encountered ambiguous displayed timezones, locale/cache differences and rounded totals. The pages are linked as issuer evidence, but their displayed numbers are not ingested as verified daily metrics.",
+                  "A reserve disclosure is not by itself a full independent solvency audit, and the same backing coins should not be counted again as a separate corporate holding."
+                ],
+                "sourceIds": [
+                  "btc-reserves",
+                  "ltc-reserves"
+                ]
+              },
+              {
+                "heading": "cbBTC is not cirBTC",
+                "paragraphs": [
+                  "Arc documentation separately lists Circle’s cirBTC. The issuer and token identity differ from Coinbase cbBTC. A market name must preserve the exact collateral instead of treating every wrapped BTC ticker as interchangeable.",
+                  "Before future integration, match the network, issuer contract registry, token decimals and deployed market parameters. This publication does not ask for approvals, private keys or transfers."
+                ],
+                "sourceIds": [
+                  "arc-contracts"
+                ]
+              }
+            ],
+            "checks": [
+              "Native coin versus wrapped token",
+              "Issuer and exact host network",
+              "Current contract registry",
+              "Redemption eligibility",
+              "Reserve date, precision and scope"
+            ],
+            "limits": "No custody proof, wallet-control proof, redemption test, regional eligibility finding or current cbLTC/Morpho suitability assessment is supplied."
+          }
+        },
+        {
+          "page": 21,
+          "title": "Open builders · LitVM · LiteForge",
+          "deskTitle": "The open builder desk",
+          "href": "/conversations/desks/builders/",
+          "deskId": "builders",
+          "kind": "desk",
+          "status": "dated-upstream-record",
+          "summary": "An official software release record was collected with its original publication date. It is dated context, not a claim of a new announcement today or a measurement of network activity.",
+          "sourceIds": [
+            "litecoin-core"
+          ],
+          "sources": [
+            {
+              "id": "ltccore",
+              "label": "Litecoin Core: official releases",
+              "url": "https://github.com/litecoin-project/litecoin/releases",
+              "kind": "Primary source"
+            },
+            {
+              "id": "foundation",
+              "label": "Litecoin Foundation: news",
+              "url": "https://litecoin.com/news",
+              "kind": "Primary source"
+            },
+            {
+              "id": "litvm",
+              "label": "LitVM: official project",
+              "url": "https://www.litvm.com/",
+              "kind": "Project / issuer source"
+            },
+            {
+              "id": "liteforge",
+              "label": "LiteForge: testnet reference",
+              "url": "https://testnet.litvm.com/",
+              "kind": "Project / issuer source"
+            }
+          ],
+          "sourceChecks": [
+            {
+              "id": "litecoin-core",
+              "checkedAt": "2026-11-12T19:34:30.476Z",
+              "sourceAsOf": "2026-09-12T12:06:49Z",
+              "status": "collected",
+              "freshness": "dated-event",
+              "metricLabels": [
+                "Litecoin Core latest returned release"
+              ],
+              "onlyUpstreamReleases": true
+            }
+          ],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "The reference names Litecoin Core, the Litecoin Foundation, LitVM, LiteForge and a community x402 example. Every named thread belongs in the notebook, but a project mention cannot establish production readiness."
+            ],
+            "sections": [
+              {
+                "heading": "The evidence ladder",
+                "paragraphs": [
+                  "For code, record the canonical repository, commit and license. For a deployed system, record the environment, chain identifier, addresses, explorer evidence and operational limits. Keep a testnet demo visibly separate from a production service.",
+                  "An audit needs a report, reviewed commit, scope and the connection to deployed code. A recent commit, attractive website or project announcement is not a substitute."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "Current reading routes",
+                "paragraphs": [
+                  "Litecoin Core has a validated upstream release record in the daily issue. Foundation news is a dated primary reading source. LitVM, LiteForge and the referenced x402 example remain research threads here until exact deployment or repository evidence is reconciled."
+                ],
+                "sourceIds": []
+              }
+            ],
+            "checks": [
+              "Repository and license",
+              "Commit and release",
+              "Testnet/mainnet environment",
+              "Deployment identity",
+              "Audit scope and operating status"
+            ],
+            "limits": "No production certification of LitVM/LiteForge and no reproduced x402 deployment are claimed."
+          }
+        },
+        {
+          "page": 22,
+          "title": "Stellar · XLM",
+          "deskTitle": "Stellar & XLM",
+          "href": "/conversations/desks/stellar/",
+          "deskId": "stellar",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "anchors",
+              "label": "Stellar: anchors and financial-rail interfaces",
+              "url": "https://developers.stellar.org/docs/learn/fundamentals/anchors",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "Stellar coverage belongs in the wider-settlement section of the magazine. Accounts, issued assets, payments, smart contracts and access to traditional rails are distinct observations; a network activity count is not a direct measure of XLM investment demand."
+            ],
+            "sections": [
+              {
+                "heading": "The anchor relationship",
+                "paragraphs": [
+                  "Stellar documentation describes anchors as on- and off-ramps between the network and traditional financial rails. They can issue assets or support existing ones. The documentation distinguishes hosted and programmatic deposit/withdrawal flows and associated identity interfaces."
+                ],
+                "sourceIds": [
+                  "anchors"
+                ]
+              },
+              {
+                "heading": "Name the actual payment asset",
+                "paragraphs": [
+                  "A story about a stablecoin payment on Stellar should identify that stablecoin and its issuer. A story about XLM should name XLM. The distinction matters when comparing network usage, issuer exposure and a token’s role.",
+                  "For a future data table, define accounts, operations and payments separately and keep the observation window. Do not convert a product announcement into a measured adoption claim."
+                ],
+                "sourceIds": []
+              }
+            ],
+            "checks": [
+              "Network and asset issuer",
+              "XLM versus issued token",
+              "Anchor identity",
+              "Operation/payment definitions",
+              "Observation window"
+            ],
+            "limits": "No current XLM price, Soroban activity, account count or product AUM is validated by the daily collector."
+          }
+        },
+        {
+          "page": 23,
+          "title": "DOGE · PEPE",
+          "deskTitle": "DOGE & PEPE",
+          "href": "/conversations/desks/doge-pepe/",
+          "deskId": "doge-pepe",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "doge",
+              "label": "Dogecoin: mining and merged mining",
+              "url": "https://dogecoin.com/dogepedia/how-tos/mining-dogecoin/",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "The reference gives DOGE and PEPE space in its wider-market section. They remain visible here, with token identity and protocol context kept separate from enthusiasm, price and community culture."
+            ],
+            "sections": [
+              {
+                "heading": "DOGE: the merged-mining beat",
+                "paragraphs": [
+                  "Dogecoin’s official guide explains its Scrypt mining context and merged-mining support. Our coverage asks for chain-specific release, supply, transaction and pool evidence. Litecoin observations are not silently relabeled as Dogecoin statistics."
+                ],
+                "sourceIds": [
+                  "doge"
+                ]
+              },
+              {
+                "heading": "PEPE: establish the asset first",
+                "paragraphs": [
+                  "A ticker is not a unique identifier. Before publishing token-specific statistics, record the exact network and contract, canonical project source, circulating-supply method and venue. The reference’s price alone does not establish those identities.",
+                  "No proof-of-work claim is attached to an unverified token. A meme, a social trend, a tradeable asset and the security of its host chain are separate subjects."
+                ],
+                "sourceIds": []
+              }
+            ],
+            "checks": [
+              "Canonical chain/contract identity",
+              "Native asset versus token",
+              "Independent supply and volume sources",
+              "Pool/holder concentration method",
+              "Time and venue of any quote"
+            ],
+            "limits": "Current DOGE/PEPE quotes, concentration and protocol statistics are not included in the accepted daily dataset."
+          }
+        },
+        {
+          "page": 24,
+          "title": "Community + newsroom",
+          "deskTitle": "The community newsroom",
+          "href": "/conversations/desks/community-newsroom/",
+          "deskId": "community-newsroom",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "project",
+              "label": "Satnam Satoshi: open project and contribution records",
+              "url": "https://github.com/Satnam-Satoshi/Satoshi-Langar",
+              "kind": "Project record"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "LTC is a Satnam Satoshi media project, with AI-assisted research and production under human governance. A project name does not establish legal incorporation, a charitable trust or a staffed global newsroom."
+            ],
+            "sections": [
+              {
+                "heading": "The operating rhythm",
+                "paragraphs": [
+                  "The active local publisher targets 10 a.m. America/New_York. It collects approved sources, checks dates and identities, prepares an issue, tests it, deploys it and verifies public files. The connected host and authenticated services must be available; a missed run is not backfilled with invented content.",
+                  "The older design’s 9 a.m. and hourly-watch statements describe a different reference context. They are not evidence of this website’s installed operating schedule."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "How humans and agents contribute",
+                "paragraphs": [
+                  "Readers can propose a source, reproduce a calculation, review a lesson or submit a correction through the open project. Agents can prepare bounded evidence and comparisons. Humans retain governance and financial authority; no fictional editor or partner is credited."
+                ],
+                "sourceIds": [
+                  "project"
+                ]
+              }
+            ],
+            "checks": [
+              "Permanent edition date",
+              "Version and correction record",
+              "AI-prepared label",
+              "Source and evidence trail",
+              "Named human policy owner"
+            ],
+            "limits": "Cloud publishing, live social accounts and member sign-in are not activated by this magazine update. No private community story is published automatically."
+          }
+        },
+        {
+          "page": 25,
+          "title": "Circle · Arc · USDC · EURC",
+          "deskTitle": "Circle · Arc · USDC · EURC",
+          "href": "/conversations/desks/circle-arc/",
+          "deskId": "circle-arc",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "arc-connect",
+              "label": "Arc: network connection reference",
+              "url": "https://docs.arc.io/arc/references/connect-to-arc",
+              "kind": "Primary source"
+            },
+            {
+              "id": "arc-consensus",
+              "label": "Arc: consensus and validator model",
+              "url": "https://docs.arc.io/arc/concepts/consensus-layer",
+              "kind": "Primary source"
+            },
+            {
+              "id": "arc-model",
+              "label": "Arc: stablecoin-native balance model",
+              "url": "https://docs.arc.io/arc/concepts/stablecoin-native-model",
+              "kind": "Primary source"
+            },
+            {
+              "id": "transparency",
+              "label": "Circle: reserve transparency and reports",
+              "url": "https://www.circle.com/transparency",
+              "kind": "Primary source"
+            },
+            {
+              "id": "mint",
+              "label": "Circle Mint: supported chains and currencies",
+              "url": "https://developers.circle.com/circle-mint/references/supported-chains-and-currencies",
+              "kind": "Primary source"
+            },
+            {
+              "id": "usdc",
+              "label": "Circle: USDC contract registry",
+              "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+              "kind": "Primary source"
+            },
+            {
+              "id": "eurc",
+              "label": "Circle: EURC contract registry",
+              "url": "https://developers.circle.com/stablecoins/eurc-contract-addresses",
+              "kind": "Primary source"
+            },
+            {
+              "id": "mica-response",
+              "label": "Circle: response to the MiCA review consultation · October 1, 2026",
+              "url": "https://www.circle.com/blog/circles-response-to-the-european-commissions-mica-review-consultation",
+              "kind": "Primary issuer policy statement"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "This desk expands the reference’s Circle/Arc page to include EURC, Circle’s euro-denominated stablecoin. USDC is dollar-denominated. EURC is the issuer ticker intended here; there is no separate ERUC asset in this guide.",
+              "Stablecoins, tokenized Bitcoin and proof-of-work native coins are different instruments. Their issuers, redemption terms, host chains and consensus assumptions belong beside their symbols."
+            ],
+            "sections": [
+              {
+                "heading": "Arc: current documentation, distinct consensus",
+                "paragraphs": [
+                  "Arc’s connection documentation currently lists mainnet chain ID 5042. Arc is EVM-compatible and uses USDC as its native gas asset. Its consensus documentation describes permissioned Proof-of-Authority validators and Tendermint-style BFT voting through Malachite; it is not Bitcoin proof of work.",
+                  "This is a current documentation check, not an independent uptime, throughput or finality measurement. The older reference’s August 2025 product-vision description remains historical and is not used to infer today’s status."
+                ],
+                "sourceIds": [
+                  "arc-connect",
+                  "arc-consensus"
+                ]
+              },
+              {
+                "heading": "One USDC balance, two interfaces",
+                "paragraphs": [
+                  "Arc exposes a single USDC balance through an 18-decimal native interface and a 6-decimal ERC-20 interface. These are two views of one balance, not two spendable reserves. EURC is a separate euro-denominated ERC-20 asset, not Arc’s native gas asset."
+                ],
+                "sourceIds": [
+                  "arc-model"
+                ]
+              },
+              {
+                "heading": "USDC and EURC: backing is an issuer claim",
+                "paragraphs": [
+                  "Circle describes reserve assets and publishes periodic assurance reports. USDC reserve reporting covers cash and short-duration US government instruments; EURC reserve reporting concerns euro deposits. The issuer’s backing disclosure is distinct from an exchange price, a DeFi pool balance or guaranteed redemption access.",
+                  "Direct issuer services have eligibility and supported-network requirements. A bridged representation should not be assumed interchangeable with a native issuer token."
+                ],
+                "sourceIds": [
+                  "transparency",
+                  "mint"
+                ]
+              },
+              {
+                "heading": "Use the current contract registry",
+                "paragraphs": [
+                  "Circle’s current contract and Mint registries include Arc and Base for USDC/EURC. A shorter marketing network list should not override the dated registry used for a technical identity check. Mainnet and testnet entries are separate; a test token is not a claim on real currency.",
+                  "Arc, Base, CCTP transport and a Morpho deployment each have their own support matrix. A documented stablecoin on a chain does not prove a specific collateral market exists there."
+                ],
+                "sourceIds": [
+                  "usdc",
+                  "eurc",
+                  "mint"
+                ]
+              },
+              {
+                "heading": "The policy conversation has its own date",
+                "paragraphs": [
+                  "Circle published its response to the European Commission’s MiCA review consultation on October 1, 2026. It is the issuer’s policy position, not an adopted regulation or a statement that every token or service is available in every jurisdiction. Read that dated submission alongside the official legislative record."
+                ],
+                "sourceIds": [
+                  "mica-response"
+                ]
+              }
+            ],
+            "checks": [
+              "Currency and issuer",
+              "Chain ID and token identity",
+              "Native versus bridged representation",
+              "Reserve/report date and redemption terms",
+              "Consensus and integration support"
+            ],
+            "limits": "No current reserve total, FX rate, market liquidity or independently measured Arc performance is collected here. Network and asset support comes from the linked documentation, checked October 4."
+          }
+        },
+        {
+          "page": 26,
+          "title": "Partner studio",
+          "deskTitle": "The partner studio",
+          "href": "/conversations/desks/partner-studio/",
+          "deskId": "partner-studio",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "project",
+              "label": "Satnam Satoshi: open project and contribution records",
+              "url": "https://github.com/Satnam-Satoshi/Satoshi-Langar",
+              "kind": "Project record"
+            },
+            {
+              "id": "foundation",
+              "label": "Litecoin Foundation: news",
+              "url": "https://litecoin.com/news",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "The reference reserves a partner canvas. On this site it is a house invitation to contribute open tools, education and service. There is no booked paid advertisement or implied sponsor relationship."
+            ],
+            "sections": [
+              {
+                "heading": "A useful contribution",
+                "paragraphs": [
+                  "Bring a documented project, a reproducible demo, an accessible lesson or a translation. Explain what exists, what remains experimental and what another person can check. A community contribution is more useful when its boundaries are visible."
+                ],
+                "sourceIds": []
+              },
+              {
+                "heading": "Editorial independence",
+                "paragraphs": [
+                  "A future paid placement would need the sponsor identity, dates, clear advertising label and approval under the project’s governance. It cannot buy a ranking position, hide a material conflict or replace source verification.",
+                  "Links to the Litecoin Foundation and other builders are editorial references. They are not partnership announcements."
+                ],
+                "sourceIds": [
+                  "project"
+                ]
+              }
+            ],
+            "checks": [
+              "Contributor identity",
+              "Public evidence and license",
+              "Paid versus house placement",
+              "Dates and conflicts",
+              "Editorial independence"
+            ],
+            "limits": "No sponsorship sale, contract, endorsement or paid placement is created by this page."
+          }
+        },
+        {
+          "page": 27,
+          "title": "The 21 standard",
+          "deskTitle": "The 21 standard",
+          "href": "/conversations/desks/21-standard/",
+          "deskId": "21-standard",
+          "kind": "desk",
+          "status": "reference-only",
+          "summary": "This issue preserves dated educational context and source links. Those links were not queried by this edition’s collector; no current metric or news verification is claimed.",
+          "sourceIds": [],
+          "sources": [
+            {
+              "id": "halving",
+              "label": "Bitcoin: supply and halving schedule",
+              "url": "https://bitcoin.org/en/halving",
+              "kind": "Primary source"
+            }
+          ],
+          "sourceChecks": [],
+          "context": {
+            "reviewedAt": "2026-10-04",
+            "intro": [
+              "Twenty-one is a recurring editorial motif rooted in Bitcoin’s supply limit. It gives the publication a recognizable rhythm; it does not justify manufacturing twenty-one products, companies or verified observations."
+            ],
+            "sections": [
+              {
+                "heading": "The protocol connection",
+                "paragraphs": [
+                  "Bitcoin’s issuance schedule reduces the block subsidy at 210,000-block intervals. Its long-term supply limit is conventionally described as 21 million BTC. A projected calendar date for a future halving is an estimate, while the trigger is a block height."
+                ],
+                "sourceIds": [
+                  "halving"
+                ]
+              },
+              {
+                "heading": "The reporting discipline",
+                "paragraphs": [
+                  "A ranked table must explain its universe, method, unit and cutoff. If only eleven comparable companies are supported by the evidence, publish eleven. If a row is unverified, label it or withhold it; a designed empty space is better than a false fact.",
+                  "This rule applies equally to Bitcoin and Litecoin products, corporate treasuries and community accomplishments. Completeness of topic coverage is different from completeness of numerical evidence."
+                ],
+                "sourceIds": []
+              }
+            ],
+            "checks": [
+              "Explicit ranking universe",
+              "Comparable observations",
+              "Source and cutoff",
+              "Missing versus zero",
+              "No invented rows"
+            ],
+            "limits": "The motif does not certify a Top 21 list or imply that Litecoin shares Bitcoin’s issuance schedule."
+          }
+        },
+        {
+          "page": 28,
+          "title": "Sourcebook",
+          "href": "#sourcebook",
+          "deskId": null,
+          "kind": "sourcebook",
+          "status": "edition-design",
+          "summary": "This issue’s dated source records and coverage gaps; no extra market observation is implied.",
+          "sourceIds": [],
+          "sources": [],
+          "sourceChecks": []
+        },
+        {
+          "page": 29,
+          "title": "Back cover",
+          "href": "#back-page",
+          "deskId": null,
+          "kind": "back-cover",
+          "status": "edition-design",
+          "summary": "This issue’s archived design and navigation; no market observation is implied.",
+          "sourceIds": [],
+          "sources": [],
+          "sourceChecks": []
+        }
+      ]
+    },
+    "corrections": [],
+    "intelligence": {
+      "schemaVersion": 1,
+      "parserVersion": "ltc-intelligence-v1",
+      "collectedAt": "2026-11-12T19:36:56.694Z",
+      "evaluatedAt": "2026-11-12T19:37:02.289Z",
+      "asOfDate": "2026-11-12",
+      "timeZone": "America/New_York",
+      "network": {
+        "status": "partial",
+        "sourceId": "public-block-apis",
+        "sourceIds": [
+          "bitcoin-blocks",
+          "litecoin-blocks"
+        ],
+        "window": {
+          "start": "2026-11-11T00:00:00.000Z",
+          "end": "2026-11-12T00:00:00.000Z",
+          "timezone": "UTC",
+          "frequency": "1d"
+        },
+        "assets": [
+          {
+            "asset": "BTC",
+            "transactions": "555896",
+            "blocks": "134",
+            "feesNative": null,
+            "meanFeeNative": null,
+            "activeAddresses": null,
+            "verification": {
+              "method": "median-time-past",
+              "scannedBlocks": 230,
+              "tip": {
+                "height": 975586,
+                "hash": "000000000000000000015277845e95bc4cdf1e8cf127203f203e710f7f67146b",
+                "medianTime": "2026-11-12T19:01:34.000Z"
+              },
+              "lowerBoundary": {
+                "height": 975357,
+                "hash": "00000000000000000000f8ce721e2108071a6e749378efb093b7222e6fb0b93f",
+                "medianTime": "2026-11-10T22:28:21.000Z"
+              },
+              "firstBlock": {
+                "height": 975365,
+                "hash": "00000000000000000000a39c70d5c77ea308aee4e64d4c63204395093d904931",
+                "medianTime": "2026-11-11T00:19:47.000Z"
+              },
+              "lastBlock": {
+                "height": 975498,
+                "hash": "00000000000000000000ef480c86570a34c785e72b54e362e4b1d8adae880b2f",
+                "medianTime": "2026-11-11T23:53:26.000Z"
+              }
+            }
+          },
+          {
+            "asset": "LTC",
+            "transactions": null,
+            "blocks": null,
+            "feesNative": null,
+            "meanFeeNative": null,
+            "activeAddresses": null,
+            "verification": null
+          }
+        ],
+        "comparison": {
+          "transactionRatioLtcToBtc": null,
+          "transactionDifferenceLtcMinusBtc": null
+        },
+        "history": [],
+        "units": {
+          "transactions": "transactions",
+          "blocks": "blocks",
+          "activeAddresses": "addresses",
+          "feesNative": "native coin",
+          "meanFeeNative": "native coin per transaction"
+        },
+        "attribution": {
+          "name": "LTC Media calculations from mempool.space and Litecoin Space block records",
+          "url": "https://mempool.space/docs/api/rest",
+          "litecoinUrl": "https://litecoinspace.org/docs/api"
+        },
+        "gaps": [
+          "A complete common-day BTC/LTC comparison is unavailable."
+        ]
+      },
+      "markets": [
+        {
+          "routeId": "arc-cirbtc-1",
+          "marketId": "0xc2db905f174e5defcce01d321b09f15f78856a36a21b90cc7e1abbc29225815d",
+          "chainId": 5042,
+          "chain": "Arc",
+          "collateral": {
+            "symbol": "cirBTC",
+            "address": "0x171A4217b86A807A64eB94757Db6849fb4bDbAA0",
+            "decimals": 8
+          },
+          "loan": {
+            "symbol": "USDC",
+            "address": "0x3600000000000000000000000000000000000000",
+            "decimals": 6
+          },
+          "lltv": "0.86",
+          "oracleAddress": "0x2AA87fF48933Ce6aBA240BEE916Fc2e6Ec1e51Ab",
+          "irmAddress": "0xF02615d094Fc02fC031C35fe705e175aA4653f20",
+          "sourceId": "morpho-verified-markets",
+          "status": "fresh",
+          "state": {
+            "asOf": "2026-11-12T19:35:59.000Z",
+            "freshness": "fresh",
+            "borrowApy": "0.03785619871449061",
+            "supplyApy": "0.03439123991556366",
+            "utilization": "0.9099998081240473",
+            "liquidityUsdc": "16970972.050929",
+            "supplyUsdc": "188565954.107299",
+            "borrowUsdc": "171594982.05637"
+          },
+          "prices": {
+            "collateralUsd": {
+              "value": "71575.50985147807",
+              "asOf": "2026-11-12T19:26:54.000Z",
+              "status": "fresh",
+              "unit": "USD"
+            },
+            "usdcUsd": {
+              "value": "0.9997440411000001",
+              "asOf": "2026-11-12T19:34:47.000Z",
+              "status": "fresh",
+              "unit": "USD"
+            }
+          },
+          "gaps": []
+        },
+        {
+          "routeId": "arc-cirbtc-2",
+          "marketId": "0xabd1763943714b96b6590238d484a240019b4b842eb67fbcff7d96c081b7b566",
+          "chainId": 5042,
+          "chain": "Arc",
+          "collateral": {
+            "symbol": "cirBTC",
+            "address": "0x171A4217b86A807A64eB94757Db6849fb4bDbAA0",
+            "decimals": 8
+          },
+          "loan": {
+            "symbol": "USDC",
+            "address": "0x3600000000000000000000000000000000000000",
+            "decimals": 6
+          },
+          "lltv": "0.86",
+          "oracleAddress": "0x2DE8026f00061170e1297d438967752b6671dd1d",
+          "irmAddress": "0xF02615d094Fc02fC031C35fe705e175aA4653f20",
+          "sourceId": "morpho-verified-markets",
+          "status": "stale",
+          "state": {
+            "asOf": "2026-11-12T19:05:42.000Z",
+            "freshness": "stale",
+            "borrowApy": null,
+            "supplyApy": null,
+            "utilization": null,
+            "liquidityUsdc": null,
+            "supplyUsdc": null,
+            "borrowUsdc": null
+          },
+          "prices": {
+            "collateralUsd": {
+              "value": "71575.50985147807",
+              "asOf": "2026-11-12T19:26:54.000Z",
+              "status": "fresh",
+              "unit": "USD"
+            },
+            "usdcUsd": {
+              "value": "0.9997440411000001",
+              "asOf": "2026-11-12T19:34:47.000Z",
+              "status": "fresh",
+              "unit": "USD"
+            }
+          },
+          "gaps": [
+            "State is older than 15 minutes; rates and liquidity are withheld."
+          ]
+        },
+        {
+          "routeId": "base-cbbtc",
+          "marketId": "0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836",
+          "chainId": 8453,
+          "chain": "Base",
+          "collateral": {
+            "symbol": "cbBTC",
+            "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+            "decimals": 8
+          },
+          "loan": {
+            "symbol": "USDC",
+            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "decimals": 6
+          },
+          "lltv": "0.86",
+          "oracleAddress": "0x663BECd10daE6C4A3Dcd89F1d76c1174199639B9",
+          "irmAddress": "0x46415998764C29aB2a25CbeA6254146D50D22687",
+          "sourceId": "morpho-verified-markets",
+          "status": "fresh",
+          "state": {
+            "asOf": "2026-11-12T19:36:47.000Z",
+            "freshness": "fresh",
+            "borrowApy": "0.05319072699611353",
+            "supplyApy": "0.045004152539925645",
+            "utilization": "0.8494243387263276",
+            "liquidityUsdc": "286283391.98447",
+            "supplyUsdc": "1901259403.829864",
+            "borrowUsdc": "1614976011.845394"
+          },
+          "prices": {
+            "collateralUsd": {
+              "value": "71426.76904521577",
+              "asOf": "2026-11-12T19:34:00.000Z",
+              "status": "fresh",
+              "unit": "USD"
+            },
+            "usdcUsd": {
+              "value": "0.9997440411000001",
+              "asOf": "2026-11-12T19:34:47.000Z",
+              "status": "fresh",
+              "unit": "USD"
+            }
+          },
+          "gaps": []
+        },
+        {
+          "routeId": "base-cbltc",
+          "marketId": "0x9125d0fa03c3137166df68bcc72283477830de2a4a5536512374c573ad4583c3",
+          "chainId": 8453,
+          "chain": "Base",
+          "collateral": {
+            "symbol": "cbLTC",
+            "address": "0xcb17C9Db87B595717C857a08468793f5bAb6445F",
+            "decimals": 8
+          },
+          "loan": {
+            "symbol": "USDC",
+            "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+            "decimals": 6
+          },
+          "lltv": "0.625",
+          "oracleAddress": "0x47f961E6653423A77b1EF8Fb680eE53bf7d8a00d",
+          "irmAddress": "0x46415998764C29aB2a25CbeA6254146D50D22687",
+          "sourceId": "morpho-verified-markets",
+          "status": "fresh",
+          "state": {
+            "asOf": "2026-11-12T19:36:33.000Z",
+            "freshness": "fresh",
+            "borrowApy": "0.06708573154430442",
+            "supplyApy": "0.05640974372537894",
+            "utilization": "0.8451410997784676",
+            "liquidityUsdc": "142489.234402",
+            "supplyUsdc": "920122.990659",
+            "borrowUsdc": "777633.756257"
+          },
+          "prices": {
+            "collateralUsd": {
+              "value": "49.84572414388876",
+              "asOf": "2026-11-12T19:23:02.000Z",
+              "status": "fresh",
+              "unit": "USD"
+            },
+            "usdcUsd": {
+              "value": "0.9997440411000001",
+              "asOf": "2026-11-12T19:34:47.000Z",
+              "status": "fresh",
+              "unit": "USD"
+            }
+          },
+          "gaps": []
+        }
+      ],
+      "sources": [
+        {
+          "id": "bitcoin-blocks",
+          "url": "https://mempool.space/api/blocks",
+          "method": "GET",
+          "parserVersion": "ltc-intelligence-v1",
+          "retrievedAt": "2026-11-12T19:35:11.621Z",
+          "sha256": "f88ec2f6b2b88c90696606ab952391a7720dcde9d5dfdd573522e120c2d0177a",
+          "requestSha256": null,
+          "httpStatus": 200,
+          "status": "retrieved",
+          "requestedWindow": {
+            "start": "2026-11-11T00:00:00.000Z",
+            "end": "2026-11-12T00:00:00.000Z"
+          },
+          "pages": [
+            {
+              "url": "https://mempool.space/api/block-height/0",
+              "retrievedAt": "2026-11-12T19:34:31.296Z",
+              "sha256": "09f663de96be771f50cab5ded00256ffe63773e2eaa9a604092951cc3d7c6621",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks",
+              "retrievedAt": "2026-11-12T19:34:32.978Z",
+              "sha256": "adc66ec82fa2e45ebf3e0309ac66506f52609caac1ae72d47f6f2bd34bc17c58",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975576",
+              "retrievedAt": "2026-11-12T19:34:34.658Z",
+              "sha256": "672a8ef9901039c90df57001dc03e9cbe1f3c18015817d4750ddb3d03f6db041",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975566",
+              "retrievedAt": "2026-11-12T19:34:36.337Z",
+              "sha256": "0fdfae2d49058c799543c9483fb83d2188e9576355a4d7c03cd7d07758aa9500",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975556",
+              "retrievedAt": "2026-11-12T19:34:38.018Z",
+              "sha256": "b0ee477562cadfed79b6033d87fe8cb89dae4d6c589b69be5e6da093ccfc8461",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975546",
+              "retrievedAt": "2026-11-12T19:34:39.699Z",
+              "sha256": "d61c48501919e62b88b513e0f8b29fba08321cfcf8a94ecef5da10726c0e358b",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975536",
+              "retrievedAt": "2026-11-12T19:34:41.380Z",
+              "sha256": "6bd436d6ad7b4d8981bae4d33cf96a18c42b90ca7cd53b2354831c0ec6844b70",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975526",
+              "retrievedAt": "2026-11-12T19:34:43.059Z",
+              "sha256": "2b52c8ad40aef4a0d6f03aa37e29239e0bc664d26193c4fe1ab19fff6dbf98fc",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975516",
+              "retrievedAt": "2026-11-12T19:34:44.740Z",
+              "sha256": "664109c047b9ecc138d747d38500d06753b47c1ef40a84a8ff9fd1872ecce21a",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975506",
+              "retrievedAt": "2026-11-12T19:34:46.421Z",
+              "sha256": "41cc7ce41b0b2ff3eeb8805cf18c7d0d443b6e6e4a540d41de48033e4cbff00b",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975496",
+              "retrievedAt": "2026-11-12T19:34:48.109Z",
+              "sha256": "866211c3263154caed9afdcca6345bc8f476f6f420ce6f8e6f2995b264f05c63",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975486",
+              "retrievedAt": "2026-11-12T19:34:49.788Z",
+              "sha256": "2ee2f3c9c8869ff113f582f2bd6afeb7babbccc9e8173951a544af143a6175d8",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975476",
+              "retrievedAt": "2026-11-12T19:34:51.468Z",
+              "sha256": "783622e1704e1d098ec77e0b110f770bf2c0239480cdeb7316c9abe679e28639",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975466",
+              "retrievedAt": "2026-11-12T19:34:53.147Z",
+              "sha256": "4eb7fd957985c616382db1bd2bc0a835b2a4bd1b60fa0ffaca3bee926e0e1c3d",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975456",
+              "retrievedAt": "2026-11-12T19:34:54.827Z",
+              "sha256": "bfbffce91afa8353e7339c36b1d98e07b9e0f9a38669b492bf145def98b8b56a",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975446",
+              "retrievedAt": "2026-11-12T19:34:56.507Z",
+              "sha256": "dae4868c3845c9741f9d32a8b13453fa531a3aef852c320da8fc51588bf4dd41",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975436",
+              "retrievedAt": "2026-11-12T19:34:58.186Z",
+              "sha256": "1d2bde8bfc599d5995a59d1a5868aa8834383f2f8ff29191bc0f678f443e045f",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975426",
+              "retrievedAt": "2026-11-12T19:34:59.864Z",
+              "sha256": "f32e0ce7980d310c4dcfd149dae37f9689bc5dff918c5beb52e7c8dab69b413a",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975416",
+              "retrievedAt": "2026-11-12T19:35:01.543Z",
+              "sha256": "7bab4ff6f5a6257067ffe8d681bb80162736dff8f8532d7f873f23bc31d51596",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975406",
+              "retrievedAt": "2026-11-12T19:35:03.222Z",
+              "sha256": "f90c58a0842645362077667ee4ed53cfd70705e256a9d2cf4b90f7816c0b37f0",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975396",
+              "retrievedAt": "2026-11-12T19:35:04.903Z",
+              "sha256": "79c58b51f688f341a9ac3c2620ebcc386e059a2dc3d45d9782c5ceb9a0669f5b",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975386",
+              "retrievedAt": "2026-11-12T19:35:06.583Z",
+              "sha256": "0735419b52ab30f2893f80aca83b53dd1bd47db25b49ae4036d7cfaaf32dbe3e",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975376",
+              "retrievedAt": "2026-11-12T19:35:08.263Z",
+              "sha256": "4df3a85dd98eb7bd059f2b4eb718e933d3dead0b6df739dca7a11303bdbafcda",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/blocks/975366",
+              "retrievedAt": "2026-11-12T19:35:09.942Z",
+              "sha256": "f867f970fdae0f2a36fc708090743673eff5d1b3fb78a72994be087fcbb2c08e",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://mempool.space/api/block-height/975586",
+              "retrievedAt": "2026-11-12T19:35:11.621Z",
+              "sha256": "5d2ddd3127d1ffcf260d1987ebca9e2c39206e70282f18e4373d5ec551df8a96",
+              "httpStatus": 200
+            }
+          ]
+        },
+        {
+          "id": "litecoin-blocks",
+          "url": "https://litecoinspace.org/api/blocks",
+          "method": "GET",
+          "parserVersion": "ltc-intelligence-v1",
+          "retrievedAt": "2026-11-12T19:36:56.342Z",
+          "sha256": "77dd6fe29f29609817dd426471609f75887d2b21d6bddb823133b84d359313bd",
+          "requestSha256": null,
+          "httpStatus": null,
+          "status": "failed",
+          "requestedWindow": {
+            "start": "2026-11-11T00:00:00.000Z",
+            "end": "2026-11-12T00:00:00.000Z"
+          },
+          "pages": [
+            {
+              "url": "https://litecoinspace.org/api/block-height/0",
+              "retrievedAt": "2026-11-12T19:35:12.069Z",
+              "sha256": "53abac3872cb6bc6e2de9967e98d5c446216f39bbe1499123fa7ea8495ae2d1e",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks",
+              "retrievedAt": "2026-11-12T19:35:13.789Z",
+              "sha256": "2e7e688a181ecde1b13baa9253c42c7ece3cc760224e011c7f5568dfe6026562",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211943",
+              "retrievedAt": "2026-11-12T19:35:15.492Z",
+              "sha256": "0e34ae3ea274bc18707cc74adbc995419789bd2a087a8dad5f30f5cbe7aac7dc",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211933",
+              "retrievedAt": "2026-11-12T19:35:17.225Z",
+              "sha256": "236a16c0f56a21479399d9f47301202183fb87be1758caf7785c016ac738e234",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211923",
+              "retrievedAt": "2026-11-12T19:35:18.929Z",
+              "sha256": "d125c8a5e74aa004c6b37b1f135f67c31c3b2d5133bf912f09d03f58a80a8e97",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211913",
+              "retrievedAt": "2026-11-12T19:35:20.634Z",
+              "sha256": "deb9edae2787d40c43b4985747544126a05510485b38c53b2811065bc36013ec",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211903",
+              "retrievedAt": "2026-11-12T19:35:22.335Z",
+              "sha256": "4c8fc702f10bcdd9d5a90b0949ad82a989dffac90a89b78ff5f0cf789cc047d1",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211893",
+              "retrievedAt": "2026-11-12T19:35:24.092Z",
+              "sha256": "84c6d570d78e111fe9090c422ba434ae6f8eeeb9c5553dc19fc40133003e91fa",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211883",
+              "retrievedAt": "2026-11-12T19:35:25.798Z",
+              "sha256": "71e1513b5ec6895cf9c3456d294b8be8fdc13b9e394e226e0d805a4f828e15d3",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211873",
+              "retrievedAt": "2026-11-12T19:35:27.499Z",
+              "sha256": "7bc9fabd3f3cd321a51d710924b5939cf647145094772a547414a66aaa9250d1",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211863",
+              "retrievedAt": "2026-11-12T19:35:29.204Z",
+              "sha256": "3ce12370b28aab7cd6bd19c585d8d4d340e4f0881b00f3cc7128c7d7989c2189",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211853",
+              "retrievedAt": "2026-11-12T19:35:30.919Z",
+              "sha256": "4a3af26ac4874722703256844db1e5c460cfe38b3c04c5d711297bdbe826af95",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211843",
+              "retrievedAt": "2026-11-12T19:35:32.627Z",
+              "sha256": "0357fc4fca3cb99c2fb74a814b49d1f8de52a37653de25403c1edb86ca0cb77d",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211833",
+              "retrievedAt": "2026-11-12T19:35:34.350Z",
+              "sha256": "3f88f8c61e40ba67ed9175aa3e1a19d602fc2e167d1096d72c8a08e4716008f9",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211823",
+              "retrievedAt": "2026-11-12T19:35:36.055Z",
+              "sha256": "14e84bc5bc68f997eaaa7cd451cf046d27d3d4cd5da23a6ff6982946f56a8fa5",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211813",
+              "retrievedAt": "2026-11-12T19:35:37.759Z",
+              "sha256": "f3d923c9bed346c5e6613ee20c8a177ed8954f2a646eea0c02398d2468580f2a",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211803",
+              "retrievedAt": "2026-11-12T19:35:39.471Z",
+              "sha256": "61357aacfa52c506a9c2e16c98772d747f085cd5d8a6744bf8e58441ba0b126e",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211793",
+              "retrievedAt": "2026-11-12T19:35:41.328Z",
+              "sha256": "e5fe507ab53177cfdd45c7a0fd83e523e5ccee82720971201d8309773d8e6ec0",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211783",
+              "retrievedAt": "2026-11-12T19:35:43.044Z",
+              "sha256": "d59bf3ba9d8be300a2876eb8be6436282077980cda50664c31c8b966cad3b454",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211773",
+              "retrievedAt": "2026-11-12T19:35:44.748Z",
+              "sha256": "1f5e320ee913fce9be0cb6523e0f23cfe74482fae8e912755f9f6bdd461c91f0",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211763",
+              "retrievedAt": "2026-11-12T19:35:46.450Z",
+              "sha256": "7bc363e39a56f38428e818b409333562421885ef623ff5225442b2b89f1da6b1",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211753",
+              "retrievedAt": "2026-11-12T19:35:48.154Z",
+              "sha256": "d21a4f12bacf59cf16dd97f834b9c94e335ac64a974972ba66e738bcad858042",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211743",
+              "retrievedAt": "2026-11-12T19:35:49.859Z",
+              "sha256": "2f2111fe564b1721a17fa14ac77b11a432e297dba154ad66885697fcc3db0415",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211733",
+              "retrievedAt": "2026-11-12T19:35:51.561Z",
+              "sha256": "246351e9f13482a31148961f36b98657a3e944210aa86c5cc43ece81d0449f0e",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211723",
+              "retrievedAt": "2026-11-12T19:35:53.262Z",
+              "sha256": "58eff38c6ba5b1ad82bfcb0b937a84a264459b0968fe208af930cfcbeb49b87f",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211713",
+              "retrievedAt": "2026-11-12T19:35:54.975Z",
+              "sha256": "5bf15fe63c7e70600c990ef75a1b794ee008676cfbbb9c8b866e1c43f5196fd7",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211703",
+              "retrievedAt": "2026-11-12T19:35:56.686Z",
+              "sha256": "24ede3f7570e0430f41cce92997ed42a0dde4e133611c503600302eea2ac2355",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211693",
+              "retrievedAt": "2026-11-12T19:35:58.389Z",
+              "sha256": "96c015589f125ca3e0528a32e645089fd8fac2c7fbbaf1b8d26e4f373639a297",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211683",
+              "retrievedAt": "2026-11-12T19:36:00.095Z",
+              "sha256": "fba99fb9772b3f183b628eec5e6cec28cf77c68febdd2955c63e1c16946afbee",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211673",
+              "retrievedAt": "2026-11-12T19:36:01.797Z",
+              "sha256": "83ea23f1a4a88c3cd14e4b14427e9ffb197137abac4b037adcf2fad251d837ab",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211663",
+              "retrievedAt": "2026-11-12T19:36:03.546Z",
+              "sha256": "6ec3509f5f4a075f58d7163292addaa7d37d52823644e776d4b0e49f4216b3fb",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211653",
+              "retrievedAt": "2026-11-12T19:36:05.250Z",
+              "sha256": "f788d321b408d31f2c2083b880d5f0b1f5753bbd0b513474ced578ecdf57cabe",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211643",
+              "retrievedAt": "2026-11-12T19:36:06.951Z",
+              "sha256": "2a7eabe8c2dc71e6ee947ab5bcd13025586b6d77154270a345495d419a8fe45a",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211633",
+              "retrievedAt": "2026-11-12T19:36:08.657Z",
+              "sha256": "77884567c94f0b3d568ac10a169ba21973fd1a3a2b0115229ab358988bf8bef5",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211623",
+              "retrievedAt": "2026-11-12T19:36:10.388Z",
+              "sha256": "0947e8e2394bc004c0652e079bbaa612d99e93dcd9ae8ff2f53a15c16e7a08e2",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211613",
+              "retrievedAt": "2026-11-12T19:36:12.109Z",
+              "sha256": "e1a08ca12bf69842d16f53a2438059abdbdbd4b54be204dfdfdca8662f000fd8",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211603",
+              "retrievedAt": "2026-11-12T19:36:13.813Z",
+              "sha256": "81a749ce7f3bbc0310884c3d69ce4517c1382d6b93a7feaed5fcf9d10003f8e0",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211593",
+              "retrievedAt": "2026-11-12T19:36:15.517Z",
+              "sha256": "160ff3cb00a73a31c9aff4e4a4a7fe8146a8854709f25de48645eb2690ec223c",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211583",
+              "retrievedAt": "2026-11-12T19:36:17.223Z",
+              "sha256": "54af9908fd612b2824aa9fed7e8b25361fad8f640756951dcc2460e2b699d522",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211573",
+              "retrievedAt": "2026-11-12T19:36:18.928Z",
+              "sha256": "6c5e211f4cee41e3948fa44e03440b2dec02c03bb77e5b62200549ef648d2619",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211563",
+              "retrievedAt": "2026-11-12T19:36:20.632Z",
+              "sha256": "c32fb9e54161339e85337a659f6b6b6970f5f4d137b6331469b009ade1fadf1e",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211553",
+              "retrievedAt": "2026-11-12T19:36:22.332Z",
+              "sha256": "91e41f702eaa5194d19bfac54c2f88f731ea87a5e86a7b6e4d65aadde4ff4123",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211543",
+              "retrievedAt": "2026-11-12T19:36:24.061Z",
+              "sha256": "3ec3796973f93c4d32f01369c28dfdf7fd4b10618793bcf9c325ab5a584489c6",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211533",
+              "retrievedAt": "2026-11-12T19:36:25.797Z",
+              "sha256": "e908d9d8b64d1081b3e1dc15aecc3826d6220663b01e985adf9833ddd8589a98",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211523",
+              "retrievedAt": "2026-11-12T19:36:27.501Z",
+              "sha256": "8b6f3d67cd29d70935382cfe7bea75497f6bbc739c31ef1435720c8b10738a71",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211513",
+              "retrievedAt": "2026-11-12T19:36:29.215Z",
+              "sha256": "5f13c987d3d68b2fbdbb78430f23a6ef39cc0269f3a207641798255683d1c77e",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211503",
+              "retrievedAt": "2026-11-12T19:36:30.929Z",
+              "sha256": "4ba3c896488cf7d87efd56870b4fae28d91383ad7019eefcc773931aed70c6f8",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211493",
+              "retrievedAt": "2026-11-12T19:36:32.632Z",
+              "sha256": "a2a3fb69a4c30c576677d3ea926a04f5f0bbad83abd938e53fcf25c163116bbb",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211483",
+              "retrievedAt": "2026-11-12T19:36:34.330Z",
+              "sha256": "7a5c9856419e0fd3f7d5ca1d8b49c556116c67dba97eb212c02dc519a26c62c4",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211473",
+              "retrievedAt": "2026-11-12T19:36:36.033Z",
+              "sha256": "d1745fd663d6d736030c301124c36f970b74539ec85026cc4366b1ff439728a6",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211463",
+              "retrievedAt": "2026-11-12T19:36:37.739Z",
+              "sha256": "022772a6e6a95b230f37e6d2f464a287e610dcf064c6e6dd5d5f01ba634ab37c",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211453",
+              "retrievedAt": "2026-11-12T19:36:39.449Z",
+              "sha256": "88529f56bed71b98921013501bc212066b38a9321230e208fa91c6a5d646f325",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211443",
+              "retrievedAt": "2026-11-12T19:36:41.150Z",
+              "sha256": "c87d887df309d7ea9b4c4f9c7ea730053cb3094edb868bce68fe5f3a897f3a69",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211433",
+              "retrievedAt": "2026-11-12T19:36:42.852Z",
+              "sha256": "56e4b2d7ba65262db72f23c0213e691f4a2469f1c08f2242d9af10bbdaa21065",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211423",
+              "retrievedAt": "2026-11-12T19:36:44.557Z",
+              "sha256": "1780d870ef64969fc9e95f8e7c1c20eddc863e406dd5b727739ac4639f1149a6",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211413",
+              "retrievedAt": "2026-11-12T19:36:46.259Z",
+              "sha256": "888e778ce0d904167bd2d9a916b3542ca7458d97246ca6993693ab22af7d7238",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211403",
+              "retrievedAt": "2026-11-12T19:36:47.958Z",
+              "sha256": "f7071ba115d52bd7c6adc6beb180e19034b8de0606a7051256c118104e76371a",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211393",
+              "retrievedAt": "2026-11-12T19:36:49.683Z",
+              "sha256": "480f2128a96532cbe638f992903b43c9825b7bebb56b84c887c030df89a5b89c",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211383",
+              "retrievedAt": "2026-11-12T19:36:51.418Z",
+              "sha256": "6d0597ccad5a65c42dc5e0007fd3f8582e0c76eb09fe6287afdb34db0e8ca0d6",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211373",
+              "retrievedAt": "2026-11-12T19:36:53.127Z",
+              "sha256": "57ac4e2d340709b96f4107e25e09d6c643500d44b4232b4c8ad36de57c7feb1a",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211363",
+              "retrievedAt": "2026-11-12T19:36:54.830Z",
+              "sha256": "18cc687d5bbc663f6b9b42dd5c3c1c0776b5a5748d0fd1319a9410d1ea2290de",
+              "httpStatus": 200
+            },
+            {
+              "url": "https://litecoinspace.org/api/blocks/3211353",
+              "retrievedAt": "2026-11-12T19:36:56.342Z",
+              "sha256": null,
+              "httpStatus": null,
+              "error": "Public source request or response validation failed."
+            }
+          ],
+          "error": "Block source unavailable or failed range validation."
+        },
+        {
+          "id": "morpho-verified-markets",
+          "url": "https://api.morpho.org/graphql",
+          "method": "POST",
+          "parserVersion": "ltc-intelligence-v1",
+          "retrievedAt": "2026-11-12T19:36:56.694Z",
+          "sha256": "027956966c51c164346c0ae34aa0944f55971b7ce0248d2547a5c664620d101e",
+          "requestSha256": "583affec0b19f66b7cdfa0a3277a4b2a7713f1405398aaf12d88e940bfa047d0",
+          "httpStatus": 200,
+          "status": "retrieved"
+        }
+      ],
+      "notes": [
+        "LTC Media sums explorer-reported base-chain transaction counts, including coinbase transactions, for blocks whose median time falls inside the completed UTC day. Transactions are not payments or unique people.",
+        "The window uses block median time, not wall-clock arrival time or a rolling 24-hour provider statistic. Height and parent-hash continuity and both daily boundaries must pass before totals are accepted.",
+        "Fee and active-address fields are unavailable from this block-summary adapter and remain null. Explorer records are not an independently operated full-node audit.",
+        "Morpho APYs are variable annualized decimal fractions at the recorded state time, excluding incentive rewards. USDC supply APY is distinct from supplying wrapped collateral.",
+        "Markets are four configured routes, not an exhaustive list or a recommendation. No position, wallet, signing or transaction endpoint is queried.",
+        "Rate history can grow only from actual archived edition observations; missing days and stale rates are not interpolated."
+      ],
+      "gaps": [
+        "A fresh common network comparison is unavailable.",
+        "Some configured Morpho fields are unavailable or stale."
+      ]
+    },
+    "policyRecords": {
+      "schemaVersion": 1,
+      "collectedAt": "2026-11-12T19:36:56.865Z",
+      "sources": [
+        {
+          "id": "sec-press-releases",
+          "title": "SEC press releases",
+          "url": "https://www.sec.gov/news/pressreleases.rss",
+          "status": "collected",
+          "checkedAt": "2026-11-12T19:36:56.862Z",
+          "sha256": "af626b6684eac29b52501fb68f9aefa3e1c5b476ae4b82fb3c9bf37a21370f40",
+          "errorCode": null,
+          "items": [
+            {
+              "id": "sec-press-releases-a54130eed5696f1b6ec9",
+              "title": "SEC Announces Enforcement Annual Results for Fiscal Year 2026",
+              "url": "https://www.sec.gov/newsroom/press-releases/2026-113-sec-announces-enforcement-annual-results-fiscal-year-2026",
+              "publishedAt": "2026-11-10T16:15:35.000Z",
+              "classification": "official-press-release"
+            },
+            {
+              "id": "sec-press-releases-2d4cce0bb25cf78f7f81",
+              "title": "SEC Adopts Amendments to Update Definitions of Small Entity for Investment Companies and Investment Advisers",
+              "url": "https://www.sec.gov/newsroom/press-releases/2026-112-sec-adopts-amendments-update-definitions-small-entity-investment-companies-investment-advisers",
+              "publishedAt": "2026-11-04T16:28:00.000Z",
+              "classification": "official-press-release"
+            }
+          ]
+        },
+        {
+          "id": "cftc-press-releases",
+          "title": "CFTC general press releases",
+          "url": "https://www.cftc.gov/RSS/RSSGP/rssgp.xml",
+          "status": "collected",
+          "checkedAt": "2026-11-12T19:36:56.854Z",
+          "sha256": "da5cd21bf9be35496d76d025a4506fac54234f46982b4c7d8e2eedc96f73caab",
+          "errorCode": null,
+          "items": [
+            {
+              "id": "cftc-press-releases-f20edda5e11e5510a4a1",
+              "title": "CFTC Issues Impartial Access Requirements Interpretation",
+              "url": "https://www.cftc.gov/PressRoom/PressReleases/9323-26",
+              "publishedAt": "2026-11-05T22:00:03.000Z",
+              "classification": "official-press-release"
+            },
+            {
+              "id": "cftc-press-releases-e987e5922bab38f47988",
+              "title": "CFTC Staff Addresses Use of Trust Companies for Daily Settlements",
+              "url": "https://www.cftc.gov/PressRoom/PressReleases/9322-26",
+              "publishedAt": "2026-11-05T18:13:46.000Z",
+              "classification": "official-press-release"
+            }
+          ]
+        }
+      ]
+    },
+    "features": {
+      "schemaVersion": 1,
+      "issueDate": "2026-11-12",
+      "timezone": "America/New_York",
+      "preparedAt": "2026-11-12T19:04:09.700Z",
+      "checkedAt": "2026-11-12",
+      "title": "Litecoin’s Next Build",
+      "theme": "Litecoin Builders Special",
+      "dek": "A new testnet connection, an industry award and a growing builder directory. What changed, what users need to know, and what still needs proof.",
+      "editorialStatus": "AI-prepared and source-checked",
+      "authorship": "AI Satoshi Ma / LTC Media · Primary-source review; no independent human fact-check claimed.",
+      "freshnessPolicy": "Original event and reporting dates are retained. Undated documentation is a November 12 observation; retrieval is not a launch. Older records are historical context.",
+      "independence": "Independent publication; attribution is not endorsement. Testnet tokens, native LTC and wrapped representations are not interchangeable.",
+      "editionCover": {
+        "title": "Litecoin’s Next Build",
+        "subtitle": "A new testnet connection, an industry award and a growing builder directory. What changed, what users need to know, and what still needs proof.",
+        "kicker": "LTC / BUILDERS SPECIAL / NOVEMBER 12, 2026"
+      },
+      "stories": [
+        {
+          "id": "builders-migration",
+          "title": "LiteForge changes its infrastructure provider.",
+          "desk": "Litecoin / The lead",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "LiteForge moves from Caldera to Zeeve. The Foundation reminder explains what existing testnet users need to change.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [
+            {
+              "date": "2026-11-11",
+              "label": "Litecoin Foundation · Litecoin Foundation LiteForge configuration reminder · original publication/snapshot date"
+            },
+            {
+              "date": "2026-11-10",
+              "label": "LitVM · LiteForge infrastructure migration announcement · original publication/snapshot date"
+            }
+          ],
+          "paragraphs": [
+            "LiteForge, LitVM’s test network, has moved its infrastructure from Caldera to Zeeve, according to LitVM’s announcement and current documentation. The Litecoin Foundation amplified the change with a practical configuration notice. This is the most immediate action item in the two posts supplied for this issue: existing users need current network connection details.",
+            "The team’s announcement was published November 11 at 01:01 UTC, which was November 10 at 8:01 p.m. in New York. The Foundation reminder followed November 12 at 02:39 UTC, or November 11 at 9:39 p.m. New York time. The dates describe an announcement and a later reminder, not two different network upgrades.",
+            "A remote procedure call endpoint is the server address a wallet or application uses to query the chain and submit transactions. A block explorer is the web interface for inspecting transactions and addresses. Changing these addresses changes how a user reaches the network; it does not by itself mean the underlying asset has changed or that a mainnet has launched."
+          ],
+          "takeaway": "Treat this as a testnet infrastructure and configuration update.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "foundation-network",
+            "litvm-migration",
+            "network"
+          ]
+        },
+        {
+          "id": "builders-configuration",
+          "title": "Same chain ID. New connection addresses.",
+          "desk": "Litecoin / Practical guide",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "Chain ID 4441 and zkLTC stay unchanged; the documented HTTP connection changes and the old WebSocket is no longer active.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [
+            {
+              "date": "2026-11-11",
+              "label": "Litecoin Foundation · Litecoin Foundation LiteForge configuration reminder · original publication/snapshot date"
+            }
+          ],
+          "paragraphs": [
+            "LitVM lists the new HTTP RPC as https://rpc.testnet.liteforge.zeeve.net/ and the explorer as https://explorer.testnet.liteforge.zeeve.net/. Chain ID 4441 and the gas-token label zkLTC remain unchanged. The Foundation says users can edit the existing network configuration rather than add it again.",
+            "The documentation also lists a Zeeve faucet at https://faucet.testnet.liteforge.zeeve.net/. Before changing wallet settings, verify each address directly against the official documentation. A faucet or configuration update should never require a seed phrase or private key. Testnet activity is for experimentation; test tokens should not be presented as redeemable native LTC.",
+            "The official configuration and status pages checked again on November 12 at 18:42 UTC say the old Caldera WebSocket endpoint is no longer active. The Zeeve HTTP RPC is the supported connection in the reviewed documentation; a replacement WebSocket service is not confirmed operational. Developers should remove reliance on the old WebSocket endpoint and consult the current documentation rather than infer that HTTP also provides WebSocket support."
+          ],
+          "takeaway": "Separate wallet HTTP configuration from developer WebSocket configuration; verify the official record before acting.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "foundation-network",
+            "network"
+          ]
+        },
+        {
+          "id": "builders-architecture",
+          "title": "Follow the chain of trust before following the narrative.",
+          "desk": "Litecoin / Technical explainer",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "EVM execution, Ethereum settlement and an intended native-LTC route are different layers. Mainnet availability still needs proof.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [
+            {
+              "date": "2026-11-10",
+              "label": "LitVM · LiteForge infrastructure migration announcement · original publication/snapshot date"
+            }
+          ],
+          "paragraphs": [
+            "LitVM’s current architecture documentation describes an Arbitrum Orbit EVM chain with Ethereum settlement. It also describes an intended route involving native LTC, Charms/zkLTC, Ethereum, Arbitrum and LitVM. These are distinct layers, each with its own operational and trust questions.",
+            "EVM compatibility lets developers use a familiar application environment. It does not make an application a native Litecoin transaction, and a settlement description is not interchangeable with the origin of an asset. Readers should not describe this architecture as Litecoin-settled based solely on Litecoin branding.",
+            "The important next evidence is an official release record identifying production parameters, supported deposits and withdrawals, deployed contracts, upgrade authority, audit findings and failure recovery. Testnet zkLTC use does not establish that the entire native-LTC route is available to the public. The migration announcement’s forward-looking mainnet language is not a mainnet launch notice."
+          ],
+          "takeaway": "Keep native Litecoin, testnet tokens, execution and settlement separate in every diagram.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "architecture",
+            "status",
+            "litvm-migration"
+          ]
+        },
+        {
+          "id": "builders-award",
+          "title": "An award brings attention. Builders still need evidence.",
+          "desk": "Litecoin / Recognition",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "The Foundation’s November 6 post celebrates AIBC recognition. The dedicated winners list corroborates the award, not adoption metrics.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [
+            {
+              "date": "2026-11-06",
+              "label": "Litecoin Foundation · AIBC Layer-1 award announcement · original publication/snapshot date"
+            }
+          ],
+          "paragraphs": [
+            "The dedicated AIBC winners list corroborates the Foundation’s November 6 announcement that Litecoin won the Best Layer-1 Blockchain award at AIBC’s Rome awards and directs readers to the organizer’s winners page. This belongs in the issue as recognition of the ecosystem, with the Foundation and organizer identified as the sources.",
+            "The Foundation describes the category as recognizing technical excellence, scalability and developer adoption. Those category criteria should not be converted into an independent measurement of Litecoin throughput, security, market share or application usage. An award announcement supports a recognition story; technical and adoption claims require their own data.",
+            "For the community, recognition can be a useful introduction to educational material and active projects. The editorial opportunity is to show newcomers what they can inspect next: native Litecoin development, privacy work, payments and the changing testnet application environment."
+          ],
+          "takeaway": "Celebrate the recognition with source attribution, not unsupported performance claims.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "award-post",
+            "awards"
+          ]
+        },
+        {
+          "id": "builders-directory",
+          "title": "A growing directory is a map, not a scoreboard.",
+          "desk": "Litecoin / Ecosystem inventory",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "The official directory contains tools and experiments as well as applications. Inclusion is not a security audit.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [],
+          "paragraphs": [
+            "The official LiteForge directory bundle reviewed for this package contains 97 entries. Ninety-six are not marked comingSoon, but that count includes an explorer and infrastructure tools; one entry is a More Apps placeholder. We therefore do not call it 96 live or audited dApps.",
+            "The companion inventory preserves project names, categories, destinations and published status flags. It is a discovery list for readers and a research queue for the newsroom. A directory listing does not establish audited contracts, available liquidity, active users, revenue or production readiness.",
+            "Useful follow-up reporting should classify a project by what is actually available: concept, testnet interface, documented contract, source repository, verified production release or measured usage. Every numerical claim should carry a source and date. Readers should also distinguish the project’s own description from something the newsroom has tested."
+          ],
+          "takeaway": "Explore the directory by category, then verify each project independently.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "directory"
+          ]
+        },
+        {
+          "id": "builders-next-evidence",
+          "title": "The next milestone should be measurable.",
+          "desk": "Litecoin / What to watch",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "Production parameters, audits and operating evidence matter more than a launch-shaped headline.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [],
+          "paragraphs": [
+            "The most useful follow-up to the migration is a dated operational record: updated developer documentation, reproducible network checks, deployment identifiers and a published account of what changed. A second social post repeating the announcement is not a second milestone.",
+            "For the applications listed around LiteForge, a durable project profile should record its repository, deployment network, audit status, upgrade controls, incident notices and an actual usage measure when one is available. Missing evidence should remain visible rather than be replaced with an enthusiastic estimate.",
+            "LTC will keep this special separate from the market tape. Daily prices, ETF flows, institutional holdings and lending rates must be refreshed through their own dated source records, not copied from an earlier PDF or inferred from ecosystem announcements."
+          ],
+          "takeaway": "Measure release evidence and user outcomes, not the number of promotional posts.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "network",
+            "status",
+            "directory"
+          ]
+        },
+        {
+          "id": "builders-native-tools",
+          "title": "Native Litecoin development belongs beside the testnet story.",
+          "desk": "Litecoin / Core and wallets",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "Core maintenance and the prototype Development Kit belong in the same reading map, with different maturity labels.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [
+            {
+              "date": "2026-09-12",
+              "label": "Litecoin Core · Litecoin Core v0.21.5.8 · original publication/snapshot date"
+            }
+          ],
+          "paragraphs": [
+            "Litecoin Foundation’s project inventory spans Core, MWEB, the Development Kit, Electrum-LTC, Litecoin Computer, Litecoin Space, LTCSuite and other tools. These projects are not all LitVM applications. The distinction matters: native protocol and wallet work can improve how people use Litecoin without depending on a separate application chain.",
+            "The latest public Core release observed in the primary release listing is v0.21.5.8, dated September 12. Its notes discuss MWEB validation, relay, mining and resource-management changes. It is a relevant software baseline, not a new November announcement. Operators should read official release notes and verification instructions rather than treat the version label as an investment signal.",
+            "The Development Kit currently describes a v0.4.6 reference desktop wallet for Apple Silicon macOS and Linux x86_64, Rust/BDK-derived MWEB support, a Tauri interface and experimental mobile bindings. It explicitly calls the work a prototype that has not been independently audited. Independent review of funds-related code and signed releases are among its stated funding priorities."
+          ],
+          "takeaway": "Native software deserves a separate development desk, with version dates and audit limits visible.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "foundation-projects",
+            "core",
+            "devkit"
+          ]
+        },
+        {
+          "id": "builders-payments-security",
+          "title": "Payments and privacy need a complete risk story.",
+          "desk": "Litecoin / Wallets and security",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "Historical Nexus and MWEB records provide context, not a new announcement or blanket safety claim.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [
+            {
+              "date": "2026-05-28",
+              "label": "Litecoin Foundation · Nexus wallet update · original publication/snapshot date"
+            },
+            {
+              "date": "2026-04-28",
+              "label": "Litecoin Foundation · MWEB security incident postmortem · original publication/snapshot date"
+            },
+            {
+              "date": "2026-09-12",
+              "label": "Litecoin Core · Litecoin Core v0.21.5.8 · original publication/snapshot date"
+            }
+          ],
+          "paragraphs": [
+            "Nexus is a shipped wallet rather than a concept. The Foundation’s May 28 update describes gift-card features, MWEB, Tor, coin selection and Flexa. This is historical product context for newcomers, not a fresh November launch. Merchant, provider and jurisdictional requirements can differ even when a wallet supports privacy features.",
+            "The Foundation’s April 28 MWEB postmortem is essential historical context. It discusses a March validation exploit and recovery, followed by an April malformed-block handling failure and a 13-block invalid-chain reorganization. Its impact descriptions differ between the incidents. A blanket statement that there were no losses or no security incidents would erase those distinctions.",
+            "The useful editorial bridge is to explain what changed in software, how operators verify upgrades and what a wallet’s privacy features actually cover. Privacy claims should identify the relevant network and threat model; they should never promise immunity from merchant checks, exchange policies or all forms of traceability."
+          ],
+          "takeaway": "Put shipped features, historical incidents and current software guidance in the same reader-friendly context.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "nexus",
+            "mweb-postmortem",
+            "core"
+          ]
+        },
+        {
+          "id": "builders-testnet-finance",
+          "title": "A lending interface is a useful experiment, not a verified yield.",
+          "desk": "Litecoin / Applications",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "A testnet lending interface should not be mistaken for an investable yield product.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [],
+          "paragraphs": [
+            "The directory groups lending, decentralized exchange, payment, AI, tooling, game and collectible projects. Representative listings include Lithium and Ayni, LitVMSwap and LiteSwap, LitRoute, Dappit, Lester Labs, LitZap and LitAgent. These names are directory observations, not an endorsement or a claim that their contracts have been independently inspected.",
+            "LitVMSwap’s own lending page describes bridged-USDC lending against zkLTC and explicitly says both testnet tokens have no value. The metrics extracted during research were placeholders, so this special does not publish APY, total value locked or liquidity figures from that view. The page describes withdrawals subject to available liquidity and a seven-day delay for risk-increasing vault changes.",
+            "A reported November 9 Lithium partnership or investment points to a LitVM social post that the ecosystem desk could not yet retrieve directly. Its amount, conditions and production readiness remain outside the verified package. The entry stays on the source-check list rather than being converted into a definitive funding announcement."
+          ],
+          "takeaway": "Explain the experimental design and its risks before introducing any financial metric.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "directory",
+            "litvmswap"
+          ]
+        },
+        {
+          "id": "builders-institutional",
+          "title": "Institutional Litecoin is another track, with another clock.",
+          "desk": "Litecoin / Treasury and Canton",
+          "classification": "Source-linked ecosystem special · dated evidence and context",
+          "dek": "Issuer disclosures, the Canton cLTC proposal and a timestamped Register inventory each have their own evidence and clock.",
+          "status": "Checked November 12, 2026 · Source dates and availability limits retained",
+          "eventDates": [
+            {
+              "date": "2026-11-10",
+              "label": "Lite Strategy · Quarterly results · original publication/snapshot date"
+            },
+            {
+              "date": "2026-10-29",
+              "label": "Luxxfolio · Greywick cLTC liquidity LOI · original publication/snapshot date"
+            },
+            {
+              "date": "2026-11-12",
+              "label": "Luxxfolio · Corporate update: LuxxPool growth, mining expansion and ecosystem development · original publication/snapshot date"
+            },
+            {
+              "date": "2026-11-12",
+              "label": "Litecoin Register · Litecoin Register dated holdings inventory · original publication/snapshot date"
+            }
+          ],
+          "paragraphs": [
+            "Lite Strategy’s November 10 results report 751,798 LTC as of September 30, including 64,700 LTC pledged for covered-call activity. Its approximately $130,000 in quarterly premiums should not be confused with its $16 million net-income figure, which largely reflects asset remeasurement. The same release reports $1.7 million in liabilities: debt-free does not mean liability-free. These are dated issuer disclosures, not today’s holdings or a trading recommendation.",
+            "Luxxfolio’s October 29 release describes a nonbinding October 27 letter of intent with Greywick for potential cLTC liquidity on Canton. Further commercial terms, reserves, attestation and technical readiness are separate milestones. A newer corporate update was published November 12, but the reviewed evidence did not establish a later binding cLTC agreement. The Canton arrangement remains an institutional-development watch rather than evidence of live cLTC trading volume.",
+            "In its November 12 corporate update, Luxxfolio reports 50 newly commissioned L9 miners, bringing its fleet to 338 machines and approximately 5.58 TH/s of nameplate capacity. It reports LuxxPool at 7.7 TH/s and 520 workers as of November 11, and estimates treasury holdings of 26,838.23 LTC as of November 9. These are company-reported figures with different dates, not independently audited current totals. The company says it allocates 5% of its own pool fees to the Litecoin Foundation. LuxxWallet’s MWEB and LitVM work remains in development.",
+            "The symbols must remain distinct. Native LTC is the Litecoin asset; LitVM’s zkLTC is associated with its asset and testnet design; Greywick’s cLTC concerns Canton; Coinbase’s cbLTC is another wrapped representation. Similar names do not mean common custody, common redemption rights, equivalent security or interchangeable network support. The publication should compare each structure on its own documented terms.",
+            "Litecoin Register’s November 12 snapshot checked at approximately 18:46 UTC lists 98 holders and 15,428,199 LTC across its categories: exchanges 10,392,125; products 2,476,883; ecosystem 1,404,140; corporate 802,608; miners 341,678; and government 10,765. These categories reconcile to the displayed total, but the underlying reporting dates span November 14, 2013 to November 12, 2026. The tracker explicitly warns about possible double-counting where funds hold assets at exchanges. This is a dated tracker inventory, not proof of unique beneficial ownership or a daily purchase flow.",
+            "Greywick’s homepage still labels cLTC as in build in the November 12 check, with its latest newsroom item dated October 29. Product descriptions of reserves and credentialed holders do not establish that issuance, redemption or institutional trading is operating. A production-launch claim remains withheld pending explicit release and operating evidence."
+          ],
+          "takeaway": "Keep reporting dates, legal conditions, reserve evidence and asset representations separate.",
+          "discussionPrompt": "What additional primary evidence would verify the next milestone without confusing testnet, historical context and production availability?",
+          "sourceIds": [
+            "strategy",
+            "luxxfolio",
+            "cltc",
+            "architecture",
+            "luxxfolio-update",
+            "register",
+            "greywick-status"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "foundation-network",
+          "title": "Litecoin Foundation LiteForge configuration reminder",
+          "publisher": "Litecoin Foundation",
+          "url": "https://x.com/LTCFoundation/status/2120708077544726875",
+          "publishedAt": "2026-11-12T02:39:41Z",
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "litvm-migration",
+          "title": "LiteForge infrastructure migration announcement",
+          "publisher": "LitVM",
+          "url": "https://x.com/LitecoinVM/status/2120321030875136125",
+          "publishedAt": "2026-11-11T01:01:42Z",
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "network",
+          "title": "Network configuration",
+          "publisher": "LitVM",
+          "url": "https://docs.litvm.com/get-started-on-testnet/network-configuration",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Refreshed November 12 18:42 UTC: old Caldera WebSocket no longer active; use documented Zeeve HTTP RPC. Replacement WS not confirmed."
+        },
+        {
+          "id": "architecture",
+          "title": "Architecture",
+          "publisher": "LitVM",
+          "url": "https://docs.litvm.com/overview/architecture",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "status",
+          "title": "Network status",
+          "publisher": "LitVM",
+          "url": "https://docs.litvm.com/other-resources/network-status",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Refreshed November 12 18:42 UTC; LiteForge testnet, mainnet parameters and full native-LTC route not confirmed."
+        },
+        {
+          "id": "award-post",
+          "title": "AIBC Layer-1 award announcement",
+          "publisher": "Litecoin Foundation",
+          "url": "https://x.com/LTCFoundation/status/2118614519681270119",
+          "publishedAt": "2026-11-06T08:00:38Z",
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "awards",
+          "title": "AIBC Rome awards winners",
+          "publisher": "AIBC",
+          "url": "https://aibc.world/rome/awards/",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Dedicated winners list reconfirmed November 12 18:42 UTC. It corroborates Litecoin; conflicting organizer roundup not used."
+        },
+        {
+          "id": "directory",
+          "title": "LiteForge ecosystem directory",
+          "publisher": "LitVM",
+          "url": "https://testnet.litvm.com/",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "foundation-projects",
+          "title": "Foundation project directory",
+          "publisher": "Litecoin Foundation",
+          "url": "https://litecoin.com/projects",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "core",
+          "title": "Litecoin Core v0.21.5.8",
+          "publisher": "Litecoin Core",
+          "url": "https://github.com/litecoin-project/litecoin/releases/tag/v0.21.5.8",
+          "publishedAt": "2026-09-12",
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "devkit",
+          "title": "Litecoin Development Kit",
+          "publisher": "Litecoin Foundation",
+          "url": "https://litecoin.com/projects/litecoin-dev-kit",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "nexus",
+          "title": "Nexus wallet update",
+          "publisher": "Litecoin Foundation",
+          "url": "https://litecoin.com/news/nexus-wallet-update-making-the-future-of-litecoin-payments-more-powerful",
+          "publishedAt": "2026-05-28",
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "mweb-postmortem",
+          "title": "MWEB security incident postmortem",
+          "publisher": "Litecoin Foundation",
+          "url": "https://litecoin.com/news/litecoin-mweb-security-incident-postmortem",
+          "publishedAt": "2026-04-28",
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "litvmswap",
+          "title": "LitVMSwap lending",
+          "publisher": "LitVMSwap",
+          "url": "https://www.litvmswap.com/lend",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "strategy",
+          "title": "Quarterly results",
+          "publisher": "Lite Strategy",
+          "url": "https://litestrategy.gcs-web.com/node/12511/pdf",
+          "publishedAt": "2026-11-10",
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "luxxfolio",
+          "title": "Greywick cLTC liquidity LOI",
+          "publisher": "Luxxfolio",
+          "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
+          "publishedAt": "2026-10-29",
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "cltc",
+          "title": "cLTC product description",
+          "publisher": "Greywick Digital",
+          "url": "https://greywick.digital/cltc",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+        },
+        {
+          "id": "luxxfolio-update",
+          "title": "Corporate update: LuxxPool growth, mining expansion and ecosystem development",
+          "publisher": "Luxxfolio",
+          "url": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development/",
+          "publishedAt": "2026-11-12",
+          "checkedAt": "2026-11-12",
+          "note": "Refreshed November 12 18:42 UTC. Company-reported dated metrics; current wallet work described as in development. Does not establish a binding cLTC agreement."
+        },
+        {
+          "id": "register",
+          "title": "Litecoin Register dated holdings inventory",
+          "publisher": "Litecoin Register",
+          "url": "https://litecoinregister.com/",
+          "publishedAt": "2026-11-12",
+          "checkedAt": "2026-11-12",
+          "note": "Checked approximately 18:46 UTC. 98 holders; 15,428,199 LTC; category sum reconciles. Mixed underlying dates and potential exchange/fund custody double-counting; not unique ownership or flow."
+        },
+        {
+          "id": "greywick-status",
+          "title": "Greywick product status",
+          "publisher": "Greywick Digital",
+          "url": "https://greywick.digital/",
+          "publishedAt": null,
+          "checkedAt": "2026-11-12",
+          "note": "Checked approximately 18:46 UTC. cLTC labeled In build. Operational launch not established."
+        }
+      ]
+    },
+    "flagship": {
+      "schemaVersion": 1,
+      "series": "Proof of Work",
+      "intelligenceSha256": "2829163b208679fc50ae53f8f05da3c2a491a6a4b28a32b20933479c3aee99f1",
+      "policySha256": "b0592e5af9c586a9dd98471aa9c85e1dc07726b0999c8999b525d45cae228691",
+      "featuresSha256": "2cd5251921305c420aff849eebfd354f25aad4cd4ce7bce05d5ae71d8d25e4dd"
+    }
+  },
+  {
+    "schemaVersion": 1,
     "id": "2026-11-11-r1",
     "date": "2026-11-11",
     "revision": 1,

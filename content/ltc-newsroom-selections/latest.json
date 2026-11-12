@@ -1,42 +1,56 @@
 {
   "schemaVersion": 1,
-  "id": "source-desk-2026-11-11-r1",
-  "checkedAt": "2026-11-11T18:00:47.584Z",
+  "id": "source-desk-2026-11-12-r1",
+  "checkedAt": "2026-11-12T19:37:02.486Z",
   "byline": "AI Satoshi Ma · Automated source desk",
   "scope": "Deterministic source-dated selections; publisher announcements remain attributed and observations retain their clocks. No independent human review is claimed.",
   "generatedFrom": {
-    "id": "newsroom-20261111T180047Z",
-    "sha256": "18a2006335037173459675f8a4ed8d7d80636106fad205c6db3066eb2d31d182"
+    "id": "newsroom-20261112T193702Z",
+    "sha256": "ecd08a860752968f86cc56319d5404d4ff4088a686c276f2f7cbde6d5f93adc0"
   },
   "stories": [
     {
+      "id": "ebab1ff5c7eabf232d091e64a6807f7085089eb94e23f0f229449bdd8fb96efa",
+      "desk": "Ecosystem / institutions",
+      "title": "Luxxfolio Provides Corporate Update Highlighting LuxxPool Growth, Mining Expansion and Litecoin Ecosystem Development",
+      "publishedAt": "2026-11-12",
+      "dateKind": "published",
+      "classification": "Attributed publisher announcement; deployment stage not established",
+      "summary": "Luxxfolio published this source record on 2026-11-12. This automated report identifies the source; claims and deployment status require editorial verification.",
+      "whyItMatters": "Explicit Litecoin ecosystem subject",
+      "url": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development",
+      "sourceName": "Luxxfolio",
+      "readMore": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development",
+      "checkedAt": "2026-11-12T19:36:57.218Z"
+    },
+    {
       "id": "lnd-release",
       "desk": "Lightning & builders",
-      "title": "LND v0.21.6-beta: the dated upstream record",
-      "publishedAt": "2026-10-30T23:21:55Z",
-      "observedAt": "2026-10-30T23:21:55Z",
+      "title": "LND v0.21.8-beta: the dated upstream record",
+      "publishedAt": "2026-11-11T20:41:18Z",
+      "observedAt": "2026-11-11T20:41:18Z",
       "dateKind": "published",
       "classification": "Dated upstream release",
-      "summary": "The official LND repository’s latest-release endpoint returned v0.21.6-beta, published October 30, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+      "summary": "The official LND repository’s latest-release endpoint returned v0.21.8-beta, published November 11, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
       "whyItMatters": "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup.",
       "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
       "sourceName": "LND · Lightning software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-11T17:57:16.541Z"
+      "checkedAt": "2026-11-12T19:34:30.476Z"
     },
     {
-      "id": "2d04a940108b180a0ba2",
-      "desk": "Litecoin / Builders",
-      "title": "Luxxfolio Partners with Greywick Digital to Pioneer Institutional Liquidity for cLTC on the Canton Network",
-      "publishedAt": "2026-10-29",
+      "id": "06144dff2dd0b335d9bc9f0cf94a04d6deaccbea8196298733499417b647e3e0",
+      "desk": "Ecosystem / institutions",
+      "title": "Lite Strategy Reports Fiscal 2027 First Quarter Financial Results",
+      "publishedAt": "2026-11-10T13:30:38.000Z",
       "dateKind": "published",
-      "classification": "Carry-forward historical context",
-      "summary": "Luxxfolio published this linked announcement on 2026-10-29. This card identifies the publisher record; its underlying claims have not been independently verified.",
-      "whyItMatters": "Read the original terms, product stage and dependencies before drawing conclusions.",
-      "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
-      "sourceName": "Luxxfolio",
-      "readMore": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
-      "checkedAt": "2026-11-11T18:00:44.737Z"
+      "classification": "Attributed publisher announcement; deployment stage not established",
+      "summary": "Lite Strategy published this source record on 2026-11-10T13:30:38.000Z. This automated report identifies the source; claims and deployment status require editorial verification.",
+      "whyItMatters": "Dedicated primary ecosystem source",
+      "url": "https://investor.litestrategy.com/news-releases/news-release-details/lite-strategy-reports-fiscal-2027-first-quarter-financial",
+      "sourceName": "Lite Strategy",
+      "readMore": "https://investor.litestrategy.com/news-releases/news-release-details/lite-strategy-reports-fiscal-2027-first-quarter-financial",
+      "checkedAt": "2026-11-12T19:36:58.232Z"
     },
     {
       "id": "bitcoin-core-release",
@@ -51,35 +65,7 @@
       "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
       "sourceName": "Bitcoin Core · software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-11T17:57:16.541Z"
-    },
-    {
-      "id": "395c4385600350aad0b6",
-      "desk": "Litecoin / Builders",
-      "title": "Introducing LitVM V2: A Bigger Vision",
-      "publishedAt": "2026-10-27",
-      "dateKind": "published",
-      "classification": "Carry-forward historical context",
-      "summary": "LitVM published this linked announcement on 2026-10-27. This card identifies the publisher record; its underlying claims have not been independently verified.",
-      "whyItMatters": "Read the original terms, product stage and dependencies before drawing conclusions.",
-      "url": "https://www.litvm.com/blog/introducing-litvm-v2",
-      "sourceName": "LitVM",
-      "readMore": "https://www.litvm.com/blog/introducing-litvm-v2",
-      "checkedAt": "2026-11-11T18:00:44.737Z"
-    },
-    {
-      "id": "033c478aecbbf04f48d7",
-      "desk": "Litecoin / Builders",
-      "title": "Luxxfolio Announces Launch of LuxxPool Public Beta",
-      "publishedAt": "2026-10-20",
-      "dateKind": "published",
-      "classification": "Carry-forward historical context",
-      "summary": "Luxxfolio published this linked announcement on 2026-10-20. This card identifies the publisher record; its underlying claims have not been independently verified.",
-      "whyItMatters": "Read the original terms, product stage and dependencies before drawing conclusions.",
-      "url": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
-      "sourceName": "Luxxfolio",
-      "readMore": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
-      "checkedAt": "2026-11-11T18:00:44.737Z"
+      "checkedAt": "2026-11-12T19:34:30.476Z"
     },
     {
       "id": "litecoin-core-release",
@@ -94,37 +80,37 @@
       "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
       "sourceName": "Litecoin Core · software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-11T17:57:16.541Z"
+      "checkedAt": "2026-11-12T19:34:30.476Z"
     },
     {
       "id": "coinbase-btc-usd",
       "desk": "Market snapshot",
-      "title": "BTC/USD last trade: $74,464.7",
-      "publishedAt": "2026-11-11T17:57:14.306Z",
-      "observedAt": "2026-11-11T17:57:14.306Z",
+      "title": "BTC/USD last trade: $71,466.82",
+      "publishedAt": "2026-11-12T19:34:28.324Z",
+      "observedAt": "2026-11-12T19:34:28.324Z",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "Coinbase Exchange returned a BTC/USD last trade of $74,464.7, timestamped 2026-11-11T17:57:14.306Z. This venue-reported trade was retrieved at 2026-11-11T17:57:16.541Z; the two times are recorded separately.",
+      "summary": "Coinbase Exchange returned a BTC/USD last trade of $71,466.82, timestamped 2026-11-12T19:34:28.324Z. This venue-reported trade was retrieved at 2026-11-12T19:34:30.476Z; the two times are recorded separately.",
       "whyItMatters": "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
       "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
       "sourceName": "Coinbase Exchange · BTC/USD last trade",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-11T17:57:16.541Z"
+      "checkedAt": "2026-11-12T19:34:30.476Z"
     },
     {
       "id": "coinbase-ltc-usd",
       "desk": "Market snapshot",
-      "title": "LTC/USD last trade: $51.27",
-      "publishedAt": "2026-11-11T17:57:04.525Z",
-      "observedAt": "2026-11-11T17:57:04.525Z",
+      "title": "LTC/USD last trade: $49.726",
+      "publishedAt": "2026-11-12T19:34:24.028Z",
+      "observedAt": "2026-11-12T19:34:24.028Z",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "Coinbase Exchange returned a LTC/USD last trade of $51.27, timestamped 2026-11-11T17:57:04.525Z. This venue-reported trade was retrieved at 2026-11-11T17:57:16.541Z; the two times are recorded separately.",
+      "summary": "Coinbase Exchange returned a LTC/USD last trade of $49.726, timestamped 2026-11-12T19:34:24.028Z. This venue-reported trade was retrieved at 2026-11-12T19:34:30.476Z; the two times are recorded separately.",
       "whyItMatters": "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
       "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
       "sourceName": "Coinbase Exchange · LTC/USD last trade",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-11T17:57:16.541Z"
+      "checkedAt": "2026-11-12T19:34:30.476Z"
     },
     {
       "id": "ibit-holdings",
@@ -139,7 +125,7 @@
       "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
       "sourceName": "iShares Bitcoin Trust ETF · holdings",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-11T17:57:16.541Z"
+      "checkedAt": "2026-11-12T19:34:30.476Z"
     }
   ],
   "gaps": [
@@ -148,9 +134,20 @@
     "SEC · official announcements: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
     "Litecoin Register · community research: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
     "No independently measured network telemetry, ETF/ETP flow series, company mNAV, Litecoin treasury total, consolidated live price, 24-hour return, new political headline or community event report is produced by this bounded edition.",
+    "A fresh common network comparison is unavailable.",
     "Some configured Morpho fields are unavailable or stale.",
+    "This is a bounded primary-source watch, not complete access to every project or X timeline.",
+    "Official X posts require separate verified reads. Search snippets, reposts and directory listings are discovery evidence, not proof that a product is live.",
+    "ETF product pages are change watches only. Holdings, flows, NAV and prices remain with the existing verified financial-data collectors.",
+    "A reference-page hash change is an observation for editorial review, not a dated announcement or verified launch.",
+    "Cross-publisher reposts without the same canonical event URL require editorial deduplication before publication.",
+    "Litecoin Foundation: upstream_source_unavailable.",
+    "Litecoin Foundation news: invalid_feed_identity.",
+    "Litecoin Foundation: source_http_403.",
+    "Grayscale: source_http_429.",
     "LitVM: A linked publisher article was unavailable or did not match the accepted dated format.",
     "Litecoin Foundation: Publisher index unavailable or changed; no alternate source or access bypass used.",
+    "F2Pool: No supported article links found.",
     "This is a bounded source selection, not complete reporting or a full social feed."
   ]
 }
