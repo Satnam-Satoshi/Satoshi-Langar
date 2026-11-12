@@ -6,7 +6,7 @@ test('community front door links newcomers, published magazine and independent e
  const [home,journey]=await Promise.all([read('app/components/HomeFront.tsx'),read('app/components/CommunityJourney.tsx')]);
  assert.match(home,/CommunityJourney/);assert.match(home,/RegisterInvitation/);
  for(const href of ['/conversations/start/','/conversations/','/join/','https://litecoinregister.com/']) assert.ok(journey.includes(href));
- assert.match(journey,/Independent third-party tracker/);assert.match(journey,/Protocol context \/ Not register totals/);
+ assert.match(journey,/Independent third-party research links, not live data feeds/);assert.match(journey,/Protocol context \/ Not register totals/);
  assert.match(home,/No wallet or purchase required/);
 });
 test('magazine front door renders the saved headline jacket instead of bare art', async()=>{
