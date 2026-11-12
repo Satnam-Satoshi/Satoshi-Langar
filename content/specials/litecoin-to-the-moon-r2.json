@@ -96,7 +96,7 @@
       "paragraphs": [
         "Litecoin Foundation’s project inventory spans Core, MWEB, the Development Kit, Electrum-LTC, Litecoin Computer, Litecoin Space, LTCSuite and other tools. These projects are not all LitVM applications. The distinction matters: native protocol and wallet work can improve how people use Litecoin without depending on a separate application chain.",
         "The latest public Core release observed in the primary release listing is v0.21.5.8, dated September 12. Its notes discuss MWEB validation, relay, mining and resource-management changes. It is a relevant software baseline, not a new November announcement. Operators should read official release notes and verification instructions rather than treat the version label as an investment signal.",
-        "The Development Kit currently describes a v0.4.6 reference desktop wallet for Apple Silicon macOS and Linux x86_64, Rust/BDK-derived MWEB support, a Tauri interface and experimental mobile bindings. It explicitly calls the work a prototype that has not been independently audited. Independent review of funds-related code and signed releases are among its stated funding priorities."
+        "The Development Kit documentation describes a reference desktop wallet for Apple Silicon macOS and Linux x86_64, Rust/BDK-derived MWEB support, a Tauri interface and experimental mobile bindings. It explicitly calls the work a prototype that has not been independently audited. Independent review of funds-related code and signed releases are among its stated funding priorities."
       ],
       "takeaway": "Native software deserves a separate development desk, with version dates and audit limits visible.",
       "sourceIds": [
