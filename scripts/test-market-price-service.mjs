@@ -50,3 +50,42 @@ test('global market enhancement accepts service schema and withholds a partial r
  const fresh=await display(payload);assert.equal(fresh.get('[data-market-price="BTC-USD"]').textContent,'$90.25');assert.match(fresh.get('[data-market-state]').textContent,/Auto-refreshed/);
  const partial=await display({...payload,status:'partial'});assert(!partial.has('[data-market-price="BTC-USD"]'));assert.match(partial.get('[data-market-state]').textContent,/unavailable/);
 });
+
+test('reciprocal conversions update atomically with accepted prices and retain dated values on expiry/failure',async()=>{
+ const {readFile}=await import('node:fs/promises');const {runInNewContext}=await import('node:vm');
+ const source=await readFile('scripts/browser/market-live.mjs','utf8');
+ const nodes=new Map(),timers=new Map();let clock=now;
+ const node=s=>{if(!nodes.has(s))nodes.set(s,{textContent:'saved'});return nodes.get(s);};
+ const root={querySelectorAll:s=>[node(s)],querySelector:s=>node(s)};
+ class Clock extends Date{static now(){return clock;}}
+ let payload={schemaVersion:1,status:'fresh',source:'Coinbase Exchange',checkedAt:new Date(now).toISOString(),quotes:[{product:'BTC-USD',price:90000,observedAt:new Date(now).toISOString()},{product:'LTC-USD',price:90,observedAt:new Date(now-1000).toISOString()}]};
+ runInNewContext(source,{document:{querySelector:()=>root,hidden:false,addEventListener(){}},window:{addEventListener(){}},location:{hostname:'satnamsatoshi.com'},Date:Clock,Intl,Number,Array,JSON,Error,AbortController,setTimeout,clearTimeout,setInterval:(fn,ms)=>{timers.set(ms,fn);return ms;},clearInterval(){},fetch:async()=>Response.json(payload)});
+ const settle=()=>new Promise(resolve=>setImmediate(resolve));await settle();
+ assert.equal(node('[data-market-conversion="BTC-USD"]').textContent,'1 BTC ≈ 1,000 LTC');
+ assert.equal(node('[data-market-conversion="LTC-USD"]').textContent,'1 LTC ≈ 0.001 BTC');
+ assert.equal(node('[data-market-time="LTC-USD"]').dateTime,payload.quotes[1].observedAt);
+ clock=now+180001;timers.get(1000)();assert.match(node('[data-market-state]').textContent,/Dated prices & conversions/);
+ assert.equal(node('[data-market-conversion="BTC-USD"]').textContent,'1 BTC ≈ 1,000 LTC');
+ for(const invalid of [
+  {...payload,status:'partial'},
+  {...payload,quotes:[payload.quotes[0],{...payload.quotes[1],price:0}]},
+  {...payload,quotes:[payload.quotes[0],{...payload.quotes[1],price:Infinity}]},
+  {...payload,quotes:[{...payload.quotes[0],price:1e308},{...payload.quotes[1],price:1e-308}]},
+  {...payload,quotes:[payload.quotes[0],{...payload.quotes[1],observedAt:new Date(now-300001).toISOString()}]},
+ ]){
+  clock=now;payload=invalid;await timers.get(120000)();await settle();
+  assert.equal(node('[data-market-conversion="BTC-USD"]').textContent,'1 BTC ≈ 1,000 LTC');
+  assert.equal(node('[data-market-price="BTC-USD"]').textContent,'$90,000.00');
+  assert.match(node('[data-market-state]').textContent,/unavailable/);
+ }
+});
+
+test('static price rail includes both dated conversions and non-executable quote disclosure',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const component=await readFile('app/components/MarketCheckpoint.tsx','utf8');
+ assert.match(component,/btc \/ ltc, ltc \/ btc/);
+ assert.match(component,/Number\.isFinite\(rate\) && rate > 0/);
+ assert.match(component,/data-market-conversion/);
+ assert.match(component,/conversion unavailable/);
+ assert.match(component,/Not a tradable BTC\/LTC quote; fees and spread excluded/);
+});

@@ -5,3 +5,17 @@
 .hero p.note,.courseHero p.note{font-size:12px;line-height:1.7;margin-top:18px}.labHeader p.note{font-size:12px;line-height:1.7}.labBanner p.note{font-size:12px;line-height:1.7;margin-top:18px}@media(max-width:760px){.hero h1{font-size:52px}.hero{gap:28px}.hero p{font-size:16px}.hero h1{margin-block:18px 22px}}
 /* Live school headings join the magazine reading-room typography. */
 .school{--ink:var(--editorial-ink);--paper:var(--editorial-paper);--orange:var(--bitcoin-ink);--line:var(--editorial-rule)}.school :is(h1,h2){font-family:var(--font-serif);font-weight:400}.school .hero h1{line-height:1.02;letter-spacing:-.045em}.school .lessonHero :focus-visible,.school .takeaway :focus-visible{outline-color:var(--on-dark-accent)}
+
+/* Orange editorial system: route-specific surfaces; existing responsive grids retained. */
+
+.school :is(h1,h2,h3),.hero h1 em,.sectionHead h2 em { font-family:var(--font-sans); font-weight:850; font-style:normal; letter-spacing:-.04em; }
+.hero,.courseHero,.labHeader { border-top:5px solid #f7931a; border-bottom:2px solid #f7931a; }
+.hero h1 em,.sectionHead h2 em { color:#a54700; }
+.school .button { background:#f7931a; color:#171b1f; border-color:#171b1f; border-radius:2px; font-weight:800; }
+.school .button:hover { background:#ffe0b8; color:#171b1f; }
+.card,.lessonCard,.labGame,.progress,.recommender { border-top:4px solid #f7931a; border-radius:2px; }
+.lessonHero,.labBanner,.takeaway { border-top:5px solid #f7931a; }
+.chapterHeader { border-bottom:3px solid #f7931a; }
+.outcomes { border-left-color:#f7931a; }
+.school :is(a,button,input,select,textarea,summary):focus-visible { outline-color:#345d9d; }
+.school .lessonHero :is(a,button,input,select,textarea,summary):focus-visible,.school .labBanner :is(a,button,input,select,textarea,summary):focus-visible,.school .takeaway :is(a,button,input,select,textarea,summary):focus-visible { outline-color:#fffaf1; }

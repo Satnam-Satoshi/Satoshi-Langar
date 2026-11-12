@@ -5,3 +5,19 @@
 @media(prefers-reduced-motion:reduce){.pathCard,.primary{transition:none}.pathCard:hover{transform:none}}
 
 .hub [hidden]{display:none!important}
+
+/* Orange editorial system: route-specific surfaces; existing responsive grids retained. */
+
+.hub :is(h1,h2,h3),.hub h1 em,.hub h2 em { font-family:var(--font-sans); font-weight:850; font-style:normal; letter-spacing:-.04em; }
+.hero { border-top:5px solid #f7931a; border-bottom:5px solid #f7931a; }
+.heroShade { background:linear-gradient(90deg,rgba(23,27,31,.96),rgba(23,27,31,.8) 45%,rgba(23,27,31,.38)); }
+.hero em { color:#f7931a; }
+.hub .primary,.hub .hero .primary,.hub .serviceSection .primary { background:#f7931a; color:#171b1f; border-radius:2px; font-weight:800; }
+.hub .primary:hover { background:#ffe0b8; color:#171b1f; }
+.pathCard,.channelCard,.guidePanel,.readingStack>a { border-top:4px solid #f7931a; border-radius:2px; }
+.guideForm button { background:#171b1f; color:#fffaf1; border-bottom:3px solid #f7931a; }
+.sectionHeading,.covenant { border-top:4px solid #f7931a; padding-top:24px; }
+.serviceSection,.ourCommons { border-top:5px solid #f7931a; }
+.closing { border-top:5px solid #f7931a; background:#fff0da; }
+.hub :is(a,button,input,select,textarea,summary):focus-visible { outline-color:#345d9d; }
+.hero :is(a,button,input,select,textarea,summary):focus-visible,.jumpNav :is(a,button,input,select,textarea,summary):focus-visible,.serviceSection :is(a,button,input,select,textarea,summary):focus-visible,.ourCommons :is(a,button,input,select,textarea,summary):focus-visible,.readingStack>a:first-child:focus-visible { outline-color:#fffaf1; }
