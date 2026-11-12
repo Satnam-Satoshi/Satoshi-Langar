@@ -18,3 +18,6 @@
 /* Collector covers and closing pages continue the bold editorial system. */
 .cover h1,.back h2,.smallCover h3{font-family:var(--font-sans);font-weight:900;letter-spacing:-.06em}.cover h1{font-size:clamp(50px,8vw,116px)}.chapterNumber,.timeline time{font-family:var(--font-sans);font-weight:850}.sourcebook h3{font-family:var(--font-sans);font-weight:800}.contents strong{font-family:var(--font-sans);font-weight:750}
 @media(max-width:700px){.cover h1{font-size:clamp(46px,11vw,76px)}.smallCover h3{font-size:clamp(38px,10vw,68px)}}
+/* Long builder names and source labels must reflow at narrow mobile widths. */
+.reader :is(h1,h2,h3,p,a,strong){overflow-wrap:anywhere}.reader :is(section,nav,article,li,li>div,.chapterBody){min-width:0}.contents li a>div{min-width:0}.topNav{flex-wrap:wrap}.sourcebook ol>li{grid-template-columns:50px minmax(0,1fr)}
+@media(max-width:700px){.sourcebook ol>li{grid-template-columns:30px minmax(0,1fr)}.contents li a{gap:12px}.masthead{gap:16px}.masthead span{padding-left:16px}}

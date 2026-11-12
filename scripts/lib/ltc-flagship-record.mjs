@@ -17,6 +17,10 @@ export function validateFeatures(value, date, { now } = {}) {
   assert(value.timezone === 'America/New_York' && value.editorialStatus === 'AI-prepared and source-checked', 'invalid_feature_provenance');
   assert(Array.isArray(value.stories) && value.stories.length >= 1 && value.stories.length <= 10 && Array.isArray(value.sources), 'invalid_features');
   assert(new Set(value.sources.map(source => source.id)).size === value.sources.length, 'duplicate_feature_source');
+  if (value.editionCover !== undefined) {
+    const cover = value.editionCover;
+    assert(cover && typeof cover === 'object' && !Array.isArray(cover) && Object.keys(cover).sort().join(',') === 'kicker,subtitle,title' && ['title','subtitle','kicker'].every(key => text(cover[key]) && cover[key].length <= 350), 'invalid_feature_cover');
+  }
   for (const source of value.sources) {
     assert(typeof source.id === 'string' && sourceUrl(source.url) && text(source.title) && text(source.publisher) && text(source.note) && validDate(source.checkedAt) && source.checkedAt <= date && (source.publishedAt === null || ((validDate(source.publishedAt) && source.publishedAt <= date) || (validInstant(source.publishedAt) && dateInNewYork(source.publishedAt) <= date))), 'invalid_feature_source');
     if (now !== undefined && validInstant(source.publishedAt)) assert(Date.parse(source.publishedAt) <= Date.parse(now), 'future_feature_source_publication');
@@ -46,6 +50,10 @@ export function validateFlagshipRecord(edition) {
   assert(Date.parse(edition.intelligence.evaluatedAt) === Date.parse(now), 'flagship_freshness_not_evaluated_at_preparation');
   validatePolicySnapshot(edition.policyRecords, { now });
   validateFeatures(edition.features, edition.date, { now });
+  if (edition.features.editionCover && edition.features.issueDate === edition.date) {
+    const cover = edition.features.editionCover;
+    assert(edition.title === cover.title && edition.dek === cover.subtitle && ['title','subtitle','kicker'].every(key => edition.presentation.cover[key] === cover[key]), 'flagship_editorial_cover_mismatch');
+  }
   for (const [field, digestField] of [['intelligence', 'intelligenceSha256'], ['policyRecords', 'policySha256'], ['features', 'featuresSha256']]) {
     assert(typeof record[digestField] === 'string' && /^[a-f0-9]{64}$/.test(record[digestField]) && record[digestField] === hash(edition[field]), 'flagship_evidence_digest_mismatch');
   }

@@ -43,6 +43,11 @@ try {
           await page.goto(origin + route, { waitUntil: 'networkidle' });
           await page.evaluate(() => document.fonts.ready);
           const dimensions = await page.evaluate(() => ({ width: innerWidth, content: document.documentElement.scrollWidth }));
+          if (dimensions.content > dimensions.width + 1) {
+            await page.screenshot({path:path.join(output,`${engine}-${width}-overflow.png`),fullPage:true,animations:'disabled'});
+            const offenders=await page.evaluate(()=>[...document.querySelectorAll('main *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1).slice(0,20).map(el=>({tag:el.tagName,classes:el.className,right:Math.round(el.getBoundingClientRect().right)})));
+            await writeFile(path.join(output,`${engine}-${width}-overflow.json`),JSON.stringify({route,offenders},null,2));
+          }
           assert.ok(dimensions.content <= dimensions.width + 1, `${engine}/${width}${route} horizontal overflow: ${dimensions.content}`);
           assert.ok(await page.locator('h1').count(), `${route} missing main heading`);
           assert.deepEqual(await page.locator('img').evaluateAll(images => images.filter(image => image.complete && image.naturalWidth === 0).map(image => image.getAttribute('src'))), [], `${route} broken image`);

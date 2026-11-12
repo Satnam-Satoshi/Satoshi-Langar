@@ -127,3 +127,15 @@ test('the static validation hook rejects index divergence even when both copies 
   await assert.rejects(()=>validateLtcArchive({directory}),/edition_index_archive_mismatch/);
  }finally{await rm(directory,{recursive:true,force:true})}
 });
+
+test('dated editorial cover copy applies only to its exact issue and preserves source/art evidence',()=>{
+ const curated=structuredClone(features);curated.editionCover={title:'A reviewed builder special',subtitle:'Dated sources and explicit limits.',kicker:'LTC / REVIEWED SPECIAL'};
+ const issue=prepareFlagship({...args,features:curated});
+ assert.equal(issue.title,curated.editionCover.title);assert.equal(issue.dek,curated.editionCover.subtitle);
+ assert.deepEqual(issue.presentation.artDirection,prepareFlagship(args).presentation.artDirection);
+ const changed=structuredClone(issue);changed.title='Different headline';assert.throws(()=>validateFlagshipRecord(changed),/flagship_editorial_cover_mismatch/);
+ assert.equal(issue.flagship.featuresSha256,digest(curated));assert.equal(issue.humanReview,args.features.humanReview??'Not individually reviewed by a human editor');
+ const historical={...curated,issueDate:'2026-10-04'};
+ const later=prepareFlagship({...args,features:historical});assert.notEqual(later.title,curated.editionCover.title);
+ for(const bad of [null,[],{...curated.editionCover,asset:'/fake.png'},{...curated.editionCover,title:''},{...curated.editionCover,title:'x'.repeat(351)}])assert.throws(()=>validateFeatures({...curated,editionCover:bad},'2026-10-05',{now}),/invalid_feature_cover/);
+});
