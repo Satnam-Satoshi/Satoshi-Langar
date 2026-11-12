@@ -64,6 +64,7 @@ try {
           if (route === '/' || route === '/conversations/') {
             const lead = page.locator('[data-primary-feature="litecoin-to-the-moon"]');
             assert.equal(await lead.count(),1,`${route} missing unique primary Moon feature`);
+            assert.equal(await lead.locator('h1 em,h2 em').evaluate(el=>getComputedStyle(el).color),'rgb(247, 147, 26)',`${route} Moon highlight must retain orange brand contrast`);
             const order = await page.evaluate(() => {
               const feature=document.querySelector('[data-primary-feature="litecoin-to-the-moon"]');
               const daily=document.querySelector('#home-latest-issue, #daily');
