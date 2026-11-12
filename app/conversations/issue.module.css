@@ -210,3 +210,12 @@
 
 /* Approved interior design: bold desk typography and orange section rhythm. */
 .opening h2,.spreadHeader h2,.deskHeading h2,.coverage h2,.publicationRecord h2{font-family:var(--font-sans);font-weight:900}.spreadHeader,.publicationRecord{border-top:4px solid #f7931a}.recordColumns h3{font-family:var(--font-sans);font-weight:800}
+
+/* The same editorial identity continues past the cover and through the reader. */
+.editionDesk{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;padding:42px;background:#171b1f;color:#fffaf1;border-top:7px solid #f7931a;margin:0 0 28px}
+.editionDesk p{font:600 11px/1.7 var(--font-sans);letter-spacing:.1em;text-transform:uppercase;margin:0 0 12px}
+.editionDesk>div:first-child>p{color:#f7931a}.editionDesk h2{font:900 clamp(30px,4vw,58px)/1.02 var(--font-sans);letter-spacing:-.055em;margin:0}.editionDesk h2 span{display:block;color:#f7931a;font-size:.64em;margin-top:12px}
+.editionDesk nav{display:flex;flex-wrap:wrap;gap:8px 18px;border-top:1px solid #746d61;padding-top:14px}.editionDesk nav a{display:inline-flex;align-items:center;min-height:44px;font-size:12px;font-weight:700}.editionDesk nav a:last-child{color:#f7931a}.editionDesk a:focus-visible{outline-color:#f7931a}
+.readerBrand{font-family:var(--font-sans);font-weight:900}.readerBar{border-top:4px solid #f7931a;background:#fffaf1}.sectionNumber{font-family:var(--font-sans);font-weight:900}.recordCard{border-top:4px solid #f7931a}.recordCard strong{font-family:var(--font-sans);font-weight:900;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.editionDesk{grid-template-columns:1fr;gap:22px;padding:25px 20px}.editionDesk h2{font-size:36px}.editionDesk nav{gap:5px 14px}}
+@media print{.editionDesk{color:#171b1f;background:white;border-color:#171b1f}.editionDesk h2 span,.editionDesk>div:first-child>p{color:#171b1f}.editionDesk nav{display:none}}

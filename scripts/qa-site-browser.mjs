@@ -1,3 +1,5 @@
+import { publicEditions } from './lib/ltc-public-editions.mjs';
+import { publicationDays } from '../app/data/edition-calendar.ts';
 // Credential-free rendered QA of the built export. All browser traffic is
 // intercepted; production and third-party services are never contacted.
 import assert from 'node:assert/strict';
@@ -7,7 +9,10 @@ const { chromium, webkit } = await import(process.env.PLAYWRIGHT_MODULE || 'play
 const root = path.resolve('dist'), output = path.resolve(process.env.QA_OUTPUT || 'site-qa');
 await mkdir(output, { recursive: true });
 const origin = 'https://satnamsatoshi.com';
-const routes = ['/', '/conversations/', '/conversations/archive/', '/conversations/desks/', '/conversations/desks/bitcoin-products/', '/conversations/litecoin/', '/conversations/litecoin-distribution/', '/conversations/start/', '/conversations/finance/', '/conversations/timechain/', '/conversations/community/', '/about/', '/sikh-bitcoin/', '/miikey/', '/join/', '/donate/'];
+const records = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
+const exclusions = JSON.parse(await readFile('config/ltc-publication-exclusions.json', 'utf8'));
+const latestIssue = publicationDays(publicEditions(records, exclusions))[0].latest.id;
+const routes = [`/conversations/editions/${latestIssue}/`, '/conversations/daily/', '/conversations/updates/', '/conversations/specials/litecoin-builders-november/', '/mission/', '/langar/', '/agents/', '/', '/conversations/', '/conversations/archive/', '/conversations/desks/', '/conversations/desks/bitcoin-products/', '/conversations/litecoin/', '/conversations/litecoin-distribution/', '/conversations/start/', '/conversations/finance/', '/conversations/timechain/', '/conversations/community/', '/about/', '/sikh-bitcoin/', '/miikey/', '/join/', '/donate/'];
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.xml': 'application/xml' };
 const results = [], errors = [];
 try {
@@ -44,6 +49,16 @@ try {
           const name = `${engine}-${width}-${route.replace(/[^a-z0-9]+/gi, '_') || 'home'}.png`;
           await page.screenshot({ path: path.join(output, name), fullPage: false, animations: 'disabled' });
           results.push({ engine, width, route, screenshot: name, overflow: false });
+          if (route === '/conversations/daily/') {
+            assert.equal(await page.locator('[data-cover-mode=edition]').count(), 1, 'Daily entry must render the actual edition cover');
+            assert.equal(await page.locator('[aria-label="Edition reading paths"]').count(), 1);
+            assert.equal(await page.getByText('October 2 design review', { exact: false }).count(), 0);
+            await page.locator('#daily-briefings').scrollIntoViewIfNeeded();
+            await page.screenshot({path:path.join(output,`${engine}-${width}-daily-interior.png`),animations:'disabled'});
+          }
+          if (route === '/conversations/updates/') {
+            assert.equal(await page.locator('[aria-labelledby="newsroom-reading"]').count(), 1);
+          }
         }
         if (width < 500) {
           for (const route of ['/', '/conversations/']) {

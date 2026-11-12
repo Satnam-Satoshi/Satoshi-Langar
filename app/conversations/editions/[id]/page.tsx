@@ -43,7 +43,10 @@ export default async function EditionPage({ params }: { params: Promise<{ id: st
   const collected = edition.sources.filter(source => source.status === 'collected').length;
   const unavailable = edition.sources.filter(source => source.status === 'unavailable').length;
   return <main className={styles.issue} data-reader-layout={edition.presentation?.artDirection?.layout ?? ['folio','atlas','dispatch'][Number(edition.date.slice(-2)) % 3]} data-reader-palette={edition.presentation?.cover.palette ?? 'ember'}>
-    <div className={styles.issueLine}><span>The daily edition</span><span><time dateTime={edition.date}>{formatEditionDate(edition.date)}</time> · R{edition.revision}</span></div>
+    <header className={styles.editionDesk}>
+      <div><p>LTC / THE DAILY EDITION</p><h2>{formatEditionDate(edition.date)}<span>Read the record.</span></h2></div>
+      <div><p>{briefs.length} source briefings · Revision {edition.revision}</p><p>{collected} sources collected · {unavailable} unavailable</p><nav aria-label="Edition reading paths"><a href="#front-cover">Cover ↓</a><a href="#daily-briefings">Briefings ↓</a><a href="#sourcebook">Sourcebook ↓</a><a href="https://litecoinregister.com/">Litecoin Register ↗</a></nav></div>
+    </header>
     {id === '2026-10-06' && <LtcNewsExtraCard/>}
     {edition.date === '2026-11-09' && <aside className={styles.publicationRecord}><h2>The complete November 9 reader</h2><p>Read the full editorial desks, 22 public data tables and dated sourcebook. The briefing and feature summaries below are shorter reading paths.</p><a href="/magazine/daily/2026-11-09/full-reader.html">Open the complete editorial reader →</a></aside>}
     <div className={styles.jacket} id="front-cover"><LtcEditionCover edition={edition}/></div>

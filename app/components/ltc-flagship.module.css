@@ -60,3 +60,9 @@
 
 /* Reader desk headings retain the approved bold editorial hierarchy. */
 .flagship .sectionHead h2,.flagship .opening h2,.flagship .readingHead h2,.flagship .changeDesk h2{font-family:var(--font-sans);font-weight:850}
+
+/* Editorial interiors: decisive headings, large tabular figures, quiet body copy. */
+.flagship :is(h2,h3,h4),.opening h2,.sectionHead h2,.community h2,.changeDesk h2,.readingHead h2{font-family:var(--font-sans);font-weight:900;letter-spacing:-.045em}
+.flagship h2 em{font-style:normal}.bigMetric,.metricList dd,.rateBar p strong,.coinLabel{font-family:var(--font-sans);font-weight:850;font-variant-numeric:tabular-nums}
+.coverType h1,.coverType h2,.coverType>p:first-of-type:not(:last-child),.cover[data-cover-mode=thumbnail] .coverType>p:first-of-type{font-family:var(--font-sans);font-weight:900;letter-spacing:-.065em}
+.coverTeasers b{font-family:var(--font-sans);font-weight:800}.opening,.sectionHead{border-top:5px solid #f7931a}.readingHead{background:#171b1f;color:#fffaf1}.readingHead h2{color:#fffaf1}.changeDesk{background:#fff0da}.changeDesk li{border-top:3px solid #f7931a}.changeDesk li span{color:#834000}

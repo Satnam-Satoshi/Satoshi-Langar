@@ -14,3 +14,7 @@
 
 /* Approved interior design: bold desk typography and orange section rhythm. */
 .opening h2,.contents h2,.timeline h2,.sourcebook>h2,.chapterBody h2,.shelfHead h2{font-family:var(--font-sans);font-weight:800}.contents,.sourcebook{border-top:4px solid #f7931a}
+
+/* Collector covers and closing pages continue the bold editorial system. */
+.cover h1,.back h2,.smallCover h3{font-family:var(--font-sans);font-weight:900;letter-spacing:-.06em}.cover h1{font-size:clamp(50px,8vw,116px)}.chapterNumber,.timeline time{font-family:var(--font-sans);font-weight:850}.sourcebook h3{font-family:var(--font-sans);font-weight:800}.contents strong{font-family:var(--font-sans);font-weight:750}
+@media(max-width:700px){.cover h1{font-size:clamp(46px,11vw,76px)}.smallCover h3{font-size:clamp(38px,10vw,68px)}}
