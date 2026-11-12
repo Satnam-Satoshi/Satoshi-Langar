@@ -767,4 +767,3 @@ jobs:
           }else appendFileSync(process.env.GITHUB_STEP_SUMMARY,'Reconciliation has no verified completion receipt. Read the paused ledger before retrying. No publication was authorized.\n');
           NODE
       # No private artifacts are uploaded; the durable social ledger stores the receipt.
-

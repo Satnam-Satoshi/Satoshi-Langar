@@ -142,4 +142,3 @@ jobs:
           const summary={status:r.status,source:r.source,published:r.published,dailyPublished:false,artifactManifestSha256:r.artifactManifestSha256,buildOutputSha256:r.buildOutputSha256,failure:r.failure};
           appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify(summary,null,2)+'\n');
           NODE
-
