@@ -280,3 +280,10 @@ aside[aria-label="Current market observations with source times"] a:focus-visibl
 /* Live reading destinations share typography; archived special layouts keep theirs. */
 .live-page-intro h1{font-family:var(--font-serif);font-weight:400;line-height:1.04}
 @media(max-width:620px){.edition-notice{padding-block:7px;font-size:10px;line-height:1.4}.live-page-intro>div{padding-block:42px}}
+
+/* Compact front-door chrome; full utility navigation remains available in details. */
+body:has(main[data-site]) .header-utility{display:none}
+body:has(main[data-site]) .launch-header{border-top:5px solid #f7931a}
+body:has(main[data-site]) .edition-notice{font-size:11px;padding-block:8px;background:#102638;color:#fffefa}
+body:has(main[data-site]) .header-join{background:#f7931a;color:#102638;font-weight:800}
+body:has(main[data-site]) .desktop-nav a[href^="https://litecoinregister"]{border-bottom:3px solid #f7931a;font-weight:800}

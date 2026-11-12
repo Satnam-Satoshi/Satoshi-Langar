@@ -262,3 +262,159 @@
   .issueArt { width: clamp(54px, 19vw, 100px); margin-top: 3px; }
   .stories { grid-template-columns: 1fr; gap: 10px; }
 }
+
+/* Founder-approved orange-led community front door. */
+.front {
+  margin-top:0
+}
+.lead {
+  grid-template-columns:1.1fr 1fr;
+  background:#f7931a;
+  border:0;
+  gap:30px;
+  padding:36px
+}
+.community {
+  background:transparent;
+  padding:12px 0;
+  color:#102638
+}
+.community .kicker {
+  color:#102638
+}
+.community h1 {
+  font:900 clamp(46px,5.5vw,82px)/.98 var(--font-sans)!important;
+  letter-spacing:-.055em
+}
+.community h1 em {
+  font-style:normal;
+  font-weight:900;
+  color:inherit!important
+}
+.community h1+p {
+  color:#102638;
+  font-size:17px
+}
+.communityLinks .start {
+  background:#102638;
+  color:#fffefa;
+  padding:14px 20px
+}
+.communityLinks a {
+  font-weight:800
+}
+.community .welcome {
+  font-size:12px;
+  margin-top:18px;
+  color:#102638
+}
+.communityArt {
+  margin:0;
+  align-self:center;
+  min-width:0
+}
+.communityArt img {
+  width:100%;
+  height:auto;
+  aspect-ratio:1.2;
+  object-fit:cover;
+  display:block
+}
+.communityArt figcaption {
+  font-size:13px;
+  font-weight:800;
+  padding-top:12px;
+  color:#102638
+}
+.communityArt small {
+  display:block;
+  font-size:10px;
+  font-weight:400;
+  margin-top:4px
+}
+.magazine {
+  background:#102638;
+  border-top:6px solid #f7931a;
+  padding:32px
+}
+.issueMasthead a {
+  font-size:32px;
+  letter-spacing:-.04em
+}
+.issueMasthead a strong {
+  font-size:18px
+}
+.issueLead {
+  gap:42px
+}
+.issueCopy h2 {
+  font:800 clamp(30px,4vw,58px)/1.05 var(--font-sans);
+  letter-spacing:-.04em;
+  max-width:21ch
+}
+.issueArt {
+  display:block;
+  width:clamp(160px,25vw,290px);
+  border:0;
+  box-shadow:9px 9px 0 #f7931a
+}
+.issueCopy h2+p {
+  max-width:65ch
+}
+.read {
+  background:#f7931a;
+  color:#102638;
+  padding:14px 20px
+}
+.reading {
+  margin-top:24px;
+  border-top:3px solid #f7931a
+}
+.deskHeader h2 {
+  font-family:var(--font-sans);
+  font-weight:850
+}
+.stories h3 {
+  font-weight:650
+}
+
+@media(max-width:760px) {
+  .lead {
+  grid-template-columns:1fr;
+  padding:24px;
+  gap:20px
+}
+.community h1 {
+  font-size:clamp(45px,10vw,70px)!important
+}
+.communityArt img {
+  aspect-ratio:1.6
+}
+.issueLead {
+  flex-direction:column;
+  align-items:stretch;
+  gap:24px
+}
+.issueArt {
+  width:min(100%,330px);
+  margin:0 auto 16px
+}
+.magazine {
+  padding:24px
+}
+.issueCopy h2 {
+  font-size:36px
+}
+.communityLinks {
+  gap:10px 18px
+}
+.communityLinks .issueJump {
+  display:none
+}
+
+}
+
+.communityLinks a:focus-visible {
+  outline:3px solid #102638;
+  outline-offset:4px
+}

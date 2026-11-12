@@ -3,6 +3,8 @@ import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
 import { editionDateHref, formatEditionDate, latestLtcEdition } from '../data/editions';
 import styles from './HomeFront.module.css';
+import { CommunityJourney, RegisterInvitation } from './CommunityJourney';
+import { LtcEditionCover } from './LtcEditionPresentation';
 
 const checkedDate = new Intl.DateTimeFormat('en-US', {
   dateStyle: 'medium',
@@ -12,20 +14,22 @@ const checkedDate = new Intl.DateTimeFormat('en-US', {
 export default function HomeFront() {
   const issue = latestLtcEdition;
   const issueHref = issue ? editionDateHref(issue.date) : '/conversations/archive/';
-  const artwork = issue?.presentation?.artDirection?.coverAsset;
 
   return <div className={styles.front}>
     <div className={styles.lead}>
       <section className={styles.community} aria-labelledby="home-title">
         <p className={styles.kicker}>Satnam Satoshi / Community</p>
-        <h1 id="home-title">Open money.<br/><em>Open minds.</em></h1>
+        <h1 id="home-title">Many hands.<br/><em>A more open world.</em></h1>
         <p>Learn how Bitcoin and Litecoin work, follow the people building with them, and bring what you know to an open table.</p>
         <nav className={styles.communityLinks} aria-label="Start with Satnam Satoshi">
           <a className={styles.start} href="/conversations/start/">Start learning <span aria-hidden="true">↗</span></a>
           <a href="/join/">Contribute <span aria-hidden="true">→</span></a>
           <a className={styles.issueJump} href="#home-latest-issue">{issue ? 'Latest issue' : 'Daily archive'} <span aria-hidden="true">↓</span></a>
-        </nav>
+        </nav><p className={styles.welcome}>Free to learn. No wallet or purchase required.</p>
       </section>
+      <figure className={styles.communityArt}><img src="/home/open-table-network.jpg" width="1536" height="1024" alt="Conceptual illustration of people sharing an open table, with Bitcoin and Litecoin motifs."/><figcaption>Rooted in seva. Open to everyone.<small>Community concept artwork, not an operating kitchen.</small></figcaption></figure>
+    </div>
+    <CommunityJourney/><RegisterInvitation/>
       <section className={styles.magazine} id="home-latest-issue" aria-labelledby="home-issue-title">
         <div className={styles.issueMasthead}>
           <a href="/conversations/">LTC <strong>Magazine</strong></a>
@@ -40,9 +44,7 @@ export default function HomeFront() {
               <a className={styles.read} href={issueHref}>{issue ? 'Read the issue' : 'Browse past issues'} <span aria-hidden="true">↗</span></a>
             </nav>
           </div>
-          {artwork && <div className={styles.issueArt}>
-            <img src={`/magazine/${artwork}`} width={artwork.startsWith('daily/') ? 1086 : 1536} height={artwork.startsWith('daily/') ? 1448 : 1024} alt=""/>
-          </div>}
+          {issue && <a className={styles.issueArt} href={issueHref} aria-label={`Read ${issue.title}`}><LtcEditionCover edition={issue} mode="thumbnail"/></a>}
         </div>
         <nav className={styles.magazineLinks} aria-label="Explore LTC Magazine">
           <a href="#home-source-desk">Source desk <span aria-hidden="true">↓</span></a>
@@ -51,7 +53,6 @@ export default function HomeFront() {
           <a href="/conversations/feed.xml">RSS <span aria-hidden="true">↗</span></a>
         </nav>
       </section>
-    </div>
     <div className={styles.reading}>
       <section className={styles.desk} id="home-source-desk" aria-labelledby="home-source-title">
         <header className={styles.deskHeader}>

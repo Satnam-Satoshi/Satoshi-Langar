@@ -13,3 +13,36 @@
 .flagship [id]{scroll-margin-top:6rem}
 @media(max-width:760px){.flagship [id]{scroll-margin-top:6.5rem}}
 .changeDesk,.readingHead{padding:3rem 5%;background:var(--silver);border-block:1px solid var(--editorial-rule);color:var(--editorial-ink)}.changeDesk h2,.readingHead h2{font:2.3rem/1.15 var(--font-serif);margin:.5rem 0 1rem}.changeDesk p,.readingHead p{max-width:76ch;line-height:1.75}.changeDesk ul{list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:1rem}.changeDesk li{padding:1.2rem;background:var(--editorial-paper);border:1px solid var(--editorial-rule)}.changeDesk li span{display:block;color:var(--litecoin-blue);font-size:.75rem;margin:.6rem 0;text-transform:uppercase}.changeDesk summary,.referenceFeature summary{cursor:pointer;line-height:1.6}.referenceFeature{border-bottom:1px solid var(--editorial-rule)}.referenceFeature>summary{padding:1.4rem 5%;background:var(--silver);color:var(--editorial-ink);font:1.3rem/1.5 var(--font-serif)}.referenceFeature>summary small{display:block;font:.75rem/1.6 var(--font-sans);color:var(--litecoin-blue);margin-left:1.4rem}.flagship[data-reading-layout=atlas] .readingHead{background:var(--editorial-ink);color:var(--on-dark)}.flagship[data-reading-layout=dispatch] .opening{background:var(--silver)}.flagship[data-reading-layout=dispatch] .issueIndex a{border-left:4px solid var(--bitcoin-orange);padding-left:1rem}
+
+/* One typographic jacket for the reader, homepage and marketing exports. */
+.cover .coverTop strong {
+  color:#f7931a
+}
+.cover .coverShade {
+  background:linear-gradient(180deg,rgba(6,18,30,.9),rgba(6,18,30,.35) 58%,rgba(6,18,30,.94))
+}
+.cover .coverType h1,.cover .coverType h2,.cover[data-cover-mode=thumbnail] .coverType>p:first-of-type {
+  font-family:var(--font-sans);
+  font-weight:900;
+  line-height:.99;
+  letter-spacing:-.055em;
+  max-width:95%;
+  color:#fffefa
+}
+.cover .coverSeries {
+  color:#f7931a
+}
+.cover .coverTeasers {
+  border-top:2px solid #f7931a;
+  padding-top:2%;
+  bottom:12%
+}
+.cover .coverBottom {
+  color:#e7ecf1
+}
+.cover .coverType>p:last-child {
+  color:#e7ecf1
+}
+.cover .coverType {
+  padding-top:7%
+}

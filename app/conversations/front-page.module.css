@@ -113,3 +113,155 @@
   .issueCover { flex: 0 0 clamp(64px, 22vw, 120px); padding: 4px; }
   .issueLead .button { min-height: 44px; padding: 10px 12px; gap: 8px; }
 }
+
+/* LTC has its own editorial masthead, portrait jackets and reading rhythm. */
+.front .magazineMasthead {
+  background:#102638;
+  color:#fffefa;
+  padding:28px 32px;
+  border-top:8px solid #f7931a;
+  border-bottom:0
+}
+.front .magazineMasthead h1 {
+  font-family:var(--font-sans);
+  font-weight:900;
+  letter-spacing:-.065em;
+  font-size:clamp(48px,7.7vw,110px);
+  line-height:.95
+}
+.front .magazineMasthead h1 span {
+  color:#f7931a
+}
+.front .magazineMasthead .eyebrow {
+  color:#f7931a;
+  letter-spacing:.22em
+}
+.front .magazineMasthead>p {
+  color:#e7ecf1;
+  max-width:27ch
+}
+.front .departments {
+  background:#f7931a;
+  color:#102638;
+  padding:18px 24px;
+  border:0;
+  flex-wrap:wrap;
+  gap:16px 28px;
+  font-weight:800
+}
+.front .departments a {
+  min-height:28px
+}
+.front .issueLead {
+  background:#f7931a;
+  color:#102638;
+  padding:36px;
+  gap:42px;
+  grid-template-columns:minmax(0,1fr) minmax(260px,.8fr);
+  align-items:center
+}
+.front .issueLeadCopy h2 {
+  font:900 clamp(36px,5.2vw,74px)/1.02 var(--font-sans);
+  letter-spacing:-.045em;
+  max-width:17ch
+}
+.front .issueLead .eyebrow,.front .issueNote,.front .issueDek {
+  color:#102638
+}
+.front .issueLead .button {
+  background:#102638;
+  color:#fffefa
+}
+.front .issueCover {
+  display:block;
+  width:min(100%,410px);
+  margin:auto;
+  transform:rotate(2deg);
+  box-shadow:14px 14px 0 #102638;
+  border:1px solid #102638
+}
+.front .issueCover:focus-visible {
+  outline:4px solid #fffefa;
+  outline-offset:7px
+}
+.front .sectionHead {
+  border-top:4px solid #f7931a
+}
+.front .sectionHead h2 {
+  font:850 clamp(30px,4vw,52px)/1.05 var(--font-sans);
+  letter-spacing:-.035em
+}
+.front .newsCard h3 {
+  font-weight:650
+}
+.front .marketQuote strong {
+  font-family:var(--font-sans);
+  font-weight:900;
+  letter-spacing:-.055em
+}
+.front .invitation {
+  background:#f7931a;
+  color:#102638
+}
+.front .invitation .eyebrow {
+  color:#102638
+}
+.front .archiveCover {
+  box-shadow:5px 5px 0 #f7931a
+}
+.front .magazineMasthead a:focus-visible {
+  outline-color:#fffefa
+}
+.front .issueLead a:focus-visible,.front .departments a:focus-visible {
+  outline-color:#102638
+}
+
+@media(max-width:760px) {
+  .front .magazineMasthead {
+  padding:24px 20px;
+  display:block
+}
+.front .magazineMasthead>p {
+  max-width:40ch;
+  margin-top:14px
+}
+.front .magazineMasthead h1 {
+  font-size:clamp(44px,10vw,72px)
+}
+.front .issueLead {
+  grid-template-columns:1fr;
+  padding:25px 22px 36px;
+  gap:30px
+}
+.front .issueLeadCopy h2 {
+  font-size:clamp(34px,8.6vw,56px)
+}
+.front .issueCover {
+  width:min(90%,360px)
+}
+.front .departments {
+  gap:10px 22px;
+  padding:16px 20px
+}
+.front .issueDek {
+  font-size:16px
+}
+.front .issueLead .actions {
+  gap:18px
+}
+
+}
+
+.front .issueLead {
+  display:grid
+}
+.front .issueCover {
+  padding:0;
+  max-width:410px
+}
+.front .issueCover img {
+  max-height:none
+}
+.front .issueCover [data-cover-mode] {
+  aspect-ratio:3/4
+}

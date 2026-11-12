@@ -26,3 +26,72 @@
 .mediaSection .sectionHead{border-top-color:var(--on-dark-muted);background:var(--litecoin-blue);color:var(--on-dark);padding:24px;border-top:6px solid var(--bitcoin-orange)}
 /* The learning invitation is a blue panel; keep its label readable. */
 .learning .eyebrow{color:var(--on-dark-accent)}
+
+/* November orange/bold direction;
+   preserve distinct community and editorial roles. */
+.hero {
+  max-width:1440px;
+  padding-top:0
+}
+.home h2,.home h3 {
+  font-family:var(--font-sans);
+  font-weight:850;
+  letter-spacing:-.035em
+}
+.home h2 em,.home h3 em {
+  font-style:normal;
+  font-weight:850
+}
+.home .sectionHead {
+  border-top-color:#f7931a
+}
+.home .quickNav {
+  font-size:12px;
+  flex-wrap:wrap;
+  gap:14px 22px
+}
+.home .wallStreet h2 {
+  font-family:var(--font-sans);
+  font-weight:900
+}
+.home .wallStreet {
+  background:#102638;
+  color:#fffefa
+}
+.home .wallStreet .eyebrow,.home .wallStreet h2 em {
+  color:#f7931a
+}
+.home .editorialMap span {
+  color:#c1ccd6
+}
+.home .editorialMap p {
+  color:#fffefa
+}
+.home .pathTop b {
+  font-family:var(--font-sans);
+  font-weight:900;
+  color:#874200
+}
+.home .participate {
+  background:#f7931a;
+  color:#102638
+}
+.home .participate .eyebrow,.home .participate em {
+  color:#102638
+}
+.home .participate .button {
+  background:#102638;
+  color:#fffefa
+}
+.home .participate a:focus-visible {
+  outline-color:#102638
+}
+.home .mediaSection .sectionHead {
+  background:#102638
+}
+.home .learning {
+  background:#102638
+}
+.home .programs img {
+  filter:none
+}

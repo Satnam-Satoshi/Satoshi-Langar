@@ -14,6 +14,7 @@ import { latestLtcEdition, ltcPublicationDays, ltcPublicationMonths, editionDate
 import { formatPublicationMonth } from '../data/edition-calendar';
 import { LtcEditionCover } from '../components/LtcEditionPresentation';
 import styles from './front-page.module.css';
+import { CommunityJourney, RegisterInvitation } from '../components/CommunityJourney';
 export const metadata: Metadata = {
  title: 'LTC Media — The daily newsroom & magazine',
  description: 'Litecoin, Bitcoin and the world taking shape around them. Explore dated source briefings, illustrated daily issues, special editions and independent thinking.',
@@ -39,10 +40,9 @@ export default function ConversationsPage(){
  const other=magazineArticles.filter(item=>!featured.includes(item));
  const quotes=newsroom.sources.filter(source=>source.id.startsWith('coinbase-')&&source.status==='collected'&&source.freshness==='dated-observation')??[];
  const agencyRecords=newsroom.policyRecords.sources.flatMap(feed=>feed.items.map(item=>({...item,agency:feed.title}))).filter(record=>!sourceDesk.stories.some(story=>story.url===record.url));
- const issueArtwork=issue?.presentation?.artDirection?.coverAsset;
  const palette=issue?.presentation?.cover.palette??'cobalt';
  const layout=issue?.presentation?.artDirection?.layout??(['folio','atlas','dispatch'] as const)[Number(issue?.date.slice(-2)??0)%3];
- return <main className={styles.front} data-palette={palette} data-layout={layout} data-newsroom-date={issue?.date}>
+ return <main className={styles.front} data-site="magazine" data-palette={palette} data-layout={layout} data-newsroom-date={issue?.date}>
  {issue?.date === '2026-11-09' && <p><a href="/magazine/daily/2026-11-09/full-reader.html">Read the complete November 9 editorial: all desks, tables and sources →</a></p>}
  <header className={styles.magazineMasthead}>
    <div>
@@ -52,7 +52,7 @@ export default function ConversationsPage(){
    <p>Independent reporting on Bitcoin, Litecoin and the people building with them.</p>
  </header>
  <nav className={styles.departments} aria-label="Magazine departments">
-   <a href="#daily">Latest issue ↓</a>
+   <a href="#daily">Latest issue ↓</a><a href="https://litecoinregister.com/">Litecoin Register ↗</a>
    <a href="#source-desk">Source desk</a>
    <a href="#new-specials">Special editions</a>
    <a href="/conversations/community/">Community Wire</a>
@@ -71,11 +71,10 @@ export default function ConversationsPage(){
      <p className={styles.issueNote}>AI-prepared briefings with source dates and coverage gaps.</p>
    </div>
    {issue && <a className={styles.issueCover} href={href} aria-label={`Open the ${formatEditionDate(issue.date)} issue`}>
-     {issueArtwork
-       ? <img src={`/magazine/${issueArtwork}`} width={issueArtwork.startsWith('daily/') ? 1086 : 1536} height={issueArtwork.startsWith('daily/') ? 1448 : 1024} alt=""/>
-       : <LtcEditionCover edition={issue} mode="thumbnail"/>}
+     <LtcEditionCover edition={issue} mode="thumbnail"/>
    </a>}
  </section>
+ <CommunityJourney/><RegisterInvitation/>
  <section id="source-desk" aria-labelledby="source-desk-title"><div className={styles.sectionHead}><div><p className={styles.eyebrow}>Latest source scan / {new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'America/New_York' }).format(new Date(sourceDesk.checkedAt))}</p><h2 id="source-desk-title">From the source desk.</h2></div><p>{sourceDesk.byline}<br/>{sourceDesk.scope}</p></div><div className={styles.newsGrid}>{sourceDesk.stories.map((story,index)=><article className={styles.newsCard} key={story.id}><div className={styles.newsTop}><span>{String(index+1).padStart(2,'0')}</span><p className={styles.eyebrow}>{story.desk}</p></div><h3><a href={story.url}>{story.title}</a></h3><p>{story.summary}</p><p>{story.whyItMatters}</p><p className={styles.meta}>{story.classification} · {story.sourceName}</p><div className={styles.newsBottom}><time dateTime={story.publishedAt}>{'dateKind' in story && story.dateKind === 'observed' ? 'Observed' : 'Published'}: {story.publishedAt}</time><small>Checked {story.checkedAt}</small><a href={sourceDeskReadMore(story, publicationExclusionConfig).href}>{sourceDeskReadMore(story, publicationExclusionConfig).label ?? 'Keep reading'} ↗</a></div></article>)}</div><details className={styles.coverageNote}><summary>Source dates and gaps from this scan</summary><p>Checked {sourceDesk.checkedAt}. These selections retain the source dates and classifications shown on each card. Automated observations are distinct from separately researched reporting; the notebook below keeps its own preparation timestamp.</p><ul>{sourceDesk.gaps.map(gap=><li key={gap}>{gap}</li>)}</ul></details></section>
  {issue && <DailyNewsMap editionId={issue.id}/>}
  {quotes.length>0&&<section className={styles.marketStrip} aria-label="Dated market snapshots"><div className={styles.marketIntro}><p className={styles.eyebrow}>The market, sampled</p><h2>Two networks.<br/>One moment.</h2><p>Coinbase Exchange last trades from the dated newsroom update. One venue; not live quotes or a global index.</p></div>{quotes.map(source=><div className={styles.marketQuote} key={source.id}><span className={styles.marketSymbol} aria-hidden="true">{source.id==='coinbase-btc-usd'?'₿':'Ł'}</span><p className={styles.eyebrow}>{source.id==='coinbase-btc-usd'?'Bitcoin / USD':'Litecoin / USD'}</p><strong>${comma(source.observations![0].value)}</strong><time dateTime={source.sourceAsOf!}>{source.sourceAsOf} · UTC</time><a href="/conversations/updates/#sourcebook">Trace the observation ↗</a></div>)}</section>}
