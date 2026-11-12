@@ -71,7 +71,7 @@ try {
               return { firstSection:document.querySelector('main section')===feature, beforeDaily:!!(feature.compareDocumentPosition(daily)&Node.DOCUMENT_POSITION_FOLLOWING) };
             });
             assert.ok(order.firstSection && order.beforeDaily,`${route} Moon must precede the daily issue as the first main section`);
-            assert.ok(await lead.locator('a[href*="/conversations/editions/"]').count(),`${route} must preserve dated daily access`);
+            assert.ok(await lead.locator('a[href*="conversations/editions/"]').count(),`${route} must preserve dated daily access`);
             await lead.scrollIntoViewIfNeeded();
             await page.screenshot({path:path.join(output,`${engine}-${width}-${route==='/'?'satnam':'ltc'}-primary-moon.png`),animations:'disabled'});
 
