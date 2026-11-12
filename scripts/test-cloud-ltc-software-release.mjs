@@ -6,6 +6,11 @@ import { assertSoftwareActionsContext, verifySoftwareVisualQa } from './cloud-lt
 import { dailyPublicationFixture } from './lib/test-daily-publication-fixture.mjs';
 import { DurableCloudState, MemoryStateAdapter } from './cloud-ltc-state.mjs';
 import { assertDailyPublicationAvailable, DailyPublicationComplete } from './cloud-ltc-daily-admission.mjs';
+import { followupFixture } from './lib/test-routine-followup-fixture.mjs';
+import { routineFixture } from './lib/test-routine-retirement-fixture.mjs';
+import { retireRoutineFollowupUploads } from './cloud-ltc-routine-followup-retirement.mjs';
+import { retireRoutineUploads, completeRoutineRetirementFresh } from './cloud-ltc-routine-retirement.mjs';
+import { acceptRoutineRetirement, captureRoutineRetirementBinding } from './cloud-ltc-routine-retirement-proof.mjs';
 const now=Date.parse('2026-11-04T14:00:00Z');
 function fixture(){
  const document=dailyPublicationFixture();document.latestRelease.publicationProvenance={editionSha256:'e'.repeat(64),sourceDeskSha256:'f'.repeat(64),dailyGraphicSha256:'a'.repeat(64)};
@@ -30,6 +35,81 @@ test('daily data additions/deletions/mode changes are forbidden even when named 
 test('software cannot satisfy pending first-proof or recovery gates',()=>{
  for(const key of ['nextFreshGeneration','routineUploadRetirement','routineUploadFollowupRetirement']){const f=fixture();f.document[key]={status:'manual-admitted'};assert.throws(()=>assertSoftwareBaseline(f.document,now),/software_recovery_gate_active/);}
  for(const key of ['paused','restoreHold']){const f=fixture();f.document[key]=true;assert.throws(()=>assertSoftwareBaseline(f.document,now));}
+});
+
+// Build both recovery histories through the real pure/in-memory transition
+// helpers. No production journal, external services or protected pins are used.
+async function recoveredBaseline(followup = true) {
+ const f = await (followup ? followupFixture() : routineFixture());
+ await (followup ? retireRoutineFollowupUploads : retireRoutineUploads)({env:f.env,state:f.state,review:f.review,dependencies:f.dependencies});
+ let snapshot = await f.adapter.read('website'), d = snapshot.value;
+ const recordKey = followup ? 'routineUploadFollowupRetirement' : 'routineUploadRetirement';
+ const pinPrefix = followup ? 'LTC_ROUTINE_FOLLOWUP' : 'LTC_ROUTINE_RETIREMENT';
+ const env = {...f.env,LTC_ACCEPTANCE_MODE:'activate-cloud',[`${pinPrefix}_COMPLETION_SHA256`]:d[recordKey].completionSha256,GITHUB_RUN_ID:'900103'};
+ acceptRoutineRetirement(d,{env}); d.paused = false;
+ const publication = {...env,LTC_ACCEPTANCE_MODE:undefined,GITHUB_RUN_ID:'900104'};
+ const binding = captureRoutineRetirementBinding(d,{env:publication});
+ d.fence = 16; d.lease = {runId:'gha-900104-1',fence:16,expiresAt:Date.now()+60000};
+ const id = 'summary-'+'6'.repeat(64), intent = structuredClone(d.intents['summary-previous']);
+ intent.operationId=id; intent.runId=d.lease.runId; intent.fence=16;
+ intent.payload={kind:'drive-evidence',role:'release-summary',archivedStateSha256:'7'.repeat(64),fileId:intent.payload.fileId,folderId:intent.payload.folderId,sha256:'6'.repeat(64),bytes:intent.payload.bytes};
+ intent.payloadSha256=softwareHash(intent.payload);
+ intent.proof={operationId:id,payloadSha256:intent.payloadSha256,status:'applied',proof:{...intent.proof.proof,sha256:'6'.repeat(64)}};
+ intent.evidenceSha256=softwareHash(intent.proof);
+ d.intents={[id]:intent}; d.receipts={[id]:{receipt:intent,sha256:softwareHash(intent)}};
+ d.latestRelease={source:'5'.repeat(40),deployment:'dpl_NewFixture',summary:{operationId:id,sha256:'6'.repeat(64),archivedStateSha256:'7'.repeat(64),fileId:intent.payload.fileId,folderId:intent.payload.folderId,length:intent.payload.bytes,payloadSha256:intent.payloadSha256}};
+ d.archiveHead={schemaVersion:1,summaryOperationId:id,summaryFileId:intent.payload.fileId,summaryFolderId:intent.payload.folderId,summarySha256:'6'.repeat(64),backupSha256:'7'.repeat(64),archiveProofSha256:intent.evidenceSha256,previousArchiveSha256:softwareHash(f.document.archiveHead),archivedIntentCount:4,archivedReceiptCount:4};
+ await f.adapter.conditionalWrite('website',d,snapshot.version);
+ assert.equal(await completeRoutineRetirementFresh({state:f.state,lease:d.lease},{env:publication,uploadQuarantineBinding:{routineRetirementBinding:binding}}),true);
+ d = await f.state.inspect();
+ const accepted = {...env,GITHUB_RUN_ID:'900105',[`${pinPrefix}_FRESH_PROOF_SHA256`]:d[recordKey].freshProofSha256};
+ acceptRoutineRetirement(d,{env:accepted});
+ // A later valid daily checkpoint may advance while recovery proofs stay fixed.
+ const daily = fixture().document;
+ for (const key of ['paused','restoreHold','lease','intents','receipts','latestRelease','archiveHead']) d[key] = structuredClone(daily[key]);
+ return {document:d,env:{...accepted,GITHUB_EVENT_NAME:'schedule'}};
+}
+
+test('verified follow-up delegates historical manual marker without modifying history or independent pins',async()=>{
+ const {document,env} = await recoveredBaseline(), before = softwareHash(document);
+ assert.equal(document.routineUploadRetirement.status,'manual-admitted');
+ assert.equal(document.routineUploadFollowupRetirement.status,'routine-enabled');
+ assert.doesNotThrow(()=>assertSoftwareBaseline(document,now));
+ assert.equal(softwareHash(document),before);
+ assert.doesNotThrow(()=>captureRoutineRetirementBinding(document,{env}));
+ for (const pin of ['LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256','LTC_ROUTINE_FOLLOWUP_COMPLETION_SHA256','LTC_ROUTINE_FOLLOWUP_FRESH_PROOF_SHA256']) {
+  assert.throws(()=>captureRoutineRetirementBinding(document,{env:{...env,[pin]:'0'.repeat(64)}}));
+ }
+});
+
+test('software rejects incomplete, forged, missing or altered recovery-chain evidence',async()=>{
+ const {document} = await recoveredBaseline();
+ for (const mutate of [
+  d=>delete d.routineUploadFollowupRetirement,
+  d=>delete d.routineUploadRetirement,
+  d=>d.routineUploadFollowupRetirement={status:'routine-enabled'},
+  d=>d.routineUploadFollowupRetirement.status='retired-paused',
+  d=>d.routineUploadFollowupRetirement.status='manual-admitted',
+  d=>d.routineUploadFollowupRetirement.status='fresh-checkpoint-complete',
+  d=>d.routineUploadRetirement.status='routine-enabled',
+  d=>d.routineUploadRetirement.completionSha256='0'.repeat(64),
+  d=>d.routineUploadFollowupRetirement.review.authorizePriorManualRecordDelegation=false,
+  d=>d.routineUploadFollowupRetirement.originalRows.pop(),
+  d=>d.routineUploadFollowupRetirement.freshProof.summaryReceiptSnapshot.sha256='0'.repeat(64),
+  d=>d.routineUploadFollowupRetirement.routineAcceptedBy.freshProofSha256='0'.repeat(64),
+  d=>d.nextFreshGeneration.status='manual-admitted',
+ ]) {
+  const changed=structuredClone(document); mutate(changed);
+  assert.throws(()=>assertSoftwareBaseline(changed,now));
+ }
+});
+
+test('standalone completed retirement remains valid but a status-only marker is insufficient',async()=>{
+ const {document} = await recoveredBaseline(false), before = softwareHash(document);
+ assert.doesNotThrow(()=>assertSoftwareBaseline(document,now));
+ assert.equal(softwareHash(document),before);
+ document.routineUploadRetirement={status:'routine-enabled'};
+ assert.throws(()=>assertSoftwareBaseline(document,now));
 });
 test('inherited daily clock remains unchanged across repeated software releases and midnight',()=>{
  const f=fixture(),context=validateSoftwareReview(f.review,f.options);

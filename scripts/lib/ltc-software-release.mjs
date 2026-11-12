@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 import { assertDailyPublicationAvailable, DailyPublicationComplete, publicationDate } from '../cloud-ltc-daily-admission.mjs';
+import { verifyRoutineRetirement } from '../cloud-ltc-routine-retirement-proof.mjs';
+import { verifyRoutineFollowupRetirement } from '../cloud-ltc-routine-followup-proof.mjs';
 import { isRoutineData } from './ltc-routine-data.mjs';
 
 const check = (value, code) => { if (!value) throw Error(code); };
@@ -12,8 +14,17 @@ const same = (a, b) => softwareHash(a) === softwareHash(b);
 // proof without interpreting DailyPublicationComplete as permission to publish.
 export function assertSoftwareBaseline(document, now = Date.now()) {
   check(document?.paused === false && document.restoreHold === false && document.latestRelease, 'software_baseline_required');
-  for (const key of ['nextFreshGeneration', 'routineUploadRetirement', 'routineUploadFollowupRetirement']) {
-    if (document[key]) check(document[key].status === 'routine-enabled', 'software_recovery_gate_active');
+  if (document.nextFreshGeneration) check(document.nextFreshGeneration.status === 'routine-enabled', 'software_recovery_gate_active');
+  // A completed follow-up deliberately preserves its predecessor as
+  // manual-admitted. Validate the full immutable proof chain, not just the
+  // historical status. Runtime admission still checks independent env pins.
+  if (document.routineUploadFollowupRetirement) {
+    check(document.routineUploadFollowupRetirement.status === 'routine-enabled', 'software_recovery_gate_active');
+    verifyRoutineRetirement(document);
+    verifyRoutineFollowupRetirement(document);
+  } else if (document.routineUploadRetirement) {
+    check(document.routineUploadRetirement.status === 'routine-enabled', 'software_recovery_gate_active');
+    verifyRoutineRetirement(document);
   }
   try { assertDailyPublicationAvailable(document, publicationDate(now)); }
   catch (error) { if (!(error instanceof DailyPublicationComplete)) throw error; }
