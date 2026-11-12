@@ -1,3 +1,5 @@
+import { dailyPublicationFixture } from './lib/test-daily-publication-fixture.mjs';
+import { softwareHash, assertSoftwarePromotionWindow } from './lib/ltc-software-release.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash, randomBytes } from 'node:crypto';
@@ -311,4 +313,74 @@ test('capacity measures prior-fence terminal history exactly and reserves 43 bun
     assert.ok(error.capacity.projectedLogicalBytes < 1_500_000);
     return true;
   });
+});
+
+async function softwareFixture({ today = false, ...faults } = {}) {
+  const f = await fixture(faults);
+  const stamp = new Date(Date.now() - (today ? 1000 : 26 * 3600000)).toISOString();
+  const document = dailyPublicationFixture({ editionId: publicationDate(Date.parse(stamp)) + '-r1', verifiedAt: stamp });
+  const preserved = { file: 'data/ltc-editions/index.json', sha256: hash('unchanged edition') };
+  f.options.manifest.push(preserved); f.options.rollbackManifest.push(preserved);
+  document.latestRelease.source = f.options.source;
+  document.latestRelease.deployment = 'dpl_Previous';
+  document.latestRelease.publicationProvenance = f.options.publicationProvenance;
+  document.latestRelease.artifactManifestSha256 = hash(JSON.stringify(f.options.rollbackManifest));
+  const current = await f.state.adapter.read('website');
+  await f.state.adapter.conditionalWrite('website', document, current.version);
+  const lease = await f.state.acquire('software-fixture', 3600000);
+  Object.assign(f.options.admission.lease, lease);
+  f.options.admission.firstFreshGeneration = null;
+  f.options.editionId = document.latestRelease.editionId;
+  f.options.softwareRelease = { schemaVersion: 1, kind: 'software-only', reviewSha256: 'a'.repeat(64), priorReleaseSha256: softwareHash(document.latestRelease), previousSource: f.options.source, previousDeployment: 'dpl_Previous', previousManifestSha256: document.latestRelease.artifactManifestSha256, editionId: f.options.editionId, dailyVerifiedAt: stamp, publicationProvenance: f.options.publicationProvenance, source: f.options.source, implementationSha256: 'b'.repeat(64), artifactManifestSha256: hash(JSON.stringify(f.options.manifest)), buildOutputSha256: hash(JSON.stringify(f.options.buildOutput)) };
+  f.previous = structuredClone(document.latestRelease); return f;
+}
+
+test('software checkpoint compacts normally without consuming a fresh daily publication', async () => {
+  for (const today of [false, true]) {
+    const f = await softwareFixture({ today });
+    try {
+      const result = await performCoordinatedRelease(f.options);
+      assert.equal(result.softwarePublished, true); assert.equal(result.dailyPublished, false);
+      const document = await f.state.inspect();
+      assert.equal(document.lease, null);
+      assert.equal(document.latestRelease.verifiedAt, f.previous.verifiedAt);
+      assert.equal(document.latestRelease.editionId, f.previous.editionId);
+      assert.deepEqual(document.latestRelease.publicationProvenance, f.previous.publicationProvenance);
+      assert.equal(document.latestRelease.artifactManifestSha256, hash(JSON.stringify(f.options.manifest)));
+      assert.ok(Date.parse(document.latestRelease.softwareVerifiedAt) >= Date.parse(f.previous.verifiedAt));
+      if (today) assert.throws(() => assertDailyPublicationAvailable(document, publicationDate()), DailyPublicationComplete);
+      else assert.doesNotThrow(() => assertDailyPublicationAvailable(document, publicationDate()));
+    } finally { await rm(f.scratch, { recursive: true, force: true }); }
+  }
+});
+
+test('software stage uncertainty never replays or advances the daily checkpoint', async () => {
+  const f = await softwareFixture({ uncertainStage: true });
+  try {
+    await assert.rejects(performCoordinatedRelease(f.options), /operation_outcome_uncertain/);
+    assert.deepEqual(f.events.filter(event => ['deploy', 'promote', 'rollback'].includes(event)), ['deploy']);
+    const document = await f.state.inspect(); assert.ok(document.lease); assert.deepEqual(document.latestRelease, f.previous);
+  } finally { await rm(f.scratch, { recursive: true, force: true }); }
+});
+
+test('software verified promotion failure rolls back without changing the daily checkpoint', async () => {
+  const f = await softwareFixture({ badPublishedBytes: true });
+  try {
+    await assert.rejects(performCoordinatedRelease(f.options), /deployed_artifact_mismatch/);
+    assert.deepEqual(f.events.filter(event => ['deploy', 'promote', 'rollback'].includes(event)), ['deploy', 'promote', 'rollback']);
+    assert.deepEqual((await f.state.inspect()).latestRelease, f.previous);
+  } finally { await rm(f.scratch, { recursive: true, force: true }); }
+});
+
+test('expiration during failed public verification still permits the explicitly approved bounded rollback', async () => {
+  const f=await softwareFixture({badPublishedBytes:true});
+  try {
+    let clock=Date.now();const review={expiryScope:'admission-and-first-promotion',expiresAt:new Date(clock+1000).toISOString()};
+    const original=f.options.cli;
+    f.options.cli=async args=>{if(args[0]==='promote')assertSoftwarePromotionWindow(review,clock);await original(args);if(args[0]==='promote')clock+=2000;};
+    await assert.rejects(performCoordinatedRelease(f.options),/deployed_artifact_mismatch/);
+    assert.throws(()=>assertSoftwarePromotionWindow(review,clock),/software_review_expired/);
+    assert.deepEqual(f.events.filter(event=>['deploy','promote','rollback'].includes(event)),['deploy','promote','rollback']);
+    assert.deepEqual((await f.state.inspect()).latestRelease,f.previous);
+  } finally {await rm(f.scratch,{recursive:true,force:true});}
 });

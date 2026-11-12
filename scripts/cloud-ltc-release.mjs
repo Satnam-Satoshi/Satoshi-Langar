@@ -219,7 +219,7 @@ async function verifySite(base, manifest) {
     await verifyPublicManifestRecord(base, record, manifest);
   }
 }
-function apiClients(env) {
+export function apiClients(env) {
   const request = async (origin, endpoint, token, method = 'GET', body) => {
     requireThat(typeof token === 'string' && token.length > 10, 'deployment_credential_missing');
     const bytes = await responseBytes(`${origin}${endpoint}`, { method, headers: { Authorization: `Bearer ${token}`, Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
@@ -230,7 +230,7 @@ function apiClients(env) {
     vercel: endpoint => request('https://api.vercel.com', `${endpoint}${endpoint.includes('?') ? '&' : '?'}teamId=${TARGET.team}`, env.VERCEL_TOKEN),
   };
 }
-async function controls(github, expectedHead, acceptedSource) {
+export async function controls(github, expectedHead, acceptedSource) {
   // The workflow variable gates admission. A freshly read policy/head is the in-flight stop control.
   const [ref, policyFile] = await Promise.all([
     github(`/git/ref/heads/${acceptedSource.branch}`),
@@ -437,11 +437,15 @@ export async function prepareObservations({ clone, evidence, inputs, existingEdi
   const flagship = ['scripts/prepare-ltc-flagship.mjs', ...observationArgs];
   const builders = inputs.builders ?? path.join(evidence, 'builders.json');
   await run(['scripts/collect-ltc-builder-news.mjs', '--output', builders, '--evidence-dir', path.join(evidence, 'builders-raw')]);
+  const ecosystem = inputs.ecosystem ?? path.join(evidence, 'ecosystem.json');
+  await run(['scripts/collect-ltc-ecosystem.mjs', '--builders', builders, '--community', inputs.community, '--policy', inputs.policy, '--output', ecosystem, '--evidence-dir', path.join(evidence, 'ecosystem-raw')]);
   const distribution = path.join(evidence, 'litecoin-distribution-raw.json');
   await run(['scripts/collect-litecoin-distribution.mjs', '--output', distribution]);
   // Validate all observations before accepted feature/edition writes.
-  await run(['scripts/check-ltc-observations.mjs', ...observationArgs, '--builders', builders]);
-  await run(['scripts/prepare-ltc-daily-features.mjs', '--builders', builders, '--policy', inputs.policy, '--publish']);
+  await run(['scripts/check-ltc-observations.mjs', ...observationArgs, '--builders', builders, '--ecosystem', ecosystem]);
+  const selectedEcosystem = path.join(evidence, 'ecosystem-selected.json');
+  await run(['scripts/archive-ltc-ecosystem.mjs', '--snapshot', ecosystem, '--selected-output', selectedEcosystem]);
+  await run(['scripts/prepare-ltc-daily-features.mjs', '--builders', builders, '--policy', inputs.policy, '--ecosystem', selectedEcosystem, '--publish']);
   await run([...flagship, '--output', path.join(evidence, 'flagship-candidate.json')]);
   await run(['scripts/prepare-litecoin-distribution.mjs', '--snapshot', distribution, '--publish']);
   if (!existingEdition) {
@@ -453,7 +457,7 @@ export async function prepareObservations({ clone, evidence, inputs, existingEdi
   await save(path.join(clone, 'public/data/ltc-snapshot.json'), baseSnapshot);
   await run(['scripts/archive-ltc-community.mjs', '--snapshot', inputs.community]);
   await run(['scripts/prepare-ltc-newsroom.mjs', ...observationArgs, '--output', path.join(evidence, 'newsroom-candidate.json'), '--apply']);
-  await run(['scripts/prepare-ltc-source-desk.mjs', '--notebook', path.join(clone, 'content/ltc-newsroom/latest.json'), '--builders', builders, '--apply']);
+  await run(['scripts/prepare-ltc-source-desk.mjs', '--notebook', path.join(clone, 'content/ltc-newsroom/latest.json'), '--builders', builders, '--ecosystem', selectedEcosystem, '--apply']);
 }
 export function readReviewedMigrationConfiguration(env) {
   const raw = env.LTC_MIGRATION_ACCEPTANCE_JSON, expected = env.LTC_MIGRATION_ACCEPTANCE_SHA256;

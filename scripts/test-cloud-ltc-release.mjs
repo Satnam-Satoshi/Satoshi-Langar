@@ -148,11 +148,14 @@ test('fresh full pipeline validates candidate before any accepted-data write and
       ['scripts/collect-ltc-community.mjs', '--output', inputs.community, '--evidence-dir', '/private/community-raw'],
     ]);
     assert.deepEqual(calls[4], ['scripts/collect-ltc-builder-news.mjs', '--output', '/private/builders.json', '--evidence-dir', '/private/builders-raw']);
-    assert.equal(calls[5][0], 'scripts/collect-litecoin-distribution.mjs');
-    assert.equal(calls[6][0], 'scripts/check-ltc-observations.mjs');
-    assert.equal(calls[7][0], 'scripts/prepare-ltc-daily-features.mjs');
-    assert.equal(calls[8][0], 'scripts/prepare-ltc-flagship.mjs');
-    assert.ok(calls[8].includes('--output')); assert.ok(!calls[8].includes('--publish'));
+    assert.deepEqual(calls[5], ['scripts/collect-ltc-ecosystem.mjs', '--builders', '/private/builders.json', '--community', inputs.community, '--policy', inputs.policy, '--output', '/private/ecosystem.json', '--evidence-dir', '/private/ecosystem-raw']);
+    assert.equal(calls[6][0], 'scripts/collect-litecoin-distribution.mjs');
+    assert.equal(calls[7][0], 'scripts/check-ltc-observations.mjs');
+    assert.deepEqual(calls[8], ['scripts/archive-ltc-ecosystem.mjs', '--snapshot', '/private/ecosystem.json', '--selected-output', '/private/ecosystem-selected.json']);
+    assert.ok(calls[9].includes('/private/ecosystem-selected.json'));
+    assert.equal(calls[9][0], 'scripts/prepare-ltc-daily-features.mjs');
+    assert.equal(calls[10][0], 'scripts/prepare-ltc-flagship.mjs');
+    assert.ok(calls[10].includes('--output')); assert.ok(!calls[10].includes('--publish'));
     assert.equal(calls.filter(args => args.includes('--publish')).length, existingEdition ? 2 : 3);
     assert.equal(writes.filter(write => write.file.startsWith('/clone')).length, 1);
     const snapshot = writes.find(write => write.file === '/clone/public/data/ltc-snapshot.json');
@@ -161,7 +164,7 @@ test('fresh full pipeline validates candidate before any accepted-data write and
     assert.deepEqual(writes[0].options, { flag: 'wx', mode: 0o600 });
     assert.equal(calls.at(-3)[0], 'scripts/archive-ltc-community.mjs');
     assert.equal(calls.at(-2)[0], 'scripts/prepare-ltc-newsroom.mjs');
-    assert.deepEqual(calls.at(-1), ['scripts/prepare-ltc-source-desk.mjs', '--notebook', '/clone/content/ltc-newsroom/latest.json', '--builders', '/private/builders.json', '--apply']);
+    assert.deepEqual(calls.at(-1), ['scripts/prepare-ltc-source-desk.mjs', '--notebook', '/clone/content/ltc-newsroom/latest.json', '--builders', '/private/builders.json', '--ecosystem', '/private/ecosystem-selected.json', '--apply']);
     assert.ok(calls.at(-2).includes('--apply'));
   }
 });
@@ -171,7 +174,7 @@ test('stale/partial candidate rejection prevents archive, newsroom and accepted 
   await assert.rejects(prepareObservations({ clone: '/clone', evidence: '/private', inputs: { base: '/private/base', intelligence: '/private/intelligence', policy: '/private/policy', community: '/private/community' }, existingEdition }, async (_, args) => {
     calls.push(args); if (args[0] === 'scripts/check-ltc-observations.mjs') throw Error('stale_or_partial'); return '{}';
   }, async file => writes.push(file)), /stale_or_partial/);
-  assert.ok(!calls.some(args => args.includes('--publish') || args.includes('--apply') || args[0] === 'scripts/archive-ltc-community.mjs'));
+  assert.ok(!calls.some(args => args.includes('--publish') || args.includes('--apply') || args[0] === 'scripts/archive-ltc-community.mjs' || args[0] === 'scripts/archive-ltc-ecosystem.mjs'));
   assert.ok(writes.every(file => file.startsWith('/private')));
   }
 });
@@ -224,7 +227,7 @@ test('Build Output provenance includes function implementation/config and detect
 
 test('exact routine feature, selection and distribution records are add-only and share the implementation classifier', () => {
   const edition = '2026-10-15-r1';
-  const dated = ['content/daily-features/2026-10-15.json', 'content/ltc-newsroom-selections/2026-10-15-r1.json', 'content/research/litecoin-distribution-20261015.json', 'public/data/litecoin-distribution-20261015.json'];
+  const dated = ['content/ltc-ecosystem/2026-10-15.json', 'content/daily-features/2026-10-15.json', 'content/ltc-newsroom-selections/2026-10-15-r1.json', 'content/research/litecoin-distribution-20261015.json', 'public/data/litecoin-distribution-20261015.json'];
   for (const file of dated) {
     assert.equal(isEditionData(file), true);
     assertChanges([{file,status:'A'}],edition);
@@ -236,7 +239,7 @@ test('exact routine feature, selection and distribution records are add-only and
   for (const file of ['content/ltc-newsroom-selections/latest.json','content/research/litecoin-distribution-latest.json']) {
     assert.equal(isEditionData(file),true); assertChanges([{file,status:'M'}],edition);
   }
-  for (const file of ['content/daily-features/latest.json','content/research/unreviewed.json','content/ltc-newsroom-selections/2026-10-15-r2.json','content/daily-features/2026-02-30.json','public/data/litecoin-distribution-20261315.json','content/ltc-newsroom/newsroom-20261015T250000Z.json','content/daily-features/../config.json','content/research/litecoin-distribution-20261015.json/extra','content/research/litecoin-distribution-20261015.JSON']) {
+  for (const file of ['content/ltc-ecosystem/latest.json', 'content/ltc-ecosystem/2026-02-30.json', 'content/daily-features/latest.json','content/research/unreviewed.json','content/ltc-newsroom-selections/2026-10-15-r2.json','content/daily-features/2026-02-30.json','public/data/litecoin-distribution-20261315.json','content/ltc-newsroom/newsroom-20261015T250000Z.json','content/daily-features/../config.json','content/research/litecoin-distribution-20261015.json/extra','content/research/litecoin-distribution-20261015.JSON']) {
     assert.equal(isEditionData(file),false,file);
     assert.throws(()=>assertChanges([{file,status:'A'}],edition),/release_changes_outside_allowlist/);
   }

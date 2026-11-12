@@ -17,7 +17,7 @@ export function routineDataRecord(file) {
   if (pointers.has(file)) return { kind: 'pointer' };
   const graphic = /^public\/magazine\/daily\/(\d{4}-\d{2}-\d{2}-r[1-9]\d?)\/(?:social\.(?:png|svg)|graphic\.json)$/.exec(file);
   if (graphic) return calendarDate(graphic[1].slice(0, 10)) ? { kind: 'graphic', date: graphic[1].slice(0, 10), editionId: graphic[1] } : null;
-  let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/daily-features\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);
+  let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/(?:daily-features|ltc-ecosystem)\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);
   if (match) { const date = match[1] || match[2] || match[3]; return calendarDate(date) ? { kind: 'dated', date } : null; }
   match = /^(?:content\/research|public\/data)\/litecoin-distribution-(\d{4})(\d{2})(\d{2})\.json$/.exec(file);
   if (match) { const date = `${match[1]}-${match[2]}-${match[3]}`; return calendarDate(date) ? { kind: 'dated', date } : null; }

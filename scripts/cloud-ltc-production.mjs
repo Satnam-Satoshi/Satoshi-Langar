@@ -1,3 +1,4 @@
+import { assertSoftwareContext, assertSoftwarePublicData, softwareCheckpointFields } from './lib/ltc-software-release.mjs';
 import{completeRoutineRetirementFresh}from'./cloud-ltc-routine-retirement.mjs';
 import{assertNoQuarantinedUploadLineage,captureUploadQuarantineBinding,assertUploadQuarantineBinding}from'./cloud-ltc-upload-quarantine-proof.mjs';
 import { readFile, writeFile, readdir, lstat } from 'node:fs/promises';
@@ -117,9 +118,17 @@ export async function performCoordinatedRelease(options) {
   check(evidenceConfig && typeof evidenceConfig.folderId === 'string' && typeof evidenceConfig.ownerPermissionId === 'string' && (!evidenceConfig.fileIds || (Array.isArray(evidenceConfig.fileIds) && new Set(evidenceConfig.fileIds).size === evidenceConfig.fileIds.length)), 'invalid_evidence_configuration');
   if(!Object.hasOwn(admission,'firstFreshGeneration'))admission.firstFreshGeneration=captureFreshGenerationBinding(await admission.state.inspect());
   if(!Object.hasOwn(admission,'uploadQuarantineBinding'))admission.uploadQuarantineBinding=captureUploadQuarantineBinding(await admission.state.inspect(),{env});
+  const softwareRelease = options.softwareRelease ?? null;
+  if (softwareRelease) {
+    assertSoftwareContext(await admission.state.inspect(), softwareRelease);
+    check(changes.length === 0 && editionId === softwareRelease.editionId && source === softwareRelease.source && JSON.stringify(publicationProvenance) === JSON.stringify(softwareRelease.publicationProvenance), 'software_release_scope_changed');
+    assertSoftwarePublicData(rollbackManifest, manifest);
+    check(hash(JSON.stringify(manifest)) === softwareRelease.artifactManifestSha256 && hash(JSON.stringify(buildOutput)) === softwareRelease.buildOutputSha256, 'software_artifact_changed');
+  }
   const coordinator = new ReleaseOperationCoordinator(admission);
   const operationReceipts = [];
   const execute = async operation => {
+    if (softwareRelease) assertSoftwareContext(await admission.state.inspect(), softwareRelease);
     const guardSnapshot = await admission.state.inspect();
     assertUploadQuarantineBinding(guardSnapshot,admission.uploadQuarantineBinding);
     assertFreshGenerationBinding(guardSnapshot,admission.firstFreshGeneration);
@@ -130,6 +139,7 @@ export async function performCoordinatedRelease(options) {
     return receipt;
   };
   const beforeMutation = async commit => {
+    if (softwareRelease) assertSoftwareContext(await admission.state.inspect(), softwareRelease);
     try{assertFreshGenerationBinding(await admission.state.inspect(),admission.firstFreshGeneration);}catch(error){if(admission.firstFreshGeneration){try{await pauseOwnedFreshGeneration(admission);}catch{}}throw error;}
     Object.assign(admission.lease, await admission.state.renew(admission.lease, 3_600_000));
     await verifyImplementation(); await verifyBuildOutput(); await options.verifyMigration?.(); await controls(commit);
@@ -142,10 +152,11 @@ export async function performCoordinatedRelease(options) {
     previous.push(deployment.id);
   }
   check(new Set(previous).size === 1, 'competing_production_release');
+  if (softwareRelease) check(previous[0] === softwareRelease.previousDeployment, 'software_baseline_changed');
   if(admission.firstFreshGeneration)check(previous[0]===admission.firstFreshGeneration.previousDeployment&&hash(JSON.stringify(rollbackManifest))===admission.firstFreshGeneration.previousPublicManifestSha256,'fresh_generation_baseline_changed');
   // Verify archived previous bytes before making any remote changes.
   await verifyPublic(rollbackManifest);
-  if (hash(JSON.stringify(rollbackManifest)) === hash(JSON.stringify(manifest))) {
+  if (!softwareRelease && hash(JSON.stringify(rollbackManifest)) === hash(JSON.stringify(manifest))) {
     await admission.state.release(admission.lease,document=>assertUploadQuarantineBinding(document,admission.uploadQuarantineBinding));
     return { status: 'already-live', published: false, releaseCommit: source, candidateDeployment: previous[0], operationReceipts: [] };
   }
@@ -173,7 +184,7 @@ export async function performCoordinatedRelease(options) {
   assertReleaseCapacity({
     document: existing, manifest,
     tailContext: {
-      publicationProvenance, previousDeployment: previous[0], releaseCommit: plan.commitSha, editionId,
+      publicationProvenance, softwareRelease, previousDeployment: previous[0], releaseCommit: plan.commitSha, editionId,
       candidate: { deployment: 'dpl_' + 'x'.repeat(156), url: 'x'.repeat(253) },
     },
     plannedPayloads: [
@@ -206,7 +217,7 @@ export async function performCoordinatedRelease(options) {
   await execute({ ...stage, provider: providers.stage(stage.payload) });
   const candidate = await confirmedStageFromState({ state: admission.state, lease: admission.lease, operation: stage });
   await saveReceipt({ candidateDeployment: candidate.deployment, candidateUrl: `https://${candidate.url}` });
-  return finishConfirmedStagedRelease({ admission, editionId, releaseCommit: plan.commitSha, candidate, previousDeployment: previous[0], manifest, rollbackManifest, artifactPackageManifestSha256: artifactPackage.manifestSha256, publicationProvenance, target, vercel, cli, beforeMutation, verifyProtected, verifyPublic, evidenceConfig, allocate, providerFactory, token, operationReceipts, saveReceipt, uploadQuarantineBinding:admission.uploadQuarantineBinding, env, fetchImpl });
+  return finishConfirmedStagedRelease({ admission, editionId, releaseCommit: plan.commitSha, candidate, previousDeployment: previous[0], manifest, rollbackManifest, artifactPackageManifestSha256: artifactPackage.manifestSha256, publicationProvenance, softwareRelease, target, vercel, cli, beforeMutation, verifyProtected, verifyPublic, evidenceConfig, allocate, providerFactory, token, operationReceipts, saveReceipt, uploadQuarantineBinding:admission.uploadQuarantineBinding, env, fetchImpl });
 }
 
 
@@ -214,10 +225,11 @@ export async function performCoordinatedRelease(options) {
 export async function recordPrivateEvidenceFailure(saveReceipt,diagnostic){const safe=safeEvidenceDiagnostic(diagnostic);console.error('LTC private evidence request diagnostic: '+JSON.stringify(safe));await saveReceipt({providerFailure:safe});}
 // Shared post-stage tail. It has no source/upload-artifacts/deploy operation:
 // only first promotion, bounded rollback, final private summary and checkpoint.
-export async function finishConfirmedStagedRelease({ admission, editionId, releaseCommit, candidate, previousDeployment, manifest, rollbackManifest, artifactPackageManifestSha256, publicationProvenance, target, vercel, cli, beforeMutation, verifyProtected, verifyPublic, evidenceConfig, allocate, providerFactory, token, operationReceipts, saveReceipt, continuation = null, completeCheckpoint, beforeSummary, verifyBackup, uploadQuarantineBinding=null, env=process.env, fetchImpl = fetch }) {
+export async function finishConfirmedStagedRelease({ admission, editionId, releaseCommit, candidate, previousDeployment, manifest, rollbackManifest, artifactPackageManifestSha256, publicationProvenance, target, vercel, cli, beforeMutation, verifyProtected, verifyPublic, evidenceConfig, allocate, providerFactory, token, operationReceipts, saveReceipt, continuation = null, completeCheckpoint, beforeSummary, verifyBackup, uploadQuarantineBinding=null, softwareRelease=null, env=process.env, fetchImpl = fetch }) {
   assertUploadQuarantineBinding(await admission.state.inspect(),uploadQuarantineBinding);
   const coordinator = new ReleaseOperationCoordinator(admission);
   const execute = async operation => {
+    if (softwareRelease) assertSoftwareContext(await admission.state.inspect(), softwareRelease);
     assertUploadQuarantineBinding(await admission.state.inspect(),uploadQuarantineBinding);
     if(continuation)await saveReceipt({status:operation.payload.kind==='drive-evidence'?'applying-final-private-summary':operation.payload.kind==='vercel-promote'?'applying-first-promotion':'applying-verified-rollback'});
     const receipt = await executeReleaseOperation(coordinator, operation);
@@ -231,7 +243,7 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   // known oversized summary before changing public aliases.
   assertReleaseCapacity({
     document: await admission.state.inspect(), manifest, receipts: operationReceipts,
-    tailContext: { publicationProvenance, continuation, candidate, previousDeployment, releaseCommit, editionId },
+    tailContext: { publicationProvenance, softwareRelease, continuation, candidate, previousDeployment, releaseCommit, editionId },
   });
   const payload = { kind: 'vercel-promote', editionId, artifactPackageManifestSha256: artifactPackageManifestSha256, artifactManifestSha256: hash(JSON.stringify(manifest)), deployment: candidate.deployment, previous: previousDeployment, commit: releaseCommit };
   let promotion;
@@ -252,6 +264,8 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   // Archive final receipts + an exact next-run rollback manifest before the
   // terminal checkpoint. Failure here leaves the lease held for reconciliation.
   const publicVerifiedAt = new Date().toISOString();
+  if (softwareRelease) assertSoftwareContext(await admission.state.inspect(), softwareRelease);
+  const checkpointFields = softwareRelease ? softwareCheckpointFields(softwareRelease, publicVerifiedAt) : { verifiedAt: publicVerifiedAt };
   if (continuation) await beforeMutation(releaseCommit);
   await beforeSummary?.();
   assertUploadQuarantineBinding(await admission.state.inspect(),uploadQuarantineBinding);
@@ -259,7 +273,7 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   await verifyBackup?.(backup);
   const summary = packageEvidence([
     { path: 'artifact-manifest.json', bytes: Buffer.from(JSON.stringify(manifest)) },
-    { path: 'release-receipt.json', bytes: Buffer.from(JSON.stringify({ source: releaseCommit, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, operationReceipts, publicationProvenance, ...(continuation ? { continuation } : {}), artifactPackageManifestSha256: artifactPackageManifestSha256 })) },
+    { path: 'release-receipt.json', bytes: Buffer.from(JSON.stringify({ source: releaseCommit, editionId, ...checkpointFields, deployment: candidate.deployment, operationReceipts, publicationProvenance, ...(continuation ? { continuation } : {}), artifactPackageManifestSha256: artifactPackageManifestSha256 })) },
     { path: 'ledger-backup.json', bytes: Buffer.from(JSON.stringify(backup)) },
   ]);
   const summaryId = `summary-${summary.sha256}`;
@@ -267,9 +281,13 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   const [newId] = knownSummary ? [] : await allocate({ count: 1, config: evidenceConfig, getAccessToken: token, fetcher: fetchImpl, onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) });
   const summaryPayload = { kind: 'drive-evidence', role: 'release-summary', archivedStateSha256: backup.sha256, fileId: knownSummary?.fileId ?? newId, folderId: evidenceConfig.folderId, sha256: summary.sha256, bytes: summary.length };
   await execute({ operationId: summaryId, payload: summaryPayload, provider: providerFactory({ bundle: summary, config: { ...evidenceConfig, fileId: summaryPayload.fileId }, getAccessToken: token, fetcher: fetchImpl, beforeCreateAttempt:createEvidenceAttemptGuard({admission,env,uploadQuarantineBinding}), onDiagnostic: diagnostic => recordPrivateEvidenceFailure(saveReceipt,diagnostic) }) });
-  await admission.state.recordLatestRelease(admission.lease, { source: releaseCommit, editionId, verifiedAt: publicVerifiedAt, deployment: candidate.deployment, publicationProvenance, artifactManifestSha256: hash(JSON.stringify(manifest)), artifactPackageManifestSha256: artifactPackageManifestSha256, ...(continuation ? { continuation } : {}), summary: { archivedStateSha256: backup.sha256, operationId: summaryId, payloadSha256: hash(JSON.stringify(summaryPayload)), fileId: summaryPayload.fileId, folderId: evidenceConfig.folderId, sha256: summary.sha256, length: summary.length } });
+  await admission.state.recordLatestRelease(admission.lease, { source: releaseCommit, editionId, ...checkpointFields, deployment: candidate.deployment, publicationProvenance, artifactManifestSha256: hash(JSON.stringify(manifest)), artifactPackageManifestSha256: artifactPackageManifestSha256, ...(continuation ? { continuation } : {}), summary: { archivedStateSha256: backup.sha256, operationId: summaryId, payloadSha256: hash(JSON.stringify(summaryPayload)), fileId: summaryPayload.fileId, folderId: evidenceConfig.folderId, sha256: summary.sha256, length: summary.length } });
   assertUploadQuarantineBinding(await admission.state.inspect(),uploadQuarantineBinding);
   await admission.state.compactArchivedState(admission.lease, { backup, summaryBundle: summary, summaryOperationId: summaryId });
+  if (softwareRelease) {
+    await admission.state.release(admission.lease, document => assertUploadQuarantineBinding(document, uploadQuarantineBinding));
+    return { published: true, softwarePublished: true, dailyPublished: false, releaseCommit, candidateDeployment: candidate.deployment, operationReceipts };
+  }
   let firstFreshProofCompleted=false;const routineRetirementFreshProofCompleted=await completeRoutineRetirementFresh(admission,{env,uploadQuarantineBinding});
   if (routineRetirementFreshProofCompleted) {}
   else if (completeCheckpoint) await completeCheckpoint({ summaryId, summaryPayload, backup, publicVerifiedAt });

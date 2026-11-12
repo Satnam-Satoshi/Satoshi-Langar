@@ -309,3 +309,15 @@ test('known native authentication-flag failure has a fixed category without retu
  assert.deepEqual(diagnostic,{category:'native-auth-flag-forwarded',exitStatus:2});
  assert.equal(JSON.stringify(diagnostic).includes('private'),false);
 });
+
+test('software API probe binds exact existing project/deployment and uses env-only credentials without following redirects', async () => {
+  const f=linkedFixture(),client=createAcceptanceLinkedClient({...f,directory:'/private/fixture-read'});
+  for(const route of ['/api/market-prices','/api/litecoin-chain','/api/litecoin-register','/api/morpho-markets'])await client.readProtectedApi(f.deployment,route);
+  assert.deepEqual(f.calls.map(call=>new URL(call.args[1]).pathname),['/api/market-prices','/api/litecoin-chain','/api/litecoin-register','/api/morpho-markets']);
+  assert.ok(f.calls.every(call=>call.args.includes('--max-redirs')&&call.args[call.args.indexOf('--max-redirs')+1]==='0'));
+  const count=f.calls.length;
+  for(const route of ['/api/other','https://external.invalid/','/api/market-prices?token=leak','/api/../secret'])await assert.rejects(client.readProtectedApi(f.deployment,route));
+  await assert.rejects(client.readProtectedApi({...f.deployment,url:'other.vercel.app'},'/api/market-prices'));
+  f.deployment.ownerId='team_other';await assert.rejects(client.readProtectedApi(f.deployment,'/api/market-prices'));
+  assert.equal(f.calls.length,count);
+});

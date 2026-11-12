@@ -80,6 +80,13 @@ export function createAcceptanceLinkedClient({ env, vercel, directory, execute =
       check(!Object.hasOwn(config, 'scope'), 'acceptance_cli_auth_scope_forbidden');
       return invoke(args, cwd);
     },
+    async readProtectedApi(declaration, route) {
+      check(/^dpl_[A-Za-z0-9]+$/.test(declaration?.id ?? '') && ['/api/market-prices', '/api/litecoin-chain', '/api/litecoin-register', '/api/morpho-markets'].includes(route), 'acceptance_protected_read_binding_failed');
+      const deployment = await vercel(`/v13/deployments/${declaration.id}`); assertVercelDeploymentIdentity(deployment, TARGET);
+      check(deployment.id === declaration.id && (declaration.url === undefined || declaration.url === deployment.url), 'acceptance_protected_read_binding_failed');
+      const bypass = existingAcceptanceBypass(await vercel(`/v9/projects/${TARGET.project}`));
+      return invoke(['curl', `https://${deployment.url}${route}`, '--', '--include', '--silent', '--show-error', '--max-time', '30', '--max-redirs', '0', '--proto', '=https'], directory, bypass);
+    },
     async readProtected(declaration, records, manifest) {
       check(/^dpl_[A-Za-z0-9]+$/.test(declaration?.id ?? ''), 'acceptance_protected_read_binding_failed');
       const deployment = await vercel(`/v13/deployments/${declaration.id}`); assertVercelDeploymentIdentity(deployment, TARGET);

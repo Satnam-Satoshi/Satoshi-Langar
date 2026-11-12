@@ -61,3 +61,10 @@ test('paused source desk publication creates no files even for a valid saved not
  try{await assert.rejects(publishSourceDesk(notebook,{directory,policy:{...policy,paused:true}}),/publication_paused/);assert.deepEqual(await readdir(directory),[]);}
  finally{await rm(directory,{recursive:true,force:true});}
 });
+
+test('canonical-URL dedupe prefers a dated publication over an earlier observation and newest publication over older',()=>{
+ const time='2026-11-01T12:00:00.000Z',earlier='2026-10-30T12:00:00.000Z',url='https://github.com/litecoin-project/litecoin/releases';
+ const sources=[{id:'sample',status:'collected',freshness:'dated-observation',checkedAt:time,url:url+'/',title:'Sample',observations:[]},...['older','newer'].map((id,i)=>({id,status:'collected',freshness:'dated-event',checkedAt:time,url,title:id,observations:[{metric:'software_release',classification:'upstream-release',effectiveAt:i?time:earlier}]}))];
+ const briefs=sources.map(s=>({id:s.id,sourceIds:[s.id],headline:s.title,effectiveAt:s.id==='older'?earlier:time,paragraphs:['Original source evidence.']}));
+ const record={date:'2026-11-01',preparedAt:time,id:'fixture',sha256:'fixture-only',sources,briefs,coverageGaps:[],intelligence:{gaps:[]}};const result=sourceDeskFromNewsroom(record,()=>{});assert.equal(result.stories.length,1);assert.equal(result.stories[0].id,'newer');assert.equal(result.stories[0].dateKind,'published');
+});

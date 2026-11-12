@@ -18,7 +18,7 @@ export function validateFeatures(value, date, { now } = {}) {
   assert(Array.isArray(value.stories) && value.stories.length >= 1 && value.stories.length <= 10 && Array.isArray(value.sources), 'invalid_features');
   assert(new Set(value.sources.map(source => source.id)).size === value.sources.length, 'duplicate_feature_source');
   for (const source of value.sources) {
-    assert(typeof source.id === 'string' && sourceUrl(source.url) && text(source.title) && text(source.publisher) && text(source.note) && validDate(source.checkedAt) && source.checkedAt <= date && (source.publishedAt === null || ((validDate(source.publishedAt) || validInstant(source.publishedAt)) && source.publishedAt.slice(0, 10) <= date)), 'invalid_feature_source');
+    assert(typeof source.id === 'string' && sourceUrl(source.url) && text(source.title) && text(source.publisher) && text(source.note) && validDate(source.checkedAt) && source.checkedAt <= date && (source.publishedAt === null || ((validDate(source.publishedAt) && source.publishedAt <= date) || (validInstant(source.publishedAt) && dateInNewYork(source.publishedAt) <= date))), 'invalid_feature_source');
     if (now !== undefined && validInstant(source.publishedAt)) assert(Date.parse(source.publishedAt) <= Date.parse(now), 'future_feature_source_publication');
   }
   assert(new Set(value.stories.map(story => story.id)).size === value.stories.length, 'duplicate_feature_story');
