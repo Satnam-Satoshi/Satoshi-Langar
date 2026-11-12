@@ -140,3 +140,37 @@ test('fetch preserves reviewed publisher trailing slash while event identity nor
 test('publication calendar day handles both New York fall-back hours and preserves explicit date-only records',()=>{
  assert.equal(ecosystemPublicationDay('2026-11-01T05:30:00.000Z'),'2026-11-01');assert.equal(ecosystemPublicationDay('2026-11-01T06:30:00.000Z'),'2026-11-01');assert.equal(ecosystemPublicationDay('2026-11-01T03:30:00.000Z'),'2026-10-31');assert.equal(ecosystemPublicationDay('2026-11-01'),'2026-11-01');
 });
+
+test('treasury checklist makes zero requests or evidence claims and reaches existing daily gaps only',async()=>{
+ const requests=[],evidence=[];const normal=mock();
+ const report=await collect({now:notebook.preparedAt,...inputs(notebook.preparedAt),fetchImpl:async url=>{requests.push(url);assert.ok(!/mnav\.com|bitbo\.io/.test(new URL(url).hostname));return normal(url);},onEvidence:async item=>evidence.push(item)});
+ const refs=report.editorialReferences;assert.equal(refs.length,2);
+ assert.deepEqual(refs.map(r=>r.url),['https://www.mnav.com/','https://bitbo.io/treasuries/latest-changes/']);
+ for(const ref of refs){
+  assert.equal(ref.status,'manual-review-required');assert.equal(ref.automatedRetrieval,false);
+  for(const field of ['checkedAt','retrievedAt','sha256','publishedAt','holdings'])assert.ok(!Object.hasOwn(ref,field));
+  assert.ok(!ECOSYSTEM_CONFIG.sources.some(s=>s.url===ref.url));
+  assert.ok(!requests.includes(ref.url));assert.ok(!evidence.some(e=>e.url===ref.url));
+  assert.ok(!report.sources.some(s=>s.id===ref.id));assert.ok(!report.events.some(e=>e.sourceId===ref.id));
+  assert.ok(report.gaps.some(g=>g.includes(ref.url)&&g.includes('manual review required')&&g.includes('No access date')));
+ }
+ assert.equal(report.sources.length,19);assert.equal(report.events.length,2);
+ const features=prepareDailyFeatures({...inputs(notebook.preparedAt),ecosystem:report}),desk=sourceDeskFromNewsroom(notebook,undefined,null,report);
+ for(const ref of refs){assert.ok(features.gaps.some(g=>g.includes(ref.url)));assert.ok(desk.gaps.some(g=>g.includes(ref.url)));assert.ok(!features.sources.some(s=>s.url===ref.url));assert.ok(!desk.stories.some(s=>s.url===ref.url));}
+ for(const mutate of [r=>r.editorialReferences[0].checkedAt=now,r=>r.editorialReferences[1].automatedRetrieval=true,r=>r.editorialReferences[0].url='https://evil.example/',r=>r.gaps.pop()]){const bad=structuredClone(report);mutate(bad);assert.throws(()=>validateEcosystemReport(bad));}
+});
+
+test('actual November 12 archive remains valid and immutable, while next-day reports add manual checklist gaps',async()=>{
+ const file=new URL('../content/ltc-ecosystem/2026-11-12.json',import.meta.url),original=await readFile(file,'utf8'),prior=JSON.parse(original);
+ validateEcosystemReport(prior,{now:prior.checkedAt});assert.ok(!Object.hasOwn(prior,'editorialReferences'));
+ const nextTime='2026-11-13T12:00:00.000Z',history=await readEcosystemHistory({reportDirectory:new URL('../content/ltc-ecosystem/',import.meta.url).pathname,editionIndex:new URL('../content/ltc/index.json',import.meta.url).pathname,now:nextTime});
+ assert.deepEqual(history.previousReports.find(r=>r.date==='2026-11-12'),prior);
+ const next=await collect({...inputs(nextTime),...history});assert.equal(next.editorialReferences.length,2);assert.ok(next.gaps.some(g=>g.includes('Bitbo')));
+ const directory=await mkdtemp(path.join(tmpdir(),'editorial-checklist-'));try{
+  await writeFile(path.join(directory,'2026-11-12.json'),original);
+  const sameDay=await collect({...inputs(prior.checkedAt)});
+  const archived=await archiveEcosystemReport(sameDay,{directory,now:prior.checkedAt});assert.equal(archived.status,'unchanged');assert.deepEqual(archived.report,prior);
+  assert.equal(await readFile(path.join(directory,'2026-11-12.json'),'utf8'),original);
+ }finally{await rm(directory,{recursive:true,force:true});}
+ assert.equal(await readFile(file,'utf8'),original);
+});

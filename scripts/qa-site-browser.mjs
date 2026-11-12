@@ -61,6 +61,13 @@ try {
             await page.locator('#daily-briefings').scrollIntoViewIfNeeded();
             await page.screenshot({path:path.join(output,`${engine}-${width}-daily-interior.png`),animations:'disabled'});
           }
+          if (route === '/' || route === '/conversations/') {
+            assert.ok(await page.locator('a[href*="specials/litecoin-to-the-moon/"]').count(), `${route} missing Moon promotion`);
+            assert.ok(await page.locator('img[src*="litecoin-to-the-moon/cover-r2.png"]').count(), `${route} missing refreshed Moon cover`);
+            for (const href of ['https://litecoinregister.com/','https://www.mnav.com/','https://bitbo.io/treasuries/latest-changes/']) {
+              assert.ok(await page.locator(`a[href="${href}"]`).count(), `${route} missing treasury research link ${href}`);
+            }
+          }
           if (route === '/conversations/specials/litecoin-to-the-moon/') {
             await page.locator('#sources').scrollIntoViewIfNeeded();
             await page.screenshot({ path:path.join(output,`${engine}-${width}-moon-sourcebook.png`),animations:'disabled' });

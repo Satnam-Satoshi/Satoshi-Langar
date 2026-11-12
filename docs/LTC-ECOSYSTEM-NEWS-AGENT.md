@@ -34,6 +34,12 @@ Coverage reports expose 11 editorial categories: core, wallets, privacy/security
 
 The 97-entry researched project inventory and individual X posts are discovery/editorial inputs, not automatically trusted live products. The collector does not recursively crawl a directory or follow arbitrary source-supplied URLs. New adapters and endpoints require a reviewed registry change. A later editorial special can use verified original sources without replacing this daily writer.
 
+### Non-fetching treasury research checklist
+
+`config/ltc-editorial-references.json` registers mNAV and Bitbo as manual-review discovery links, not fetched sources. Each newly collected daily report includes the exact checklist and explicit gaps carried into daily features and the source desk. Neither URL is requested, hashed, counted as retrieved coverage, or admitted as a candidate event. There is no access timestamp, current numeric snapshot, licensed API entitlement or live-feed claim. Material treasury claims must be checked against dated issuer disclosures; date added, purchase date and reported holdings are distinct, and holdings changes are not fund flows. Bitbo scraping restrictions are not bypassed.
+
+The checklist is separate from the fetched-source registry. Existing dated reports remain byte-identical and valid, including same-day archive readback. They do not retroactively acquire the new checklist. Automated retrieval would require separate terms/access review and a reviewed adapter, not just changing a checklist label.
+
 ## What may become news
 
 - Only an original publisher date in supported article metadata, an authenticated-by-origin upstream release record, or an already validated existing collector record can create a dated event. A page's `dateModified`, retrieval timestamp, search snippet, a directory listing or a body hash change cannot.

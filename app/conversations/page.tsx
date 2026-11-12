@@ -53,7 +53,7 @@ export default function ConversationsPage(){
    <p>Independent reporting on Bitcoin, Litecoin and the people building with them.</p>
  </header>
  <nav className={styles.departments} aria-label="Magazine departments">
-   <a href="#daily">Latest issue ↓</a><a href="https://litecoinregister.com/">Litecoin Register ↗</a>
+   <a href="#daily">Latest issue ↓</a><a href="https://litecoinregister.com/">Litecoin Register ↗</a><a href="https://www.mnav.com/">mNAV ↗</a><a href="https://bitbo.io/treasuries/latest-changes/">Bitbo · Latest changes ↗</a>
    <a href="#source-desk">Source desk</a>
    <a href="#new-specials">Special editions</a>
    <a href="/conversations/community/">Community Wire</a>

@@ -10,8 +10,8 @@ export function CommunityJourney() {
 }
 
 export function RegisterInvitation() {
-  return <aside className={styles.register} aria-label="Litecoin Register research link">
-    <div><p className={styles.kicker}>The evidence connection / External resource</p><h2>Litecoin Register <span aria-hidden="true">↗</span></h2><p>Explore reported holdings, treasuries and investment products. Follow each figure back to its source.</p><a href="https://litecoinregister.com/">Open Litecoin Register ↗</a><small>Independent third-party tracker. Reporting dates and definitions vary; holdings are not fund flows. No affiliation claimed.</small></div>
+  return <aside className={styles.register} aria-label="Litecoin Register, mNAV and Bitbo research links">
+    <div><p className={styles.kicker}>The evidence connection / External research sources</p><h2>Litecoin Register <span aria-hidden="true">↗</span></h2><p>Explore reported holdings, treasuries and investment products. Follow each figure back to its source.</p><nav className={styles.researchLinks} aria-label="External treasury research sources"><a href="https://litecoinregister.com/">Litecoin Register ↗</a><a href="https://www.mnav.com/">mNAV · Bitcoin treasuries ↗</a><a href="https://bitbo.io/treasuries/latest-changes/">Bitbo · Latest treasury changes ↗</a></nav><small>Independent third-party research links, not live data feeds. Reporting dates and definitions vary; holdings are not fund flows. Verify changes against issuer disclosures. No affiliation claimed.</small></div>
     <div className={styles.numbers}><p className={styles.kicker}>Protocol context / Not register totals</p><div><p><strong>84<span>M</span></strong><small>Litecoin maximum supply</small></p><p><strong>21<span>M</span></strong><small>Bitcoin maximum supply</small></p></div><a href="/conversations/start/">Understand the networks →</a></div>
   </aside>;
 }

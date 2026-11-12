@@ -5,6 +5,10 @@ import { validateCommunitySnapshot, COMMUNITY_SOURCES } from './ltc-community.mj
 import { validatePolicySnapshot, POLICY_SOURCES } from './ltc-policy.mjs';
 
 export const ECOSYSTEM_CONFIG = JSON.parse(await readFile(new URL('../../config/ltc-ecosystem-watch.json', import.meta.url), 'utf8'));
+// Discovery-only checklist, deliberately separate from the fetched registry.
+// These URLs never enter the request queue, evidence store or candidate events.
+const editorialConfig = JSON.parse(await readFile(new URL('../../config/ltc-editorial-references.json', import.meta.url), 'utf8'));
+const EDITORIAL_REFERENCES = editorialConfig.references;
 export const ECOSYSTEM_CATEGORIES = Object.freeze(['core','wallets','privacy-security','builders','scaling','payments','mining','institutions','etfs','policy','community']);
 const DAY = 86400_000;
 const hash = value => createHash('sha256').update(value).digest('hex');
@@ -25,6 +29,12 @@ export function canonicalEventURL(value) {
   check(u.protocol === 'https:' && !u.username && !u.password && !u.port && /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(u.hostname) && !/\.local$|\.internal$/.test(u.hostname), 'invalid_ecosystem_url');
   return u.href.replace(/\/$/, '');
 }
+check(editorialConfig.schemaVersion===1&&Array.isArray(EDITORIAL_REFERENCES)&&EDITORIAL_REFERENCES.length>0&&EDITORIAL_REFERENCES.length<=10&&new Set(EDITORIAL_REFERENCES.map(r=>r?.id)).size===EDITORIAL_REFERENCES.length,'invalid_editorial_reference_config');
+for(const ref of EDITORIAL_REFERENCES){
+  check(ref&&Object.keys(ref).sort().join(',')==='accessLimit,automatedRetrieval,id,publisher,purpose,status,url'&&/^[a-z][a-z0-9-]{0,59}$/.test(ref.id)&&ref.status==='manual-review-required'&&ref.automatedRetrieval===false&&['publisher','purpose','accessLimit'].every(key=>typeof ref[key]==='string'&&ref[key].length>0&&ref[key].length<=300),'invalid_editorial_reference_config');
+  canonicalEventURL(ref.url);
+  check(!ECOSYSTEM_CONFIG.sources.some(source=>source.id===ref.id||canonicalEventURL(source.url)===canonicalEventURL(ref.url)),'invalid_editorial_reference_config');
+}
 // Date-only publisher records retain their stated day; timestamped records use the issue timezone.
 export const ecosystemPublicationDay = value => value.length === 10 ? value : ecosystemDate(value);
 export const ecosystemEventKey = (url, publishedAt) => hash(canonicalEventURL(url) + '\n' + ecosystemPublicationDay(publishedAt));
@@ -41,7 +51,7 @@ function stageSignals(body) {
   return ['testnet','mainnet','non-binding','planned','beta','migration'].filter(term => body.toLowerCase().includes(term));
 }
 function eventCategory(title,source){return /\bMWEB\b|\bsecurity\b|\bvulnerabilit|\bpostmortem\b/i.test(title)?'privacy-security':source.category;}
-function reportGaps(sources){return [...ECOSYSTEM_CONFIG.gaps,...sources.filter(s=>s.status==='unavailable').map(s=>`${s.publisher}: ${s.errorCode}.`),...sources.flatMap(s=>s.gaps.map(g=>`${s.publisher}: ${g}`))];}
+function reportGaps(sources,editorialReferences=[]){return [...ECOSYSTEM_CONFIG.gaps,...sources.filter(s=>s.status==='unavailable').map(s=>`${s.publisher}: ${s.errorCode}.`),...sources.flatMap(s=>s.gaps.map(g=>`${s.publisher}: ${g}`)),...editorialReferences.map(r=>`${r.publisher}: manual review required (${r.url}). ${r.purpose} ${r.accessLimit}`)];}
 function datedEvent(source, entry, checkedAt) {
   const publishedAt = publicationDate(entry.publishedAt);
   check(publishedAt && Date.parse(publishedAt) <= Date.parse(checkedAt) && digest(entry.sourceSha256), 'invalid_ecosystem_date');
@@ -148,7 +158,8 @@ export async function collectEcosystemNews({builders,community,policyRecords,now
   const priorIds=new Set(previousReports.flatMap(r=>r.events.map(e=>e.id))),covered=new Set(coveredEvents);
   const events=[...seen.values()].map(e=>({...e,previouslyObserved:priorIds.has(e.id),coveredInPriorEdition:covered.has(e.id),ageDays:Math.floor((Date.parse(date)-Date.parse(ecosystemPublicationDay(e.publishedAt)))/DAY)})).sort((a,b)=>b.relevance.score-a.relevance.score||Date.parse(b.publishedAt)-Date.parse(a.publishedAt)||a.id.localeCompare(b.id));
   const candidates=selectCandidates(events);
-  const report={schemaVersion:1,agent:ECOSYSTEM_CONFIG.agent,date,timezone:'America/New_York',checkedAt:now,registrySha256:hash(JSON.stringify(ECOSYSTEM_CONFIG)),mode:'read-only-editorial-research',publicationPerformed:false,sources,events,candidateEventIds:candidates,duplicates,coverage:ECOSYSTEM_CATEGORIES.map(category=>({category,sources:sources.filter(s=>s.category===category).length,retrieved:sources.filter(s=>s.category===category&&s.status==='retrieved').length,datedEvents:events.filter(e=>e.category===category).length})),gaps:reportGaps(sources)};
+  const editorialReferences=structuredClone(EDITORIAL_REFERENCES);
+  const report={schemaVersion:1,agent:ECOSYSTEM_CONFIG.agent,date,timezone:'America/New_York',checkedAt:now,registrySha256:hash(JSON.stringify(ECOSYSTEM_CONFIG)),mode:'read-only-editorial-research',publicationPerformed:false,sources,events,candidateEventIds:candidates,duplicates,coverage:ECOSYSTEM_CATEGORIES.map(category=>({category,sources:sources.filter(s=>s.category===category).length,retrieved:sources.filter(s=>s.category===category&&s.status==='retrieved').length,datedEvents:events.filter(e=>e.category===category).length})),editorialReferences,gaps:reportGaps(sources,editorialReferences)};
   validateEcosystemReport(report,{now});return report;
 }
 export function validateEcosystemHistory(report){check(report?.schemaVersion===1&&instant(report.checkedAt)&&report.date===ecosystemDate(report.checkedAt)&&Array.isArray(report.sources)&&report.sources.length<=100&&Array.isArray(report.events)&&report.events.length<=100,'invalid_ecosystem_history');for(const e of report.events)check(digest(e.id)&&publicationDate(e.publishedAt)===e.publishedAt&&e.id===ecosystemEventKey(e.url,e.publishedAt),'invalid_ecosystem_history');for(const s of report.sources)check(typeof s.id==='string'&&(s.sha256===null||digest(s.sha256)),'invalid_ecosystem_history');return report;}
@@ -170,7 +181,11 @@ export function validateEcosystemReport(report,{now=report?.checkedAt}={}){
   for(const id of report.candidateEventIds){const e=report.events.find(e=>e.id===id);check(e&&e.ageDays>=0&&e.ageDays<=7&&!e.coveredInPriorEdition&&e.relevance.score>0);}
   check(JSON.stringify(report.candidateEventIds)===JSON.stringify(selectCandidates(report.events)));
   check(JSON.stringify(report.coverage)===JSON.stringify(ECOSYSTEM_CATEGORIES.map(category=>({category,sources:report.sources.filter(s=>s.category===category).length,retrieved:report.sources.filter(s=>s.category===category&&s.status==='retrieved').length,datedEvents:report.events.filter(e=>e.category===category).length}))));
-  check(JSON.stringify(report.gaps)===JSON.stringify(reportGaps(report.sources)));
+  // Older immutable reports lack this optional checklist; their original gaps,
+  // registry hash and evidence remain valid. New checklist entries are exact
+  // reviewed metadata, never fetched sources or retrieval assertions.
+  if(Object.hasOwn(report,'editorialReferences'))check(JSON.stringify(report.editorialReferences)===JSON.stringify(EDITORIAL_REFERENCES));
+  check(JSON.stringify(report.gaps)===JSON.stringify(reportGaps(report.sources,report.editorialReferences)));
   check(Array.isArray(report.gaps)&&report.gaps.every(g=>typeof g==='string'&&g.length<=1000)&&Array.isArray(report.coverage)&&report.coverage.length===ECOSYSTEM_CATEGORIES.length&&Array.isArray(report.duplicates));return report;
 }
 export function ecosystemCandidates(report){validateEcosystemReport(report);return report.candidateEventIds.map(id=>report.events.find(e=>e.id===id));}
