@@ -285,7 +285,10 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
   assertUploadQuarantineBinding(await admission.state.inspect(),uploadQuarantineBinding);
   await admission.state.compactArchivedState(admission.lease, { backup, summaryBundle: summary, summaryOperationId: summaryId });
   if (softwareRelease) {
-    await admission.state.release(admission.lease, document => assertUploadQuarantineBinding(document, uploadQuarantineBinding));
+    // Reviewed software recovery must finish its own exact terminal marker and
+    // lease transition before returning success, not fall through daily hooks.
+    if (completeCheckpoint) await completeCheckpoint({ summaryId, summaryPayload, backup, publicVerifiedAt });
+    else await admission.state.release(admission.lease, document => assertUploadQuarantineBinding(document, uploadQuarantineBinding));
     return { published: true, softwarePublished: true, dailyPublished: false, releaseCommit, candidateDeployment: candidate.deployment, operationReceipts };
   }
   let firstFreshProofCompleted=false;const routineRetirementFreshProofCompleted=await completeRoutineRetirementFresh(admission,{env,uploadQuarantineBinding});

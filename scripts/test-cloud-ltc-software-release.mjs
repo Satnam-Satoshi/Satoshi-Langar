@@ -166,7 +166,7 @@ test('review expires for new promotion, not for already-authorized bounded rollb
  const context=validateSoftwareReview(f.review,f.options);
  assert.doesNotThrow(()=>assertSoftwareContext(f.document,context,Date.parse(f.review.expiresAt)+1000));
  const code=readFileSync(new URL('./cloud-ltc-software-release.mjs',import.meta.url),'utf8');
- assert.match(code,/verifyPromotionFreshness: async \(\) => \{ assertSoftwarePromotionWindow\(review\)/);
+ assert.match(code,/assertPromotionFreshness: \(document, now\) => \{ assertSoftwarePromotionWindow\(review, now\); assertSoftwareContext\(document, softwareRelease, now\); \}/);
 });
 
  test('expired review cannot acquire a lease after delayed remote preflight',async()=>{

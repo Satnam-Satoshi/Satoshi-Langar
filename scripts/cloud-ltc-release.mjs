@@ -159,12 +159,24 @@ export async function verifyProtectedCandidate(deploymentId, editionId, manifest
   requireThat(required.every(file => manifest.some(record => record.file === file)), 'invalid_candidate_manifest');
   return verifyProtectedManifestRecords(deploymentId, manifest, manifest, readWithCli);
 }
-export async function verifyProtectedManifestRecords(deploymentId, records, manifest, readWithCli) {
+export async function verifyProtectedManifestRecords(deploymentId, records, manifest, readWithCli, onFailure) {
   requireThat(/^dpl_[A-Za-z0-9]+$/.test(deploymentId), 'candidate_identity_failed');
   requireThat(Array.isArray(manifest) && Array.isArray(records) && records.length > 0 && new Set(records.map(record => record.file)).size === records.length && new Set(manifest.map(record => record.file)).size === manifest.length && manifest.every(record => /^[a-zA-Z0-9_.-]+(?:\/[a-zA-Z0-9_.-]+)*$/.test(record.file) && !record.file.split('/').some(part => part === '.' || part === '..') && /^[a-f0-9]{64}$/.test(record.sha256)) && records.every(record => manifest.some(item => item.file === record.file && item.sha256 === record.sha256)), 'invalid_candidate_manifest');
-  for (const record of records) {
-    const expected = intendedReadbackRecord(record, manifest);
-    await verifyIntendedReadback(expected, async route => protectedHttpResponse(await readWithCli(['curl', route, '--deployment', deploymentId, '--', '--include', '--silent', '--show-error', '--max-time', '30', '--max-redirs', '0', '--proto', '=https'])));
+  const safeCodes = new Set(['invalid_protected_http_response','reviewed_redirect_changed','unexpected_artifact_status','redirect_target_missing_from_manifest','response_too_large','deployed_artifact_mismatch','acceptance_cli_failed']);
+  for (const [index, record] of records.entries()) {
+    let httpStatus = null;
+    try {
+      const expected = intendedReadbackRecord(record, manifest);
+      await verifyIntendedReadback(expected, async route => {
+        const response = protectedHttpResponse(await readWithCli(['curl', route, '--deployment', deploymentId, '--', '--include', '--silent', '--show-error', '--max-time', '30', '--max-redirs', '0', '--proto', '=https']));
+        httpStatus = response.status; return response;
+      });
+    } catch (error) {
+      // Diagnostics cannot change acceptance or expose provider data. A callback
+      // failure must not mask the original failed byte/redirect/transport check.
+      try { await onFailure?.({ phase: 'protected-manifest', ordinal: index + 1, total: records.length, file: record.file, expectedSha256: record.sha256, code: safeCodes.has(error?.message) ? error.message : 'protected_manifest_check_failed', httpStatus }); } catch {}
+      throw error;
+    }
   }
 }
 async function responseBytes(url, options = {}) {

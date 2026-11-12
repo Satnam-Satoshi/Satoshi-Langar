@@ -321,3 +321,25 @@ test('software API probe binds exact existing project/deployment and uses env-on
   f.deployment.ownerId='team_other';await assert.rejects(client.readProtectedApi(f.deployment,'/api/market-prices'));
   assert.equal(f.calls.length,count);
 });
+
+test('linked deploy invokes durable guard only after project and file checks, and guard rejection forbids effect', async t => {
+ const f = linkedFixture(), directory = await mkdtemp(path.join(tmpdir(), 'ltc-final-guard-')); t.after(() => rm(directory, { recursive: true, force: true }));
+ await mkdir(path.join(directory, '.vercel')); await writeFile(path.join(directory, '.vercel/project.json'), JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team, projectName: ACCEPTANCE_PROJECT_NAME })); await writeFile(path.join(directory, 'vercel.json'), '{}');
+ const order = []; let held = false;
+ const client = createAcceptanceLinkedClient({ ...f, directory, vercel: async endpoint => { order.push('project'); held = true; return f.vercel(endpoint); }, execute: () => { order.push('effect'); } });
+ const args = ['deploy', '--prebuilt', '--prod', '--skip-domain', '--yes'];
+ await assert.rejects(client.deploy(args, directory, () => { order.push('guard'); if (held) throw Error('lease_or_hold_changed'); }), /lease_or_hold_changed/);
+ assert.deepEqual(order, ['project', 'guard']); order.length = 0;
+ await client.deploy(args, directory, () => { order.push('guard'); }); assert.deepEqual(order, ['project', 'guard', 'effect']); order.length = 0;
+ await writeFile(path.join(directory, 'vercel.json'), '{"scope":"forbidden"}');
+ await assert.rejects(client.deploy(args, directory, () => { order.push('guard'); }), /acceptance_cli_auth_scope_forbidden/); assert.deepEqual(order, ['project']);
+});
+
+test('optional protected failure diagnostic reports exact manifest ordinal without response secrets or retries', async () => {
+ const f = linkedFixture(), failures = [], execute = f.execute;
+ const client = createAcceptanceLinkedClient({ ...f, directory: '/private/fixture-read', execute: (...args) => { const raw = execute(...args); return args[1][1].endsWith('/images/existing.png') ? Buffer.from('HTTP/2 200\r\ncontent-type: image/png\r\n\r\nPRIVATE_BODY_TOKEN') : raw; } });
+ await assert.rejects(client.readProtected(f.deployment, existingLinkedReadRecords(f.manifest), f.manifest, value => { failures.push(value); throw Error('PRIVATE_CALLBACK_ERROR'); }), /deployed_artifact_mismatch/);
+ assert.equal(failures.length, 1); assert.deepEqual(failures[0], { phase: 'protected-manifest', ordinal: 2, total: 3, file: 'images/existing.png', expectedSha256: f.manifest[1].sha256, code: 'deployed_artifact_mismatch', httpStatus: 200 });
+ assert.equal(f.calls.length, 2); assert(!JSON.stringify(failures).includes('PRIVATE'));
+ const reports = []; await assert.rejects(client.readProtected(f.deployment, [f.manifest[0]], f.manifest, x => reports.push(x)).then(() => { throw Error('unexpected'); }), /unexpected/); assert.deepEqual(reports, []);
+});

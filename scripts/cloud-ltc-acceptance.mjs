@@ -71,13 +71,17 @@ export function createAcceptanceLinkedClient({ env, vercel, directory, execute =
       catch (error) { try { await report({ operation: 'version', ...safeAcceptanceCliDiagnostic(error) }); } catch {} throw Error('acceptance_cli_failed'); }
       check([ACCEPTANCE_CLI_VERSION, `Vercel CLI ${ACCEPTANCE_CLI_VERSION}`].includes(installed), 'pinned_cli_version_mismatch');
     },
-    async deploy(args, cwd) {
+    async deploy(args, cwd, beforeEffect) {
+      check(beforeEffect === undefined || typeof beforeEffect === 'function', 'acceptance_protected_read_binding_failed');
       check(args[0] === 'deploy' && args.includes('--prebuilt') && args.includes('--prod') && args.includes('--skip-domain'), 'acceptance_effect_forbidden');
       assertAcceptanceProject(await vercel(`/v9/projects/${TARGET.project}`));
       const link = JSON.parse(await readFile(path.join(cwd, '.vercel/project.json'), 'utf8'));
       check(JSON.stringify(link) === JSON.stringify({ projectId: TARGET.project, orgId: TARGET.team, projectName: ACCEPTANCE_PROJECT_NAME }), 'acceptance_protected_read_binding_failed');
       const config = JSON.parse(await readFile(path.join(cwd, 'vercel.json'), 'utf8'));
       check(!Object.hasOwn(config, 'scope'), 'acceptance_cli_auth_scope_forbidden');
+      // Durable callers bind a final lease/hold/intent check after every
+      // awaited project/file read, immediately before the single CLI effect.
+      if (beforeEffect) await beforeEffect();
       return invoke(args, cwd);
     },
     async readProtectedApi(declaration, route) {
@@ -87,7 +91,7 @@ export function createAcceptanceLinkedClient({ env, vercel, directory, execute =
       const bypass = existingAcceptanceBypass(await vercel(`/v9/projects/${TARGET.project}`));
       return invoke(['curl', `https://${deployment.url}${route}`, '--', '--include', '--silent', '--show-error', '--max-time', '30', '--max-redirs', '0', '--proto', '=https'], directory, bypass);
     },
-    async readProtected(declaration, records, manifest) {
+    async readProtected(declaration, records, manifest, onFailure) {
       check(/^dpl_[A-Za-z0-9]+$/.test(declaration?.id ?? ''), 'acceptance_protected_read_binding_failed');
       const deployment = await vercel(`/v13/deployments/${declaration.id}`); assertVercelDeploymentIdentity(deployment, TARGET);
       check(deployment.id === declaration.id && (declaration.url === undefined || declaration.url === deployment.url), 'acceptance_protected_read_binding_failed');
@@ -97,7 +101,7 @@ export function createAcceptanceLinkedClient({ env, vercel, directory, execute =
         const expected = ['curl', args[1], '--deployment', deployment.id, '--', '--include', '--silent', '--show-error', '--max-time', '30', '--max-redirs', '0', '--proto', '=https'];
         check(JSON.stringify(args) === JSON.stringify(expected) && /^\/(?:[a-zA-Z0-9_.-]+\/)*[a-zA-Z0-9_.-]*$/.test(args[1]) && !args[1].split('/').some(part => part === '.' || part === '..'), 'acceptance_protected_read_binding_failed');
         return invoke(['curl', origin + args[1], '--', ...args.slice(5)], directory, bypass);
-      });
+      }, onFailure);
     },
   };
 }

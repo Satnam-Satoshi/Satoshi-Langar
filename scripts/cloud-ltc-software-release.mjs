@@ -102,7 +102,7 @@ export async function runSoftwareRelease(options, env = process.env) {
     const portable = await createPortableDeploymentWorkspace({ sourceRoot: root, directory: path.join(scratch, 'portable'), buildOutput });
     const linked = createAcceptanceLinkedClient({ env, vercel, directory: portable.root, report: async diagnostic => save({ safeCliFailure: diagnostic }) });
     await linked.verifyVersion();
-    const cli = createDurableVercelCommand({ env, state, lease, vercel, linked, root: portable.root, verifyPromotionFreshness: async () => { assertSoftwarePromotionWindow(review); assertSoftwareContext(await state.inspect(), softwareRelease); } });
+    const cli = createDurableVercelCommand({ env, state, lease, vercel, linked, root: portable.root, assertPromotionFreshness: (document, now) => { assertSoftwarePromotionWindow(review, now); assertSoftwareContext(document, softwareRelease, now); } });
     const verifyBindings = async () => {
       assertSoftwareActionsContext(env);
       await verifyImplementation(root, expected);

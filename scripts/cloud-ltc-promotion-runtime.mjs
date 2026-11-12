@@ -7,6 +7,7 @@ import { builtManifest, builtOutputManifest } from './cloud-ltc-release.mjs';
 import { mkdir, readFile, writeFile, lstat } from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { assertPublicationDate } from './cloud-ltc-daily-admission.mjs';
 const check = (value, code) => { if (!value) throw Error(code); };
 const bytesHash = bytes => createHash('sha256').update(bytes).digest('hex');
 
@@ -79,29 +80,70 @@ export function createControlledVercelMutation({ env, review, fetchImpl = fetch 
 // Routine production uses the same project-scoped transport, but derives each
 // exact target from the already-authorized current-fence durable intent. This
 // cannot invent an alias mutation or execute a historical acceptance operation.
-export function createDurableVercelCommand({ env, state, lease, vercel, linked, root, verifyPromotionFreshness, fetchImpl = fetch }) {
+export function createDurableVercelCommand({ env, state, lease, vercel, linked, root, verifyPromotionFreshness, assertPromotionFreshness, historicalStage, fetchImpl = fetch }) {
+  const owner = Object.freeze({ runId: lease.runId, fence: lease.fence });
+  const historical = historicalStage ? structuredClone(historicalStage) : null;
+  const assertHistorical = document => {
+    const claim = document.softwareStageRecovery;
+    check(historical && claim?.status === 'claimed' && claim.owner?.runId === owner.runId && claim.owner.fence === owner.fence && JSON.stringify(claim.stageBinding) === JSON.stringify(historical) && claim.reviewSha256 === historical.reviewSha256, 'controlled_vercel_scope_mismatch');
+  };
+  const assertLive = document => {
+    const now = typeof state.clock === 'function' ? state.clock() : Date.now();
+    check(Number.isFinite(now) && document.fence === owner.fence && document.lease?.runId === owner.runId && document.lease.fence === owner.fence && Number.isFinite(document.lease.expiresAt) && document.lease.expiresAt > now && document.paused === false && document.restoreHold === false, 'controlled_vercel_scope_mismatch');
+    assertPublicationDate(document.lease, now);
+    return now;
+  };
   return async args => {
     const kind = { deploy: 'vercel-stage', promote: 'vercel-promote', rollback: 'vercel-rollback' }[args[0]];
     check(kind, 'controlled_vercel_action_forbidden');
     const document = await state.inspect();
-    check(document.lease?.runId === lease.runId && document.lease.fence === lease.fence && document.paused === false, 'controlled_vercel_scope_mismatch');
-    const intents = Object.values(document.intents).filter(intent => intent.runId === lease.runId && intent.fence === lease.fence && intent.status === 'uncertain' && intent.payload?.kind === kind);
+    assertLive(document);
+    if (historical) assertHistorical(document);
+    const claimSha256 = historical ? bytesHash(JSON.stringify(document.softwareStageRecovery)) : null;
+    const matching = document => Object.entries(document.intents).filter(([, intent]) => intent.runId === owner.runId && intent.fence === owner.fence && intent.status === 'uncertain' && intent.payload?.kind === kind);
+    const intents = matching(document);
     check(intents.length === 1, 'controlled_vercel_scope_mismatch');
-    const intent = intents[0], payload = intent.payload;
+    const [intentKey, intent] = intents[0], payload = structuredClone(intent.payload);
+    const intentSha256 = bytesHash(JSON.stringify(intent));
+    let stageKey, stageSha256;
+    // Every awaited provider/file/freshness read can outlive a lease or race an
+    // emergency hold. Recheck at the actual effect boundary, never renew here.
+    const beforeEffect = async () => {
+      const current = await state.inspect(); const now = assertLive(current);
+      const rows = matching(current);
+      check(rows.length === 1 && rows[0][0] === intentKey && bytesHash(JSON.stringify(rows[0][1])) === intentSha256, 'controlled_vercel_scope_mismatch');
+      if (stageKey) check(current.intents[stageKey] && bytesHash(JSON.stringify(current.intents[stageKey])) === stageSha256, 'controlled_vercel_scope_mismatch');
+      if (historical) { assertHistorical(current); check(bytesHash(JSON.stringify(current.softwareStageRecovery)) === claimSha256, 'controlled_vercel_scope_mismatch'); }
+      // Must be synchronous: no later provider/state await may consume the
+      // remaining first-promotion review window. Rollback remains lease-bound.
+      if (kind === 'vercel-promote' && assertPromotionFreshness) {
+        const result = assertPromotionFreshness(current, now);
+        check(result === undefined, 'controlled_vercel_scope_mismatch');
+      }
+    };
     if (kind === 'vercel-stage') {
+      check(!historical, 'controlled_vercel_action_forbidden');
       const expectedArgs = ['deploy', '--prebuilt', '--prod', '--skip-domain', '--yes', '--meta', `ltcOperationId=${intent.operationId}`, '--meta', `ltcPayloadSha256=${intent.payloadSha256}`, '--meta', `ltcSourceCommit=${payload.commit}`, '--meta', `ltcBuildOutputSha256=${payload.buildOutputSha256}`];
       check(JSON.stringify(args) === JSON.stringify(expectedArgs), 'controlled_vercel_scope_mismatch');
       const metadata = args.flatMap((arg, index) => arg === '--meta' ? [args[index + 1]] : []);
       check(metadata.length === 4 && metadata.includes(`ltcOperationId=${intent.operationId}`) && metadata.includes(`ltcPayloadSha256=${intent.payloadSha256}`) && metadata.includes(`ltcSourceCommit=${payload.commit}`) && metadata.includes(`ltcBuildOutputSha256=${payload.buildOutputSha256}`), 'controlled_vercel_scope_mismatch');
-      return linked.deploy(args, root);
+      return linked.deploy(args, root, beforeEffect);
     }
     const candidateId = kind === 'vercel-promote' ? payload.deployment : payload.failed;
     const previousId = kind === 'vercel-promote' ? payload.previous : payload.restore;
-    const stage = Object.values(document.intents).find(record => record.runId === lease.runId && record.fence === lease.fence && record.status === 'confirmed' && record.payload?.kind === 'vercel-stage' && record.payload.commit === payload.commit && record.proof?.proof?.deployment === candidateId);
-    check(stage, 'controlled_vercel_scope_mismatch');
+    let stageEntry;
+    if (historical) {
+      assertHistorical(document);
+      const record = document.intents[historical.operationId];
+      check(record && bytesHash(JSON.stringify(record)) === historical.intentSha256 && record.status === 'confirmed' && record.payload?.kind === 'vercel-stage' && record.payload.commit === payload.commit && record.proof?.proof?.deployment === candidateId && record.fence < owner.fence, 'controlled_vercel_scope_mismatch');
+      stageEntry = [historical.operationId, record];
+    } else stageEntry = Object.entries(document.intents).find(([, record]) => record.runId === owner.runId && record.fence === owner.fence && record.status === 'confirmed' && record.payload?.kind === 'vercel-stage' && record.payload.commit === payload.commit && record.proof?.proof?.deployment === candidateId);
+    check(stageEntry, 'controlled_vercel_scope_mismatch');
+    const [key, stage] = stageEntry; stageKey = key; stageSha256 = bytesHash(JSON.stringify(stage));
     const candidate = await vercel(`/v13/deployments/${candidateId}`);
     check(candidate?.id === candidateId && candidate.projectId === TARGET.project && candidate.ownerId === TARGET.team && candidate.team?.id === TARGET.team && candidate.meta?.ltcSourceCommit === payload.commit && candidate.url === stage.proof.proof.url, 'controlled_vercel_scope_mismatch');
     if(kind==='vercel-promote')await verifyPromotionFreshness?.();
+    await beforeEffect();
     return createControlledVercelMutation({ env, review: { stagePins: { candidateDeployment: candidateId, previousDeployment: previousId } }, fetchImpl })(args, { candidate: candidateId, previous: previousId, candidateUrl: candidate.url });
   };
 }
