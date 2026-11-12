@@ -29,10 +29,12 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Fetch fixed accepted source for diagnostic parser tests
-        run: git fetch --no-tags --depth=1 origin b413419180635b34a88b3015944cfaee7a08f742
+        run: |
+          git fetch --no-tags --depth=1 origin b413419180635b34a88b3015944cfaee7a08f742
+          git fetch --no-tags --depth=1 origin 9fc3d385fbe461bc169cda9eb521f4a14859b7d0
 
       - name: Verify finite social dispatcher boundaries
-        run: node --test tests/social-dispatch.test.mjs tests/stage-metadata-diagnostic.test.mjs tests/stage-protected-diagnostic.test.mjs
+        run: node --test tests/social-dispatch.test.mjs tests/stage-metadata-diagnostic.test.mjs tests/stage-protected-diagnostic.test.mjs tests/failed-file-diagnostic.test.mjs
 
       - name: Type check
         run: npx tsc --noEmit
