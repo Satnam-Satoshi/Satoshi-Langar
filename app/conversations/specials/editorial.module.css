@@ -21,3 +21,17 @@
 /* Long builder names and source labels must reflow at narrow mobile widths. */
 .reader :is(h1,h2,h3,p,a,strong){overflow-wrap:anywhere}.reader :is(section,nav,article,li,li>div,.chapterBody){min-width:0}.contents li a>div{min-width:0}.topNav{flex-wrap:wrap}.sourcebook ol>li{grid-template-columns:50px minmax(0,1fr)}
 @media(max-width:700px){.sourcebook ol>li{grid-template-columns:30px minmax(0,1fr)}.contents li a{gap:12px}.masthead{gap:16px}.masthead span{padding-left:16px}}
+
+/* Moon revision 2: preserve the approved complete cover without overlaying its lettering. */
+.reader[data-special="litecoin-to-the-moon-r2"] .cover{display:grid;grid-template-columns:1fr 1fr;min-height:0;align-items:center}
+.reader[data-special="litecoin-to-the-moon-r2"] .cover>img{position:relative;width:100%;height:auto;object-fit:contain}
+.reader[data-special="litecoin-to-the-moon-r2"] .cover:after{display:none}
+.reader[data-special="litecoin-to-the-moon-r2"] .coverText{padding:9%}
+.reader[data-special="litecoin-to-the-moon-r2"] .masthead{font-size:74px;margin-bottom:35px}
+.reader[data-special="litecoin-to-the-moon-r2"] .cover h1{font-size:clamp(48px,5vw,76px)}
+@media(max-width:750px){.reader[data-special="litecoin-to-the-moon-r2"] .cover{grid-template-columns:1fr}.reader[data-special="litecoin-to-the-moon-r2"] .coverText{padding:8%}}
+
+/* Full Moon cover includes its own masthead/headline: never crop or overlay them. */
+.smallCover[data-full-cover]{aspect-ratio:1122/1402}
+.smallCover[data-full-cover]>img{object-fit:contain}
+.smallCover[data-full-cover]:hover>img{transform:none}

@@ -75,11 +75,11 @@ export default function HomeFront() {
         </ul> : <p className={styles.emptyDesk}>No stories are listed in this source desk snapshot. Browse the newsroom for earlier reporting.</p>}
       </section>
       <aside className={styles.special} aria-labelledby="home-special-title">
-        <img src="/magazine/litecoin-to-the-moon/cover.svg" width="1086" height="1448" loading="lazy" alt=""/>
+        <img src="/magazine/litecoin-to-the-moon/cover-r2.png" width="1086" height="1448" loading="lazy" alt=""/>
         <div>
-          <p className={styles.kicker}>Special edition / <time dateTime="2026-10-30">October 30, 2026</time></p>
+          <p className={styles.kicker}>Special edition / Updated <time dateTime="2026-11-12">November 12, 2026</time></p>
           <h2 id="home-special-title"><a href="/conversations/specials/litecoin-to-the-moon/">Litecoin to the Moon <span aria-hidden="true">↗</span></a></h2>
-          <p>Canton, cLTC, LitVM and the road to Rome.</p>
+          <p>Canton, cLTC, LitVM and the builders after Rome.</p>
         </div>
       </aside>
     </div>

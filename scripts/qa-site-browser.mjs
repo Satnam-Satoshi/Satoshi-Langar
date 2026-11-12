@@ -12,7 +12,7 @@ const origin = 'https://satnamsatoshi.com';
 const records = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
 const exclusions = JSON.parse(await readFile('config/ltc-publication-exclusions.json', 'utf8'));
 const latestIssue = publicationDays(publicEditions(records, exclusions))[0].latest.id;
-const routes = [`/conversations/editions/${latestIssue}/`, '/conversations/daily/', '/conversations/updates/', '/conversations/specials/litecoin-builders-november/', '/mission/', '/langar/', '/agents/', '/', '/conversations/', '/conversations/archive/', '/conversations/desks/', '/conversations/desks/bitcoin-products/', '/conversations/litecoin/', '/conversations/litecoin-distribution/', '/conversations/start/', '/conversations/finance/', '/conversations/timechain/', '/conversations/community/', '/about/', '/sikh-bitcoin/', '/miikey/', '/join/', '/donate/'];
+const routes = [`/conversations/editions/${latestIssue}/`, '/conversations/daily/', '/conversations/updates/', '/conversations/specials/litecoin-builders-november/', '/conversations/specials/litecoin-to-the-moon/', '/mission/', '/langar/', '/agents/', '/', '/conversations/', '/conversations/archive/', '/conversations/desks/', '/conversations/desks/bitcoin-products/', '/conversations/litecoin/', '/conversations/litecoin-distribution/', '/conversations/start/', '/conversations/finance/', '/conversations/timechain/', '/conversations/community/', '/about/', '/sikh-bitcoin/', '/miikey/', '/join/', '/donate/'];
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.xml': 'application/xml' };
 const results = [], errors = [];
 try {
@@ -60,6 +60,17 @@ try {
             assert.equal(await page.getByText('October 2 design review', { exact: false }).count(), 0);
             await page.locator('#daily-briefings').scrollIntoViewIfNeeded();
             await page.screenshot({path:path.join(output,`${engine}-${width}-daily-interior.png`),animations:'disabled'});
+          }
+          if (route === '/conversations/specials/litecoin-to-the-moon/') {
+            await page.locator('#sources').scrollIntoViewIfNeeded();
+            await page.screenshot({ path:path.join(output,`${engine}-${width}-moon-sourcebook.png`),animations:'disabled' });
+          }
+          if (route === '/conversations/archive/') {
+            const moon = page.locator('[data-editorial-special="litecoin-to-the-moon-r2"]');
+            await moon.scrollIntoViewIfNeeded();
+            assert.equal(await moon.locator('[data-full-cover] img').count(),1);
+            assert.equal(await moon.locator('[data-full-cover] h3').count(),0);
+            await page.screenshot({ path:path.join(output,`${engine}-${width}-moon-shelf.png`),animations:'disabled' });
           }
           if (route === '/conversations/updates/') {
             assert.equal(await page.locator('[aria-labelledby="newsroom-reading"]').count(), 1);

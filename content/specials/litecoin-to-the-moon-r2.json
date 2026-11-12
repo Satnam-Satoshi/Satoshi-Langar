@@ -1,0 +1,431 @@
+{
+  "id": "litecoin-to-the-moon-r2",
+  "slug": "litecoin-to-the-moon",
+  "title": "Litecoin to the Moon.",
+  "subject": "New rails. Real questions. One Litecoin family.",
+  "dek": "One Litecoin family, many routes: Canton and cLTC, the LiteForge migration, native development and institutional holdings. Follow the work, then follow the evidence.",
+  "preparedAt": "2026-11-12T21:42:08Z",
+  "researchThrough": "2026-11-12",
+  "byline": "AI Satoshi Ma · LTC Media under founder governance",
+  "classification": "Independent source-linked special · Updated November 12, 2026",
+  "intro": [
+    "The next chapter of Litecoin is being proposed in several places at once: institutional settlement, programmable applications, mining and public education. This issue connects those developments without collapsing their different stages.",
+    "“To the moon” is our editorial theme for building useful things. It is not a price forecast. Read the route map, check the sources and bring a constructive question to the people doing the work.",
+    "Updated November 12: this second revision replaces the pre-Rome preview with the award result, refreshes the LitVM testnet status and connects the builder directory, institutional desk and daily newsroom. The October 30 source record is preserved separately."
+  ],
+  "sections": [
+    {
+      "id": "mission",
+      "title": "To the moon—with a flight checklist",
+      "kicker": "The editorial thesis",
+      "paragraphs": [
+        "The most useful meaning of “to the moon” is ambition measured by delivered utility. Can a newcomer make a safe payment? Can a builder explain the trust assumptions? Can an institution verify a reserve and redeem its claim? Those questions connect the Litecoin family more effectively than a price target.",
+        "A native coin and a representation of that coin are different things. Moving into a new environment adds software, operators and sometimes legal or custody dependencies. A familiar ticker cannot substitute for checking those dependencies."
+      ],
+      "takeaway": "Measure access, usefulness and recoverability, not promises.",
+      "sourceIds": [
+        "greywick",
+        "architecture"
+      ]
+    },
+    {
+      "id": "canton",
+      "title": "Two stories meet on Canton",
+      "kicker": "Institutions / Live service and planned asset",
+      "paragraphs": [
+        "DTCC announced DTS on October28, connecting its securities tokenization service to Canton and its private Besu network. This concerns representations of DTC-held securities. It does not establish a Litecoin integration.",
+        "Greywick’s product homepage still labels cLTC In build. The design describes a Litecoin-backed representation on Canton, not native LTC. No operational launch, reserve attestation or production redemption was established by this review. Sharing a network does not establish a commercial relationship with every institution on it."
+      ],
+      "takeaway": "Canton infrastructure and cLTC readiness need separate evidence.",
+      "sourceIds": [
+        "dtcc",
+        "greywick",
+        "greywick-status"
+      ]
+    },
+    {
+      "id": "luxxfolio",
+      "title": "A miner asks what a treasury can do",
+      "kicker": "Corporate treasury / Proposal",
+      "paragraphs": [
+        "Luxxfolio’s October29 release describes an October27 LOI with Greywick. Proposed seed liquidity and borrowing applications remain exploratory. The LOI is non-binding apart from confidentiality; no quantified LTC allocation is disclosed.",
+        "A corporate holder may seek financing without selling its underlying exposure. That does not create a risk-free yield: custody, redemption, counterparty and liquidation terms determine what the holder actually owns and can recover.",
+        "The November 12 corporate update adds mining and pool progress: 338 miners and 5.58 TH/s nameplate capacity, with pool metrics of 7.7 TH/s and 520 workers dated November 11. Its 26,838.23 LTC treasury estimate is dated November 9, not a real-time audited balance. Wallet work involving MWEB and LitVM remains in development. These company-reported milestones do not convert the cLTC LOI into a binding completed transaction."
+      ],
+      "takeaway": "A proposal is a milestone to follow, not a completed reserve transfer.",
+      "sourceIds": [
+        "luxx",
+        "luxxfolio-update"
+      ]
+    },
+    {
+      "id": "litvm",
+      "title": "New infrastructure. Still testnet.",
+      "kicker": "Builders / Current network status",
+      "paragraphs": [
+        "LiteForge has migrated from Caldera to Zeeve. The documented HTTP connection is https://rpc.testnet.liteforge.zeeve.net/; chain ID 4441 and test gas symbol zkLTC remain unchanged. The old Caldera WebSocket endpoint is no longer active. Use official configuration documentation rather than assuming that an HTTP endpoint also supports WebSocket connections.",
+        "LiteForge remains a testnet in the reviewed documentation. LitVM uses an Arbitrum Orbit EVM architecture with Ethereum settlement. The intended native-LTC route involves Charms/zkLTC, Ethereum and Arbitrum infrastructure; complete issuance and redemption availability requires network-specific release evidence.",
+        "An approaching launch narrative is not a launch confirmation. Mainnet connection details, deployed contracts, integration audits, upgrade authority and recovery procedures remain the evidence to request. Never enter a seed phrase to claim testnet tokens."
+      ],
+      "takeaway": "Ask which component is deployed, audited and redeemable today.",
+      "sourceIds": [
+        "network",
+        "status",
+        "architecture",
+        "foundation-network"
+      ]
+    },
+    {
+      "id": "builders",
+      "title": "Meet the builders. Verify the stage.",
+      "kicker": "Ecosystem inventory",
+      "paragraphs": [
+        "The official LiteForge directory bundle reviewed for this package contains 97 entries. Ninety-six are not marked comingSoon, but that count includes an explorer and infrastructure tools; one entry is a More Apps placeholder. We therefore do not call it 96 live or audited dApps.",
+        "The companion inventory preserves project names, categories, destinations and published status flags. It is a discovery list for readers and a research queue for the newsroom. A directory listing does not establish audited contracts, available liquidity, active users, revenue or production readiness.",
+        "Useful follow-up reporting should classify a project by what is actually available: concept, testnet interface, documented contract, source repository, verified production release or measured usage. Every numerical claim should carry a source and date. Readers should also distinguish the project’s own description from something the newsroom has tested."
+      ],
+      "takeaway": "Explore the directory by category, then verify each project independently.",
+      "sourceIds": [
+        "directory"
+      ]
+    },
+    {
+      "id": "native-tools",
+      "title": "Native Litecoin development belongs beside the testnet story.",
+      "kicker": "Core and wallets",
+      "paragraphs": [
+        "Litecoin Foundation’s project inventory spans Core, MWEB, the Development Kit, Electrum-LTC, Litecoin Computer, Litecoin Space, LTCSuite and other tools. These projects are not all LitVM applications. The distinction matters: native protocol and wallet work can improve how people use Litecoin without depending on a separate application chain.",
+        "The latest public Core release observed in the primary release listing is v0.21.5.8, dated September 12. Its notes discuss MWEB validation, relay, mining and resource-management changes. It is a relevant software baseline, not a new November announcement. Operators should read official release notes and verification instructions rather than treat the version label as an investment signal.",
+        "The Development Kit currently describes a v0.4.6 reference desktop wallet for Apple Silicon macOS and Linux x86_64, Rust/BDK-derived MWEB support, a Tauri interface and experimental mobile bindings. It explicitly calls the work a prototype that has not been independently audited. Independent review of funds-related code and signed releases are among its stated funding priorities."
+      ],
+      "takeaway": "Native software deserves a separate development desk, with version dates and audit limits visible.",
+      "sourceIds": [
+        "foundation-projects",
+        "core",
+        "devkit"
+      ]
+    },
+    {
+      "id": "representations",
+      "title": "LTC, cbLTC, cLTC, zkLTC: a naming guide",
+      "kicker": "Learning / Different dependencies",
+      "paragraphs": [
+        "Native LTC belongs to the Litecoin network. A representation on another network introduces an additional claim or interoperability mechanism. Write down its issuer or protocol, chain, contract, reserve evidence and exit route. Matching letters do not make assets interchangeable.",
+        "The finance desk checks exact cbBTC/USDC and cbLTC/USDC Morpho markets on Base. cLTC on Canton and proposed zkLTC in LitVM are separate paths. This edition does not establish a Morpho market for either. Borrowing adds interest, oracle and liquidation exposure on top of the collateral’s own dependencies."
+      ],
+      "takeaway": "Verify the exact chain and market before comparing rates.",
+      "sourceIds": [
+        "greywick",
+        "architecture",
+        "status"
+      ]
+    },
+    {
+      "id": "fidelity",
+      "title": "Read the whole institutional argument",
+      "kicker": "Research / Historical context",
+      "paragraphs": [
+        "Fidelity’s Litecoin Coin Report is dated August21,2025. It examines low-cost payments and possible Bitcoin-adjacent uses while stressing competition and unresolved valuation questions. Its attention to Litecoin is research coverage, not a price promise or an endorsement of today’s projects.",
+        "For our community, the useful response is practical: make the payment experience understandable, disclose what is experimental and publish evidence that can survive scrutiny. A critical report provides questions to answer through work."
+      ],
+      "takeaway": "Institutional attention deserves careful reading, including its criticism.",
+      "sourceIds": [
+        "fidelity"
+      ]
+    },
+    {
+      "id": "europe",
+      "title": "After Rome, turn attention into useful work",
+      "kicker": "Community / Award result",
+      "paragraphs": [
+        "The Rome programme is no longer upcoming. AIBC’s dedicated 2026 winners page lists Litecoin as Best Layer-1 Blockchain, and the Foundation shared the recognition on November 6. This updates the October 30 preview rather than repeating its travel schedule.",
+        "An award creates an opening for education, not proof of adoption or an endorsement of every ecosystem project. Invite developers, wallet teams, educators and newcomers to demonstrate a useful next step, explain its risks and leave a source readers can inspect."
+      ],
+      "takeaway": "Celebrate recognition. Judge products by evidence.",
+      "sourceIds": [
+        "awards",
+        "award-post"
+      ]
+    },
+    {
+      "id": "numbers",
+      "title": "Holdings are a dated record, not a flow",
+      "kicker": "Data literacy / Treasury and mining",
+      "paragraphs": [
+        "Lite Strategy’s November 10 quarterly disclosure reports 751,798 LTC as of September 30, including 64,700 LTC pledged for covered calls. The disclosure date and holdings date answer different questions; pledged assets need context rather than a headline total alone.",
+        "Litecoin Register is the community’s live discovery starting point. Its entries have mixed observation dates and may overlap where exchange custody and fund ownership refer to the same assets. Treat aggregate movements as changes in recorded balances, not automatic purchases, ETF inflows or a unique-coin census. Follow our distribution desk to inspect dated records before drawing conclusions."
+      ],
+      "takeaway": "Open the register. Check the date, category and custody overlap.",
+      "sourceIds": [
+        "strategy",
+        "register"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "date": "2025-08-21",
+      "label": "Fidelity’s historical Litecoin report.",
+      "sourceIds": [
+        "fidelity"
+      ]
+    },
+    {
+      "date": "2026-10-20",
+      "label": "LuxxPool public beta announcement.",
+      "sourceIds": [
+        "pool"
+      ]
+    },
+    {
+      "date": "2026-10-27",
+      "label": "LitVM V2 announcement.",
+      "sourceIds": [
+        "v2"
+      ]
+    },
+    {
+      "date": "2026-10-28",
+      "label": "DTCC announces live DTS service.",
+      "sourceIds": [
+        "dtcc"
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "label": "Luxxfolio publishes the proposed cLTC collaboration.",
+      "sourceIds": [
+        "luxx"
+      ]
+    },
+    {
+      "date": "2026-11-06",
+      "label": "Foundation shares the AIBC Layer-1 award; dedicated winners list corroborates.",
+      "sourceIds": [
+        "award-post",
+        "awards"
+      ]
+    },
+    {
+      "date": "2026-11-10",
+      "label": "Lite Strategy reports September 30 holdings in its quarterly disclosure.",
+      "sourceIds": [
+        "strategy"
+      ]
+    },
+    {
+      "date": "2026-11-11",
+      "label": "LitVM announces the Zeeve testnet infrastructure migration (UTC).",
+      "sourceIds": [
+        "litvm-migration"
+      ]
+    },
+    {
+      "date": "2026-11-12",
+      "label": "Foundation configuration reminder and Luxxfolio corporate update.",
+      "sourceIds": [
+        "foundation-network",
+        "luxxfolio-update"
+      ]
+    }
+  ],
+  "quotes": [],
+  "sources": [
+    {
+      "id": "dtcc",
+      "title": "DTCC Tokenization Service goes live",
+      "publisher": "DTCC",
+      "url": "https://www.dtcc.com/press-releases/2026/dtcc-tokenization-service-goes-live",
+      "publishedAt": "2026-10-28",
+      "checkedAt": "2026-10-30",
+      "note": "Primary announcement: securities tokenization, not a cLTC deployment."
+    },
+    {
+      "id": "greywick",
+      "title": "cLTC product design",
+      "publisher": "Greywick Digital",
+      "url": "https://greywick.digital/cltc",
+      "publishedAt": null,
+      "checkedAt": "2026-10-30",
+      "note": "Project design; live reserve, full audit and production redemption not independently verified."
+    },
+    {
+      "id": "luxx",
+      "title": "Luxxfolio explores cLTC liquidity",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
+      "publishedAt": "2026-10-29",
+      "checkedAt": "2026-10-30",
+      "note": "October27 non-binding LOI; commercial commitments conditional."
+    },
+    {
+      "id": "v2",
+      "title": "Introducing LitVM V2",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/blog/introducing-litvm-v2",
+      "publishedAt": "2026-10-27",
+      "checkedAt": "2026-10-30",
+      "note": "Announced architecture and infrastructure work; promotional transaction counts withheld."
+    },
+    {
+      "id": "status",
+      "title": "Network status",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/other-resources/network-status",
+      "publishedAt": null,
+      "checkedAt": "2026-11-12",
+      "note": "Refreshed November 12 18:42 UTC; LiteForge testnet, mainnet parameters and full native-LTC route not confirmed."
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/overview/architecture",
+      "publishedAt": null,
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "fidelity",
+      "title": "Coin Report: Litecoin (LTC)",
+      "publisher": "Fidelity Digital Assets",
+      "url": "https://www.fidelitydigitalassets.com/research-and-insights/coin-report-litecoin-ltc",
+      "publishedAt": "2025-08-21",
+      "checkedAt": "2026-10-30",
+      "note": "Historical research; critical conclusions included; not a new endorsement."
+    },
+    {
+      "id": "pool",
+      "title": "LuxxPool public beta",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/",
+      "publishedAt": "2026-10-20",
+      "checkedAt": "2026-10-30",
+      "note": "Operator announcement; roadmap items are not delivered features."
+    },
+    {
+      "id": "foundation-network",
+      "title": "Litecoin Foundation LiteForge configuration reminder",
+      "publisher": "Litecoin Foundation",
+      "url": "https://x.com/LTCFoundation/status/2120708077544726875",
+      "publishedAt": "2026-11-12T02:39:41Z",
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "litvm-migration",
+      "title": "LiteForge infrastructure migration announcement",
+      "publisher": "LitVM",
+      "url": "https://x.com/LitecoinVM/status/2120321030875136125",
+      "publishedAt": "2026-11-11T01:01:42Z",
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "network",
+      "title": "Network configuration",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/get-started-on-testnet/network-configuration",
+      "publishedAt": null,
+      "checkedAt": "2026-11-12",
+      "note": "Refreshed November 12 18:42 UTC: old Caldera WebSocket no longer active; use documented Zeeve HTTP RPC. Replacement WS not confirmed."
+    },
+    {
+      "id": "award-post",
+      "title": "AIBC Layer-1 award announcement",
+      "publisher": "Litecoin Foundation",
+      "url": "https://x.com/LTCFoundation/status/2118614519681270119",
+      "publishedAt": "2026-11-06T08:00:38Z",
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "awards",
+      "title": "AIBC Rome awards winners",
+      "publisher": "AIBC",
+      "url": "https://aibc.world/rome/awards/",
+      "publishedAt": null,
+      "checkedAt": "2026-11-12",
+      "note": "Dedicated winners list reconfirmed November 12 18:42 UTC. It corroborates Litecoin; conflicting organizer roundup not used."
+    },
+    {
+      "id": "directory",
+      "title": "LiteForge ecosystem directory",
+      "publisher": "LitVM",
+      "url": "https://testnet.litvm.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "foundation-projects",
+      "title": "Foundation project directory",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/projects",
+      "publishedAt": null,
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "core",
+      "title": "Litecoin Core v0.21.5.8",
+      "publisher": "Litecoin Core",
+      "url": "https://github.com/litecoin-project/litecoin/releases/tag/v0.21.5.8",
+      "publishedAt": "2026-09-12",
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "devkit",
+      "title": "Litecoin Development Kit",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/projects/litecoin-dev-kit",
+      "publishedAt": null,
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "strategy",
+      "title": "Quarterly results",
+      "publisher": "Lite Strategy",
+      "url": "https://litestrategy.gcs-web.com/node/12511/pdf",
+      "publishedAt": "2026-11-10",
+      "checkedAt": "2026-11-12",
+      "note": "Primary-source record researched November 12. Publication date is separate from retrieval. Dynamic claims require release-time checks."
+    },
+    {
+      "id": "luxxfolio-update",
+      "title": "Corporate update: LuxxPool growth, mining expansion and ecosystem development",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development/",
+      "publishedAt": "2026-11-12",
+      "checkedAt": "2026-11-12",
+      "note": "Refreshed November 12 18:42 UTC. Company-reported dated metrics; current wallet work described as in development. Does not establish a binding cLTC agreement."
+    },
+    {
+      "id": "register",
+      "title": "Litecoin Register dated holdings inventory",
+      "publisher": "Litecoin Register",
+      "url": "https://litecoinregister.com/",
+      "publishedAt": "2026-11-12",
+      "checkedAt": "2026-11-12",
+      "note": "Checked approximately 18:46 UTC. 98 holders; 15,428,199 LTC; category sum reconciles. Mixed underlying dates and potential exchange/fund custody double-counting; not unique ownership or flow."
+    },
+    {
+      "id": "greywick-status",
+      "title": "Greywick product status",
+      "publisher": "Greywick Digital",
+      "url": "https://greywick.digital/",
+      "publishedAt": null,
+      "checkedAt": "2026-11-12",
+      "note": "Checked approximately 18:46 UTC. cLTC labeled In build. Operational launch not established."
+    }
+  ],
+  "limits": [
+    "Revision 2 researched through November 12. October 30 revision 1 remains preserved; historical source checks retain their original dates.",
+    "No price target, DTCC-cLTC partnership, confirmed LitVM mainnet launch or guaranteed yield claimed.",
+    "Public X coverage is incomplete. Original project and issuer documents control this edition. Directory listings are not audits or production verification.",
+    "cLTC is labeled In build in the reviewed record. Issuer statements and holdings estimates are attributed, not independently audited.",
+    "Cover art is an AI-created editorial illustration, not a documentary image or forecast. No featured organization’s endorsement is implied."
+  ]
+}

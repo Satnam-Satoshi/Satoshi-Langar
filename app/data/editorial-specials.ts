@@ -1,5 +1,5 @@
 import buildersNovember from '../../content/specials/litecoin-builders-november-r1.json';
-import moon from '../../content/specials/litecoin-to-the-moon-r1.json';
+import moon from '../../content/specials/litecoin-to-the-moon-r2.json';
 import litvmFamily from '../../content/specials/litvm-family-r1.json';
 import jack from '../../content/specials/jack-mallers-r1.json';
 import birthdayInterview from '../../content/specials/charlie-84million-r1.json';
@@ -16,8 +16,8 @@ export type EditorialSpecial = {
 };
 export const editorialSpecials = [buildersNovember,moon,litvmFamily,birthdayInterview,jack,people,charlie,iykyk] as EditorialSpecial[];
 export const specialHref=(slug:string)=>`/conversations/specials/${slug}/`;
-export const specialArtwork=(slug:string)=>slug==='litecoin-builders-november'?'/magazine/litecoin-builders-november/cover.svg':slug==='litecoin-to-the-moon'?'/magazine/litecoin-to-the-moon/cover.svg':slug==='litvm-family'?'/magazine/litvm-family/campaign.png':slug==='charlie-84million'?'/magazine/charlie-84million/cover.png':slug==='jack-mallers'?'/magazine/jack-mallers/cover.png':slug==='proof-of-people'?'/magazine/proof-of-people/cover.png':`/magazine/specials-october/${slug==='charlie-lee'?'charlie-quiet-fork':'iykyk-open-archive'}.png`;
+export const specialArtwork=(slug:string)=>slug==='litecoin-builders-november'?'/magazine/litecoin-builders-november/cover.svg':slug==='litecoin-to-the-moon'?'/magazine/litecoin-to-the-moon/cover-r2.png':slug==='litvm-family'?'/magazine/litvm-family/campaign.png':slug==='charlie-84million'?'/magazine/charlie-84million/cover.png':slug==='jack-mallers'?'/magazine/jack-mallers/cover.png':slug==='proof-of-people'?'/magazine/proof-of-people/cover.png':`/magazine/specials-october/${slug==='charlie-lee'?'charlie-quiet-fork':'iykyk-open-archive'}.png`;
 
-export const specialShareArtwork=(slug:string)=>slug==='litecoin-builders-november'?'/magazine/litecoin-builders-november/cover.png':slug==='litecoin-to-the-moon'?'/magazine/litecoin-to-the-moon/campaign.png':specialArtwork(slug);
+export const specialShareArtwork=(slug:string)=>slug==='litecoin-builders-november'?'/magazine/litecoin-builders-november/cover.png':slug==='litecoin-to-the-moon'?'/magazine/litecoin-to-the-moon/cover-r2.png':specialArtwork(slug);
 
 export const specialIssueLabel=(date:string)=>new Intl.DateTimeFormat('en-US',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${date}T12:00:00Z`));
