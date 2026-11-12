@@ -29,7 +29,7 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Verify finite social dispatcher boundaries
-        run: node --test tests/social-dispatch.test.mjs
+        run: node --test tests/social-dispatch.test.mjs tests/stage-metadata-diagnostic.test.mjs
 
       - name: Type check
         run: npx tsc --noEmit

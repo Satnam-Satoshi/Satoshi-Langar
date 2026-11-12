@@ -1,0 +1,190 @@
+# Fixed incident diagnostic. No build, deployment, promotion or journal mutation.
+name: LTC fixed stage metadata diagnostic
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ltc-production-publication
+  cancel-in-progress: false
+jobs:
+  inspect:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && github.actor_id == '268053325'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: ltc-production
+    env:
+      LTC_CLOUD_PUBLISH: 'false'
+      LTC_SOFTWARE_RELEASE_ENABLED: 'false'
+      LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
+      LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: b413419180635b34a88b3015944cfaee7a08f742
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify fixed source and implementation before credentials
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          import {readFileSync,lstatSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const expected=process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256;
+          if(expected!=='e37016fd0bfebc482803ca9b71c91f99bba051bfffd3f0adb5b0c567dc48f9b1')throw Error('Fixed diagnostic implementation required');
+          if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!=='b413419180635b34a88b3015944cfaee7a08f742'||process.env.GITHUB_RUN_ATTEMPT!=='1')throw Error('Fixed diagnostic source and first attempt required');
+          if(!/^[a-f0-9]{64}$/.test(expected||''))throw Error('Accepted implementation digest missing');
+          const config=JSON.parse(readFileSync('config/ltc-cloud-source.json','utf8'));
+          if(config.repository!=='Satnam-Satoshi/Satoshi-Langar'||config.branch!==process.env.LTC_SOURCE_BRANCH||!/^agent\/[a-z0-9][a-z0-9/-]{0,150}$/.test(config.branch)||config.branch.includes('..')||config.branch.includes('//')||config.branch.endsWith('/'))throw Error('Reviewed source branch mismatch');
+          // Reviewed exact data shapes shared by the implementation guard and mutation gate.
+          // Classification is not publication approval: sources and immutable-history checks
+          // must also pass. No directory-wide exclusion or unknown JSON file is permitted.
+          const pointers = new Set([
+            'content/ltc/index.json', 'public/data/ltc-snapshot.json',
+            'content/ltc-community/latest.json', 'content/ltc-newsroom/latest.json',
+            'content/ltc-newsroom-selections/latest.json',
+            'content/research/litecoin-distribution-latest.json',
+          ]);
+          function calendarDate(value) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            const parsed = new Date(`${value}T00:00:00.000Z`);
+            return Number.isFinite(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+          }
+          function routineDataRecord(file) {
+            if (typeof file !== 'string') return null;
+            if (pointers.has(file)) return { kind: 'pointer' };
+            const graphic = /^public\/magazine\/daily\/(\d{4}-\d{2}-\d{2}-r[1-9]\d?)\/(?:social\.(?:png|svg)|graphic\.json)$/.exec(file);
+            if (graphic) return calendarDate(graphic[1].slice(0, 10)) ? { kind: 'graphic', date: graphic[1].slice(0, 10), editionId: graphic[1] } : null;
+            let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/(?:daily-features|ltc-ecosystem)\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);
+            if (match) { const date = match[1] || match[2] || match[3]; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/research|public\/data)\/litecoin-distribution-(\d{4})(\d{2})(\d{2})\.json$/.exec(file);
+            if (match) { const date = `${match[1]}-${match[2]}-${match[3]}`; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/ltc-community\/archive\/|content\/ltc-newsroom\/newsroom-)(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z\.json$/.exec(file);
+            if (match && calendarDate(`${match[1]}-${match[2]}-${match[3]}`) && +match[4] < 24 && +match[5] < 60 && +match[6] < 60) return { kind: 'archive' };
+            return null;
+          }
+          const isRoutineData = file => routineDataRecord(file) !== null;
+          const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).sort();
+          const hash=createHash('sha256');
+          for(const file of files){
+            const info=lstatSync(file);if(!info.isFile()||info.isSymbolicLink())throw Error('Non-regular tracked file');
+            if(isRoutineData(file))continue;
+            hash.update(file+'\0');hash.update(readFileSync(file));hash.update('\0');
+          }
+          if(hash.digest('hex')!==expected)throw Error('Implementation changed; publication withheld');
+          const live=execFileSync('git',['ls-remote','origin','refs/heads/agent/wall-street-20261011'],{encoding:'utf8'}).trim().split(/\s+/)[0];
+          if(live!=='b413419180635b34a88b3015944cfaee7a08f742')throw Error('Accepted source changed');
+          NODE
+      - name: Fixed GET-only stage metadata and alias observation
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          // BEGIN GET-ONLY DIAGNOSTIC
+          // Incident-specific GET-only observation. This never confirms or resumes an
+          // intent, extends a lease, uploads evidence, deploys, promotes or changes gates.
+          export const SCOPE = Object.freeze({
+            project: 'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx',
+            team: 'team_yc5ZBvCbWT2M7iGyj3vQDOzk',
+            source: 'b413419180635b34a88b3015944cfaee7a08f742',
+            implementation: 'e37016fd0bfebc482803ca9b71c91f99bba051bfffd3f0adb5b0c567dc48f9b1',
+            candidate: 'dpl_4EsXwLjRaNFAZ4NFxufbtMob7BHo',
+            previous: 'dpl_CtHzPPqDsHL9F9mwKnn64SuwijWB',
+            expectedFence: 27,
+          });
+          export const EXPECTED_META = Object.freeze({
+            ltcOperationId: 'stage-2026-11-11-r1-5c986c1983b7e3dfc25b90b1',
+            ltcPayloadSha256: 'bc58fa7035385978ad83f66a5a860f73ea01c29ad7c891ba4f2cc8e16387473b',
+            ltcSourceCommit: SCOPE.source,
+            ltcBuildOutputSha256: '00f19190ebc0189bec233b463f44342fd5eb31739c7ae35877db1295572624f6',
+          });
+          const plain = x => x !== null && typeof x === 'object' && !Array.isArray(x);
+          const check = (ok, code) => { if (!ok) throw Error(code); };
+          const domains = ['satnamsatoshi.com', 'ltcmagazine.org'];
+
+          export async function inspectStageMetadata({ token, fetcher = fetch }) {
+            check(typeof token === 'string' && token.length > 10 && !/[\r\n]/.test(token), 'credential_unavailable');
+            async function get(endpoint, phase) {
+              // Callers below supply only fixed resource paths or a validated numeric
+              // pagination timestamp. No caller-controlled URL, method or body exists.
+              let response;
+              try {
+                response = await fetcher(`https://api.vercel.com${endpoint}${endpoint.includes('?') ? '&' : '?'}teamId=${SCOPE.team}`, {
+                  method: 'GET', redirect: 'error', signal: AbortSignal.timeout(10000),
+                  headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+                });
+              } catch { throw Error(`${phase}_transport_unavailable`); }
+              check(response.status === 200 && !response.redirected && response.body, `${phase}_read_unavailable`);
+              const reader = response.body.getReader(), chunks = []; let length = 0;
+              try {
+                while (true) {
+                  const part = await reader.read(); if (part.done) break;
+                  length += part.value.length; check(length <= 2_000_000, `${phase}_response_too_large`); chunks.push(part.value);
+                }
+              } finally { await reader.cancel().catch(() => {}); }
+              let value; try { value = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw Error(`${phase}_invalid_json`); }
+              check(plain(value), `${phase}_invalid_shape`); return value;
+            }
+            function identity(d, expectedId) {
+              return {
+                idMatches: d.id === expectedId,
+                projectMatches: d.projectId === SCOPE.project,
+                ownerMatches: d.ownerId === SCOPE.team,
+                teamMatches: d.team?.id === SCOPE.team,
+                optionalTeamMatches: d.teamId === undefined || d.teamId === SCOPE.team,
+                optionalSlugMatches: d.team?.slug === undefined || d.team.slug === 'baba-g-s-projects',
+                ready: d.readyState === 'READY', productionTarget: d.target === 'production',
+                validHostname: typeof d.url === 'string' && d.url.length <= 253 && /^[a-z0-9-]+\.vercel\.app$/.test(d.url),
+              };
+            }
+            const candidate = await get(`/v13/deployments/${SCOPE.candidate}`, 'candidate');
+            const previous = await get(`/v13/deployments/${SCOPE.previous}`, 'previous');
+            const candidateIdentity = identity(candidate, SCOPE.candidate);
+            const metadata = Object.fromEntries(Object.entries(EXPECTED_META).map(([key, expected]) => [key, {
+              present: Object.hasOwn(candidate.meta ?? {}, key), matches: candidate.meta?.[key] === expected,
+            }]));
+            const aliasChecks = {};
+            for (const domain of domains) aliasChecks[domain] = identity(await get(`/v13/deployments/${domain}`, 'alias'), SCOPE.previous);
+            let until = '', pages = 0, listed = 0, complete = false, matches = 0, candidateMatches = 0;
+            const seen = new Set();
+            for (let page = 0; page < 10; page++) {
+              const data = await get(`/v6/deployments?projectId=${SCOPE.project}&target=production&limit=100${until ? `&until=${until}` : ''}`, 'listing');
+              check(Array.isArray(data.deployments) && data.deployments.length <= 100, 'listing_invalid_shape');
+              pages++; listed += data.deployments.length;
+              for (const item of data.deployments) if (item.meta?.ltcOperationId === EXPECTED_META.ltcOperationId) {
+                matches++; if ((item.uid ?? item.id) === SCOPE.candidate) candidateMatches++;
+              }
+              const next = data.pagination?.next;
+              if (next === null || next === undefined) { complete = true; break; }
+              check((typeof next === 'number' && Number.isSafeInteger(next) || typeof next === 'string') && /^[1-9][0-9]{0,15}$/.test(String(next)) && !seen.has(String(next)), 'listing_invalid_pagination');
+              seen.add(String(next)); until = String(next);
+            }
+            // Only fixed identifiers, booleans and bounded counts leave this process.
+            // No response bodies, other metadata, headers, tokens or private config do.
+            const result = {
+              schemaVersion: 1, kind: 'fixed-stage-get-only-diagnostic', checkedAt: new Date().toISOString(),
+              candidate: SCOPE.candidate, previous: SCOPE.previous, source: SCOPE.source,
+              expectedFence: SCOPE.expectedFence, journalRead: false, stateChanged: false, effectsReissued: false,
+              protectedBytesVerified: false, apiHandlersVerified: false, recoveryAuthorized: false,
+              candidateIdentity, metadata, previousIdentity: identity(previous, SCOPE.previous),
+              previousOperationMetaPresent: typeof previous.meta?.ltcOperationId === 'string', aliasChecks,
+              discovery: { pages, listed, complete, operationMatches: matches, expectedCandidateMatches: candidateMatches },
+            };
+            result.metadataAndPointersMatch = Object.values(candidateIdentity).every(Boolean) &&
+              Object.values(metadata).every(x => x.matches) && Object.values(result.previousIdentity).every(Boolean) &&
+              Object.values(aliasChecks).every(x => Object.values(x).every(Boolean)) && complete && matches === 1 && candidateMatches === 1;
+            return result;
+          }
+          // END GET-ONLY DIAGNOSTIC
+          import {appendFileSync} from 'node:fs';
+          const safe = new Set(['credential_unavailable','listing_invalid_pagination',...['candidate','previous','alias','listing'].flatMap(p=>['transport_unavailable','read_unavailable','response_too_large','invalid_json','invalid_shape'].map(c=>p+'_'+c))]);
+          try {
+            const result=await inspectStageMetadata({token:process.env.VERCEL_TOKEN});
+            const output=JSON.stringify(result,null,2);console.log(output);appendFileSync(process.env.GITHUB_STEP_SUMMARY,output+'\n');
+            if(!result.metadataAndPointersMatch)process.exitCode=1;
+          } catch(error) {
+            const output=JSON.stringify({kind:'fixed-stage-get-only-diagnostic',stateChanged:false,effectsReissued:false,recoveryAuthorized:false,failure:safe.has(error.message)?error.message:'diagnostic_read_unavailable'});
+            console.log(output);appendFileSync(process.env.GITHUB_STEP_SUMMARY,output+'\n');process.exitCode=1;
+          }
+          NODE
