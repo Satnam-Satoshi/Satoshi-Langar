@@ -1,3 +1,4 @@
+import MoonHomeFeature from './MoonHomeFeature';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
@@ -16,10 +17,11 @@ export default function HomeFront() {
   const issueHref = issue ? editionDateHref(issue.date) : '/conversations/archive/';
 
   return <div className={styles.front}>
+    <MoonHomeFeature primaryHeading/>
     <div className={styles.lead}>
       <section className={styles.community} aria-labelledby="home-title">
         <p className={styles.kicker}>Satnam Satoshi / Community</p>
-        <h1 id="home-title">Many hands.<br/><em>A more open world.</em></h1>
+        <h2 id="home-title">Many hands.<br/><em>A more open world.</em></h2>
         <p>Learn how Bitcoin and Litecoin work, follow the people building with them, and bring what you know to an open table.</p>
         <nav className={styles.communityLinks} aria-label="Start with Satnam Satoshi">
           <a className={styles.start} href="/conversations/start/">Start learning <span aria-hidden="true">↗</span></a>
