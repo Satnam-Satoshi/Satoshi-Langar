@@ -36,13 +36,13 @@
   color: var(--bitcoin-ink);
 }
 
-.community :is(h1,h2) {
+.community h1 {
   margin: 12px 0 14px;
   font: 400 clamp(2.7rem, 5vw, 5.3rem)/.98 var(--font-serif);
   letter-spacing: -.055em;
 }
 
-.community :is(h1,h2) + p {
+.community h1 + p {
   max-width: 38ch;
   margin: 0;
   font-size: clamp(.95rem, 1.35vw, 1.08rem);
@@ -254,7 +254,7 @@
 
 @media (max-width: 680px) {
   .lead { grid-template-columns: 1fr; }
-  .community :is(h1,h2) { font-size: clamp(2.65rem, 10vw, 4rem); }
+  .community h1 { font-size: clamp(2.65rem, 10vw, 4rem); }
   .communityLinks { margin-top: 10px; column-gap: 14px; }
   .communityLinks .issueJump { display: inline-flex; }
   .magazine { padding-block: 18px 6px; }
@@ -282,16 +282,16 @@
 .community .kicker {
   color:#102638
 }
-.community :is(h1,h2) {
+.community h1 {
   font:900 clamp(46px,5.5vw,82px)/.98 var(--font-sans)!important;
   letter-spacing:-.055em
 }
-.community :is(h1,h2) em {
+.community h1 em {
   font-style:normal;
   font-weight:900;
   color:inherit!important
 }
-.community :is(h1,h2)+p {
+.community h1+p {
   color:#102638;
   font-size:17px
 }
@@ -384,7 +384,7 @@
   padding:24px;
   gap:20px
 }
-.community :is(h1,h2) {
+.community h1 {
   font-size:clamp(45px,10vw,70px)!important
 }
 .communityArt img {
