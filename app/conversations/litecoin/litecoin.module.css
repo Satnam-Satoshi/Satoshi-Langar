@@ -10,3 +10,13 @@
 
 /* Approved interior design: bold desk typography and orange section rhythm. */
 .hero{border-top:5px solid #f7931a}.hero h1,.section h2,.closing h2,.sectionHead h2{font-family:var(--font-sans);font-weight:900}.section h3,.projectCards h3,.layerGrid h3{font-family:var(--font-sans);font-weight:800}.sectionHead,.closing{border-top:4px solid #f7931a}
+
+/* Fieldbook completes the same bold hierarchy as the front doors. */
+.hero{background:var(--editorial-card)}
+.hero h1 em,.section h2 em,.closing h2 em{font:inherit;font-style:normal;color:var(--bitcoin-ink)}
+.heroArt{color:var(--litecoin-blue)}
+.heroFoot{background:var(--bitcoin-wash)}
+.index,.newsNumber,.stats strong,.featureLink strong,.closing strong{font-family:var(--font-sans);font-weight:900;letter-spacing:-.04em}
+.jump a{font-weight:700;padding-block:5px}
+.jump a:hover{color:var(--bitcoin-ink)}
+.dataSection h2 em,.closing h2 em{color:var(--on-dark-accent)}
