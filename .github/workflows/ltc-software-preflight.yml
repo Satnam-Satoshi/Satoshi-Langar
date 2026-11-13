@@ -1,0 +1,79 @@
+name: LTC read-only software preflight
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ltc-read-only-software-preflight
+  cancel-in-progress: false
+jobs:
+  inspect:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.actor_id == '268053325'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: ltc-production
+    env:
+      LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
+      LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
+      LTC_VERCEL_CLI_VERSION: ${{ vars.LTC_VERCEL_CLI_VERSION }}
+      LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256 }}
+      LTC_ROUTINE_FOLLOWUP_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_FOLLOWUP_COMPLETION_SHA256 }}
+      LTC_ROUTINE_FOLLOWUP_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_FOLLOWUP_FRESH_PROOF_SHA256 }}
+    steps:
+      - name: Check out independently reviewed diagnostic control
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 726ed81ad8138f9f76fd4ac24c7c327d88a63e7b
+          path: diagnostic
+          persist-credentials: false
+      - name: Check out unchanged exact artifact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 80f0227ba74da75163f8528a3a24a2db54b2da3e
+          path: artifact
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.2
+      - name: Verify pinned checkouts before any service credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C diagnostic rev-parse HEAD)" = 726ed81ad8138f9f76fd4ac24c7c327d88a63e7b
+          test "$(git -C artifact rev-parse HEAD)" = 80f0227ba74da75163f8528a3a24a2db54b2da3e
+          echo 'd33aa79d47054d32e9552adb09e8b4655e9b5e1cc57fae60b966feffb4220ef0  diagnostic/scripts/cloud-ltc-software-preflight.mjs' | sha256sum --check --status
+          node --input-type=module -e "import {verifyImplementation} from './artifact/scripts/cloud-ltc-release.mjs'; await verifyImplementation('artifact', process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256);"
+      - name: Install pinned tools without service credentials
+        run: npm install --global pnpm@11.19.0 vercel@65.9.0
+      - name: Materialize existing private read configuration
+        env:
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_STATE_DOCUMENT_ID: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          LTC_EVIDENCE_OWNER_PERMISSION_ID: ${{ vars.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const folderId=process.env.LTC_STATE_FOLDER_ID,documentId=process.env.LTC_STATE_DOCUMENT_ID,ownerPermissionId=process.env.LTC_EVIDENCE_OWNER_PERMISSION_ID;
+          if(![folderId,documentId,ownerPermissionId].every(id=>/^[A-Za-z0-9_-]{8,160}$/.test(id||'')))throw Error('private_configuration_missing');
+          writeFileSync(process.env.RUNNER_TEMP+'/preflight-state.json',JSON.stringify({schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId,documentId}),{flag:'wx',mode:0o600});
+          writeFileSync(process.env.RUNNER_TEMP+'/preflight-evidence.json',JSON.stringify({folderId,ownerPermissionId}),{flag:'wx',mode:0o600});
+          NODE
+      - name: Read-only named guard diagnosis
+        env:
+          LTC_SOFTWARE_RELEASE_REVIEW_JSON: ${{ secrets.LTC_SOFTWARE_RELEASE_REVIEW_JSON }}
+          LTC_SOFTWARE_RELEASE_REVIEW_SHA256: ${{ vars.LTC_SOFTWARE_RELEASE_REVIEW_SHA256 }}
+          LTC_MIGRATION_ACCEPTANCE_JSON: ${{ secrets.LTC_MIGRATION_ACCEPTANCE_JSON }}
+          LTC_MIGRATION_ACCEPTANCE_SHA256: ${{ vars.LTC_MIGRATION_ACCEPTANCE_SHA256 }}
+          GITHUB_TOKEN: ${{ github.token }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node diagnostic/scripts/cloud-ltc-software-preflight.mjs --root "$GITHUB_WORKSPACE/artifact" --source 80f0227ba74da75163f8528a3a24a2db54b2da3e --state-config "$RUNNER_TEMP/preflight-state.json" --evidence-config "$RUNNER_TEMP/preflight-evidence.json"
