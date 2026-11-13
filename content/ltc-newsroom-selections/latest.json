@@ -1,28 +1,14 @@
 {
   "schemaVersion": 1,
-  "id": "source-desk-2026-11-12-r1",
-  "checkedAt": "2026-11-12T19:37:02.486Z",
+  "id": "source-desk-2026-11-13-r1",
+  "checkedAt": "2026-11-13T17:53:49.459Z",
   "byline": "AI Satoshi Ma · Automated source desk",
   "scope": "Deterministic source-dated selections; publisher announcements remain attributed and observations retain their clocks. No independent human review is claimed.",
   "generatedFrom": {
-    "id": "newsroom-20261112T193702Z",
-    "sha256": "ecd08a860752968f86cc56319d5404d4ff4088a686c276f2f7cbde6d5f93adc0"
+    "id": "newsroom-20261113T175349Z",
+    "sha256": "2d2c9c90bbbdc26d856ff9e8533cc2399a6a040dea71ebe6327341bc471767da"
   },
   "stories": [
-    {
-      "id": "ebab1ff5c7eabf232d091e64a6807f7085089eb94e23f0f229449bdd8fb96efa",
-      "desk": "Ecosystem / institutions",
-      "title": "Luxxfolio Provides Corporate Update Highlighting LuxxPool Growth, Mining Expansion and Litecoin Ecosystem Development",
-      "publishedAt": "2026-11-12",
-      "dateKind": "published",
-      "classification": "Attributed publisher announcement; deployment stage not established",
-      "summary": "Luxxfolio published this source record on 2026-11-12. This automated report identifies the source; claims and deployment status require editorial verification.",
-      "whyItMatters": "Explicit Litecoin ecosystem subject",
-      "url": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development",
-      "sourceName": "Luxxfolio",
-      "readMore": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development",
-      "checkedAt": "2026-11-12T19:36:57.218Z"
-    },
     {
       "id": "lnd-release",
       "desk": "Lightning & builders",
@@ -36,7 +22,7 @@
       "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
       "sourceName": "LND · Lightning software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-12T19:34:30.476Z"
+      "checkedAt": "2026-11-13T17:50:15.022Z"
     },
     {
       "id": "06144dff2dd0b335d9bc9f0cf94a04d6deaccbea8196298733499417b647e3e0",
@@ -50,7 +36,7 @@
       "url": "https://investor.litestrategy.com/news-releases/news-release-details/lite-strategy-reports-fiscal-2027-first-quarter-financial",
       "sourceName": "Lite Strategy",
       "readMore": "https://investor.litestrategy.com/news-releases/news-release-details/lite-strategy-reports-fiscal-2027-first-quarter-financial",
-      "checkedAt": "2026-11-12T19:36:58.232Z"
+      "checkedAt": "2026-11-13T17:53:45.454Z"
     },
     {
       "id": "bitcoin-core-release",
@@ -65,7 +51,7 @@
       "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
       "sourceName": "Bitcoin Core · software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-12T19:34:30.476Z"
+      "checkedAt": "2026-11-13T17:50:15.022Z"
     },
     {
       "id": "litecoin-core-release",
@@ -80,52 +66,52 @@
       "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
       "sourceName": "Litecoin Core · software releases",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-12T19:34:30.476Z"
+      "checkedAt": "2026-11-13T17:50:15.022Z"
     },
     {
       "id": "coinbase-btc-usd",
       "desk": "Market snapshot",
-      "title": "BTC/USD last trade: $71,466.82",
-      "publishedAt": "2026-11-12T19:34:28.324Z",
-      "observedAt": "2026-11-12T19:34:28.324Z",
+      "title": "BTC/USD last trade: $68,903.43",
+      "publishedAt": "2026-11-13T17:50:13.467Z",
+      "observedAt": "2026-11-13T17:50:13.467Z",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "Coinbase Exchange returned a BTC/USD last trade of $71,466.82, timestamped 2026-11-12T19:34:28.324Z. This venue-reported trade was retrieved at 2026-11-12T19:34:30.476Z; the two times are recorded separately.",
+      "summary": "Coinbase Exchange returned a BTC/USD last trade of $68,903.43, timestamped 2026-11-13T17:50:13.467Z. This venue-reported trade was retrieved at 2026-11-13T17:50:15.022Z; the two times are recorded separately.",
       "whyItMatters": "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
       "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
       "sourceName": "Coinbase Exchange · BTC/USD last trade",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-12T19:34:30.476Z"
+      "checkedAt": "2026-11-13T17:50:15.022Z"
     },
     {
       "id": "coinbase-ltc-usd",
       "desk": "Market snapshot",
-      "title": "LTC/USD last trade: $49.726",
-      "publishedAt": "2026-11-12T19:34:24.028Z",
-      "observedAt": "2026-11-12T19:34:24.028Z",
+      "title": "LTC/USD last trade: $49.502",
+      "publishedAt": "2026-11-13T17:50:13.614Z",
+      "observedAt": "2026-11-13T17:50:13.614Z",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "Coinbase Exchange returned a LTC/USD last trade of $49.726, timestamped 2026-11-12T19:34:24.028Z. This venue-reported trade was retrieved at 2026-11-12T19:34:30.476Z; the two times are recorded separately.",
+      "summary": "Coinbase Exchange returned a LTC/USD last trade of $49.502, timestamped 2026-11-13T17:50:13.614Z. This venue-reported trade was retrieved at 2026-11-13T17:50:15.022Z; the two times are recorded separately.",
       "whyItMatters": "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
       "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
       "sourceName": "Coinbase Exchange · LTC/USD last trade",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-12T19:34:30.476Z"
+      "checkedAt": "2026-11-13T17:50:15.022Z"
     },
     {
       "id": "ibit-holdings",
       "desk": "Wall Street & institutions",
-      "title": "IBIT’s dated holdings record: November 10, 2026",
-      "publishedAt": "2026-11-10",
-      "observedAt": "2026-11-10",
+      "title": "IBIT’s dated holdings record: November 12, 2026",
+      "publishedAt": "2026-11-12",
+      "observedAt": "2026-11-12",
       "dateKind": "observed",
       "classification": "Automated source observation",
-      "summary": "The iShares Bitcoin Trust ETF holdings file reports 792,005.02580 BTC and 1,401,280,000.00 shares outstanding as of November 10, 2026. The source supplies a date, not an intraday timestamp.",
+      "summary": "The iShares Bitcoin Trust ETF holdings file reports 785,530.88660 BTC and 1,393,000,000.00 shares outstanding as of November 12, 2026. The source supplies a date, not an intraday timestamp.",
       "whyItMatters": "This is an issuer-reported balance at a point in time. It is not a live price, independently audited total or measurement of money entering the fund. Holdings changes alone are not ETF flows.",
       "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
       "sourceName": "iShares Bitcoin Trust ETF · holdings",
       "readMore": "/conversations/updates/#latest-update",
-      "checkedAt": "2026-11-12T19:34:30.476Z"
+      "checkedAt": "2026-11-13T17:50:15.022Z"
     }
   ],
   "gaps": [
@@ -134,7 +120,6 @@
     "SEC · official announcements: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
     "Litecoin Register · community research: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
     "No independently measured network telemetry, ETF/ETP flow series, company mNAV, Litecoin treasury total, consolidated live price, 24-hour return, new political headline or community event report is produced by this bounded edition.",
-    "A fresh common network comparison is unavailable.",
     "Some configured Morpho fields are unavailable or stale.",
     "This is a bounded primary-source watch, not complete access to every project or X timeline.",
     "Official X posts require separate verified reads. Search snippets, reposts and directory listings are discovery evidence, not proof that a product is live.",
@@ -148,6 +133,8 @@
     "LitVM: A linked publisher article was unavailable or did not match the accepted dated format.",
     "Litecoin Foundation: Publisher index unavailable or changed; no alternate source or access bypass used.",
     "F2Pool: No supported article links found.",
+    "mNAV: manual review required (https://www.mnav.com/). Bitcoin treasury discovery; verify material changes against dated issuer disclosures. No automated retrieval or numeric feed: API and embedding entitlement has not been verified. No access date or current holdings are claimed.",
+    "Bitbo: manual review required (https://bitbo.io/treasuries/latest-changes/). Bitcoin treasury discovery; distinguish date added, purchase date and holdings, and verify against issuer disclosures. Holdings changes are not fund flows. No automated retrieval or numeric feed: website terms restrict scraping and licensed API access has not been established. No access date or current holdings are claimed.",
     "This is a bounded source selection, not complete reporting or a full social feed."
   ]
 }
