@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-11-14",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-11-13T21:04:07.256Z",
+  "checkedAt": "2026-11-13",
+  "title": "The Infrastructure Behind the Silver",
+  "theme": "Litecoin / Infrastructure and treasury",
+  "dek": "LiteForge’s connection changes, the economics inside a listed LTC treasury, and the evidence still needed for Canton’s proposed cLTC.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma / LTC Media · Primary-source review; no independent human fact-check claimed.",
+  "freshnessPolicy": "Prepared November 13 for the November 14 edition. Original announcement and financial snapshot dates are preserved. Undated documentation is an observation, not a new launch.",
+  "independence": "Independent reporting. Issuer figures are attributed, not independently audited. Analysis is educational, not an investment recommendation.",
+  "editionCover": {
+    "kicker": "LTC / WEEKEND BRIEFING",
+    "title": "The Infrastructure Behind the Silver",
+    "subtitle": "LiteForge connections. Treasury economics. Canton’s next proof."
+  },
+  "stories": [
+    {
+      "id": "liteforge-zeeve-builder-checklist",
+      "title": "LiteForge has moved: the connection details builders need.",
+      "desk": "LitVM / Infrastructure",
+      "classification": "Current official documentation; testnet operational guidance",
+      "dek": "Zeeve endpoints replace Caldera infrastructure, but a working testnet is not proof of mainnet or the complete LTC asset route.",
+      "status": "Documentation checked November 13, 2026 · Testnet, not a dated launch",
+      "eventDates": [],
+      "paragraphs": [
+        "LitVM’s current network documentation says LiteForge has migrated from Caldera to Zeeve. It lists chain ID 4441 and zkLTC as the testnet gas symbol. Builders should update saved RPC, explorer and faucet references using the official configuration page rather than carrying old connection settings forward.",
+        "The practical distinction is HTTP versus WebSocket access: the Caldera WebSocket is no longer active, and the documentation directs applications to the published Zeeve HTTP endpoint until a replacement WebSocket is confirmed. A wallet connection alone does not test an application’s indexing, transaction monitoring or retry behavior.",
+        "The V2 design separates native Litecoin ownership from EVM execution and Ethereum settlement. Charms provides the intended Litecoin interoperability route, with Arbitrum infrastructure connecting Ethereum and LitVM. Testnet zkLTC is not evidence that native LTC issuance and redemption across that complete route are available.",
+        "Mainnet connection details and integration-specific security information still require official release documentation. An audit or capability of an underlying component must not be described as an audit or deployed capability of the complete LitVM system."
+      ],
+      "takeaway": "Treat the infrastructure migration as a concrete developer task; require separate evidence for mainnet, asset movement and integrated security.",
+      "discussionPrompt": "Which application checks should builders repeat after changing RPC providers?",
+      "sourceIds": [
+        "litvm-status",
+        "litvm-config",
+        "litvm-architecture"
+      ]
+    },
+    {
+      "id": "lite-strategy-q1-cash-versus-revaluation",
+      "title": "Inside Lite Strategy’s quarter: gains are not the same as cash.",
+      "desk": "Treasury / Company results",
+      "classification": "Analysis of November 10 issuer results",
+      "dek": "A September balance-sheet snapshot distinguishes LTC holdings, option collateral, repurchases and operating cash use.",
+      "status": "Results published November 10 · Quarter ended September 30, 2026",
+      "eventDates": [
+        {
+          "date": "2026-11-10",
+          "label": "Issuer results released"
+        },
+        {
+          "date": "2026-09-30",
+          "label": "Quarter-end treasury snapshot"
+        }
+      ],
+      "paragraphs": [
+        "Lite Strategy reported 751,798 LTC at September 30, valued at $50.5 million, including 64,700 LTC pledged for covered-call options. These are quarter-end figures, not today’s holdings. It reported no outstanding debt.",
+        "Its $16.0 million net income primarily reflected treasury remeasurement. The release separately reports $2.2 million of operating cash use and approximately $130,000 of covered-call premiums. An accounting gain does not establish cash generation.",
+        "The company repurchased approximately 2.2 million shares at an average $1.08 during the quarter. Comparing per-share LTC requires aligned holdings and share-count dates.",
+        "A useful dashboard separates gross LTC, pledged assets, operating cash use and outstanding shares. Option income is not risk-free interest."
+      ],
+      "takeaway": "Read the treasury balance beside cash flow and encumbrances, not as a standalone headline.",
+      "discussionPrompt": "How should investors compare dated treasury disclosures?",
+      "sourceIds": [
+        "lite-strategy-results"
+      ]
+    },
+    {
+      "id": "canton-cltc-evidence-before-liquidity",
+      "title": "cLTC on Canton: what must come after the letter of intent.",
+      "desk": "Canton / Institutional infrastructure",
+      "classification": "Follow-up analysis of October 29 announcement",
+      "dek": "Luxxfolio and Greywick’s proposed liquidity relationship remains distinct from deployed reserves, redemption rights and a completed financial product.",
+      "status": "Historical announcement October 29 · Reviewed November 13, 2026",
+      "eventDates": [
+        {
+          "date": "2026-10-27",
+          "label": "Letter of intent dated"
+        },
+        {
+          "date": "2026-10-29",
+          "label": "Company announcement published"
+        }
+      ],
+      "paragraphs": [
+        "Luxxfolio’s October 29 disclosure describes a letter of intent with Greywick Digital that is non-binding except for confidentiality. Proposed seed liquidity and borrowing applications require further agreements.",
+        "The model would place mined LTC into a reserve and issue cLTC one-for-one. That describes an intended design, not confirmed deposits or token issuance.",
+        "Before calling this operational liquidity, readers should look for definitive terms, reserve addresses, independent attestation, custody arrangements and redemption conditions. The late-2026 launch target remains conditional.",
+        "Tokenization adds counterparty and liquidity exposure. One-for-one backing does not guarantee market price or immediate redemption. This is a follow-up evidence checklist, not a new launch announcement."
+      ],
+      "takeaway": "Track the signed agreement, reserve proof and redemption terms separately from the partnership headline.",
+      "discussionPrompt": "What would establish operational readiness?",
+      "sourceIds": [
+        "luxxfolio-greywick"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "litvm-status",
+      "title": "Network Status",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/other-resources/network-status",
+      "publishedAt": null,
+      "checkedAt": "2026-11-13",
+      "note": "Undated current official status page; checked November 13. No new event date inferred."
+    },
+    {
+      "id": "litvm-config",
+      "title": "Network Configuration",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/get-started-on-testnet/network-configuration",
+      "publishedAt": null,
+      "checkedAt": "2026-11-13",
+      "note": "Official testnet settings, not mainnet settings. Links should be rechecked before use."
+    },
+    {
+      "id": "litvm-architecture",
+      "title": "Architecture",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/overview/architecture",
+      "publishedAt": null,
+      "checkedAt": "2026-11-13",
+      "note": "Design and component roles; deployment and audit status are distinct."
+    },
+    {
+      "id": "lite-strategy-results",
+      "title": "Fiscal 2027 first-quarter results",
+      "publisher": "Lite Strategy",
+      "url": "https://litestrategy.gcs-web.com/node/12511/pdf",
+      "publishedAt": "2026-11-10",
+      "checkedAt": "2026-11-13",
+      "note": "Issuer release. Financial snapshot September 30; no claim of independent audit or current valuation."
+    },
+    {
+      "id": "luxxfolio-greywick",
+      "title": "Luxxfolio and Greywick cLTC letter of intent",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
+      "publishedAt": "2026-10-29",
+      "checkedAt": "2026-11-13",
+      "note": "Older announcement used for clearly labeled follow-up analysis. No completed allocation or launch inferred."
+    }
+  ],
+  "gaps": [
+    "Prepared before publication day; breaking news after November 13 source review is not included.",
+    "No claim to cover every X timeline or ecosystem project.",
+    "Current ETF flows and market prices belong to separately timestamped data collectors, not these historical company figures."
+  ]
+}
