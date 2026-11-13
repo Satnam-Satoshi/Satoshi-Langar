@@ -184,3 +184,19 @@ test('visual acceptance also requires repeated full deployment manifests to agre
  assert.match(visual,/assert\.deepEqual\(await builtOutputManifest\('\.vercel\/output'\)/);
  const config=readFileSync(new URL('../next.config.ts',import.meta.url),'utf8');assert.match(config,/cssChunking: false/);
 });
+
+// Structural regression: before this fix pre-admission exceptions escaped the
+// receipt catch and appeared as successful plan-ready output with no reason.
+test('software receipt catch covers all guarded pre-admission steps', () => {
+ const source = readFileSync(new URL('./cloud-ltc-software-release.mjs', import.meta.url), 'utf8');
+ const start = source.indexOf('  let admission;\n  try {');
+ const end = source.indexOf('  } catch (error)', start);
+ assert.ok(start > source.indexOf('if (!options.publish) return record;'));
+ for (const guard of ['assertSoftwareActionsContext(env);', 'software_review_hash_mismatch', 'readReviewedMigrationConfiguration(env)', 'await controls(github, source', 'await verifySoftwareVisualQa(', 'await state.inspect()', 'assertSoftwareBaseline(baseline)', 'validateSoftwareReview(review', 'assertSoftwarePublicData(rollbackManifest', 'assertVercelProjectPolicy(await vercel', 'await state.acquire(']) {
+  const position = source.indexOf(guard, start);
+  assert.ok(position > start && position < end, guard + ' must be inside receipt catch');
+ }
+ assert.match(source.slice(end), /if \(admission\) await releaseUnusedAdmission\(admission\)/);
+ assert.match(source.slice(end), /await save\(\{ status: 'software-release-withheld', failure:/);
+ assert.match(source.slice(end), /throw Error\(record.failure\)/);
+});

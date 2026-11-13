@@ -61,34 +61,36 @@ export async function runSoftwareRelease(options, env = process.env) {
   await save({ status: 'software-plan-ready' });
   if (!options.publish) return record;
 
-  assertSoftwareActionsContext(env);
-  check(options.stateConfig && options.evidenceConfig, 'software_private_configuration_required');
-  const review = JSON.parse(env.LTC_SOFTWARE_RELEASE_REVIEW_JSON ?? 'null');
-  check(softwareHash(review) === env.LTC_SOFTWARE_RELEASE_REVIEW_SHA256, 'software_review_hash_mismatch');
-  const migration = readReviewedMigrationConfiguration(env);
-  check(migration, 'migration_acceptance_pending');
-  const { github, vercel } = apiClients(env);
-  await controls(github, source, acceptedSource);
-  await verifySoftwareVisualQa(github, review.visualQaRunId, source);
-  const stateConfig = await json(path.resolve(options.stateConfig));
-  const evidenceConfig = await json(path.resolve(options.evidenceConfig));
-  const bindings = migration.pins.stagePins.bindings;
-  check(stateConfig.documentId === bindings.websiteDocumentId && stateConfig.folderId === bindings.folderId && evidenceConfig.folderId === bindings.folderId && evidenceConfig.ownerPermissionId === bindings.ownerPermissionId, 'private_storage_required');
-  const { stateAdapter } = await createGoogleStateRuntime({ config: stateConfig, env });
-  requireDurableAdapter(stateAdapter);
-  const state = new DurableCloudState(stateAdapter, 'website');
-  const baseline = await state.inspect();
-  assertMigrationAcceptance({ document: baseline, configuration: migration, currentControllerImplementationSha256: expected });
-  assertSoftwareBaseline(baseline);
-  git(root, ['merge-base', '--is-ancestor', baseline.latestRelease.source, source]);
-  // --no-renames exposes both old and new names. Mode-only changes also appear.
-  const changedPaths = command(root, 'git', ['diff', '--no-renames', '--name-only', '-z', baseline.latestRelease.source, source]).split('\0').filter(Boolean);
-  const softwareRelease = validateSoftwareReview(review, { source, implementationSha256: expected, manifest, buildOutput, changedPaths, document: baseline, target: TARGET });
-  const rollbackManifest = await loadPreviousReleaseManifest({ state, evidenceConfig, env });
-  assertSoftwarePublicData(rollbackManifest, manifest);
-  assertVercelProjectPolicy(await vercel(`/v9/projects/${TARGET.project}`), TARGET);
+  // Cover every pre-admission guard as well as coordinated effects.
+  // A withheld review must leave a sanitized receipt, not a stale ready plan.
   let admission;
   try {
+    assertSoftwareActionsContext(env);
+    check(options.stateConfig && options.evidenceConfig, 'software_private_configuration_required');
+    const review = JSON.parse(env.LTC_SOFTWARE_RELEASE_REVIEW_JSON ?? 'null');
+    check(softwareHash(review) === env.LTC_SOFTWARE_RELEASE_REVIEW_SHA256, 'software_review_hash_mismatch');
+    const migration = readReviewedMigrationConfiguration(env);
+    check(migration, 'migration_acceptance_pending');
+    const { github, vercel } = apiClients(env);
+    await controls(github, source, acceptedSource);
+    await verifySoftwareVisualQa(github, review.visualQaRunId, source);
+    const stateConfig = await json(path.resolve(options.stateConfig));
+    const evidenceConfig = await json(path.resolve(options.evidenceConfig));
+    const bindings = migration.pins.stagePins.bindings;
+    check(stateConfig.documentId === bindings.websiteDocumentId && stateConfig.folderId === bindings.folderId && evidenceConfig.folderId === bindings.folderId && evidenceConfig.ownerPermissionId === bindings.ownerPermissionId, 'private_storage_required');
+    const { stateAdapter } = await createGoogleStateRuntime({ config: stateConfig, env });
+    requireDurableAdapter(stateAdapter);
+    const state = new DurableCloudState(stateAdapter, 'website');
+    const baseline = await state.inspect();
+    assertMigrationAcceptance({ document: baseline, configuration: migration, currentControllerImplementationSha256: expected });
+    assertSoftwareBaseline(baseline);
+    git(root, ['merge-base', '--is-ancestor', baseline.latestRelease.source, source]);
+    // --no-renames exposes both old and new names. Mode-only changes also appear.
+    const changedPaths = command(root, 'git', ['diff', '--no-renames', '--name-only', '-z', baseline.latestRelease.source, source]).split('\0').filter(Boolean);
+    const softwareRelease = validateSoftwareReview(review, { source, implementationSha256: expected, manifest, buildOutput, changedPaths, document: baseline, target: TARGET });
+    const rollbackManifest = await loadPreviousReleaseManifest({ state, evidenceConfig, env });
+    assertSoftwarePublicData(rollbackManifest, manifest);
+    assertVercelProjectPolicy(await vercel(`/v9/projects/${TARGET.project}`), TARGET);
     const lease = await state.acquire(`software-${env.GITHUB_RUN_ID}-${env.GITHUB_RUN_ATTEMPT}`, 3600000, document => {
       assertSoftwarePromotionWindow(review, state.clock());
       assertMigrationAcceptance({ document, configuration: migration, currentControllerImplementationSha256: expected });
