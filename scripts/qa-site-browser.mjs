@@ -56,7 +56,10 @@ try {
           results.push({ engine, width, route, screenshot: name, overflow: false });
           if (route === '/' || route === '/conversations/' || route === '/conversations/litecoin/') {
             const nav = page.locator(route === '/' ? '.launch-header' : '.publication-header');
+            const menu = nav.locator('details summary');
+            if (width < 500) await menu.click();
             assert.ok(await nav.getByRole('link', {name:'Explore Litecoin', exact:true}).count(), `${route} must expose Explore Litecoin in its header`);
+            if (width < 500) await menu.click();
           }
           if (route === '/conversations/litecoin/') {
             const weight = await page.locator('h1 em').evaluate(el => getComputedStyle(el).fontWeight);
