@@ -19,3 +19,4 @@
 .index,.newsNumber,.stats strong,.featureLink strong,.closing strong{font-family:var(--font-sans);font-weight:900;letter-spacing:-.04em}
 .jump a{font-weight:700;padding-block:5px}
 .jump a:hover{color:var(--bitcoin-ink)}
+.dataSection h2 em,.closing h2 em{color:var(--on-dark-accent)}
