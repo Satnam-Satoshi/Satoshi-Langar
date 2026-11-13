@@ -1,0 +1,157 @@
+# Manual existing-candidate recovery only. Never rebuild, redeploy or replay a daily publisher.
+# Install on main only after exact controller review and coordinated acceptance.
+name: LTC reviewed existing software stage recovery
+on:
+  workflow_dispatch:
+    inputs:
+      controller_source:
+        description: Exact reviewed recovery-controller commit on accepted source branch
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ltc-production-publication
+  cancel-in-progress: false
+jobs:
+  recover:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.actor_id == '268053325' && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: ltc-production
+    env:
+      LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
+      LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
+      LTC_VERCEL_CLI_VERSION: ${{ vars.LTC_VERCEL_CLI_VERSION }}
+      # Local deny flags: no routine publisher or new software staging may run here.
+      LTC_CLOUD_PUBLISH: 'false'
+      LTC_SOFTWARE_RELEASE_ENABLED: 'false'
+      LTC_RECOVERY_CONTROLLER_SOURCE: ${{ inputs.controller_source }}
+      LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256: ${{ vars.LTC_UPLOAD_QUARANTINE_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_COMPLETION_SHA256 }}
+      LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_RETIREMENT_FRESH_PROOF_SHA256 }}
+      LTC_ROUTINE_FOLLOWUP_COMPLETION_SHA256: ${{ vars.LTC_ROUTINE_FOLLOWUP_COMPLETION_SHA256 }}
+      LTC_ROUTINE_FOLLOWUP_FRESH_PROOF_SHA256: ${{ vars.LTC_ROUTINE_FOLLOWUP_FRESH_PROOF_SHA256 }}
+    steps:
+      - name: Require immutable recovery controller identity
+        shell: bash
+        run: '[[ "$LTC_RECOVERY_CONTROLLER_SOURCE" =~ ^[a-f0-9]{40}$ ]]'
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ inputs.controller_source }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.2
+      - name: Verify reviewed source and exact implementation
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          import {readFileSync,lstatSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          if(execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()!==process.env.LTC_RECOVERY_CONTROLLER_SOURCE)throw Error('Recovery controller source mismatch');
+          const expected=process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256;
+          if(!/^[a-f0-9]{64}$/.test(expected||''))throw Error('Accepted implementation digest missing');
+          const config=JSON.parse(readFileSync('config/ltc-cloud-source.json','utf8'));
+          if(config.repository!=='Satnam-Satoshi/Satoshi-Langar'||config.branch!==process.env.LTC_SOURCE_BRANCH||!/^agent\/[a-z0-9][a-z0-9/-]{0,150}$/.test(config.branch)||config.branch.includes('..')||config.branch.includes('//')||config.branch.endsWith('/'))throw Error('Reviewed source branch mismatch');
+          // Reviewed exact data shapes shared by the implementation guard and mutation gate.
+          // Classification is not publication approval: sources and immutable-history checks
+          // must also pass. No directory-wide exclusion or unknown JSON file is permitted.
+          const pointers = new Set([
+            'content/ltc/index.json', 'public/data/ltc-snapshot.json',
+            'content/ltc-community/latest.json', 'content/ltc-newsroom/latest.json',
+            'content/ltc-newsroom-selections/latest.json',
+            'content/research/litecoin-distribution-latest.json',
+          ]);
+          function calendarDate(value) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            const parsed = new Date(`${value}T00:00:00.000Z`);
+            return Number.isFinite(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+          }
+          function routineDataRecord(file) {
+            if (typeof file !== 'string') return null;
+            if (pointers.has(file)) return { kind: 'pointer' };
+            const graphic = /^public\/magazine\/daily\/(\d{4}-\d{2}-\d{2}-r[1-9]\d?)\/(?:social\.(?:png|svg)|graphic\.json)$/.exec(file);
+            if (graphic) return calendarDate(graphic[1].slice(0, 10)) ? { kind: 'graphic', date: graphic[1].slice(0, 10), editionId: graphic[1] } : null;
+            let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/(?:daily-features|ltc-ecosystem)\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);
+            if (match) { const date = match[1] || match[2] || match[3]; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/research|public\/data)\/litecoin-distribution-(\d{4})(\d{2})(\d{2})\.json$/.exec(file);
+            if (match) { const date = `${match[1]}-${match[2]}-${match[3]}`; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/ltc-community\/archive\/|content\/ltc-newsroom\/newsroom-)(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z\.json$/.exec(file);
+            if (match && calendarDate(`${match[1]}-${match[2]}-${match[3]}`) && +match[4] < 24 && +match[5] < 60 && +match[6] < 60) return { kind: 'archive' };
+            return null;
+          }
+          const isRoutineData = file => routineDataRecord(file) !== null;
+          const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).sort();
+          const hash=createHash('sha256');
+          for(const file of files){
+            const info=lstatSync(file);if(!info.isFile()||info.isSymbolicLink())throw Error('Non-regular tracked file');
+            if(isRoutineData(file))continue;
+            hash.update(file+'\0');hash.update(readFileSync(file));hash.update('\0');
+          }
+          if(hash.digest('hex')!==expected)throw Error('Implementation changed; publication withheld');
+          NODE
+      - name: Install pinned readback CLI without service credentials
+        run: npm install --global vercel@65.9.0
+      - name: Materialize existing private resource configuration
+        env:
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_STATE_DOCUMENT_ID: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          LTC_EVIDENCE_OWNER_PERMISSION_ID: ${{ vars.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          const directory=process.env.RUNNER_TEMP;
+          const folderId=process.env.LTC_STATE_FOLDER_ID,documentId=process.env.LTC_STATE_DOCUMENT_ID,ownerPermissionId=process.env.LTC_EVIDENCE_OWNER_PERMISSION_ID;
+          if(![folderId,documentId,ownerPermissionId].every(id=>/^[A-Za-z0-9_-]{8,160}$/.test(id||'')))throw Error('Exact private resource selection required');
+          writeFileSync(directory+'/recovery-state.json',JSON.stringify({schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId,documentId}),{flag:'wx',mode:0o600});
+          writeFileSync(directory+'/recovery-evidence.json',JSON.stringify({folderId,ownerPermissionId}),{flag:'wx',mode:0o600});
+          NODE
+      - name: Resume only the reviewed existing candidate
+        env:
+          LTC_SOFTWARE_STAGE_RECOVERY_REVIEW_JSON: ${{ secrets.LTC_SOFTWARE_STAGE_RECOVERY_REVIEW_JSON }}
+          LTC_SOFTWARE_STAGE_RECOVERY_REVIEW_SHA256: ${{ vars.LTC_SOFTWARE_STAGE_RECOVERY_REVIEW_SHA256 }}
+          LTC_MIGRATION_ACCEPTANCE_JSON: ${{ secrets.LTC_MIGRATION_ACCEPTANCE_JSON }}
+          LTC_MIGRATION_ACCEPTANCE_SHA256: ${{ vars.LTC_MIGRATION_ACCEPTANCE_SHA256 }}
+          GITHUB_TOKEN: ${{ github.token }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {writeFileSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const raw=process.env.LTC_SOFTWARE_STAGE_RECOVERY_REVIEW_JSON;
+          if(!raw||Buffer.byteLength(raw)>65536)throw Error('Recovery review required');
+          let review;try{review=JSON.parse(raw);}catch{throw Error('Recovery review malformed');}
+          const bytes=JSON.stringify(review);
+          if(createHash('sha256').update(bytes).digest('hex')!==process.env.LTC_SOFTWARE_STAGE_RECOVERY_REVIEW_SHA256)throw Error('Recovery review digest mismatch');
+          writeFileSync(process.env.RUNNER_TEMP+'/recovery-review.json',bytes,{flag:'wx',mode:0o600});
+          NODE
+          node scripts/cloud-ltc-resume-software.mjs --review-file "$RUNNER_TEMP/recovery-review.json" --state-config "$RUNNER_TEMP/recovery-state.json" --evidence-config "$RUNNER_TEMP/recovery-evidence.json" --receipt "$RUNNER_TEMP/recovery-receipt.json"
+      - name: Sanitized result
+        if: always()
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync,readFileSync,appendFileSync} from 'node:fs';
+          const file=process.env.RUNNER_TEMP+'/recovery-receipt.json';if(!existsSync(file))process.exit(0);
+          const r=JSON.parse(readFileSync(file,'utf8'));
+          const summary={published:r.published===true,dailyPublished:false};
+          for(const key of ['source','controllerSource'])if(/^[a-f0-9]{40}$/.test(r[key]||''))summary[key]=r[key];
+          for(const key of ['artifactManifestSha256','buildOutputSha256'])if(/^[a-f0-9]{64}$/.test(r[key]||''))summary[key]=r[key];
+          if(/^dpl_[A-Za-z0-9]{1,156}$/.test(r.deployment||''))summary.deployment=r.deployment;
+          const codes=new Set(['acceptance_cli_failed','acceptance_protected_read_binding_failed','invalid_candidate_manifest','candidate_identity_failed','invalid_protected_http_response','unexpected_artifact_status','reviewed_redirect_changed','redirect_target_missing_from_manifest','deployed_artifact_mismatch','software_api_invalid','protected_manifest_check_failed','software_recovery_details_withheld']);
+          const p=r.protectedFailure;
+          if(p&&codes.has(p.code)){
+            if(p.phase==='protected-manifest'&&Number.isSafeInteger(p.ordinal)&&Number.isSafeInteger(p.total)&&p.ordinal>0&&p.ordinal<=p.total&&p.total<=8192&&typeof p.file==='string'&&p.file.length<=500&&!/[\\\x00-\x1f\x7f]/.test(p.file)&&!p.file.split('/').some(part=>!part||part==='.'||part==='..')&&/^[a-f0-9]{64}$/.test(p.expectedSha256))summary.protectedFailure={phase:p.phase,ordinal:p.ordinal,total:p.total,file:p.file,expectedSha256:p.expectedSha256,code:p.code,httpStatus:Number.isInteger(p.httpStatus)&&p.httpStatus>=100&&p.httpStatus<=599?p.httpStatus:null};
+            if(p.phase==='api-handler'&&['/api/market-prices','/api/litecoin-chain','/api/litecoin-register','/api/morpho-markets'].includes(p.route))summary.protectedFailure={phase:p.phase,route:p.route,code:p.code};
+          }
+          summary.requiresJournalReconciliation=r.requiresJournalReconciliation===true;
+          if(['not-attempted','unconfirmed','rolled-back','published'].includes(r.publicationOutcome))summary.publicationOutcome=r.publicationOutcome;
+          summary.status=r.published===true?'software-recovery-published':'software-recovery-not-confirmed';
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY,JSON.stringify(summary,null,2)+'\n');
+          NODE

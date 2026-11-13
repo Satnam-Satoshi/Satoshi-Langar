@@ -15,7 +15,7 @@
   break-inside: avoid;
 }
 .heading { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--plate-rule); }
-.eyebrow, .editionLabel, .artLabel { font: 600 10px/1.5 system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.eyebrow, .editionLabel, .artLabel { font: 600 10px/1.5 var(--font-sans); letter-spacing: .12em; text-transform: uppercase; }
 .eyebrow { color: var(--plate-cobalt); }
 .editionLabel { color: var(--plate-muted); font-weight: 400; letter-spacing: .06em; }
 .plate { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 25px; align-items: center; }
@@ -23,15 +23,15 @@
 .artLabel { display: block; text-align: center; color: var(--plate-muted); font-size: 8px; font-weight: 400; letter-spacing: .075em; }
 .illustration { display: block; width: 100%; height: auto; color: var(--plate-ink); }
 .insight { padding: 25px 0; }
-.insight h3 { font: 500 clamp(25px, 3vw, 39px)/1.04 Georgia, 'Times New Roman', serif; letter-spacing: -.035em; text-wrap: balance; margin: 0 0 17px; color: var(--plate-ink); }
-.insight > p { font: 400 13px/1.75 system-ui, sans-serif; color: var(--plate-muted); margin: 0; }
+.insight h3 { font: 500 clamp(25px, 3vw, 39px)/1.04 var(--font-serif); letter-spacing: -.035em; text-wrap: balance; margin: 0 0 17px; color: var(--plate-ink); }
+.insight > p { font: 400 13px/1.75 var(--font-sans); color: var(--plate-muted); margin: 0; }
 .caption { border-top: 1px solid var(--plate-rule); }
 .steps { list-style: none; margin: 0; padding: 22px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 25px; }
 .steps li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 9px; margin: 0; padding: 0; }
-.number { font: italic 22px/1 Georgia, 'Times New Roman', serif; color: var(--plate-terra); }
-.steps strong { font: 700 12px/1.5 system-ui, sans-serif; display: block; margin-bottom: 5px; color: var(--plate-ink); }
-.steps p { font: 400 11px/1.7 system-ui, sans-serif; color: var(--plate-muted); margin: 0; }
-.check { border-top: 1px solid var(--plate-rule); margin: 0; padding: 13px 0 15px; display: flex; gap: 17px; align-items: baseline; font: 400 11px/1.65 system-ui, sans-serif; color: var(--plate-muted); }
+.number { font: italic 22px/1 var(--font-serif); color: var(--plate-terra); }
+.steps strong { font: 700 12px/1.5 var(--font-sans); display: block; margin-bottom: 5px; color: var(--plate-ink); }
+.steps p { font: 400 11px/1.7 var(--font-sans); color: var(--plate-muted); margin: 0; }
+.check { border-top: 1px solid var(--plate-rule); margin: 0; padding: 13px 0 15px; display: flex; gap: 17px; align-items: baseline; font: 400 11px/1.65 var(--font-sans); color: var(--plate-muted); }
 .check > span { flex-shrink: 0; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--plate-cobalt); }
 .registration { fill: none; stroke: var(--plate-rule); stroke-width: 1; }
 .cobalt { color: var(--plate-cobalt); }
@@ -43,11 +43,11 @@
 .arrow { fill: none; stroke: var(--plate-terra); stroke-width: 2; }
 .coinOuter { fill: currentColor; stroke: currentColor; stroke-width: 1.5; }
 .coinInner { fill: none; stroke: var(--plate-paper); stroke-width: 1; }
-.coinMark { fill: var(--plate-paper); font: 40px Georgia, serif; }
+.coinMark { fill: var(--plate-paper); font: 40px var(--font-serif); }
 .stepDot { fill: var(--plate-ink); }
-.stepNumber { fill: var(--plate-paper); font: 600 12px system-ui, sans-serif; }
+.stepNumber { fill: var(--plate-paper); font: 600 12px var(--font-sans); }
 .orbit { fill: none; stroke: var(--plate-rule); stroke-width: 1; }
-.largeType { fill: var(--plate-cobalt); font: 33px Georgia, serif; }
+.largeType { fill: var(--plate-cobalt); font: 33px var(--font-serif); }
 .clockFace { fill: var(--plate-paper); stroke: currentColor; stroke-width: 2; }
 .clockTick { fill: none; stroke: currentColor; stroke-width: 1.5; }
 .clockHands { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }

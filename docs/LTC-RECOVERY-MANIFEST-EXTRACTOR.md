@@ -1,0 +1,21 @@
+# Recovery manifest metadata extractor
+
+`extractRecoveryManifests` is a pure function. It consumes one caller-selected evidence bundle and three independently trusted SHA-256 pins: the inner artifact-package manifest, the static manifest, and the full Build Output manifest. It performs no filesystem operations, downloads, state changes, provider calls, or workflow changes.
+
+The caller must bind the supplied bundle's bytes, length, and SHA-256 to the confirmed artifact-bundle-index-0 receipt. `verifyEvidenceBundle` validates that outer canonical evidence bundle. The extractor requires the unique inner `artifact-manifest.json`, its exact bytes hash, and the package format's bounded schema, file/part paths, ordering, lengths, counts, scope totals, deduplication consistency, and canonical JSON bytes. It reproduces the deterministic chunk grouping from metadata and checks that all entries in the supplied first bundle are precisely the expected first group.
+
+Static and build-output file/hash lists use the existing locale sort order and are checked against the two independent digest pins. Build Output static entries must equal the static list. The extractor preserves the existing output-directory path boundary but does not introduce function configuration or routing schemas.
+
+The result is metadata only. It does not reconstruct or verify missing archive part contents, assemble multipart file hashes, prove that the other bundles exist or are downloadable, verify deployed protected bytes, verify APIs, or authorize recovery. Parts present in bundle zero are checked by `verifyEvidenceBundle`; missing parts are not replaced with assertions of content integrity. The result explicitly returns `archiveContentsRestored: false`, `protectedBytesVerified: false`, and `recoveryAuthorized: false`. `archiveBundleCount` is the count implied by canonical metadata grouping, not a claim that those bundles were retrieved.
+
+Full `restoreArtifactEvidence` remains unchanged and is still required when actual source/artifact bytes must be reconstructed. This helper supplies only pinned manifest metadata for a separately reviewed recovery path to verify the existing staged deployment.
+
+Tests use `packageArtifactEvidence` itself to produce a multi-bundle fixture and prove that the first bundle alone is sufficient. They also cover corrupted digests, wrong/missing bundles, altered pins, unknown schema, noncanonical JSON, paths, duplicates, file counts, part inconsistencies, dedup conflicts, and static/output mismatches. Run `node --test scripts/test-cloud-ltc-recovery-manifest.mjs`.
+
+## Selective original software review
+
+`planSoftwareReviewEvidence(bundleZero, pins)` uses the same validation and selects only `evidence/software-review.json`. It returns its exact file/part metadata, `bundleIndexes` containing the needed groups, and `downloadBundleIndexes` excluding the already-held index 0. No arbitrary path argument exists. The review file is bounded to 2,500,000 bytes.
+
+`assembleSoftwareReviewEvidence(bundleZero, downloads, pins)` recomputes that plan rather than trusting an externally modified plan. `downloads` must be exactly the additional required entries, each `{index, bundle, expectedSha256}`. The runtime must obtain `expectedSha256` from the independently verified matching bundle receipt, not from a downloaded response. Each complete provided bundle is canonically verified and must match its expected metadata group. The assembler rejects missing, extra, duplicate, wrong-index, and corrupt bundles or parts, then checks the complete selected file length and SHA-256.
+
+The selected bytes must be precisely the canonical `JSON.stringify({review, softwareRelease})` object pair written by the accepted software release, with both values objects and no extra top-level keys. It returns `originalReview` and `originalContext` respectively. This validates stored bytes and JSON shape only, not the review's authority, time window, original context semantics, or permission to recover. The consumer must independently validate those. Only `reviewFileBytesVerified` becomes true; full archive restoration, deployed protected-byte verification, and recovery authorization remain false. Unneeded bundles are neither accepted as downloads nor requested by the plan.

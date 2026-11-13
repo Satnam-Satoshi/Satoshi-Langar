@@ -1,0 +1,22 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{readFileSync,existsSync}from'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const x=JSON.parse(read('content/specials/litecoin-to-the-moon-r2.json'));
+test('Moon r2 preserves October source record and existing deep links',()=>{assert.equal(read('content/specials/litecoin-to-the-moon-r1.json'),read('public/magazine/litecoin-to-the-moon/revision-1.json'));assert.equal(x.id,'litecoin-to-the-moon-r2');assert.equal(x.researchThrough,'2026-11-12');for(const id of ['canton','luxxfolio','litvm','europe','fidelity','numbers'])assert.ok(x.sections.some(s=>s.id===id))});
+test('all chapter and timeline evidence references resolve',()=>{const ids=x.sources.map(s=>s.id);assert.equal(new Set(ids).size,ids.length);for(const section of [...x.sections,...x.timeline])for(const id of section.sourceIds)assert.ok(ids.includes(id),id);for(const s of x.sources)assert.ok(s.checkedAt<=x.researchThrough)});
+test('Moon refresh has honest stage labels and connected reader journey',()=>{const text=JSON.stringify(x);for(const term of ['In build','old Caldera WebSocket endpoint is no longer active','Ethereum settlement','September 30','directory','Best Layer-1 Blockchain'])assert.ok(text.includes(term));const map=read('app/components/MoonRouteMap.tsx');for(const href of ['https://litecoinregister.com/','/conversations/daily/','/conversations/specials/litvm-family/#project-guide'])assert.ok(map.includes(href));assert.ok(existsSync(new URL('../public/magazine/litecoin-to-the-moon/cover-r2.png',import.meta.url)))});
+
+test('Moon home date and full-cover shelf presentation match revision 2',()=>{const home=read('app/components/HomeFront.tsx');assert.match(home,/Updated <time dateTime="2026-11-12">November 12, 2026/);assert.doesNotMatch(home,/dateTime="2026-10-30"/);const shelf=read('app/components/EditorialSpecialShelf.tsx');assert.ok(shelf.includes("data-full-cover={special.slug==='litecoin-to-the-moon'||undefined}"));assert.ok(shelf.includes("{special.slug!=='litecoin-to-the-moon'&&<div>"));assert.match(read('app/conversations/specials/editorial.module.css'),/\.smallCover\[data-full-cover\]>img\{object-fit:contain\}/)});
+
+test('preserved Moon archive is included in portable public export',()=>{assert.ok(read('scripts/portable-export.mjs').includes("'magazine/litecoin-to-the-moon/revision-1.json'"))});
+
+test('both homepages keep treasury research links beside Litecoin Register',()=>{for(const page of ['app/page.tsx','app/conversations/page.tsx']){const text=read(page);assert.match(text,/Litecoin Register ↗<\/a><a href="https:\/\/www\.mnav\.com\/">mNAV ↗<\/a><a href="https:\/\/bitbo\.io\/treasuries\/latest-changes\/">/)}const shared=read('app/components/CommunityJourney.tsx');for(const url of ['https://litecoinregister.com/','https://www.mnav.com/','https://bitbo.io/treasuries/latest-changes/'])assert.ok(shared.includes(url));assert.ok(shared.includes('not live data feeds'));assert.match(read('app/components/community-journey.module.css'),/\.researchLinks\{display:flex;flex-wrap:wrap/);assert.match(read('app/components/HomeFront.tsx'),/<RegisterInvitation\/>/);assert.match(read('app/conversations/page.tsx'),/<RegisterInvitation\/>/)});
+
+test('Moon is the primary homepage feature while the daily issue remains accessible',()=>{
+ const home=read('app/components/HomeFront.tsx'),magazine=read('app/conversations/page.tsx'),feature=read('app/components/MoonHomeFeature.tsx');
+ assert.ok(home.indexOf('<MoonHomeFeature primaryHeading/>')<home.indexOf('<div className={styles.lead}>'));
+ assert.ok(magazine.indexOf('<MoonHomeFeature/>')<magazine.indexOf('<section id="daily"'));
+ assert.ok(feature.includes('data-primary-feature="litecoin-to-the-moon"'));assert.ok(feature.includes('editionDateHref(latestLtcEdition.date)'));
+ assert.ok(read('scripts/qa-site-browser.mjs').includes('Moon must precede the daily issue as the first main section'));
+});
+
+test('primary daily-link QA resolves both portable homepage URL forms',()=>{for(const [base,href]of [['https://satnamsatoshi.com/','conversations/editions/2026-11-12/index.html'],['https://satnamsatoshi.com/conversations/','editions/2026-11-12/index.html']])assert.ok(new URL(href,base).pathname.startsWith('/conversations/editions/'));assert.ok(read('scripts/qa-site-browser.mjs').includes('new URL(link.href).pathname'));});

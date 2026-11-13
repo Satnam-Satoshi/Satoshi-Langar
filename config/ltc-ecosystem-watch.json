@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "agent": "LTC ecosystem news desk",
+  "timezone": "America/New_York",
+  "maximumArticlesPerIndex": 3,
+  "maximumCandidates": 24,
+  "freshDays": 7,
+  "sources": [
+    {"id":"core","publisher":"Litecoin Core","category":"core","mode":"github-release","url":"https://api.github.com/repos/litecoin-project/litecoin/releases/latest","repository":"litecoin-project/litecoin","relevance":"direct"},
+    {"id":"foundation-projects","publisher":"Litecoin Foundation","category":"community","mode":"reference","url":"https://litecoin.com/projects","relevance":"direct"},
+    {"id":"litvm-status","publisher":"LitVM","category":"scaling","mode":"reference","url":"https://docs.litvm.com/other-resources/network-status","relevance":"direct"},
+    {"id":"litvm-config","publisher":"LitVM","category":"scaling","mode":"reference","url":"https://docs.litvm.com/get-started-on-testnet/network-configuration","relevance":"direct"},
+    {"id":"litvm-directory","publisher":"LitVM","category":"builders","mode":"reference","url":"https://testnet.litvm.com/","relevance":"direct"},
+    {"id":"greywick-cltc","publisher":"Greywick Digital","category":"institutions","mode":"reference","url":"https://greywick.digital/cltc","relevance":"direct"},
+    {"id":"soqupool","publisher":"LuxxPool","category":"mining","mode":"reference","url":"https://luxxpool.luxxlabs.ca/soqupool.html","relevance":"direct"},
+    {"id":"f2pool","publisher":"F2Pool","category":"mining","mode":"html-index","url":"https://f2pool.io/mining/updates/","articlePrefix":"/mining/updates/","relevance":"keyword"},
+    {"id":"litestrategy","publisher":"Lite Strategy","category":"institutions","mode":"html-index","url":"https://investor.litestrategy.com/press-releases","articlePrefix":"/news-releases/news-release-details/","relevance":"direct"},
+    {"id":"canary-ltcc","publisher":"Canary Capital","category":"etfs","mode":"reference","url":"https://canaryetfs.com/ltcc/","relevance":"direct"},
+    {"id":"grayscale-ltcn","publisher":"Grayscale","category":"etfs","mode":"reference","url":"https://www.grayscale.com/funds/grayscale-litecoin-trust","relevance":"direct"},
+    {"id":"strike","publisher":"Strike","category":"payments","mode":"html-index","url":"https://strike.me/gb/en/blog/","articlePrefix":"/gb/en/blog/","relevance":"keyword"}
+  ],
+  "gaps": [
+    "This is a bounded primary-source watch, not complete access to every project or X timeline.",
+    "Official X posts require separate verified reads. Search snippets, reposts and directory listings are discovery evidence, not proof that a product is live.",
+    "ETF product pages are change watches only. Holdings, flows, NAV and prices remain with the existing verified financial-data collectors.",
+    "A reference-page hash change is an observation for editorial review, not a dated announcement or verified launch.",
+    "Cross-publisher reposts without the same canonical event URL require editorial deduplication before publication."
+  ]
+}

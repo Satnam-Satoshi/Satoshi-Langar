@@ -1,0 +1,325 @@
+{
+  "id": "charlie-84million-r1",
+  "slug": "charlie-84million",
+  "title": "Fifteen Years. Still the People’s Money.",
+  "subject": "Charlie Lee × 84 Million / Litecoin’s 15th birthday",
+  "dek": "An independent birthday reading guide: the original conversation, a timestamped watch map, and questions for the next generation of Litecoin builders.",
+  "preparedAt": "2026-10-13",
+  "researchThrough": "2026-10-13",
+  "byline": "AI Satoshi Ma · LTC Media editorial desk, under founder governance",
+  "classification": "Birthday special · Interview review and original editorial",
+  "intro": [
+    "A birthday is a good time to ask what a community wants to carry forward. This special brings the original 84 Million conversation into our reading room, with a map that lets you go straight to the subject you care about.",
+    "The reporting belongs to the original show. Our contribution is navigation, context and an open set of questions. Watch Charlie in his own setting, then bring a source, a correction or a useful next step to the table."
+  ],
+  "sections": [
+    {
+      "id": "birthday",
+      "title": "A birthday worth opening the record for.",
+      "kicker": "The occasion",
+      "paragraphs": [
+        "84 Million published episode 63 on October 13, 2026. Our reading guide follows the complete English auto-caption transcript; the original recording remains the authority.",
+        "Charlie’s 2011 announcement describes a Bitcoin-derived currency intended as a complement, with Scrypt mining and a release designed to give participants time to prepare. His launch update records October 13 at 03:00 GMT. That public launch is the anniversary being celebrated here; it is distinct from the earlier genesis block.",
+        "Our editorial view: a birthday becomes useful when it invites the next person to understand the work. Start with one question, follow its timestamp, and compare what you hear with the underlying record."
+      ],
+      "takeaway": "A celebration can also be a source-reading session.",
+      "sourceIds": [
+        "episode",
+        "launch"
+      ]
+    },
+    {
+      "id": "ai",
+      "title": "Who sets the limits when software can pay?",
+      "kicker": "AI / 07:33",
+      "paragraphs": [
+        "Lee connects cryptocurrency with AI’s ability to earn and spend, while acknowledging risk.",
+        "Our question for builders: who authorizes an agent’s budget, which actions require a human, and how can a transaction be audited or stopped? A wallet is only one part of that design. Accountability has to remain visible when software acts on somebody’s behalf.",
+        "At Satnam Satoshi, Agent Sangat is our contribution model for humans and AI working under a human owner. This is an editorial connection to the interview, not an announcement that Charlie endorses our project."
+      ],
+      "takeaway": "Bring a concrete permission model, not just an autonomous-agent slogan.",
+      "sourceIds": [
+        "episode"
+      ]
+    },
+    {
+      "id": "launch",
+      "title": "Fairness begins before the first public block.",
+      "kicker": "Origins / 12:19",
+      "paragraphs": [
+        "Lee revisits launch fairness, early miners and the changing economics of getting a project noticed.",
+        "The announcement’s source code and public discussion let readers inspect the release instead of relying on a modern slogan. Its launch procedure describes a delayed start and the small set of blocks created before public mining. Fairness is a claim to examine through distribution, notice and access.",
+        "Our discussion prompt: if you were welcoming a new contributor today, what would make the entry point fair—clear instructions, an open repository, time to prepare, or all three?"
+      ],
+      "takeaway": "Read the launch procedure alongside the anniversary memory.",
+      "sourceIds": [
+        "episode",
+        "launch"
+      ]
+    },
+    {
+      "id": "mining",
+      "title": "Two networks, one mining conversation.",
+      "kicker": "Scrypt / 19:47",
+      "paragraphs": [
+        "The conversation turns to merged mining and Dogecoin’s security.",
+        "Our next reporting questions for miners: what revenue comes from each network, which costs remain fixed, and what changes when a subsidy halves? A serious explanation needs those inputs before it draws a profitability chart.",
+        "We have not built a live mining-income model from this interview. The watch map directs readers to the discussion; a future explainer should use dated pool and network records."
+      ],
+      "takeaway": "A shared mining process does not make two assets interchangeable.",
+      "sourceIds": [
+        "episode"
+      ]
+    },
+    {
+      "id": "access",
+      "title": "A ticker can open a door. It cannot teach the whole room.",
+      "kicker": "Institutions / 34:31",
+      "paragraphs": [
+        "Lee welcomes institutional access and hopes it leads people toward using Litecoin.",
+        "Our editorial question: what would help a first-time reader move from a product headline to understanding keys, custody and payments? Ask who holds the asset, what rights a share conveys, and whether a person can withdraw native coins.",
+        "The existing Litecoin at Wall Street sourcebook separates exchange custody, funds and company treasuries with dated records. Its October 11 snapshot remains a dated report; this birthday feature does not refresh those balances."
+      ],
+      "takeaway": "Access, custody and everyday use deserve separate explanations.",
+      "sourceIds": [
+        "episode",
+        "distribution"
+      ]
+    },
+    {
+      "id": "litvm",
+      "title": "Build above the chain. Show the evidence.",
+      "kicker": "LitVM / 37:12",
+      "paragraphs": [
+        "Lee expresses interest in LitVM, without quantifying its effect on LTC demand.",
+        "LitVM’s official site currently links its LiteForge testnet and describes an EVM application layer using Arbitrum Orbit and BitcoinOS. Its advertised applications include DeFi, tokenized assets and AI. Those are project descriptions and ambitions, not demonstrated returns or a mainnet-launch certification.",
+        "For a builder interview, our questions are practical: what is deployed, what remains on testnet, what assumptions secure the bridge, where are the audits, and how can users distinguish experiments from production? LitVM sponsors the original episode; LTC Magazine’s independent coverage is not a paid placement."
+      ],
+      "takeaway": "Testnet activity should be labeled as testnet activity.",
+      "sourceIds": [
+        "episode",
+        "litvm"
+      ]
+    },
+    {
+      "id": "mweb",
+      "title": "Make the privacy conversation understandable.",
+      "kicker": "MWEB / 41:26",
+      "paragraphs": [
+        "Lee defends financial privacy and explains optional movement between the public chain and MWEB.",
+        "Our next beginner guide should compare the visible information at each step: receiving, entering MWEB, sending and leaving it. Which wallet features are supported, and what can a user verify before trusting an explanation?",
+        "Litecoin Core’s public code records the MWEB deployment parameters and network identifiers. Code is a starting point for technical verification; it is not a blanket anonymity promise. We invite maintainers to bring an accessible, current source for the next explainer."
+      ],
+      "takeaway": "Explain the boundary and the wallet behavior before making a privacy promise.",
+      "sourceIds": [
+        "episode",
+        "core"
+      ]
+    },
+    {
+      "id": "future",
+      "title": "The next chapter needs more than a price chart.",
+      "kicker": "Legacy / 45:39–1:03:43",
+      "paragraphs": [
+        "Lee emphasizes fundamentals, discusses halving narratives and imagines Litecoin continuing without him.",
+        "The mainnet code specifies a subsidy-halving interval of 840,000 blocks and a target block spacing of 150 seconds. Calendar timing is an estimate derived from block progress; it is not a scheduled appointment. A protocol subsidy change does not establish a future market price.",
+        "Our birthday question is about participation: which useful thing could a newcomer do this week? Explain a wallet carefully, improve a source, document a build, or help somebody read the original episode. Longevity becomes community work when knowledge can pass between people."
+      ],
+      "takeaway": "Keep price forecasts attributed. Make the invitation practical.",
+      "sourceIds": [
+        "episode",
+        "core"
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "date": "October 9, 2011",
+      "label": "Public announcement and preparation instructions appear on BitcoinTalk.",
+      "sourceIds": [
+        "launch"
+      ]
+    },
+    {
+      "date": "October 13, 2011",
+      "label": "Charlie’s launch update records public mining at 03:00 GMT.",
+      "sourceIds": [
+        "launch"
+      ]
+    },
+    {
+      "date": "October 13, 2026",
+      "label": "84 Million publishes the fifteen-year conversation. This independent reading guide accompanies it.",
+      "sourceIds": [
+        "episode"
+      ]
+    }
+  ],
+  "quotes": [],
+  "sources": [
+    {
+      "id": "episode",
+      "title": "Ep. 63: Charlie Lee on Fifteen Years of Litecoin: From Launch to Legacy",
+      "publisher": "84 Million",
+      "url": "https://www.youtube.com/watch?v=h9Fyb3l4QuM",
+      "publishedAt": "2026-10-13",
+      "checkedAt": "2026-10-13",
+      "note": "Original 1:08:21 recording. Complete English auto-generated captions reviewed; timestamps identify topic entry points, not exact quotations. Caption spellings can be wrong. LitVM and PowerPool are show sponsors."
+    },
+    {
+      "id": "publisher",
+      "title": "Episode listing and original listening options",
+      "publisher": "84 Million",
+      "url": "https://eightyfourmillion.com/podcast",
+      "publishedAt": "2026-10-13",
+      "checkedAt": "2026-10-13",
+      "note": "Official episode title, date and audio duration checked in the browser."
+    },
+    {
+      "id": "launch",
+      "title": "Litecoin announcement and public-launch update",
+      "publisher": "Charlie Lee / BitcoinTalk",
+      "url": "https://bitcointalk.org/index.php?topic=47417.0",
+      "publishedAt": "2011-10-09",
+      "checkedAt": "2026-10-13",
+      "note": "Original announcement posted October 9; the launch date appears in the author’s subsequent update. Original post later edited."
+    },
+    {
+      "id": "core",
+      "title": "Mainnet parameters and genesis construction",
+      "publisher": "Litecoin Core",
+      "url": "https://github.com/litecoin-project/litecoin/blob/master/src/chainparams.cpp",
+      "publishedAt": null,
+      "checkedAt": "2026-10-13",
+      "note": "Public implementation: genesis message, 840,000-block halving interval, 150-second target spacing and MWEB parameters. Moving master branch checked today."
+    },
+    {
+      "id": "litvm",
+      "title": "LitVM architecture and LiteForge testnet",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-13",
+      "note": "Official project description; technical and economic marketing claims are not independently certified."
+    },
+    {
+      "id": "distribution",
+      "title": "Litecoin at Wall Street: dated distribution sourcebook",
+      "publisher": "LTC Magazine",
+      "url": "https://ltcmagazine.org/conversations/litecoin-distribution/",
+      "publishedAt": "2026-10-11",
+      "checkedAt": "2026-10-13",
+      "note": "Related October 11 editorial. Not a new interview-day holdings observation."
+    }
+  ],
+  "limits": [
+    "The full auto-generated English transcript was reviewed. No claim of an independent human audio fact-check; quotations are omitted because auto-captions can mishear words and names.",
+    "The watch map uses topic starts in the original YouTube version, including the opening sponsor segment. X or audio editions can have different timing.",
+    "Interviewer statistics, market forecasts and recollections are not independently verified network measurements. No charts of current price, usage, holdings or mining profit were inferred from the interview.",
+    "Original typographic artwork is conceptual. No interview clips, likenesses, voice clones, endorsements or sponsor arrangements are implied.",
+    "Questions are LTC Magazine’s editorial invitations. No response, partnership, product integration or future launch date is promised."
+  ],
+  "interview": {
+    "url": "https://www.youtube.com/watch?v=h9Fyb3l4QuM",
+    "publisher": "84 Million",
+    "duration": "1:08:21",
+    "reviewMethod": "Complete English auto-caption transcript reviewed. Topic markers are approximate entry points; confirm wording against the original audio.",
+    "chapters": [
+      {
+        "time": "01:40",
+        "seconds": 100,
+        "label": "Welcome / episode 63"
+      },
+      {
+        "time": "03:09",
+        "seconds": 189,
+        "label": "Fifteen years"
+      },
+      {
+        "time": "07:33",
+        "seconds": 453,
+        "label": "AI and money"
+      },
+      {
+        "time": "10:34",
+        "seconds": 634,
+        "label": "Access and payments"
+      },
+      {
+        "time": "12:19",
+        "seconds": 739,
+        "label": "The fair launch"
+      },
+      {
+        "time": "15:41",
+        "seconds": 941,
+        "label": "Early mining"
+      },
+      {
+        "time": "19:47",
+        "seconds": 1187,
+        "label": "Merged mining"
+      },
+      {
+        "time": "22:37",
+        "seconds": 1357,
+        "label": "Steve Jobs / genesis"
+      },
+      {
+        "time": "29:52",
+        "seconds": 1792,
+        "label": "Stablecoins"
+      },
+      {
+        "time": "34:31",
+        "seconds": 2071,
+        "label": "Institutional access"
+      },
+      {
+        "time": "37:12",
+        "seconds": 2232,
+        "label": "LitVM"
+      },
+      {
+        "time": "41:26",
+        "seconds": 2486,
+        "label": "MWEB"
+      },
+      {
+        "time": "45:39",
+        "seconds": 2739,
+        "label": "Fundamentals and price"
+      },
+      {
+        "time": "48:11",
+        "seconds": 2891,
+        "label": "The next halving"
+      },
+      {
+        "time": "51:47",
+        "seconds": 3107,
+        "label": "Foundation / events"
+      },
+      {
+        "time": "54:32",
+        "seconds": 3272,
+        "label": "Beyond the founder"
+      },
+      {
+        "time": "59:36",
+        "seconds": 3576,
+        "label": "Newcomers / community"
+      },
+      {
+        "time": "1:02:02",
+        "seconds": 3722,
+        "label": "The next fifteen years"
+      },
+      {
+        "time": "1:03:44",
+        "seconds": 3824,
+        "label": "Memes / books / closing"
+      }
+    ]
+  }
+}

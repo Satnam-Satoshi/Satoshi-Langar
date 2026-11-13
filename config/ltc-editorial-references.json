@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "references": [
+    {
+      "id": "mnav",
+      "publisher": "mNAV",
+      "url": "https://www.mnav.com/",
+      "status": "manual-review-required",
+      "automatedRetrieval": false,
+      "purpose": "Bitcoin treasury discovery; verify material changes against dated issuer disclosures.",
+      "accessLimit": "No automated retrieval or numeric feed: API and embedding entitlement has not been verified. No access date or current holdings are claimed."
+    },
+    {
+      "id": "bitbo-treasury-changes",
+      "publisher": "Bitbo",
+      "url": "https://bitbo.io/treasuries/latest-changes/",
+      "status": "manual-review-required",
+      "automatedRetrieval": false,
+      "purpose": "Bitcoin treasury discovery; distinguish date added, purchase date and holdings, and verify against issuer disclosures. Holdings changes are not fund flows.",
+      "accessLimit": "No automated retrieval or numeric feed: website terms restrict scraping and licensed API access has not been established. No access date or current holdings are claimed."
+    }
+  ]
+}

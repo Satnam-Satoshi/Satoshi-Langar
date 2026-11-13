@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-10-11",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-10-11T21:38:14Z",
+  "checkedAt": "2026-10-11",
+  "title": "Who holds. Who builds.",
+  "theme": "Proof of Work",
+  "dek": "Litecoin at Wall Street: custody, investment products, treasuries and the people building beyond the ticker.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "Prepared and source-checked by AI Satoshi Ma for LTC Media, a Satnam Satoshi project. Not independently reviewed by a human editor.",
+  "freshnessPolicy": "Research checkpoint October 11. Source dates preserved. The 30-day distribution editorial is a dated, attributed Register derivative, not an issuer-verified live feed.",
+  "independence": "LTC Media is an independent Satnam Satoshi project. Source links do not imply affiliation with the Litecoin Foundation, Coinbase, Circle, Morpho, Bitcoin developers or a government agency.",
+  "stories": [
+    {
+      "id": "register",
+      "title": "Who holds is not who owns.",
+      "desk": "Markets & custody",
+      "classification": "Reported fact \u00b7 Source-based educational briefing",
+      "dek": "The Register is a map of reported custody, investment and treasury records, not a census of unique coins.",
+      "status": "Sources checked October 11 \u00b7 Historical events retain their dates",
+      "eventDates": [],
+      "paragraphs": [
+        "The October 11 dataset supports a 30-day view from September 11, carrying the last available observation forward. Missing baseline observations remain unknown. Exchange customer assets and company-owned treasury coins answer different questions.",
+        "Read the distribution charts and all numerical holder rows in our new editorial. We label the source, cutoffs, stale dates and coverage changes; a record difference does not establish buying demand."
+      ],
+      "takeaway": "Follow the dated original evidence and keep custody, exposure and operating plans distinct.",
+      "discussionPrompt": "Which original record would change your understanding?",
+      "sourceIds": [
+        "register"
+      ]
+    },
+    {
+      "id": "wall-street",
+      "title": "A wrapper changes the question.",
+      "desk": "ETFs & ETPs",
+      "classification": "Reported fact \u00b7 Source-based educational briefing",
+      "dek": "Fund shares, trust shares and directly held coins are different arrangements.",
+      "status": "Sources checked October 11 \u00b7 Historical events retain their dates",
+      "eventDates": [],
+      "paragraphs": [
+        "Canary describes LTCC as passive Litecoin exposure after expenses. European physically backed ETPs have their own contracts and jurisdictions; an index product is not a Litecoin-only allocation.",
+        "Our editorial separates product descriptions from the Register-derived chart. Check the original prospectus, fee, custody and redemption terms before treating different tickers as equivalent."
+      ],
+      "takeaway": "Follow the dated original evidence and keep custody, exposure and operating plans distinct.",
+      "discussionPrompt": "Which original record would change your understanding?",
+      "sourceIds": [
+        "wall-street"
+      ]
+    },
+    {
+      "id": "treasury",
+      "title": "A company has more than a balance.",
+      "desk": "Public-company desk",
+      "classification": "Reported fact \u00b7 Source-based educational briefing",
+      "dek": "Lite Strategy\u2019s September 29 release describes active treasury management and ecosystem investment.",
+      "status": "Sources checked October 11 \u00b7 Historical events retain their dates",
+      "eventDates": [],
+      "paragraphs": [
+        "The issuer reports covered-call operations, share repurchases and retained pharmaceutical assets. Its objective is to increase Litecoin backing per share; that ambition is not a guarantee of performance.",
+        "Its June 18 LitVM investment announcement describes governance participation and a future-token opportunity. An investment, a token launch and a production application are separate events."
+      ],
+      "takeaway": "Follow the dated original evidence and keep custody, exposure and operating plans distinct.",
+      "discussionPrompt": "Which original record would change your understanding?",
+      "sourceIds": [
+        "treasury"
+      ]
+    },
+    {
+      "id": "mining",
+      "title": "Mine. Retain. Build.",
+      "desk": "Litecoin infrastructure",
+      "classification": "Reported fact \u00b7 Source-based educational briefing",
+      "dek": "Luxxfolio presents a mining-first model alongside infrastructure development.",
+      "status": "Sources checked October 11 \u00b7 Historical events retain their dates",
+      "eventDates": [],
+      "paragraphs": [
+        "Its current company page distinguishes fleet mining from LuxxPool\u2019s ongoing development toward a public product. The dashboard\u2019s treasury estimate uses a disclosed earlier baseline and subsequent mining earnings, assuming retention.",
+        "A company dashboard, an audited financial statement and an address observation can have different dates and methods. Our table preserves that distinction instead of turning all three into a single live balance."
+      ],
+      "takeaway": "Follow the dated original evidence and keep custody, exposure and operating plans distinct.",
+      "discussionPrompt": "Which original record would change your understanding?",
+      "sourceIds": [
+        "mining"
+      ]
+    },
+    {
+      "id": "builders",
+      "title": "Follow the build into LiteForge.",
+      "desk": "Developer desk",
+      "classification": "Reported fact \u00b7 Source-based educational briefing",
+      "dek": "LitVM\u2019s April 17 quickstart describes a live EVM-compatible testnet.",
+      "status": "Sources checked October 11 \u00b7 Historical events retain their dates",
+      "eventDates": [],
+      "paragraphs": [
+        "The guide offers testnet tooling and a faucet. Developer experiments help readers examine the architecture; testnet availability is not evidence of a mainnet launch or an independently audited bridge.",
+        "Fidelity separately lists Litecoin in its crypto trading service. A service offering is not a Fidelity Litecoin ETF, and the new editorial does not invent a Fidelity treasury holding."
+      ],
+      "takeaway": "Follow the dated original evidence and keep custody, exposure and operating plans distinct.",
+      "discussionPrompt": "Which original record would change your understanding?",
+      "sourceIds": [
+        "builders",
+        "fidelity"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "register",
+      "title": "Who holds is not who owns.",
+      "publisher": "Litecoin Register",
+      "url": "https://litecoinregister.com/ltc_data.json",
+      "publishedAt": null,
+      "checkedAt": "2026-10-11",
+      "note": "Original public source inspected for the attributed description. Numerical distribution is separately labeled Register-derived."
+    },
+    {
+      "id": "wall-street",
+      "title": "A wrapper changes the question.",
+      "publisher": "Canary Capital",
+      "url": "https://canaryetfs.com/ltcc/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-11",
+      "note": "Original public source inspected for the attributed description. Numerical distribution is separately labeled Register-derived."
+    },
+    {
+      "id": "treasury",
+      "title": "A company has more than a balance.",
+      "publisher": "Lite Strategy",
+      "url": "https://litestrategy.gcs-web.com/news-releases/news-release-details/lite-strategy-reports-fiscal-year-2026-financial-results",
+      "publishedAt": "2026-09-29",
+      "checkedAt": "2026-10-11",
+      "note": "Original public source inspected for the attributed description. Numerical distribution is separately labeled Register-derived."
+    },
+    {
+      "id": "mining",
+      "title": "Mine. Retain. Build.",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-11",
+      "note": "Original public source inspected for the attributed description. Numerical distribution is separately labeled Register-derived."
+    },
+    {
+      "id": "builders",
+      "title": "Follow the build into LiteForge.",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/blog/welcome-to-liteforge",
+      "publishedAt": "2026-04-17",
+      "checkedAt": "2026-10-11",
+      "note": "Original public source inspected for the attributed description. Numerical distribution is separately labeled Register-derived."
+    },
+    {
+      "id": "fidelity",
+      "title": "Fidelity Crypto trading",
+      "publisher": "Fidelity",
+      "url": "https://www.fidelity.com/crypto/trading/",
+      "publishedAt": null,
+      "checkedAt": "2026-10-11",
+      "note": "Provider lists Litecoin among supported assets; no Fidelity Litecoin ETF inferred."
+    }
+  ]
+}
