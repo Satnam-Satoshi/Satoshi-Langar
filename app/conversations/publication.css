@@ -29,3 +29,4 @@ body:has([data-ltc-publication]),.publication-shell{background:var(--editorial-p
 .publication-shell .live-page-intro p:first-child{color:#f7931a}
 .publication-shell .live-page-intro a:focus-visible{outline-color:#f7931a}
 @media(min-width:1121px){.publication-desktop-nav{gap:16px}}
+@media(min-width:1121px) and (max-width:1320px){.publication-header-inner{flex-wrap:wrap;gap:16px}.publication-desktop-nav{order:3;flex-basis:100%;justify-content:space-between;gap:12px;margin-left:0;border-top:1px solid var(--editorial-rule)}.publication-community{margin-left:auto}}
