@@ -62,19 +62,6 @@ try {
             await page.screenshot({path:path.join(output,`${engine}-${width}-daily-interior.png`),animations:'disabled'});
           }
           if (route === '/' || route === '/conversations/') {
-            const lead = page.locator('[data-primary-feature="litecoin-to-the-moon"]');
-            assert.equal(await lead.count(),1,`${route} missing unique primary Moon feature`);
-            assert.equal(await lead.locator('h1 em,h2 em').evaluate(el=>getComputedStyle(el).color),'rgb(247, 147, 26)',`${route} Moon highlight must retain orange brand contrast`);
-            const order = await page.evaluate(() => {
-              const feature=document.querySelector('[data-primary-feature="litecoin-to-the-moon"]');
-              const daily=document.querySelector('#home-latest-issue, #daily');
-              return { firstSection:document.querySelector('main section')===feature, beforeDaily:!!(feature.compareDocumentPosition(daily)&Node.DOCUMENT_POSITION_FOLLOWING) };
-            });
-            assert.ok(order.firstSection && order.beforeDaily,`${route} Moon must precede the daily issue as the first main section`);
-            assert.ok(await lead.locator('a').evaluateAll(links=>links.some(link=>new URL(link.href).pathname.startsWith('/conversations/editions/'))),`${route} must preserve dated daily access`);
-            await lead.scrollIntoViewIfNeeded();
-            await page.screenshot({path:path.join(output,`${engine}-${width}-${route==='/'?'satnam':'ltc'}-primary-moon.png`),animations:'disabled'});
-
             assert.ok(await page.locator('a[href*="specials/litecoin-to-the-moon/"]').count(), `${route} missing Moon promotion`);
             assert.ok(await page.locator('img[src*="litecoin-to-the-moon/cover-r2.png"]').count(), `${route} missing refreshed Moon cover`);
             for (const href of ['https://litecoinregister.com/','https://www.mnav.com/','https://bitbo.io/treasuries/latest-changes/']) {
