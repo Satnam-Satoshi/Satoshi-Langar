@@ -303,3 +303,5 @@ body:has(main[data-site]) .desktop-nav a[href^="https://litecoinregister"]{borde
 .site-card h2,.site-card h3{font-family:var(--font-sans);font-weight:800}
 .launch-footer{border-top:5px solid #f7931a}
 @media(max-width:600px){.live-page-intro h1{font-size:clamp(2.3rem,10vw,3.4rem);overflow-wrap:break-word}.header-join:focus-visible{outline-color:#171b1f}}
+/* Keep the restored Explore Litecoin link usable on laptop-width screens. */
+@media(min-width:851px) and (max-width:1320px){.header-row{flex-wrap:wrap}.desktop-nav{order:3;flex-basis:100%;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid var(--editorial-rule)}.header-join{margin-left:auto}}

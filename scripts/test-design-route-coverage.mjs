@@ -21,3 +21,12 @@ test('rendered QA includes current reader, newsroom and new special on mobile an
  for(const route of ['/conversations/daily/','/conversations/updates/','/conversations/specials/litecoin-builders-november/','/mission/','/langar/','/agents/'])assert.ok(qa.includes(route));
  assert.match(qa,/daily-interior/);
 });
+
+test('Explore Litecoin remains discoverable in both site shells and footer',async()=>{
+ for(const file of ['app/components/SiteHeader.tsx','app/components/SiteFooter.tsx','app/conversations/layout.tsx']){
+  const source=await read(file);assert.match(source,/Explore Litecoin['"],\s*['"]\/conversations\/litecoin\//);
+ }
+ const css=await read('app/conversations/litecoin/litecoin.module.css');
+ assert.match(css,/\.hero h1 em,\.section h2 em,\.closing h2 em\{font:inherit;font-style:normal/);
+ assert.match(css,/\.index,\.newsNumber,\.stats strong,\.featureLink strong,\.closing strong\{font-family:var\(--font-sans\);font-weight:900/);
+});

@@ -54,6 +54,17 @@ try {
           const name = `${engine}-${width}-${route.replace(/[^a-z0-9]+/gi, '_') || 'home'}.png`;
           await page.screenshot({ path: path.join(output, name), fullPage: false, animations: 'disabled' });
           results.push({ engine, width, route, screenshot: name, overflow: false });
+          if (route === '/' || route === '/conversations/' || route === '/conversations/litecoin/') {
+            const nav = page.locator(route === '/' ? '.launch-header' : '.publication-header');
+            const menu = nav.locator('details summary');
+            if (width < 500) await menu.click();
+            assert.ok(await nav.getByRole('link', {name:'Explore Litecoin', exact:true}).count(), `${route} must expose Explore Litecoin in its header`);
+            if (width < 500) await menu.click();
+          }
+          if (route === '/conversations/litecoin/') {
+            const weight = await page.locator('h1 em').evaluate(el => getComputedStyle(el).fontWeight);
+            assert.ok(Number(weight) >= 800, 'Fieldbook hero emphasis must retain bold approved typography');
+          }
           if (route === '/conversations/daily/') {
             assert.equal(await page.locator('[data-cover-mode=edition]').count(), 1, 'Daily entry must render the actual edition cover');
             assert.equal(await page.locator('[aria-label="Edition reading paths"]').count(), 1);
