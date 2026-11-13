@@ -1,3 +1,4 @@
+import MoonHomeFeature from '../components/MoonHomeFeature';
 import EditorialReadingMap from '../components/EditorialReadingMap';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
@@ -53,13 +54,14 @@ export default function ConversationsPage(){
    <p>Independent reporting on Bitcoin, Litecoin and the people building with them.</p>
  </header>
  <nav className={styles.departments} aria-label="Magazine departments">
-   <a href="#daily">Latest issue ↓</a><a href="https://litecoinregister.com/">Litecoin Register ↗</a><a href="https://www.mnav.com/">mNAV ↗</a><a href="https://bitbo.io/treasuries/latest-changes/">Bitbo · Latest changes ↗</a>
+   <a href="#featured-moon">Featured: Moon ↓</a><a href="#daily">Latest daily issue ↓</a><a href="https://litecoinregister.com/">Litecoin Register ↗</a><a href="https://www.mnav.com/">mNAV ↗</a><a href="https://bitbo.io/treasuries/latest-changes/">Bitbo · Latest changes ↗</a>
    <a href="#source-desk">Source desk</a>
    <a href="#new-specials">Special editions</a>
    <a href="/conversations/community/">Community Wire</a>
    <a href="#archive">Past issues</a>
    <a href="/conversations/desks/">All desks ↗</a>
  </nav>
+ <MoonHomeFeature/>
  <section id="daily" className={styles.issueLead} aria-labelledby="daily-title">
    <div className={styles.issueLeadCopy}>
      <p className={styles.eyebrow}>{issue ? <>Latest published issue · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
