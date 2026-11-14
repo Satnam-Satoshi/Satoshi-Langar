@@ -384,3 +384,16 @@ test('expiration during failed public verification still permits the explicitly 
     assert.deepEqual((await f.state.inspect()).latestRelease,f.previous);
   } finally {await rm(f.scratch,{recursive:true,force:true});}
 });
+
+test('actual release shares one scoped OAuth grant across allocation, artifact providers and summary', async () => {
+ const f=await fixture(); let refreshes=0, tokenReads=0;
+ try {
+  f.options.env={LTC_GOOGLE_CLIENT_ID:'fixture-client.apps.googleusercontent.com',LTC_GOOGLE_CLIENT_SECRET:'fake-client-secret-value',LTC_GOOGLE_REFRESH_TOKEN:'fake-refresh-token-value'};
+  f.options.fetchImpl=async url=>{assert.equal(url,'https://oauth2.googleapis.com/token');refreshes++;return new Response(JSON.stringify({token_type:'Bearer',expires_in:3600,access_token:'fake-access-token-value',scope:'https://www.googleapis.com/auth/drive.file'}),{status:200,headers:{'content-type':'application/json'}});};
+  const allocate=f.options.preallocateIds, factory=f.options.evidenceProviderFactory;
+  f.options.preallocateIds=async options=>{tokenReads++;assert.equal(await options.getAccessToken(),'fake-access-token-value');return allocate(options);};
+  f.options.evidenceProviderFactory=options=>{const provider=factory(options);return {...provider,apply:async context=>{for(let i=0;i<8;i++){tokenReads++;assert.equal(await options.getAccessToken(),'fake-access-token-value');}return provider.apply(context);}};};
+  await performCoordinatedRelease(f.options);
+  assert(tokenReads>10); assert.equal(refreshes,1);
+ }finally{await rm(f.scratch,{recursive:true,force:true});}
+});

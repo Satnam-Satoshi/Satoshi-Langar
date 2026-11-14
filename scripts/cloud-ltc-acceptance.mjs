@@ -9,7 +9,7 @@ import { packageArtifactEvidence, preallocateEvidenceIds, createDriveEvidencePro
 import { DurableCloudState } from './cloud-ltc-state.mjs';
 import { ReleaseOperationCoordinator } from './cloud-ltc-operations.mjs';
 import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
-import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
+import { createScopedGoogleAuthorization } from './cloud-ltc-google-auth.mjs';
 import { createReadOnlyReleaseClients } from './cloud-ltc-reconcile.mjs';
 import { assertSetupIncidentsForStage, FOUNDER_ACTOR_ID } from './cloud-ltc-setup-quarantine.mjs';
 import { applyOwnerSetupQuarantine } from './cloud-ltc-setup-quarantine-runner.mjs';
@@ -414,7 +414,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
         const result=await applyOwnerSetupQuarantine({env,stateAdapter:website.stateAdapter,review:await json(options.reviewFile),previousManifest:await json(options.previousManifestFile),dependencies:{...clients,socialState:{inspect:async()=>{const {value}=await social.stateAdapter.read('social');check(value?.schemaVersion===1&&value.kind==='ltc-cloud-social'&&value.records&&typeof value.records==='object'&&!Array.isArray(value.records),'acceptance_social_ledger_invalid');return value}},verifyPublic:verifyPublicDomains,save}});
         console.log(JSON.stringify({mode:'quarantine',incidentSha256:result.incidentSha256,newFence:result.newFence,outcome:'UNKNOWN',accepted:false,productionAuthorized:false}));
       }else{
-      const token = () => withGoogleCloudAuthorization({ env }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
+      const authorization = createScopedGoogleAuthorization({ env });
+      const token = () => authorization(access => access.LTC_GOOGLE_ACCESS_TOKEN);
       const linked = createAcceptanceLinkedClient({ env, vercel: clients.vercel, directory, report: async diagnostic => { await save({ safeCliFailure: diagnostic }); console.log(JSON.stringify({ mode: 'safe-linked-cli-failure', ...diagnostic })); } });
       await linked.verifyVersion();
       const dependencies = { ...clients, directory,
