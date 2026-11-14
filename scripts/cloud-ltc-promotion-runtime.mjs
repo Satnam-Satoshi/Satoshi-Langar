@@ -1,6 +1,6 @@
 import { createAcceptanceLinkedClient, restoreAcceptanceArtifactPackage } from './cloud-ltc-acceptance.mjs';
 import { createReadOnlyReleaseClients } from './cloud-ltc-reconcile.mjs';
-import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
+import { createScopedGoogleAuthorization } from './cloud-ltc-google-auth.mjs';
 import { downloadEvidence } from './cloud-ltc-evidence.mjs';
 import { TARGET, verifyPublicDomains } from './cloud-ltc-release.mjs';
 import { builtManifest, builtOutputManifest } from './cloud-ltc-release.mjs';
@@ -153,7 +153,8 @@ export async function createControlledPromotionRuntime({ env, review, evidenceCo
   const clients = createReadOnlyReleaseClients({ env, fetcher: fetchImpl });
   const linked = createAcceptanceLinkedClient({ env, vercel: clients.vercel, directory, report: async diagnostic => { await save({ safeCliFailure: diagnostic }); } });
   await linked.verifyVersion();
-  const getAccessToken = () => withGoogleCloudAuthorization({ env, fetchImpl }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
+  const authorization = createScopedGoogleAuthorization({ env, fetchImpl });
+  const getAccessToken = () => authorization(access => access.LTC_GOOGLE_ACCESS_TOKEN);
   return {
     ...clients, socialState, save, now: Date.now,
     wait: milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds)),
