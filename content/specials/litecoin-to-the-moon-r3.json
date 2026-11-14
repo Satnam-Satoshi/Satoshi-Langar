@@ -64,6 +64,7 @@
       "kicker": "Builders / Current network status",
       "paragraphs": [
         "LiteForge has migrated from Caldera to Zeeve. The documented HTTP connection is https://rpc.testnet.liteforge.zeeve.net/; chain ID 4441 and test gas symbol zkLTC remain unchanged. The old Caldera WebSocket endpoint is no longer active. Use official configuration documentation rather than assuming that an HTTP endpoint also supports WebSocket connections.",
+        "On November 13, LitVM reported that LiteForge had reached milestones of 500 million transactions and 15 million unique addresses that week. These are team-reported testnet counts, not independently reproduced totals or a claim of 500 million transactions within one week. Unique addresses are not unique people: one participant or automated system may control many. The figures alone do not establish retained users, economic value, production security or a mainnet launch.",
         "LiteForge remains a testnet in the reviewed documentation. LitVM uses an Arbitrum Orbit EVM architecture with Ethereum settlement. The intended native-LTC route involves Charms/zkLTC, Ethereum and Arbitrum infrastructure; complete issuance and redemption availability requires network-specific release evidence.",
         "An approaching launch narrative is not a launch confirmation. Mainnet connection details, deployed contracts, integration audits, upgrade authority and recovery procedures remain the evidence to request. Never enter a seed phrase to claim testnet tokens."
       ],
@@ -72,7 +73,8 @@
         "network",
         "status",
         "architecture",
-        "foundation-network"
+        "foundation-network",
+        "liteforge-milestone"
       ]
     },
     {
@@ -503,6 +505,15 @@
       "publishedAt": null,
       "checkedAt": "2026-11-14",
       "note": "Project documentation: lithUSDC/lithUSDT are mintable test tokens, not Circle/Tether issuance or dollar-backed. No independent audit; current testnet control roles use one EOA. Not a mainnet safety assessment."
+    },
+    {
+      "id": "liteforge-milestone",
+      "title": "LiteForge testnet activity milestones",
+      "publisher": "LitVM",
+      "url": "https://x.com/LitecoinVM/status/2121324919002935721",
+      "publishedAt": "2026-11-13",
+      "checkedAt": "2026-11-14",
+      "note": "Official post verified November 14. Team-reported testnet milestones reached that week, not independently reproduced from explorer data; addresses are not people."
     }
   ],
   "limits": [
