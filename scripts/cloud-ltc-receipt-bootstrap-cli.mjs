@@ -12,6 +12,19 @@ export async function verifyBootstrapSource({root,config,read=readFile,gitHead=(
  check(manifest&&Object.keys(manifest).sort().join('\n')===[...BOOTSTRAP_SOURCE_FILES].sort().join('\n')&&hash(JSON.stringify(manifest))===config.sourceManifestSha256,'manifest');
  for(const file of BOOTSTRAP_SOURCE_FILES)check(/^[a-f0-9]{64}$/.test(manifest[file])&&hash(await read(path.join(root,file)))===manifest[file],'source_bytes');
 }
+// Protected-credential mode relies on the reviewed creation step referencing the
+// ORIGINAL existing publisher secret. Equality here does not independently prove
+// that workflow provenance. No value is exported to setup, the pin, or logs.
+function resolvePublisherIdentity(publisher,googleEnv){
+ check(publisher&&typeof publisher==='object'&&!Array.isArray(publisher),'publisher_identity');
+ const mode=Object.hasOwn(publisher,'identitySource')?publisher.identitySource:'explicit-client-id';
+ check(['explicit-client-id','protected-publisher-credential'].includes(mode),'identity_source');
+ const clientId=googleEnv.LTC_GOOGLE_CLIENT_ID;
+ check(typeof clientId==='string'&&/^[A-Za-z0-9._-]{10,250}\.apps\.googleusercontent\.com$/.test(clientId),'publisher_identity');
+ if(mode==='protected-publisher-credential')check(!Object.hasOwn(publisher,'publisherClientId'),'identity_override');
+ else check(publisher.publisherClientId===clientId,'publisher_identity');
+ return Object.freeze({...publisher,publisherClientId:clientId});
+}
 // Fixed entrypoint. All injection seams below are test/trusted-code only; not CLI
 // arguments or workflow inputs. Protected config provenance is a deployment prerequisite.
 export async function runReceiptBootstrapCli({env=process.env,root=process.cwd(),read=readFile,stat=lstat,write=writeFile,gitHead,fetchImpl=fetch,admissionFactory,pinReaderFactory,transportFactory}={}){
@@ -30,8 +43,9 @@ export async function runReceiptBootstrapCli({env=process.env,root=process.cwd()
  const readVerifiedAdmission=pinReaderFactory({config:config.github,token:env.GITHUB_TOKEN,fetchImpl});
  const oneInvocationAdmission=admissionFactory({readVerifiedAdmission});
  const googleEnv={LTC_GOOGLE_CLIENT_ID:env.LTC_GOOGLE_CLIENT_ID,LTC_GOOGLE_CLIENT_SECRET:env.LTC_GOOGLE_CLIENT_SECRET,LTC_GOOGLE_REFRESH_TOKEN:env.LTC_GOOGLE_REFRESH_TOKEN};
- const transport=transportFactory({config:config.publisher,env:googleEnv,fetchImpl});
- const bootstrap=createBoundedInvocationReceiptBootstrap(config.publisher,{...transport,oneInvocationAdmission});
+ const publisher=resolvePublisherIdentity(config.publisher,googleEnv);
+ const transport=transportFactory({config:publisher,env:googleEnv,fetchImpl});
+ const bootstrap=createBoundedInvocationReceiptBootstrap(publisher,{...transport,oneInvocationAdmission});
  const result=await bootstrap();
  // Result is private; only categorical status is printed by the executable below.
  // Failure to retain the outcome never authorizes another creation attempt.

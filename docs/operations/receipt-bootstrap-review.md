@@ -43,3 +43,22 @@ config assembly precede the sole Google-bearing creation step. All remain local
 until reviewed source hashes, private variables and workflow are installed. This
 mode trusts authorized main writers and never retries unknown outcomes. It does
 not require the optional strong API's new atomic reservation backend.
+
+
+## Creation-step protected credential identity option (local follow-up)
+
+Private target configuration may explicitly set
+`identitySource: "protected-publisher-credential"` and MUST omit
+`publisherClientId`. Only the creation-step CLI derives that public identifier
+from the existing `LTC_GOOGLE_CLIENT_ID` credential already supplied by the
+reviewed workflow. Setup continues to reject Google credential environment
+variables; no client identifier is added to the public pin, result or logs.
+Transport still enforces exact equality and the existing OAuth scope checks.
+
+This removes the separately configured expected-client-ID comparison. It relies
+on the reviewed workflow using the original existing publisher secret in the
+existing environment; runtime equality is not independent provenance proof.
+It does not authorize replacing credentials, adding scope, or granting access.
+Unknown modes and any explicit client-ID override in protected mode fail closed.
+The existing explicit-client-ID path remains supported. No live configuration or
+workflow has been changed by this local option.
