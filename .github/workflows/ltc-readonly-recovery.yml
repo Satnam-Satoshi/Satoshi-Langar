@@ -1,0 +1,68 @@
+# INACTIVE LOCAL REVIEW ARTIFACT. Not installed or dispatched; resource operations are read-only.
+name: One read-only recovery inspection
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ltc-production-publication
+  cancel-in-progress: false
+jobs:
+  owner-approval:
+    name: owner-approval
+    if: github.ref == 'refs/heads/main' && github.run_attempt == 1
+    environment: ltc-receipt-owner-approval
+    permissions: {}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Native owner gate completed
+        run: 'true'
+  inspect-private-recovery-once:
+    name: inspect-private-recovery-once
+    needs: owner-approval
+    if: github.ref == 'refs/heads/main' && github.run_attempt == 1
+    environment: ltc-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 3fbbbe05531c8fd0f0050a9be2c443e3e40a95ec
+          persist-credentials: false
+      - name: Verify source and assemble private target without Google credentials
+        env:
+          SOURCE_SHA: 3fbbbe05531c8fd0f0050a9be2c443e3e40a95ec
+          CLI_SHA256: b7717c8eba0b1b3bb883e4a67643e9b35eff96823bc363974c52a75c9a630e85
+          SOURCE_MANIFEST_JSON: '{"scripts/cloud-ltc-docs-state.mjs":"670b6214f86358272bad9efb1f010a7e0856d3356846122d36711e3e60a0db5d","scripts/cloud-ltc-evidence.mjs":"9db668414c783eb7ed69e73e678ae76d0832952907804fd92fa9e43625046319","scripts/cloud-ltc-f33-readonly-cli.mjs":"b7717c8eba0b1b3bb883e4a67643e9b35eff96823bc363974c52a75c9a630e85","scripts/cloud-ltc-f33-readonly.mjs":"5b13e0cecfa3cfab69bf82b21e8c27f404c1144c0c7537065a40e425764984aa","scripts/cloud-ltc-google-auth.mjs":"52bbf1d4e672a4071627f4f95846ba49da117dd5fa0e9901263c201d0e1d726e","scripts/cloud-ltc-google-client.mjs":"fb05c04f1be5a2919a683a76de82c712a61891f4c507ee8146ed21131a4b81d3","scripts/cloud-ltc-google-runtime.mjs":"45d1965350b7bc17d0206daf00d2dcd0102ae570ce94d656bbbc7d826ec0ab92","scripts/cloud-ltc-native-inspection-authority.mjs":"a97b8df1b5d0a038ec4f4b3723dac7f39545f9b2e22051c41d7e1c11736b5147","scripts/cloud-ltc-receipt-provenance-lookup.mjs":"7667e7a20f2f1fc12a233e0e04f3c3412e632b802c5c1590c314ff55ab998627","scripts/cloud-ltc-receipt-provenance.mjs":"8c6a7d8bae43babbcd0bbff0e6bdb8895698de53eb14ee3fe461904a11423723","scripts/cloud-ltc-state-envelope.mjs":"528eb377c6491095222b86ba5c0713fc8b32e318a9bdb6f8944595a7386ca121"}'
+          SOURCE_MANIFEST_SHA256: 25579e05b82c474cd89003bf00c27792b8a023169941a037807ce9ddfa0d0888
+          INCIDENT_LABEL: 'November 14 publication recovery'
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+          TARGET_FOLDER: ${{ vars.LTC_STATE_FOLDER_ID }}
+          TARGET_OWNER: ${{ vars.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
+          STATE_DOCUMENT: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          RECEIPT_ORIGIN_RUN: '43648883553'
+          FAILED_PUBLICATION_RUN: '43608206507'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          [[ "$CLI_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          printf '%s  %s\n' "$CLI_SHA256" scripts/cloud-ltc-f33-readonly-cli.mjs | sha256sum --check --status
+          node --input-type=module <<'NODE'
+          import {writeFile} from 'node:fs/promises';
+          import path from 'node:path';
+          import {verifyInspectionSource} from './scripts/cloud-ltc-f33-readonly-cli.mjs';
+          const e=process.env;
+          const config={github:{runId:e.GITHUB_RUN_ID,sourceSha:e.SOURCE_SHA,executedSourceSha:e.SOURCE_SHA,workflowSha:e.WORKFLOW_SHA,workflowPath:'.github/workflows/ltc-readonly-recovery.yml',environmentId:27323462394},lookup:{folderId:e.TARGET_FOLDER,ownerPermissionId:e.TARGET_OWNER,incident:e.INCIDENT_LABEL,runId:e.RECEIPT_ORIGIN_RUN,attempt:1,identitySource:'protected-publisher-credential'},state:{schemaVersion:1,provider:'google-docs',publicationEnabled:false,ledgerKey:'website',folderId:e.TARGET_FOLDER,documentId:e.STATE_DOCUMENT},incident:{folderId:e.TARGET_FOLDER,ownerPermissionId:e.TARGET_OWNER,originRunId:e.FAILED_PUBLICATION_RUN,originAttempt:1},sourceManifest:JSON.parse(e.SOURCE_MANIFEST_JSON),sourceManifestSha256:e.SOURCE_MANIFEST_SHA256};
+          await verifyInspectionSource({root:process.cwd(),config});
+          await writeFile(path.join(e.RUNNER_TEMP,'ltc-readonly-recovery-private.json'),JSON.stringify(config),{flag:'wx',mode:0o600});
+          NODE
+      - name: Inspect private recovery once
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: node scripts/cloud-ltc-f33-readonly-cli.mjs
