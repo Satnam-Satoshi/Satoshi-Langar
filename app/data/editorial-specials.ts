@@ -1,5 +1,5 @@
 import buildersNovember from '../../content/specials/litecoin-builders-november-r1.json';
-import moon from '../../content/specials/litecoin-to-the-moon-r2.json';
+import moon from '../../content/specials/litecoin-to-the-moon-r3.json';
 import litvmFamily from '../../content/specials/litvm-family-r1.json';
 import jack from '../../content/specials/jack-mallers-r1.json';
 import birthdayInterview from '../../content/specials/charlie-84million-r1.json';
@@ -21,3 +21,5 @@ export const specialArtwork=(slug:string)=>slug==='litecoin-builders-november'?'
 export const specialShareArtwork=(slug:string)=>slug==='litecoin-builders-november'?'/magazine/litecoin-builders-november/cover.png':slug==='litecoin-to-the-moon'?'/magazine/litecoin-to-the-moon/cover-r2.png':specialArtwork(slug);
 
 export const specialIssueLabel=(date:string)=>new Intl.DateTimeFormat('en-US',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(`${date}T12:00:00Z`));
+
+export const specialResearchDate=(date:string)=>new Intl.DateTimeFormat('en-US',{month:'long',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(`${date}T12:00:00Z`));

@@ -97,7 +97,7 @@ try {
             await page.screenshot({ path:path.join(output,`${engine}-${width}-moon-sourcebook.png`),animations:'disabled' });
           }
           if (route === '/conversations/archive/') {
-            const moon = page.locator('[data-editorial-special="litecoin-to-the-moon-r2"]');
+            const moon = page.locator('[data-editorial-special^="litecoin-to-the-moon-r"]');
             await moon.scrollIntoViewIfNeeded();
             assert.equal(await moon.locator('[data-full-cover] img').count(),1);
             assert.equal(await moon.locator('[data-full-cover] h3').count(),0);
