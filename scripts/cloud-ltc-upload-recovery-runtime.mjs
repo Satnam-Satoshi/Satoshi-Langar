@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { recoverUploadOnlyLease, uploadRecoveryHash as hash } from './cloud-ltc-upload-only-recovery.mjs';
 import { DurableCloudState } from './cloud-ltc-state.mjs';
 import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
-import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
+import { createScopedGoogleAuthorization } from './cloud-ltc-google-auth.mjs';
 import { downloadEvidence } from './cloud-ltc-evidence.mjs';
 import { createReadOnlyReleaseClients } from './cloud-ltc-reconcile.mjs';
 import { TARGET, verifyImplementation, verifyPublicRootRouting, verifyPublicManifestRecord } from './cloud-ltc-release.mjs';
@@ -28,7 +28,8 @@ export function createUploadRecoveryDependencies({env, review, state, evidenceCo
   check(evidenceConfig.folderId === review.folderId && evidenceConfig.ownerPermissionId === review.ownerPermissionId,
     'upload_recovery_private_binding_changed');
   const clients = createReadOnlyReleaseClients({env, fetcher:fetchImpl});
-  const token = () => withGoogleCloudAuthorization({env,fetchImpl}, a => a.LTC_GOOGLE_ACCESS_TOKEN);
+  const authorization = createScopedGoogleAuthorization({env,fetchImpl});
+  const token = () => authorization(a => a.LTC_GOOGLE_ACCESS_TOKEN);
   return {
     now: Date.now,
     async readOrigin(origin) {

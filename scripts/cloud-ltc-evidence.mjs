@@ -1,3 +1,4 @@
+import { googleAuthorizationDiagnostic, safeGoogleAuthorizationDiagnostic } from './cloud-ltc-google-auth.mjs';
 import {createHash} from 'node:crypto';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import path from 'node:path';
@@ -52,7 +53,7 @@ const REQUEST_FAILURE=Symbol('classified-evidence-request-failure');
 function requestFailure(diagnostic){const error=Error('drive_request_unconfirmed');Object.defineProperty(error,REQUEST_FAILURE,{value:safeEvidenceDiagnostic(diagnostic)});return error;}
 const diagnosticPhases=new Set(['folder-metadata','folder-permissions','upload-preflight','upload-post','readback-metadata','readback-permissions','readback-media','readback-integrity','id-allocation']);
 const diagnosticReasons=new Set(['authorization','transport','timeout','http-status','redirect','body','integrity','not-found']);
-export function safeEvidenceDiagnostic(value){return {provider:'drive-evidence',phase:diagnosticPhases.has(value?.phase)?value.phase:'unknown',reason:diagnosticReasons.has(value?.reason)?value.reason:'unknown',httpStatus:Number.isInteger(value?.httpStatus)&&value.httpStatus>=100&&value.httpStatus<=599?value.httpStatus:null,timedOut:value?.timedOut===true,postAttempted:value?.postAttempted===true};}
+export function safeEvidenceDiagnostic(value){return {provider:'drive-evidence',phase:diagnosticPhases.has(value?.phase)?value.phase:'unknown',reason:diagnosticReasons.has(value?.reason)?value.reason:'unknown',httpStatus:Number.isInteger(value?.httpStatus)&&value.httpStatus>=100&&value.httpStatus<=599?value.httpStatus:null,timedOut:value?.timedOut===true,postAttempted:value?.postAttempted===true,...(value?.oauth?{oauth:safeGoogleAuthorizationDiagnostic(value.oauth)}:{})};}
 function trackedOptions(options){return options[DIAGNOSTIC]?options:{...options,[DIAGNOSTIC]:{postAttempted:false,reported:false}};}
 async function reportDiagnostic(options,value){const tracking=options[DIAGNOSTIC];if(!tracking||tracking.reported)return;tracking.reported=true;const safe=safeEvidenceDiagnostic({...value,postAttempted:tracking.postAttempted});try{await options.onDiagnostic?.(safe);}catch{/* Diagnostic storage failure never authorizes a retry or replaces uncertainty. */}}
 function configCheck(config){check(config&&id(config.folderId)&&id(config.fileId)&&id(config.ownerPermissionId)&&config.fileId!==config.folderId,'invalid_evidence_configuration');}
@@ -79,7 +80,7 @@ function client(options){
     reason='transport';if(method==='POST'){postStarted=true;if(options[DIAGNOSTIC])options[DIAGNOSTIC].postAttempted=true;}
     const response=await fetcher('https://www.googleapis.com'+pathname,{method,body,redirect:'error',cache:'no-store',signal:controller.signal,headers:{authorization:`Bearer ${token}`,accept:'application/json',...(contentType?{'content-type':contentType}:{})}});
     status=response.status;if(response.redirected){reason='redirect';throw Error('drive_redirect_rejected');}if(allowMissing&&status===404)return null;if(!response.ok){reason='http-status';throw Error('drive_request_failed');}reason='body';return bounded(response,limit);})(),deadline]);
-  }catch{await reportDiagnostic(options,{phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut});throw requestFailure({phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut,postAttempted:postStarted});}finally{clearTimeout(timer);controller.abort();}
+  }catch(error){const oauth=reason==='authorization'?googleAuthorizationDiagnostic(error):null;const diagnostic={phase,reason:timedOut?'timeout':reason,httpStatus:status,timedOut,...(oauth?{oauth}:{})};await reportDiagnostic(options,diagnostic);throw requestFailure({...diagnostic,postAttempted:postStarted});}finally{clearTimeout(timer);controller.abort();}
  };
 }
 const fields='id,name,mimeType,parents,trashed,ownedByMe,size,appProperties';
