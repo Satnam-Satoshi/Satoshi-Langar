@@ -1,0 +1,44 @@
+# INACTIVE TEMPLATE. Requires independent review and explicit Actions-write activation approval.
+# Activation target: .github/workflows/ltc-daily-cloud-request.yml on trusted main only.
+name: LTC daily cloud request
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+  issues: read
+  actions: write
+concurrency:
+  group: ltc-daily-cloud-request
+  cancel-in-progress: false
+jobs:
+  request:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.actor_id == '268053325' && github.run_attempt == 1 && github.event.issue.title == '[LTC cloud request] daily publication' && vars.LTC_DAILY_REQUEST_ENABLED == 'true' && vars.LTC_CLOUD_PUBLISH == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: ltc-production
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 484c239c8d6eb48aeee37212fc85307a0f908195
+          path: reviewed-runtime
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.2
+      - name: Request ordinary daily invocation through reviewed coordinator
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LTC_DAILY_REQUEST_ENABLED: ${{ vars.LTC_DAILY_REQUEST_ENABLED }}
+          LTC_CLOUD_PUBLISH: ${{ vars.LTC_CLOUD_PUBLISH }}
+          LTC_STATE_FOLDER_ID: ${{ vars.LTC_STATE_FOLDER_ID }}
+          LTC_STATE_DOCUMENT_ID: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          LTC_DAILY_REQUEST_DOCUMENT_ID: ${{ vars.LTC_DAILY_REQUEST_DOCUMENT_ID }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: node proposals/daily-cloud-request/entrypoint.mjs

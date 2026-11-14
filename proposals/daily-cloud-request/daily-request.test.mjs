@@ -26,8 +26,19 @@ test('mocked end-to-end: read owner/branch/runs, CAS claim, fixed POST, receipt,
  async function inspect(){const copy=structuredClone(f);copy.issue=await reader.issue(1);copy.evidence.source_commit=await reader.source();copy.evidence.runs=(await reader.activeRuns()).map(r=>({status:r.status}));return admit(copy);}
  const store={read:async()=>({value:structuredClone(value),version}),conditionalWrite:async(k,v,expected)=>{if(expected!==version)throw Error('state_conflict');value=structuredClone(v);return++version;}};
  const cas=claimStore({store,storageIdentity:'separate-private-requests',publicationIdentity:'existing-publication-state',revalidate:async a=>{const b=await inspect();return a.source===b.source&&a.observedFence===b.observedFence&&a.issue===b.issue;}});
- const adapter={...cas,clock:()=>now,post:dailyPost({token:'TEST',fetchImpl})};
+ const adapter={...cas,clock:()=>now,post:dailyPost({token:'TEST',clock:()=>now,verifyTarget:async()=>true,fetchImpl})};
  assert.equal((await dispatchOnce(await inspect(),adapter)).status,'accepted');
  assert.equal((await dispatchOnce(await inspect(),adapter)).status,'not-claimed');
  assert.equal(posts,1);assert.equal(value.requests['2026-11-14'].status,'accepted');
 });
+import {createDailyRequestRuntime} from './runtime.mjs';
+import {ledgerView} from './ledger-view.mjs';
+class Completed extends Error{}
+function runtimeFixture(overrides={}){const f=fixture();let value={schemaVersion:1,requests:{}},version=1,posts=0;const document={schemaVersion:1,paused:false,restoreHold:false,lease:null,fence:32,intents:{},receipts:{}};const claimAdapter={read:async()=>({value:structuredClone(value),version}),conditionalWrite:async(k,v,expected)=>{if(expected!==version)throw Error('state_conflict');value=structuredClone(v);return++version;}};const args={reader:{issue:async()=>structuredClone(f.issue),source:async()=>sha,activeRuns:async()=>[]},claimAdapter,storageIdentity:'bound-private-request-doc',publicationIdentity:'bound-publication-doc',state:{inspect:async()=>structuredClone(document)},assertDailyPublicationAvailable:()=>{},DailyPublicationComplete:Completed,post:async()=>{posts++;return true;},clock:()=>now,...overrides};return{f,args,document,get posts(){return posts;},create:()=>createDailyRequestRuntime(args)};}
+test('runtime composition completes one request and blocks repeat',async()=>{const x=runtimeFixture(),r=x.create();assert.equal((await r.handle(x.f)).status,'accepted');await assert.rejects(r.handle(x.f));assert.equal(x.posts,1);});
+test('runtime authoritative completed checkpoint blocks dispatch',async()=>{const x=runtimeFixture({assertDailyPublicationAvailable:()=>{throw new Completed();}});await assert.rejects(x.create().handle(x.f));assert.equal(x.posts,0);});
+test('runtime corrupt checkpoint fails closed',async()=>{const x=runtimeFixture({assertDailyPublicationAvailable:()=>{throw Error('daily_checkpoint_invalid');}});await assert.rejects(x.create().handle(x.f));assert.equal(x.posts,0);});
+test('runtime refreshed issue revocation withholds POST',async()=>{const x=runtimeFixture();let reads=0;x.args.reader.issue=async()=>{reads++;return{...x.f.issue,state:reads>1?'closed':'open'};};assert.equal((await x.create().handle(x.f)).status,'not-claimed');assert.equal(x.posts,0);});
+test('runtime source changes between admission and claim withheld',async()=>{const x=runtimeFixture();let reads=0;x.args.reader.source=async()=>++reads===1?sha:'b'.repeat(40);assert.equal((await x.create().handle(x.f)).status,'not-claimed');assert.equal(x.posts,0);});
+test('runtime pending intents block publication',async()=>{const x=runtimeFixture();x.document.intents={one:{status:'pending'}};await assert.rejects(x.create().handle(x.f));assert.equal(x.posts,0);});
+test('ledger mapper never treats unknown intent as terminal',async()=>{await assert.rejects(ledgerView({state:{inspect:async()=>({schemaVersion:1,paused:false,restoreHold:false,lease:null,fence:32,intents:{a:{status:'alien'}},receipts:{}})},assertDailyPublicationAvailable:()=>{},DailyPublicationComplete:Completed,date:'2026-11-14'}));});
