@@ -1,0 +1,58 @@
+# LOCAL REVIEW TEMPLATE ONLY. Not installed under .github/workflows.
+# Required SHA placeholders intentionally fail before checkout or Google access.
+name: One private receipt bootstrap
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ltc-production-publication
+  cancel-in-progress: false
+jobs:
+  create-private-receipt-once:
+    # Existing environment supplies secrets; its wait timer is NOT owner approval.
+    environment: ltc-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Reject reruns and incomplete deployment pins
+        shell: bash
+        env:
+          EXPECTED_SOURCE_SHA: REVIEWED_IMMUTABLE_SOURCE_SHA_NOT_SET
+          EXPECTED_CHECKOUT_SHA: REVIEWED_CHECKOUT_ACTION_SHA_NOT_SET
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          [[ "$EXPECTED_SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$EXPECTED_CHECKOUT_SHA" =~ ^[a-f0-9]{40}$ ]]
+      - name: Checkout reviewed source without persisted credentials
+        uses: actions/checkout@REVIEWED_CHECKOUT_ACTION_SHA_NOT_SET
+        with:
+          ref: REVIEWED_IMMUTABLE_SOURCE_SHA_NOT_SET
+          persist-credentials: false
+      - name: Verify source and await independently approved exact-run pin
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LTC_BOOTSTRAP_EXPECTED_SOURCE_SHA: REVIEWED_IMMUTABLE_SOURCE_SHA_NOT_SET
+          LTC_BOOTSTRAP_EXPECTED_SETUP_SHA256: REVIEWED_DISCOVERY_SCRIPT_SHA256_NOT_SET
+          LTC_BOOTSTRAP_REVIEW_JSON: >-
+            {"sourceSha":"REVIEWED_IMMUTABLE_SOURCE_SHA_NOT_SET","workflowSha":"${{ github.workflow_sha }}","workflowPath":".github/workflows/receipt-bootstrap-once.yml","bootstrapBodySha256":"REVIEWED_BODY_SHA256_NOT_SET","bootstrapKey":"REVIEWED_BOOTSTRAP_KEY_NOT_SET","sourceManifest":{},"sourceManifestSha256":"REVIEWED_SOURCE_MANIFEST_SHA256_NOT_SET"}
+          LTC_BOOTSTRAP_PRIVATE_TARGET_JSON: ${{ vars.LTC_BOOTSTRAP_PRIVATE_TARGET_JSON }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$LTC_BOOTSTRAP_EXPECTED_SOURCE_SHA"
+          [[ "$LTC_BOOTSTRAP_EXPECTED_SETUP_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          printf '%s  %s\n' "$LTC_BOOTSTRAP_EXPECTED_SETUP_SHA256" scripts/cloud-ltc-bootstrap-pin-discovery.mjs | sha256sum --check --status
+          node scripts/cloud-ltc-bootstrap-pin-discovery.mjs
+      - name: Create private receipt once
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          node scripts/cloud-ltc-receipt-bootstrap-cli.mjs
