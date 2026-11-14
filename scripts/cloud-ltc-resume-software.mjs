@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 import { TARGET, acceptedSourceConfig, controls, cleanEnvironment, verifyImplementation, verifyPublicDomains, readReviewedMigrationConfiguration, requireDurableAdapter, safeFailure } from './cloud-ltc-release.mjs';
 import { DurableCloudState } from './cloud-ltc-state.mjs';
 import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
-import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
+import { createScopedGoogleAuthorization } from './cloud-ltc-google-auth.mjs';
 import { createReadOnlyReleaseClients } from './cloud-ltc-reconcile.mjs';
 import { downloadEvidence, createDriveEvidenceProvider, preallocateEvidenceIds } from './cloud-ltc-evidence.mjs';
 import { createAcceptanceLinkedClient, ACCEPTANCE_PROJECT_NAME } from './cloud-ltc-acceptance.mjs';
@@ -127,7 +127,8 @@ export async function createSoftwareStageRecoveryRuntime({ env, review, configur
   const clients = createReadOnlyReleaseClients({ env, fetcher: fetchImpl });
   const linked = createAcceptanceLinkedClient({ env, vercel: clients.vercel, directory, report: diagnostic => save({ safeCliFailure: diagnostic }) });
   await linked.verifyVersion();
-  const token = () => withGoogleCloudAuthorization({ env, fetchImpl }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
+  const authorization = createScopedGoogleAuthorization({ env, fetchImpl });
+  const token = () => authorization(access => access.LTC_GOOGLE_ACCESS_TOKEN);
   const accepted = acceptedSourceConfig(await json(path.join(root, 'config/ltc-cloud-source.json')));
   const expectedPolicy = await json(path.join(root, 'config/ltc-publication.json'));
   const verifyProject = async () => {

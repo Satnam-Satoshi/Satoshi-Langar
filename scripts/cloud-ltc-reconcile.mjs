@@ -5,7 +5,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { DurableCloudState } from './cloud-ltc-state.mjs';
 import { createGoogleStateRuntime } from './cloud-ltc-google-runtime.mjs';
-import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
+import { createScopedGoogleAuthorization } from './cloud-ltc-google-auth.mjs';
 import { downloadEvidence, restoreArtifactEvidence } from './cloud-ltc-evidence.mjs';
 import { createVercelReleaseProviders } from './cloud-ltc-release-providers.mjs';
 import { TARGET, verifyPublicDomains } from './cloud-ltc-release.mjs';
@@ -128,7 +128,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     const linked = createAcceptanceLinkedClient({ env: process.env, vercel: clients.vercel, directory, report: async () => {} });
     await linked.verifyVersion();
     const readProtected = (deployment, editionId, manifest) => linked.readProtected(deployment, manifest, manifest);
-    const receipt = await inspectPersistedOperations({ state, ...clients, evidenceConfig, directory, getAccessToken: () => withGoogleCloudAuthorization({}, access => access.LTC_GOOGLE_ACCESS_TOKEN), readProtected, readPublic: verifyPublicDomains });
+    const authorization = createScopedGoogleAuthorization({env:process.env});
+    const receipt = await inspectPersistedOperations({ state, ...clients, evidenceConfig, directory, getAccessToken: () => authorization(access => access.LTC_GOOGLE_ACCESS_TOKEN), readProtected, readPublic: verifyPublicDomains });
     await writeFile(options.receipt, JSON.stringify({ ...receipt, recoveryDirectory: directory }, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
     console.log(JSON.stringify({ mode: receipt.mode, stateChanged: false, effectsReissued: false, unknown: receipt.results.filter(record => record.observed === 'unknown').length, requiresExplicitReview: true }));
   } catch { console.error('read_only_reconciliation_unavailable'); process.exitCode = 1; }

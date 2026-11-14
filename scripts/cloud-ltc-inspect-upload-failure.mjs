@@ -5,7 +5,7 @@ import {pathToFileURL} from 'node:url';
 import {DurableCloudState} from './cloud-ltc-state.mjs';
 import {inspectPersistedOperations,createReadOnlyReleaseClients} from './cloud-ltc-reconcile.mjs';
 import {createGoogleStateRuntime} from './cloud-ltc-google-runtime.mjs';
-import {withGoogleCloudAuthorization} from './cloud-ltc-google-auth.mjs';
+import {createScopedGoogleAuthorization} from './cloud-ltc-google-auth.mjs';
 import {receiptHash as hash} from './cloud-ltc-acceptance-proof.mjs';
 import {TARGET,verifyImplementation,acceptedSourceConfig} from './cloud-ltc-release.mjs';
 const check=(value,code)=>{if(!value)throw Error(code);};
@@ -46,7 +46,8 @@ export async function runUploadInspection(options,env=process.env,deps={}){
  const config=await read(options.stateConfig),evidenceConfig=await read(options.evidenceConfig);
  check((config.ledgerKey??'website')==='website'&&config.folderId===evidenceConfig.folderId,'upload_inspection_resources_changed');
  const fetcher=readOnlyGoogleFetch(deps.fetcher??fetch),runtime=await(deps.runtime??createGoogleStateRuntime)({config,env,fetchImpl:fetcher}),clients=createReadOnlyReleaseClients({env,fetcher:deps.fetcher??fetch});
- const result=await inspectFailedArtifactUploads({env,adapter:{read:key=>runtime.stateAdapter.read(key)},evidenceConfig,github:deps.github??clients.github,getAccessToken:()=>withGoogleCloudAuthorization({env,fetchImpl:fetcher},access=>access.LTC_GOOGLE_ACCESS_TOKEN),fetcher});
+ const authorization=createScopedGoogleAuthorization({env,fetchImpl:fetcher});
+ const result=await inspectFailedArtifactUploads({env,adapter:{read:key=>runtime.stateAdapter.read(key)},evidenceConfig,github:deps.github??clients.github,getAccessToken:()=>authorization(access=>access.LTC_GOOGLE_ACCESS_TOKEN),fetcher});
  await(deps.save??(value=>writeFile(options.receipt,JSON.stringify(value,null,2)+'\n',{flag:'wx',mode:0o600})))(result);
  return result;
 }
