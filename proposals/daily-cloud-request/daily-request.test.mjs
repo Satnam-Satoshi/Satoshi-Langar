@@ -18,3 +18,16 @@ test('expiry while claiming retains claim and withholds POST',async()=>{let t=no
 test('invalid ledger calendar rejected',()=>{const f=fixture();f.evidence.ledger.latest_date='2026-02-30';assert.throws(()=>admit(f));});
 test('normalized invalid timestamp rejected',()=>{const f=fixture();f.issue.created_at=f.issue.updated_at=f.event.issue.created_at=f.event.issue.updated_at='2026-11-13T24:00:00Z';assert.throws(()=>admit(f));});
 test('Eastern midnight rollover prevents POST',async()=>{const f=fixture();f.now=Date.parse('2026-11-15T04:59:50Z');f.evidence.observed_at='2026-11-15T04:59:45Z';f.issue.created_at=f.issue.updated_at=f.event.issue.created_at=f.event.issue.updated_at='2026-11-15T04:59:30Z';changeBody(f,r=>r.expires_at='2026-11-15T05:04:00Z');let t=f.now,posts=0;await dispatchOnce(admit(f),{clock:()=>t,claim:async()=>{t+=20000;return true;},post:async()=>{posts++;return true;},record:async()=>{}});assert.equal(posts,0);});
+import {githubReader} from './github-reader.mjs';import {claimStore} from './claim-store.mjs';import {dailyPost} from './daily-post.mjs';
+test('mocked end-to-end: read owner/branch/runs, CAS claim, fixed POST, receipt, reject duplicate',async()=>{
+ const f=fixture();let posts=0,value={schemaVersion:1,requests:{}},version=1;
+ const fetchImpl=async(url,opts)=>{if(opts.method==='POST'){posts++;return{status:204};}let b;if(url.endsWith('/issues/1'))b=f.issue;else if(url.includes('/git/ref/'))b={ref:'refs/heads/agent/wall-street-20261011',object:{type:'commit',sha}};else b={total_count:0,workflow_runs:[]};return{status:200,text:async()=>JSON.stringify(b)};};
+ const reader=githubReader({token:'TEST',fetchImpl});
+ async function inspect(){const copy=structuredClone(f);copy.issue=await reader.issue(1);copy.evidence.source_commit=await reader.source();copy.evidence.runs=(await reader.activeRuns()).map(r=>({status:r.status}));return admit(copy);}
+ const store={read:async()=>({value:structuredClone(value),version}),conditionalWrite:async(k,v,expected)=>{if(expected!==version)throw Error('state_conflict');value=structuredClone(v);return++version;}};
+ const cas=claimStore({store,storageIdentity:'separate-private-requests',publicationIdentity:'existing-publication-state',revalidate:async a=>{const b=await inspect();return a.source===b.source&&a.observedFence===b.observedFence&&a.issue===b.issue;}});
+ const adapter={...cas,clock:()=>now,post:dailyPost({token:'TEST',fetchImpl})};
+ assert.equal((await dispatchOnce(await inspect(),adapter)).status,'accepted');
+ assert.equal((await dispatchOnce(await inspect(),adapter)).status,'not-claimed');
+ assert.equal(posts,1);assert.equal(value.requests['2026-11-14'].status,'accepted');
+});
