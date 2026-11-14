@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { ReleaseOperationCoordinator } from './cloud-ltc-operations.mjs';
 import { prepareGitReleasePlan, createVercelReleaseProviders, executeReleaseOperation, assertVercelDeploymentIdentity } from './cloud-ltc-release-providers.mjs';
 import { MAX_EVIDENCE_RAW_BYTES, chunkEvidence, packageEvidence, packageArtifactEvidence, createDriveEvidenceProvider, safeEvidenceDiagnostic, preallocateEvidenceIds, downloadEvidence } from './cloud-ltc-evidence.mjs';
-import { withGoogleCloudAuthorization } from './cloud-ltc-google-auth.mjs';
+import { createScopedGoogleAuthorization } from './cloud-ltc-google-auth.mjs';
 import { releaseGeneration, generationEvidenceId, completeFirstFreshGeneration, captureFreshGenerationBinding, assertFreshGenerationBinding, pauseOwnedFreshGeneration } from './cloud-ltc-generation.mjs';
 import { collectReleaseArtifacts } from './cloud-ltc-artifacts.mjs';
 import { assertPublicationDate } from './cloud-ltc-daily-admission.mjs';
@@ -172,7 +172,9 @@ export async function performCoordinatedRelease(options) {
   check(['source', 'static', 'build-output', 'evidence'].every(scope => artifactPackage.manifest.scopes[scope] > 0), 'incomplete_release_artifact_backup');
   assertNoQuarantinedUploadLineage(await admission.state.inspect(),{generation,artifactPackageManifestSha256:artifactPackage.manifestSha256,env});
   const bundles = artifactPackage.bundles;
-  const token = () => withGoogleCloudAuthorization({ env, fetchImpl }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
+  // One scoped, bounded cache per release. Never refresh for every evidence GET.
+  const authorizeEvidence = createScopedGoogleAuthorization({ env, fetchImpl });
+  const token = () => authorizeEvidence(access => access.LTC_GOOGLE_ACCESS_TOKEN);
   const existing = await admission.state.inspect();
   const evidencePayload = (bundle, index, fileId) => ({
     kind: 'drive-evidence', role: 'release-artifacts', generation,
@@ -301,7 +303,8 @@ export async function finishConfirmedStagedRelease({ admission, editionId, relea
 export async function loadPreviousReleaseManifest({ state, evidenceConfig, publicationProvenance, env = process.env, fetchImpl = fetch }) {
   const previous = (await state.inspect()).latestRelease;
   check(previous?.summary && /^[a-f0-9]{64}$/.test(previous.artifactManifestSha256 ?? '') && previous.summary.folderId === evidenceConfig.folderId, 'bootstrap_rollback_manifest_required');
-  const getAccessToken = () => withGoogleCloudAuthorization({ env, fetchImpl }, access => access.LTC_GOOGLE_ACCESS_TOKEN);
+  const authorizeEvidence = createScopedGoogleAuthorization({ env, fetchImpl });
+  const getAccessToken = () => authorizeEvidence(access => access.LTC_GOOGLE_ACCESS_TOKEN);
   const restored = await downloadEvidence(previous.summary, { config: { ...evidenceConfig, fileId: previous.summary.fileId }, getAccessToken, fetcher: fetchImpl });
   check(restored?.bundle, 'rollback_manifest_unavailable');
   const record = JSON.parse(restored.bundle.bytes.toString('utf8')).files.find(file => file.path === 'artifact-manifest.json');
