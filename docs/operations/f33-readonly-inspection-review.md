@@ -1,0 +1,13 @@
+# One read-only F33 diagnostic
+
+Inactive local review candidate. No workflow installation, dispatch, Google call or state mutation has occurred.
+
+Two-job manual workflow: native owner gate without checkout/credentials; dependent existing production environment supplies only existing publisher Google credentials and read-only GitHub token. Pinned checkout and exact eleven-module manifest verified before credentials. New fixed native inspection workflow/job bindings reject reruns and missing/conflicting owner reviews. Existing environment configuration is not changed.
+
+The same OAuth app first locates the successful blank private receipt by descriptive incident/run provenance, keeping its identifier private. Zero or multiple matches stop. The coordinator reads the website ledger, verifies fence33/expired lease/origin and51 artifact rows, checks34 confirmed local proof/receipt hashes and16 pending records, then verifies failed origin via GitHub. Only the uncertain artifact is downloaded with owner/hash/bundle checks and sanitized diagnostics. A final ledger read must have identical revision and logical snapshot hash. The workflow never clears state, appends receipt content, creates documents, publishes or unpauses.
+
+Coverage is explicitly `uncertain-only`; `casReconciliationComplete:false`. The34 confirmed artifacts are retained ledger proofs, not newly verified provider downloads. Public-site baseline is not checked. This diagnostic cannot authorize retirement or another publication. Missing/404 evidence stays UNKNOWN, never absence proof or permission to retry. No automatic creation retry exists.
+
+Hard transport boundary permits GET on fixed provider resource families and only the existing OAuth refresh POST. Runtime write methods are not exposed to the coordinator; beforeWrite also throws. Private detailed result is exclusively created mode0600 in runner temporary storage; no public artifact upload, IDs, raw snapshot or credentials in output. Public output contains categorical coverage/status/counts/allowlisted diagnostics only. Temporary detailed results are not a durable cross-run handoff; another authorized in-process consumer or fresh read is needed later.
+
+Before install: independently review source/tests, fill source/module/manifest pins, successful receipt run/incident and failed-publication run, retaining existing private target variable references. Native gate settings were previously configured separately; this file makes no setting changes. Standard read adapters may perform bounded read-only retries; no provider mutation or retry of effects is possible.
