@@ -1,0 +1,59 @@
+# LOCAL REVIEW ARTIFACT ONLY. Not installed under .github/workflows.
+# Review artifact only: exact pins filled, no workflow installed or invocation authorized.
+name: One private receipt bootstrap
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ltc-production-publication
+  cancel-in-progress: false
+jobs:
+  create-private-receipt-once:
+    # Existing environment supplies secrets; its wait timer is NOT owner approval.
+    environment: ltc-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Reject reruns and incomplete deployment pins
+        shell: bash
+        env:
+          EXPECTED_SOURCE_SHA: 17a82b43dac6af7e6da360acbb4a79982660514d
+          EXPECTED_CHECKOUT_SHA: 11bd71901bbe5b1630ceea73d27597364c9af683
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          [[ "$EXPECTED_SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$EXPECTED_CHECKOUT_SHA" =~ ^[a-f0-9]{40}$ ]]
+      - name: Checkout reviewed source without persisted credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 17a82b43dac6af7e6da360acbb4a79982660514d
+          persist-credentials: false
+      - name: Verify source and await independently approved exact-run pin
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LTC_BOOTSTRAP_EXPECTED_SOURCE_SHA: 17a82b43dac6af7e6da360acbb4a79982660514d
+          LTC_BOOTSTRAP_EXPECTED_SETUP_SHA256: 43ecf9de82c3d09b2b3fa329d18c50c6da35eec884cc0ed414f0a3d2332563a7
+          LTC_BOOTSTRAP_REVIEW_JSON: >-
+            {"sourceSha":"17a82b43dac6af7e6da360acbb4a79982660514d","workflowSha":"${{ github.workflow_sha }}","workflowPath":".github/workflows/receipt-bootstrap-once.yml","bootstrapBodySha256":"d21a04a40aff1af517d42e93d3a99b9319d94f8710adcaffcd07891f78722127","bootstrapKey":"6095963bc57546444964d08d0f454d43246cb57bcb6fe5a4e6539d408b201e37","sourceManifest":{"scripts/cloud-ltc-receipt-bootstrap-cli.mjs":"391b436486d48ce3822979b9e933035c9932e4f5fd660ad3f1c583a022cd7b0d","scripts/cloud-ltc-receipt-bootstrap.mjs":"b042d43f9f505d923dfcc9c2af50b65d9637b7deaed1d8dc88fc0cd56949e8d7","scripts/cloud-ltc-receipt-bootstrap-transport.mjs":"27ca93b13556777fbd82abc9c8a6537d4a583af586ec150907796bf04c40a7d4","scripts/cloud-ltc-bootstrap-github-admission.mjs":"bff470dece017d645f8b36025e3db106249ecc704935fbdffe25b20be3d17d76","scripts/cloud-ltc-bootstrap-invocation-admission.mjs":"c3b8d5ce66183351b562193e8db717966d27e7b44940cd07e2955774afe420ab","scripts/cloud-ltc-google-auth.mjs":"d760a26895b31e01fc68c8a1d9c2ad73b1c093e5b44e4a84d06a1ed912030640","scripts/cloud-ltc-bootstrap-pin-discovery.mjs":"43ecf9de82c3d09b2b3fa329d18c50c6da35eec884cc0ed414f0a3d2332563a7"},"sourceManifestSha256":"bf8e473349532b2c7f87f59eafb044e0d37f8602f77669957484cb21efc6135f"}
+          LTC_BOOTSTRAP_PRIVATE_TARGET_JSON: >-
+            {"folderId":"${{ vars.LTC_STATE_FOLDER_ID }}","ownerPermissionId":"${{ vars.LTC_EVIDENCE_OWNER_PERMISSION_ID }}","bootstrapKey":"6095963bc57546444964d08d0f454d43246cb57bcb6fe5a4e6539d408b201e37","identitySource":"protected-publisher-credential"}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$LTC_BOOTSTRAP_EXPECTED_SOURCE_SHA"
+          [[ "$LTC_BOOTSTRAP_EXPECTED_SETUP_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          printf '%s  %s\n' "$LTC_BOOTSTRAP_EXPECTED_SETUP_SHA256" scripts/cloud-ltc-bootstrap-pin-discovery.mjs | sha256sum --check --status
+          node scripts/cloud-ltc-bootstrap-pin-discovery.mjs
+      - name: Create private receipt once
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          node scripts/cloud-ltc-receipt-bootstrap-cli.mjs
