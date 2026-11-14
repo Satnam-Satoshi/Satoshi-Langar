@@ -21,7 +21,7 @@ Source SHA is an admission-time freshness check, NOT an execution pin. This requ
 
 ## Required activation steps, not performed
 1. Independently approve the exact full integration and narrow Actions-write entrypoint. Underlying ephemeral token scope is repository-wide even though code allows one workflow and fixed inputs only. No PAT/App key is required.
-2. Provision a separate owner-only private Google Doc in the already selected private folder, containing the request-state envelope for `daily-dispatch-requests` with `{schemaVersion:1,requests:{}}`. Bind its exact document ID as `LTC_DAILY_REQUEST_DOCUMENT_ID`. Never use the publication ledger for claims. Existing provider runtime checks ownership, permissions, parent and revisions.
+2. Provision a separate owner-only private Google Doc in the already selected private folder, containing the existing `website` codec envelope with `{schemaVersion:1,requests:{}}` in the NEW REQUEST DOCUMENT ONLY. The request adapter maps logical `daily-dispatch-requests` to that existing codec; it never touches the publication document. Bind its exact document ID as `LTC_DAILY_REQUEST_DOCUMENT_ID`. Never use the publication ledger for claims. Existing provider runtime checks ownership, permissions, parent and revisions.
 3. Review and install template on trusted main only as `.github/workflows/ltc-daily-cloud-request.yml`; configure activation gate both where job admission and protected environment resolve it. Do not merge proposals into the accepted daily source branch.
 4. Verify current target workflow hash and immutable runtime pin still match reviewed versions. Changes fail closed and require review; do not silently update hashes.
 5. Prove connector issue sender is the owner, not a bot. Test trusted-context self-exclusion and read-only provider access with writes disabled first.
@@ -34,6 +34,11 @@ Sequential GitHub status reads are not atomic. Main/source/issue can change afte
 Request claims are retained after uncertainty or expiry. Finite reconciled maintenance is required before any retry; never clear them automatically. Capacity limit is 366 date claims and fails closed when full. No maintenance path is included.
 
 ## Verification
-80 focused tests pass, including mocked end-to-end owner/source/runs -> authoritative ledger mapping -> CAS claim -> fixed POST -> receipt -> duplicate denial, revocation/source changes, expiry/midnight crossing, corrupt checkpoints, unknown intents, ambiguous CAS acknowledgements, readback mismatch, transport timeout and receipt failure. Prior independent reviews corrected expiry, forged-admission, calendar and CAS-acknowledgement defects. Tests are offline mocks, not live publication proof.
+84 focused tests pass, including mocked end-to-end owner/source/runs -> authoritative ledger mapping -> CAS claim -> fixed POST -> receipt -> duplicate denial, revocation/source changes, expiry/midnight crossing, corrupt checkpoints, unknown intents, ambiguous CAS acknowledgements, readback mismatch, transport timeout and receipt failure. Prior independent reviews corrected expiry, forged-admission, calendar and CAS-acknowledgement defects. Tests are offline mocks, not live publication proof.
 
 API reference: https://docs.github.com/en/rest/actions/workflow-runs (active statuses, pagination and filtered 1,000-result cap). PR137 remains a separate credential-free software-plan proposal.
+
+## Exact provider contract correction
+Independent exact-head review found the existing Google client rejects a new envelope key. A narrow `request-envelope.mjs` wrapper now binds the separate request document to the existing `website` envelope codec and accepts only the request-state schema. No production Google client or publication guard changed. Three exact source fixtures from pinned484c239c are included solely for contract tests: Google transport, Docs CAS adapter and envelope codec. Tests reproduce the old failure before POST, then verify complete claim and receipt readback using those real modules with mocked HTTP.
+
+Provisioning must use the same OAuth application or an explicitly granted resource selection, because existing Google credentials use `drive.file`; creating a document through another connector alone may not grant this application access. Verify actual scope/owner-only access under the publishing identity before enabling.

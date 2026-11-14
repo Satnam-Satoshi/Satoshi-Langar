@@ -1,3 +1,4 @@
+import {requestEnvelopeAdapter} from './request-envelope.mjs';
 // Bind the existing reviewed Google runtime/state classes, supplied by a pinned
 // trusted controller. No credential lookup or runtime invocation occurs on import.
 export async function googleBindings({folderId,publicationDocumentId,requestDocumentId,createGoogleStateRuntime,DurableCloudState,env,clock=Date.now,requestWritesAuthorized=false}){
@@ -9,5 +10,5 @@ export async function googleBindings({folderId,publicationDocumentId,requestDocu
  const requests=await createGoogleStateRuntime({config:configuration(requestDocumentId),env,clock,beforeWrite:()=>{if(!requestWritesAuthorized)throw Error('request_storage_writes_not_authorized');}});
  // Existing Google runtime verifies exact IDs, parent, owner-only permissions and
  // revisions against the provider. Identity strings derive from those bound configs.
- return {state:new DurableCloudState(publication.stateAdapter,'website',{clock}),claimAdapter:requests.stateAdapter,storageIdentity:requestDocumentId,publicationIdentity:publicationDocumentId};
+ return {state:new DurableCloudState(publication.stateAdapter,'website',{clock}),claimAdapter:requestEnvelopeAdapter(requests.stateAdapter,requestDocumentId),storageIdentity:requestDocumentId,publicationIdentity:publicationDocumentId};
 }
