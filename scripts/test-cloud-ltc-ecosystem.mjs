@@ -1,7 +1,7 @@
 import test from 'node:test';
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
-import { readFile, mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { readFile, mkdtemp, mkdir, writeFile, rm, access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { ECOSYSTEM_CONFIG, collectEcosystemNews, ecosystemArticleLinks, parseEcosystemArticle, parseEcosystemRelease, validateEcosystemReport, canonicalEventURL, ecosystemEventKey, ecosystemPublicationDay } from './lib/ltc-ecosystem-news.mjs';
@@ -13,6 +13,9 @@ import { archiveEcosystemReport } from './archive-ltc-ecosystem.mjs';
 import { readEcosystemHistory } from './collect-ltc-ecosystem.mjs';
 const notebook=JSON.parse(await readFile(new URL('../content/ltc-newsroom/newsroom-20261031T055112Z.json',import.meta.url),'utf8'));
 const now='2026-10-31T12:00:00.000Z';
+// Explicit test-only policy: happy paths must not depend on the operational
+// maintenance switch in config/ltc-publication.json. Runtime defaults unchanged.
+const testPublicationPolicy=Object.freeze({schemaVersion:1,policyId:'bounded-daily-v1',enabled:true,paused:false,timezone:'America/New_York',maximumSnapshotAgeHours:24,maximumObservationAgeDays:4,maximumTickerAgeMinutes:120,requireCompletePresentation:true,requiresFreshPrimaryObservation:true,individualHumanReview:false});
 const core=ECOSYSTEM_CONFIG.sources.find(s=>s.id==='core');
 const issuer=ECOSYSTEM_CONFIG.sources.find(s=>s.id==='litestrategy');
 function inputs(time=now){
@@ -105,14 +108,13 @@ test('ecosystem inputs route to existing daily features and source desk, retaini
 test('daily report and existing curated daily features are immutable; history uses only sources cited by published features',async()=>{
  const directory=await mkdtemp(path.join(tmpdir(),'ecosystem-test-'));try{
  const reports=path.join(directory,'reports'),features=path.join(directory,'features');const report=await collect();
- assert.equal((await archiveEcosystemReport(report,{directory:reports,now})).status,'archived');const bytes=await readFile(path.join(reports,report.date+'.json'),'utf8');
- const alternative=await collect({fetchImpl:mock({issuerArticles:false})});const selectedFile=path.join(directory,'selected-report.json');const retry=await archiveEcosystemReport(alternative,{directory:reports,now,selectionOutput:selectedFile});assert.equal(retry.status,'unchanged');assert.deepEqual(retry.report,report);assert.deepEqual(JSON.parse(await readFile(selectedFile,'utf8')),report);const retryFeatures=prepareDailyFeatures({...inputs(),ecosystem:retry.report});assert.equal(retryFeatures.stories.length,2);assert.equal(await readFile(path.join(reports,report.date+'.json'),'utf8'),bytes);
+ assert.equal((await archiveEcosystemReport(report,{directory:reports,policy:testPublicationPolicy,now})).status,'archived');const bytes=await readFile(path.join(reports,report.date+'.json'),'utf8');
+ const alternative=await collect({fetchImpl:mock({issuerArticles:false})});const selectedFile=path.join(directory,'selected-report.json');const retry=await archiveEcosystemReport(alternative,{directory:reports,policy:testPublicationPolicy,now,selectionOutput:selectedFile});assert.equal(retry.status,'unchanged');assert.deepEqual(retry.report,report);assert.deepEqual(JSON.parse(await readFile(selectedFile,'utf8')),report);const retryFeatures=prepareDailyFeatures({...inputs(),ecosystem:retry.report});assert.equal(retryFeatures.stories.length,2);assert.equal(await readFile(path.join(reports,report.date+'.json'),'utf8'),bytes);
  const content=prepareDailyFeatures({...inputs(),ecosystem:report});await mkdir(features);await writeFile(path.join(features,report.date+'.json'),JSON.stringify(content));
  assert.equal((await publishDailyFeatures({...inputs(),ecosystem:alternative},{directory:features})).status,'unchanged');
  const draftsOnly=await readEcosystemHistory({reportDirectory:reports,editionIndex:path.join(directory,'not-yet-published.json'),now:'2026-11-01T12:00:00.000Z'});assert.deepEqual(draftsOnly.coveredEvents,[]);
  const edition=JSON.parse(await readFile(new URL('../content/ltc/2026-10-31-r1.json',import.meta.url),'utf8'));edition.features={...content,preparedAt:edition.preparedAt};edition.flagship.featuresSha256=createHash('sha256').update(JSON.stringify(edition.features)).digest('hex');await writeFile(path.join(directory,'editions.json'),JSON.stringify([edition]));
  const history=await readEcosystemHistory({reportDirectory:reports,editionIndex:path.join(directory,'editions.json'),now:'2026-11-01T12:00:00.000Z'});assert.equal(history.previousReports.length,1);assert.deepEqual(new Set(history.coveredEvents),new Set(report.events.map(e=>e.id)));
- const policy=JSON.parse(await readFile(new URL('../config/ltc-publication.json',import.meta.url),'utf8'));policy.paused=true;await assert.rejects(archiveEcosystemReport(report,{directory:path.join(directory,'paused'),policy,now}));
  }finally{await rm(directory,{recursive:true,force:true});}
 });
 
@@ -169,8 +171,17 @@ test('actual November 12 archive remains valid and immutable, while next-day rep
  const directory=await mkdtemp(path.join(tmpdir(),'editorial-checklist-'));try{
   await writeFile(path.join(directory,'2026-11-12.json'),original);
   const sameDay=await collect({...inputs(prior.checkedAt)});
-  const archived=await archiveEcosystemReport(sameDay,{directory,now:prior.checkedAt});assert.equal(archived.status,'unchanged');assert.deepEqual(archived.report,prior);
+  const archived=await archiveEcosystemReport(sameDay,{directory,policy:testPublicationPolicy,now:prior.checkedAt});assert.equal(archived.status,'unchanged');assert.deepEqual(archived.report,prior);
   assert.equal(await readFile(path.join(directory,'2026-11-12.json'),'utf8'),original);
  }finally{await rm(directory,{recursive:true,force:true});}
  assert.equal(await readFile(file,'utf8'),original);
+});
+
+
+test('explicit paused policy rejects archive and selection writes before creating any output',async()=>{
+ const directory=await mkdtemp(path.join(tmpdir(),'ecosystem-paused-'));try{
+  const report=await collect(),archive=path.join(directory,'archive'),selectionOutput=path.join(directory,'selected.json');
+  await assert.rejects(archiveEcosystemReport(report,{directory:archive,selectionOutput,policy:{...testPublicationPolicy,paused:true},now}),/publication_paused/);
+  await assert.rejects(access(archive),{code:'ENOENT'});await assert.rejects(access(selectionOutput),{code:'ENOENT'});
+ }finally{await rm(directory,{recursive:true,force:true});}
 });
