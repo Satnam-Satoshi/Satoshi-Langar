@@ -80,15 +80,18 @@
       "title": "Lending joins the LitVM test bench",
       "kicker": "Applications / Partnership and testnet",
       "paragraphs": [
-        "LitVM announced a strategic partnership and investment in Lithium on November 9; Lithium separately confirmed the relationship. The teams describe a non-custodial lending protocol, with USDC supply and borrowing against zkLTC, operating on LiteForge testnet. No investment amount or verified mainnet launch was established.",
+        "LitVM announced a strategic partnership and investment in Lithium on November 9; Lithium separately confirmed the relationship. The teams describe a non-custodial lending protocol on LiteForge testnet. Its app labels lending markets USDC and USDT, but Lithium’s documentation identifies those assets as mintable lithUSDC and lithUSDT test tokens, neither Circle nor Tether issues them, and they have no dollar reserves. No investment amount or verified mainnet launch was established.",
+        "Testnet zkLTC is used to test collateral and lending mechanics. Receiving it does not demonstrate that native Litecoin has crossed the planned V2 interoperability route. The LitVM status page leaves that route’s availability and mainnet details to network-specific release documentation.",
         "MidasHand amplified the announcement on November 12 and said MidasPredict is building prediction markets on LitVM. That adds another application category to the discussion, not evidence that Lithium and MidasPredict are integrated.",
-        "Before describing a production borrowing service, this desk will seek network-specific contracts, collateral provenance, independent reviews, oracle and liquidation rules, and withdrawal mechanics. Testnet availability does not establish safe or eligible use with real funds."
+        "Lithium reports no independent audit of these deployments. A single externally controlled account currently holds administrative, pause, upgrade and test-token minting powers; multisignature and timelock controls remain planned. Before describing a production service, this desk will seek mainnet contracts, asset provenance, independent reviews and operating controls. Testnet balances, prices and interest displays are not redeemable dollars or evidence of attainable returns."
       ],
-      "takeaway": "Track the application, but keep testnet and mainnet separate.",
+      "takeaway": "Test the mechanics; do not confuse test tokens with redeemable stablecoins or native LTC.",
       "sourceIds": [
         "lithium-litvm",
         "lithium-confirmation",
-        "midas-amplification"
+        "midas-amplification",
+        "lithium-docs",
+        "status"
       ]
     },
     {
@@ -490,6 +493,15 @@
       "publishedAt": "2026-11-12",
       "checkedAt": "2026-11-14",
       "note": "Original post reviewed November 14. Attributed announcement; no endorsement or production readiness inferred."
+    },
+    {
+      "id": "lithium-docs",
+      "title": "Lithium LiteForge documentation: assets and security controls",
+      "publisher": "Lithium",
+      "url": "https://www.lithiumlend.com/docs",
+      "publishedAt": null,
+      "checkedAt": "2026-11-14",
+      "note": "Project documentation: lithUSDC/lithUSDT are mintable test tokens, not Circle/Tether issuance or dollar-backed. No independent audit; current testnet control roles use one EOA. Not a mainnet safety assessment."
     }
   ],
   "limits": [
