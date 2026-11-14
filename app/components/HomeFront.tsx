@@ -1,3 +1,4 @@
+import { editorialSpecials, specialResearchDate } from '../data/editorial-specials';
 import MoonHomeFeature from './MoonHomeFeature';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
@@ -14,6 +15,7 @@ const checkedDate = new Intl.DateTimeFormat('en-US', {
 
 export default function HomeFront() {
   const issue = latestLtcEdition;
+  const moon = editorialSpecials.find(special => special.slug === 'litecoin-to-the-moon')!;
   const issueHref = issue ? editionDateHref(issue.date) : '/conversations/archive/';
 
   return <div className={styles.front}>
@@ -79,7 +81,7 @@ export default function HomeFront() {
       <aside className={styles.special} aria-labelledby="home-special-title">
         <img src="/magazine/litecoin-to-the-moon/cover-r2.png" width="1086" height="1448" loading="lazy" alt=""/>
         <div>
-          <p className={styles.kicker}>Special edition / Updated <time dateTime="2026-11-12">November 12, 2026</time></p>
+          <p className={styles.kicker}>Special edition / Updated <time dateTime={moon.researchThrough}>{specialResearchDate(moon.researchThrough)}</time></p>
           <h2 id="home-special-title"><a href="/conversations/specials/litecoin-to-the-moon/">Litecoin to the Moon <span aria-hidden="true">↗</span></a></h2>
           <p>Canton, cLTC, LitVM and the builders after Rome.</p>
         </div>

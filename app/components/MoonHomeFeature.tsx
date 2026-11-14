@@ -1,4 +1,4 @@
-import { editorialSpecials, specialArtwork, specialHref } from '../data/editorial-specials';
+import { editorialSpecials, specialArtwork, specialHref, specialResearchDate } from '../data/editorial-specials';
 import { editionDateHref, latestLtcEdition } from '../data/editions';
 import styles from './MoonHomeFeature.module.css';
 
@@ -14,7 +14,7 @@ export default function MoonHomeFeature({ primaryHeading = false }: { primaryHea
         <a className={styles.read} href={specialHref(moon.slug)}>Read the featured edition ↗</a>
         <a href={`${specialHref(moon.slug)}#contents`}>Explore the chapters →</a>
       </nav>
-      <p className={styles.note}>Source-linked special · Updated <time dateTime={moon.researchThrough}>November 12, 2026</time> · An editorial theme, not a price forecast.</p>
+      <p className={styles.note}>Source-linked special · Updated <time dateTime={moon.researchThrough}>{specialResearchDate(moon.researchThrough)}</time> · An editorial theme, not a price forecast.</p>
       {latestLtcEdition && <a className={styles.daily} href={editionDateHref(latestLtcEdition.date)}>Also in the daily newsroom: <strong>{latestLtcEdition.title}</strong> ↗</a>}
     </div>
     <a className={styles.cover} href={specialHref(moon.slug)} aria-label="Open Litecoin to the Moon">
