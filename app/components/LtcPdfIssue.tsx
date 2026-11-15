@@ -1,5 +1,5 @@
 import styles from './LtcPdfIssue.module.css';
-export const pdfIssue = { date: '2026-11-15', title: 'The Evidence Issue', page: '/conversations/editions/2026-11-15/', pdf: '/magazine/daily/LTC-2026-11-15-v1.0.pdf', cover: '/magazine/daily/LTC-2026-11-15-v1.0-cover.png' };
+import { pdfIssue } from '../data/pdf-issue';
 export default function LtcPdfIssue({ full = false }: { full?: boolean }) {
   return <section className={styles.issue} aria-label="November 15 daily PDF edition">
     <a className={styles.cover} href={full ? pdfIssue.pdf : pdfIssue.page}><img src={pdfIssue.cover} width="675" height="900" alt="LTC Magazine: The Evidence Issue, November 15, 2026" loading="lazy"/></a>

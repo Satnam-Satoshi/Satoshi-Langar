@@ -14,3 +14,7 @@ for(const route of ['index.html','conversations/index.html','conversations/archi
 assert.equal(createHash('sha256').update(readFileSync('dist/magazine/daily/LTC-2026-11-15-v1.0.pdf')).digest('hex'),'66ee76923773b2b718ff0b957bdd4df982e471f4c21b76630bcdfca12efdb3ac');
 assert.ok(readFileSync('app/components/LtcPdfIssue.module.css','utf8').includes('@media(max-width:640px)'));
 console.log('PASS: immutable PDF hash, five routes, asset/dated links, responsive breakpoint.');
+const deploymentConfig=JSON.parse(readFileSync('vercel.json','utf8'));
+assert.equal(deploymentConfig.buildCommand,'pnpm build && pnpm release:prepare');
+for(const name of ['litecoin-chain','litecoin-register','market-prices','morpho-markets'])assert.ok(existsSync(`.vercel/output/functions/api/${name}.func/.vc-config.json`),`Missing API function ${name}`);
+console.log('PASS: Git deployment command prepares all four API functions.');

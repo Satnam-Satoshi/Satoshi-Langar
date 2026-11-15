@@ -1,4 +1,4 @@
-import { pdfIssue } from './components/LtcPdfIssue';
+import { pdfIssue } from './data/pdf-issue';
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { SiteFooter } from "./components/SiteFooter";

@@ -9,7 +9,8 @@ test('custom magazine interiors implement the approved design, not only shell to
 
 test('daily route follows the actual latest publication, not a historical design review',async()=>{
  const daily=await read('app/conversations/daily/page.tsx');
- assert.match(daily,/latestLtcEdition/);assert.match(daily,/<EditionPage params=/);
+ assert.match(daily,/<LtcPdfIssue full\/>/);assert.match(daily,/conversations\/editions\/2026-11-15\//);
+ const pdf=await read('app/components/LtcPdfIssue.tsx');assert.match(await read('app/data/pdf-issue.ts'),/LTC-2026-11-15-v1\.0\.pdf/);assert.match(pdf,/unchanged PDF/);
  assert.doesNotMatch(daily,/const btcCompanies|const products|October 2 design review/);
  const edition=await read('app/conversations/editions/[id]/page.tsx');
  assert.match(edition,/Edition reading paths/);assert.match(edition,/styles.editionDesk/);
@@ -19,7 +20,7 @@ test('daily route follows the actual latest publication, not a historical design
 test('rendered QA includes current reader, newsroom and new special on mobile and desktop',async()=>{
  const qa=await read('scripts/qa-site-browser.mjs');
  for(const route of ['/conversations/daily/','/conversations/updates/','/conversations/specials/litecoin-builders-november/','/mission/','/langar/','/agents/'])assert.ok(qa.includes(route));
- assert.match(qa,/daily-interior/);
+ assert.match(qa,/pdf-reader/);assert.ok(qa.includes('/conversations/editions/2026-11-15/'));
 });
 
 test('Explore Litecoin remains discoverable in both site shells and footer',async()=>{

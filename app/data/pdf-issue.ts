@@ -1,0 +1,1 @@
+export const pdfIssue = { date: '2026-11-15', title: 'The Evidence Issue', page: '/conversations/editions/2026-11-15/', pdf: '/magazine/daily/LTC-2026-11-15-v1.0.pdf', cover: '/magazine/daily/LTC-2026-11-15-v1.0-cover.png' };

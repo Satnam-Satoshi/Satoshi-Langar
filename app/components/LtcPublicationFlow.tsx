@@ -1,4 +1,5 @@
-import LtcPdfIssue, { pdfIssue } from './LtcPdfIssue';
+import LtcPdfIssue from './LtcPdfIssue';
+import { pdfIssue } from '../data/pdf-issue';
 import { latestLtcEdition, ltcPublicationDays, editionDateHref, formatEditionDate } from '../data/editions';
 import { editorialSpecials, specialHref, specialArtwork } from '../data/editorial-specials';
 import { LtcEditionCover } from './LtcEditionPresentation';
