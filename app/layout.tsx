@@ -1,3 +1,4 @@
+import { pdfIssue } from './components/LtcPdfIssue';
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { SiteFooter } from "./components/SiteFooter";
@@ -19,5 +20,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { colorScheme: "light", themeColor: "#f7931a" };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return <html lang="en"><body><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">Skip to content</a><SiteHeader /><aside aria-label="Latest published magazine issue" className="edition-notice"><a href={latestLtcEdition ? editionDateHref(latestLtcEdition.date) : "/conversations/archive/"} style={{color:"inherit"}}>{latestLtcEdition ? `Latest published · ${formatEditionDate(latestLtcEdition.date)} · ${latestLtcEdition.title}` : "Explore the magazine archive"} →</a></aside><MarketCheckpoint /><div id="main-content">{children}</div><SiteFooter /></body></html>;
+  return <html lang="en"><body><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground">Skip to content</a><SiteHeader /><aside aria-label="Latest published magazine issue" className="edition-notice"><a href={pdfIssue.page} style={{color:"inherit"}}>{`Latest published · ${formatEditionDate(pdfIssue.date)} · ${pdfIssue.title}`} →</a></aside><MarketCheckpoint /><div id="main-content">{children}</div><SiteFooter /></body></html>;
 }
