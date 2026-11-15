@@ -1,0 +1,57 @@
+name: Read-only F33 runner smoke
+on:
+  workflow_dispatch:
+permissions:
+  actions: read
+jobs:
+  read-only-smoke:
+    name: read-only-smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read-only API and step-metadata smoke
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          // Bounded read-only transport/metadata probe. No authority and no provider credentials.
+          const repo='Satnam-Satoshi/Satoshi-Langar',old='43676779897',run=process.env.GITHUB_RUN_ID,token=process.env.GITHUB_TOKEN;
+          if(!/^[1-9][0-9]{0,19}$/.test(run??'')||!token)throw Error('probe_config');
+          const ownStep='Read-only API and step-metadata smoke';
+          const paths=new Set([`actions/runs/${old}`,`actions/runs/${old}/attempts/1/jobs?per_page=100`,`actions/runs/${old}/approvals`,`actions/runs/${run}`,`actions/runs/${run}/attempts/1/jobs?per_page=100`,'issues/153/comments?per_page=100&page=1']);
+          const emit=(label,fields)=>console.log(JSON.stringify({probe:label,...fields}));
+          async function get(label,p,auth=true){
+           if(!paths.has(p))throw Error('probe_path');
+           const controller=new AbortController();let timer,reader;
+           try{return await Promise.race([(async()=>{
+            const r=await fetch(`https://api.github.com/repos/${repo}/${p}`,{method:'GET',redirect:'error',cache:'no-store',signal:controller.signal,headers:{accept:'application/vnd.github+json',...(auth?{authorization:`Bearer ${token}`}:{})}});
+            const isJson=/^application\/json(?:\s*;|$)/i.test(r.headers.get('content-type')??'');
+            emit(label,{http:[200,401,403,404,429].includes(r.status)?r.status:'other',json:isJson,redirected:r.redirected});
+            if(r.status!==200||!isJson||r.redirected){process.exitCode=1;return null;}
+            reader=r.body?.getReader();if(!reader)throw Error('body');let n=0;const chunks=[];
+            for(;;){const v=await reader.read();if(v.done)break;n+=v.value.length;if(n>1048576||controller.signal.aborted)throw Error('size_or_timeout');chunks.push(Buffer.from(v.value));}
+            return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(chunks)));
+           })(),new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('timeout'));},10000);})]);}
+           catch{emit(label,{error:'read_unconfirmed'});process.exitCode=1;return null;}
+           finally{clearTimeout(timer);controller.abort();if(reader)void reader.cancel().catch(()=>{});}
+          }
+          const historical=await get('historical_run',`actions/runs/${old}`);
+          emit('historical_run_shape',{matches:historical?.id===Number(old)&&historical?.run_attempt===1&&historical?.head_sha==='ecbe6ceeb2cc75eec22fa1d7e47df0d2ade38986'&&historical?.path==='.github/workflows/ltc-f33-paused-retirement.yml'});
+          const jobs=await get('historical_jobs',`actions/runs/${old}/attempts/1/jobs?per_page=100`);
+          emit('historical_jobs_shape',{two:jobs?.total_count===2&&jobs?.jobs?.length===2});
+          const approvals=await get('historical_approvals',`actions/runs/${old}/approvals`);
+          emit('historical_owner_shape',{matches:Array.isArray(approvals)&&approvals.filter(a=>a.user?.id===268053325&&a.user?.type==='User'&&a.state==='approved'&&a.environments?.length===1&&a.environments[0].id===27323462394&&a.environments[0].name==='ltc-receipt-owner-approval').length===1});
+          const comments=await get('public_comments','issues/153/comments?per_page=100&page=1',false);
+          emit('public_comments_shape',{array:Array.isArray(comments),probeActorMatches:Array.isArray(comments)&&comments.some(c=>c.id===6888937764&&c.user?.id===268053325&&c.user?.type==='User')});
+          const current=await get('current_run',`actions/runs/${run}`);
+          emit('current_run_shape',{own:current?.id===Number(run),inProgress:current?.status==='in_progress'});
+          for(let i=0;i<6;i++){
+           const j=await get('current_jobs',`actions/runs/${run}/attempts/1/jobs?per_page=100`);
+           const own=Array.isArray(j?.jobs)?j.jobs.find(x=>x.name==='read-only-smoke'):null;
+           const step=own?.steps?.find(s=>s.name===ownStep);
+           emit('step_visibility',{sample:i,present:!!step,status:['queued','pending','in_progress','completed'].includes(step?.status)?step.status:'absent_or_other',startFinite:Number.isFinite(Date.parse(step?.started_at)),nullStart:step?.started_at===null,nullConclusion:step?.conclusion===null});
+           if(i<5)await new Promise(r=>setTimeout(r,3000));
+          }
+          NODE
