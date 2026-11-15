@@ -1,3 +1,4 @@
+import {safeDiagnosticCode,safeHttpCode} from './cloud-ltc-safe-diagnostics.mjs';
 const repo='Satnam-Satoshi/Satoshi-Langar';
 const gate='ltc-receipt-owner-approval';
 const check=(v,c)=>{if(!v)throw Error('retirement_native_'+c);};
@@ -19,33 +20,36 @@ export function validateNativeRetirementApproval({config:c,run,jobs,approvals,no
  const a=relevant[0];
  check(a.state==='approved'&&a.user?.id===268053325&&a.user.type==='User'&&a.environments.length===1&&a.environments[0].name===gate&&a.environments[0].id===c.environmentId,'owner_approval');
  const stopSteps=(createJob.steps??[]).filter(s=>s.name==='Wait for post-approval fresh writer-stop evidence');const stopStep=stopSteps.length===1?stopSteps[0]:null;
- return Object.freeze({stopStepStartedAt:stopStep&&(stopStep.status==='in_progress'&&stopStep.conclusion===null||stopStep.status==='completed'&&stopStep.conclusion==='success')?Date.parse(stopStep.started_at):NaN,runId:c.runId,productionJobId:createJob.id,productionJobStartedAt:Date.parse(createJob.started_at),observedAt:now,expiresAt:now+300000});
+ const pending=stopSteps.length===0||['queued','pending'].includes(stopStep?.status)&&stopStep.started_at===null&&stopStep.conclusion===null;
+ const ready=stopStep&&(stopStep.status==='in_progress'&&stopStep.conclusion===null||stopStep.status==='completed'&&stopStep.conclusion==='success')&&Number.isFinite(Date.parse(stopStep.started_at));
+ return Object.freeze({stopStepReadiness:pending?'pending':ready?'ready':'invalid',stopStepStartedAt:ready?Date.parse(stopStep.started_at):NaN,runId:c.runId,productionJobId:createJob.id,productionJobStartedAt:Date.parse(createJob.started_at),observedAt:now,expiresAt:now+300000});
 }
 // Trusted reviewed workflow verifies checkout/manifest before constructing this
 // reader. API evidence does not independently prove executed source or settings.
-export function createNativeRetirementApprovalReader({config,token,fetchImpl=fetch,clock=Date.now,timeoutMs=10000}){
+export function createNativeRetirementApprovalReader({config,token,fetchImpl=fetch,clock=Date.now,timeoutMs=10000,trace=()=>{}}){
  check(typeof token==='string'&&token.length>0&&typeof fetchImpl==='function'&&typeof clock==='function'&&Number.isInteger(timeoutMs)&&timeoutMs>=10&&timeoutMs<=30000,'config');
  const c=Object.freeze({...config}),fetcher=fetchImpl;
  check(/^[1-9][0-9]{0,19}$/.test(c.runId),'run_id');
- async function get(suffix){
+ async function get(suffix,stage){
+  trace(stage);
   const controller=new AbortController();let timer,reader;
   try{
    const pending=(async()=>{const response=await fetcher(`https://api.github.com/repos/${repo}/${suffix}`,{method:'GET',redirect:'error',cache:'no-store',signal:controller.signal,headers:{authorization:`Bearer ${token}`,accept:'application/vnd.github+json'}});
-    check(response.status===200&&!response.redirected,'response');check(/^application\/json(?:\s*;|$)/i.test(response.headers.get('content-type')??''),'type');
+    if(response.status!==200)throw Error(safeHttpCode('retirement_native',response.status));check(!response.redirected,'response');check(/^application\/json(?:\s*;|$)/i.test(response.headers.get('content-type')??''),'type');
     reader=response.body?.getReader();check(reader,'body');let size=0;const chunks=[];
     for(;;){const {done,value}=await reader.read();check(!controller.signal.aborted,'timeout');if(done)break;size+=value.byteLength;check(size<=131072,'size');chunks.push(Buffer.from(value));}
     const bytes=Buffer.concat(chunks),text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);return JSON.parse(text);
    })();
-   return await Promise.race([pending,new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('timeout'));},timeoutMs);})]);
-  }catch{throw Error('retirement_github_read_unconfirmed');}finally{clearTimeout(timer);controller.abort();if(reader)void reader.cancel().catch(()=>{});}
+   return await Promise.race([pending,new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('retirement_native_timeout'));},timeoutMs);})]);
+  }catch(error){const code=safeDiagnosticCode(error);throw Error(code==='unclassified'?'retirement_github_read_unconfirmed':code);}finally{clearTimeout(timer);controller.abort();if(reader)void reader.cancel().catch(()=>{});}
  }
  return async function readVerifiedAdmission(){
   const started=clock();check(Number.isFinite(started),'clock');
-  const run=await get(`actions/runs/${c.runId}`);
-  const jobs=await get(`actions/runs/${c.runId}/attempts/1/jobs?per_page=100`);
-  const approvals=await get(`actions/runs/${c.runId}/approvals`);
+  const run=await get(`actions/runs/${c.runId}`,'native_run_read');
+  const jobs=await get(`actions/runs/${c.runId}/attempts/1/jobs?per_page=100`,'native_jobs_read');
+  const approvals=await get(`actions/runs/${c.runId}/approvals`,'native_approvals_read');
   const ended=clock();check(Number.isFinite(ended)&&ended>=started&&ended-started<30000,'stale');
-  return validateNativeRetirementApproval({config:c,run,jobs,approvals,now:started});
+  trace('native_validating');const result=validateNativeRetirementApproval({config:c,run,jobs,approvals,now:started});trace('native_verified');return result;
  };
 }
 

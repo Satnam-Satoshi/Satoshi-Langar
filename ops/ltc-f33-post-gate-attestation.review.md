@@ -54,3 +54,19 @@ restamp evidence, rerun the failed retirement attempt, or repeat receipt mutatio
 A post-reservation failure may leave the incident receipt reserved and requires
 reconciliation, never automatic retry. Mac presence is only this legacy-writer
 retirement preflight, not a long-term daily publishing dependency.
+
+## Public-only wait diagnostics
+
+The diagnostic tests use entirely synthetic run/job/step fixtures. No captured
+API payload or live run/job metadata is included. These tests demonstrate validation
+behavior and do not establish the cause of any historical live failure.
+
+The reviewed diagnostic patch emits only finite static stage/error enums. It never
+prints response bodies, exception text/stacks, URLs, tokens or private config.
+Missing/not-started wait-step metadata can receive a bounded native-read-only
+readiness grace (3-second polling, at most60seconds) after every native identity,
+run, attempt, owner approval and job check passes. No evidence can be accepted
+until the exact actual wait-step start timestamp is verified. Invalid metadata,
+transport faults, changed authority and step disappearance do not retry. This
+readiness grace does not extend the five-minute observation lifetime or the
+existing ten-minute attestation wait. It does not authorize a live rerun.

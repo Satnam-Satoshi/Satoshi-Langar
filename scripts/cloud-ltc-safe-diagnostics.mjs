@@ -1,0 +1,12 @@
+// Public diagnostics are literal enums only. Never serialize provider bodies,
+// headers, URLs, exception stacks, config values or arbitrary error messages.
+const codes=new Set([
+ 'retirement_cli_runtime','retirement_cli_source','retirement_cli_manifest','retirement_cli_source_bytes','retirement_cli_private_config','retirement_cli_private_stop','retirement_cli_embedded_stop_forbidden','retirement_cli_admission_expired','retirement_cli_resources','retirement_cli_receipt','retirement_cli_barrier_binding','retirement_cli_review_changed','retirement_cli_arguments',
+ 'retirement_native_config','retirement_native_path','retirement_native_clock','retirement_native_run','retirement_native_jobs','retirement_native_job_names','retirement_native_job_binding','retirement_native_job_status','retirement_native_reviews','retirement_native_review_conflict','retirement_native_owner_approval','retirement_native_run_id','retirement_native_response','retirement_native_type','retirement_native_body','retirement_native_timeout','retirement_native_size','retirement_native_stale','retirement_native_review_pin','retirement_native_binding_fields','retirement_native_scope','retirement_native_expired','retirement_native_binding_changed','retirement_github_read_unconfirmed',
+ 'f33_stop_step_not_visible','f33_stop_step_disappeared','f33_stop_input','f33_stop_job','f33_stop_malformed','f33_stop_duplicate','f33_stop_schema','f33_stop_principal','f33_stop_edited','f33_stop_created','f33_stop_binding','f33_stop_fresh','f33_stop_stop','f33_stop_config','f33_stop_response','f33_stop_body','f33_stop_timeout','f33_stop_size','f33_stop_page','f33_stop_read_unconfirmed','f33_stop_read_window','f33_stop_pagination','f33_stop_wait_expired','f33_stop_changed','f33_stop_revoke','f33_stop_revoked',
+ ...['retirement_native','f33_stop'].flatMap(p=>['401','403','404','429','other'].map(n=>`${p}_http_${n}`))
+]);
+const stages=new Set(['wait_step_pending','wait_source_verified','native_run_read','native_jobs_read','native_approvals_read','native_validating','native_verified','comments_read','attestation_validating','attestation_absent','attestation_verified','wait_proof_saved']);
+export function safeDiagnosticCode(error){return typeof error?.message==='string'&&codes.has(error.message)?error.message:'unclassified';}
+export function safeHttpCode(prefix,status){return `${prefix}_http_${[401,403,404,429].includes(status)?status:'other'}`;}
+export function createSafeTrace(emit=()=>{}){return stage=>{if(stages.has(stage))emit({status:'paused_retirement_diagnostic',stage});};}

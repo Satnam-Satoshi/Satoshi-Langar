@@ -1,5 +1,7 @@
 // Evidence only, never authority. Native owner approval remains mandatory.
 import {createHash} from 'node:crypto';
+import {safeDiagnosticCode,safeHttpCode} from './cloud-ltc-safe-diagnostics.mjs';
+const pendingStep=Symbol('pendingStep');
 const repo='Satnam-Satoshi/Satoshi-Langar',marker='ltc-f33-local-stop-v1';
 const check=(v,c)=>{if(!v)throw Error('f33_stop_'+c);};
 const sha=(v,n)=>typeof v==='string'&&new RegExp(`^[a-f0-9]{${n}}$`).test(v);
@@ -29,22 +31,22 @@ export function selectStopAttestation({comments,config:c,admission:a,now}){
  const localMaintenance=Object.fromEntries(['scheduler','schedulerDisabled','publisherProcesses','otherKnownDirectWriters','ownerMaintainsStop','observationSha256','observedAt'].map(k=>[k,b[k]]));
  return Object.freeze({commentId:q.id,bodySha256:hash(q.body),localMaintenance:Object.freeze(localMaintenance)});
 }
-export function createStopAttestationReader({config,readAdmission,token,fetchImpl=fetch,clock=Date.now,sleep=ms=>new Promise(r=>setTimeout(r,ms)),timeoutMs=10000}){
+export function createStopAttestationReader({config,readAdmission,token,fetchImpl=fetch,clock=Date.now,sleep=ms=>new Promise(r=>setTimeout(r,ms)),timeoutMs=10000,trace=()=>{}}){
  const c=Object.freeze({...config});check(typeof token==='string'&&token.length>0&&typeof readAdmission==='function'&&Number.isInteger(timeoutMs)&&timeoutMs>=10&&timeoutMs<=10000,'config');
  async function page(number){
   const controller=new AbortController();let timer,reader;
   try{return await Promise.race([(async()=>{
    const r=await fetchImpl(`https://api.github.com/repos/${repo}/issues/153/comments?per_page=100&page=${number}`,{method:'GET',redirect:'error',cache:'no-store',signal:controller.signal,headers:{accept:'application/vnd.github+json'}});
-   check(r.status===200&&!r.redirected&&/^application\/json(?:\s*;|$)/i.test(r.headers.get('content-type')??''),'response');reader=r.body?.getReader();check(reader,'body');let bytes=0;const chunks=[];
+   if(r.status!==200)throw Error(safeHttpCode('f33_stop',r.status));check(!r.redirected&&/^application\/json(?:\s*;|$)/i.test(r.headers.get('content-type')??''),'response');reader=r.body?.getReader();check(reader,'body');let bytes=0;const chunks=[];
    for(;;){const {done,value}=await reader.read();check(!controller.signal.aborted,'timeout');if(done)break;bytes+=value.length;check(bytes<=524288,'size');chunks.push(Buffer.from(value));}
    const rows=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(chunks)));check(Array.isArray(rows)&&rows.length<=100,'page');return rows;
-  })(),new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('timeout'));},timeoutMs);})]);}
-  catch{throw Error('f33_stop_read_unconfirmed');}finally{clearTimeout(timer);controller.abort();if(reader)void reader.cancel().catch(()=>{});}
+  })(),new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('f33_stop_timeout'));},timeoutMs);})]);}
+  catch(error){const code=safeDiagnosticCode(error);throw Error(code==='unclassified'?'f33_stop_read_unconfirmed':code);}finally{clearTimeout(timer);controller.abort();if(reader)void reader.cancel().catch(()=>{});}
  }
- async function read(){const start=clock(),a=await readAdmission(),comments=[];
-  for(let n=1;n<=3;n++){const rows=await page(n);comments.push(...rows);check(clock()>=start&&clock()-start<30000,'read_window');if(rows.length<100)return selectStopAttestation({comments,config:c,admission:a,now:clock()});check(n<3,'pagination');}
+ async function read({allowPending=false}={}){const start=clock(),a=await readAdmission(),comments=[];if(allowPending&&a.stopStepReadiness==='pending'){trace('wait_step_pending');return pendingStep;}trace('comments_read');
+  for(let n=1;n<=3;n++){const rows=await page(n);comments.push(...rows);check(clock()>=start&&clock()-start<30000,'read_window');if(rows.length<100){trace('attestation_validating');const proof=selectStopAttestation({comments,config:c,admission:a,now:clock()});trace(proof?'attestation_verified':'attestation_absent');return proof;}check(n<3,'pagination');}
  }
- return Object.freeze({read,async wait(){const start=clock();for(;;){check(clock()>=start&&clock()-start<600000,'wait_expired');const p=await read();check(clock()>=start&&clock()-start<600000,'wait_expired');if(p)return p;await sleep(15000);}},async revalidate(expected){const p=await read();check(p&&p.commentId===expected.commentId&&p.bodySha256===expected.bodySha256&&JSON.stringify(p.localMaintenance)===JSON.stringify(expected.localMaintenance),'changed');return p;}});
+ return Object.freeze({read,async wait(){const start=clock();let pendingSince=null,seenReady=false;for(;;){check(clock()>=start&&clock()-start<600000,'wait_expired');const p=await read({allowPending:true});check(clock()>=start&&clock()-start<600000,'wait_expired');if(!seenReady&&pendingSince!==null)check(clock()>=pendingSince&&clock()-pendingSince<60000,'step_not_visible');if(p===pendingStep){check(!seenReady,'step_disappeared');pendingSince??=clock();check(clock()>=pendingSince&&clock()-pendingSince<60000,'step_not_visible');await sleep(3000);continue;}seenReady=true;if(p)return p;await sleep(15000);}},async revalidate(expected){const p=await read();check(p&&p.commentId===expected.commentId&&p.bodySha256===expected.bodySha256&&JSON.stringify(p.localMaintenance)===JSON.stringify(expected.localMaintenance),'changed');return p;}});
 }
 // Await evidence read before each mutation; the existing synchronous provider
 // authority/barrier callback still checks expiry at the actual network send.
