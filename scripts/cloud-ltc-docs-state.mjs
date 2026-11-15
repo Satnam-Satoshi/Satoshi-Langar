@@ -1,3 +1,5 @@
+import { validateDocument } from './cloud-ltc-state.mjs';
+import { assertF33Transition } from './cloud-ltc-f33-fresh-admission.mjs';
 import { GoogleStateReadFailure } from './cloud-ltc-google-client.mjs';
 import { decodeStateEnvelope, encodeStateEnvelope, MAX_DOCS_STATE_CHARACTERS } from './cloud-ltc-state-envelope.mjs';
 
@@ -67,9 +69,10 @@ export class GoogleStateWriteNotAttempted extends Error {
 }
 
 export class GoogleDocsStateAdapter {
-  constructor({ documentId, folderId, client }) {
+  constructor({ documentId, folderId, client, f33Admission }) {
     check(idPattern.test(documentId ?? '') && idPattern.test(folderId ?? '') && client && ['getFileMetadata','getDocument','batchUpdateDocument'].every(name => typeof client[name] === 'function'), 'invalid_storage_configuration');
     this.documentId = documentId; this.folderId = folderId; this.client = client;
+    this.f33Admission = f33Admission === undefined ? undefined : structuredClone(f33Admission);
   }
   async #read(key) {
     check(keyPattern.test(key ?? ''), 'invalid_state_key');
@@ -87,6 +90,8 @@ export class GoogleDocsStateAdapter {
     // Re-read even on bootstrap: never equate absent provider resource with blank provisioned ledger.
     const current = await this.#read(key);
     check(current.version === expectedVersion, 'state_conflict');
+    assertF33Transition(current.value, value, this.f33Admission);
+    if (current.value?.f33Retirement) validateDocument(value);
     const text = encodeStateEnvelope(key, value);
     const requests = [];
     if (current.endIndex > 2) requests.push({deleteContentRange:{range:{startIndex:1,endIndex:current.endIndex-1,tabId:current.tabId}}});

@@ -1,0 +1,97 @@
+# Install as a NEW path/ID. Never rename or re-enable the legacy daily workflow.
+name: F33 reviewed fresh website admission
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ltc-production-publication
+  cancel-in-progress: false
+jobs:
+  owner-approval:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.run_attempt == 1 && vars.LTC_F33_ACTIVATION_ENABLED == 'true'
+    environment: ltc-receipt-owner-approval
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Approve one exact fresh website admission. Keep legacy workflows and local publisher stopped. No retirement replay, Buffer change, PDF change or immediate publication.'
+  activate-fresh-website-once:
+    needs: owner-approval
+    if: github.ref == 'refs/heads/main' && github.run_attempt == 1
+    environment: ltc-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LTC_ACCEPTED_IMPLEMENTATION_SHA256: ${{ vars.LTC_ACCEPTED_IMPLEMENTATION_SHA256 }}
+      LTC_SOURCE_BRANCH: ${{ vars.LTC_SOURCE_BRANCH }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ vars.LTC_F33_ACTIVATION_SOURCE_SHA }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify reviewed source and exact implementation
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import {execFileSync} from 'node:child_process';
+          import {readFileSync,lstatSync} from 'node:fs';
+          import {createHash} from 'node:crypto';
+          const expected=process.env.LTC_ACCEPTED_IMPLEMENTATION_SHA256;
+          if(!/^[a-f0-9]{64}$/.test(expected||''))throw Error('Accepted implementation digest missing');
+          const config=JSON.parse(readFileSync('config/ltc-cloud-source.json','utf8'));
+          if(config.repository!=='Satnam-Satoshi/Satoshi-Langar'||config.branch!==process.env.LTC_SOURCE_BRANCH||!/^agent\/[a-z0-9][a-z0-9/-]{0,150}$/.test(config.branch)||config.branch.includes('..')||config.branch.includes('//')||config.branch.endsWith('/'))throw Error('Reviewed source branch mismatch');
+          // Reviewed exact data shapes shared by the implementation guard and mutation gate.
+          // Classification is not publication approval: sources and immutable-history checks
+          // must also pass. No directory-wide exclusion or unknown JSON file is permitted.
+          const pointers = new Set([
+            'content/ltc/index.json', 'public/data/ltc-snapshot.json',
+            'content/ltc-community/latest.json', 'content/ltc-newsroom/latest.json',
+            'content/ltc-newsroom-selections/latest.json',
+            'content/research/litecoin-distribution-latest.json',
+          ]);
+          function calendarDate(value) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+            const parsed = new Date(`${value}T00:00:00.000Z`);
+            return Number.isFinite(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+          }
+          function routineDataRecord(file) {
+            if (typeof file !== 'string') return null;
+            if (pointers.has(file)) return { kind: 'pointer' };
+            const graphic = /^public\/magazine\/daily\/(\d{4}-\d{2}-\d{2}-r[1-9]\d?)\/(?:social\.(?:png|svg)|graphic\.json)$/.exec(file);
+            if (graphic) return calendarDate(graphic[1].slice(0, 10)) ? { kind: 'graphic', date: graphic[1].slice(0, 10), editionId: graphic[1] } : null;
+            let match = /^(?:content\/ltc\/(\d{4}-\d{2}-\d{2})-r[1-9]\d?|content\/(?:daily-features|ltc-ecosystem)\/(\d{4}-\d{2}-\d{2})|content\/ltc-newsroom-selections\/(?:source-desk-)?(\d{4}-\d{2}-\d{2})-r1)\.json$/.exec(file);
+            if (match) { const date = match[1] || match[2] || match[3]; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/research|public\/data)\/litecoin-distribution-(\d{4})(\d{2})(\d{2})\.json$/.exec(file);
+            if (match) { const date = `${match[1]}-${match[2]}-${match[3]}`; return calendarDate(date) ? { kind: 'dated', date } : null; }
+            match = /^(?:content\/ltc-community\/archive\/|content\/ltc-newsroom\/newsroom-)(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z\.json$/.exec(file);
+            if (match && calendarDate(`${match[1]}-${match[2]}-${match[3]}`) && +match[4] < 24 && +match[5] < 60 && +match[6] < 60) return { kind: 'archive' };
+            return null;
+          }
+          const isRoutineData = file => routineDataRecord(file) !== null;
+          const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).sort();
+          const hash=createHash('sha256');
+          for(const file of files){
+            const info=lstatSync(file);if(!info.isFile()||info.isSymbolicLink())throw Error('Non-regular tracked file');
+            if(isRoutineData(file))continue;
+            hash.update(file+'\0');hash.update(readFileSync(file));hash.update('\0');
+          }
+          if(hash.digest('hex')!==expected)throw Error('Implementation changed; publication withheld');
+          NODE
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.2
+      - name: Test focused admission and exclusion paths without provider credentials
+        run: node --test scripts/test-cloud-ltc-f33-fresh-admission.mjs scripts/test-cloud-ltc-f33-fresh-activation.mjs scripts/test-cloud-ltc-native-fresh-activation-authority.mjs scripts/test-cloud-ltc-f33-workflow-exclusion.mjs
+      - name: Verify exclusion and apply one exact admission
+        env:
+          LTC_F33_ACTIVATION_ENABLED: ${{ vars.LTC_F33_ACTIVATION_ENABLED }}
+          LTC_F33_ACTIVATION_REVIEW_JSON: ${{ secrets.LTC_F33_ACTIVATION_REVIEW_JSON }}
+          LTC_F33_ACTIVATION_REVIEW_SHA256: ${{ vars.LTC_F33_ACTIVATION_REVIEW_SHA256 }}
+          GITHUB_TOKEN: ${{ github.token }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+        run: node scripts/cloud-ltc-f33-fresh-activation-cli.mjs
+      # No private artifacts uploaded. Exact admission remains in the private ledger.

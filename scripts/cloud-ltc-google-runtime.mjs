@@ -6,7 +6,7 @@ import { GoogleDocsStateAdapter, GoogleStateWriteNotAttempted } from './cloud-lt
 // provider operation receives a newly authorized short-lived client; a long build
 // cannot silently reuse a captured, expired access token. Reads and writes use the
 // same configured refresh identity and exact resource privacy checks.
-export async function createGoogleStateRuntime({ config, env = process.env, fetchImpl = fetch, authorize, clock, beforeWrite = () => {} }) {
+export async function createGoogleStateRuntime({ config, env = process.env, fetchImpl = fetch, authorize, clock, beforeWrite = () => {}, f33Admission }) {
   const selected = validateCloudStateConfig(config);
   const useAuthorization = createScopedGoogleAuthorization({ env, fetchImpl, authorize, clock });
   const authFailures = new Map([
@@ -46,5 +46,5 @@ export async function createGoogleStateRuntime({ config, env = process.env, fetc
     verifySelectedResources: () => call('verifySelectedResources', []),
   });
   await client.verifySelectedResources();
-  return { client, stateAdapter: new GoogleDocsStateAdapter({ ...selected, client }) };
+  return { client, stateAdapter: new GoogleDocsStateAdapter({ ...selected, client, f33Admission }) };
 }

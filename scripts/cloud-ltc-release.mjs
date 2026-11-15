@@ -325,10 +325,11 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
       const migration = readReviewedMigrationConfiguration(env);
       if (!migration) assertMigrationAcceptance(); // Missing proof/policy stays closed before any private read.
       await controls(github, source, acceptedSource);
+      await dependencies.beforeProviderMutation?.();
       let stateAdapter = dependencies.stateAdapter;
       if (options.stateConfig) {
         stateConfig = JSON.parse(await readFile(path.resolve(options.stateConfig), 'utf8'));
-        ({ stateAdapter } = await createGoogleStateRuntime({ config: stateConfig, env }));
+        ({ stateAdapter } = await (dependencies.createStateRuntime ?? createGoogleStateRuntime)({ config: stateConfig, env }));
       }
       const bindings = migration.pins.stagePins.bindings;
       requireThat(stateConfig?.documentId === bindings.websiteDocumentId && stateConfig.folderId === bindings.folderId && env.LTC_ACCEPTED_IMPLEMENTATION_SHA256 === options.expected, 'private_storage_required');
@@ -410,7 +411,7 @@ export async function runRelease(options, env = process.env, dependencies = {}) 
     const result = await performCoordinatedRelease({
       admission, root: clone, source, changes, editionId: edition.id, acceptedSource,
       startedAt: record.startedAt, target: TARGET, github, vercel, cli: vercelCommand,
-      controls: commit => controls(github, commit, acceptedSource),
+      controls: async commit => { await controls(github, commit, acceptedSource); await dependencies.beforeProviderMutation?.(); },
       verifyImplementation: () => verifyImplementation(clone, options.expected),
       verifyMigration: async () => assertMigrationAcceptance({ document: await admission.state.inspect(), configuration: readReviewedMigrationConfiguration(env), currentControllerImplementationSha256: options.expected }),
       verifyBuildOutput: async () => { requireThat(sha(JSON.stringify(await builtOutputManifest(path.join(clone, '.vercel/output')))) === record.buildOutputSha256, 'built_output_changed'); await portable.verify(); },
