@@ -1,3 +1,4 @@
+import { assertF33ArchivedLineage } from './cloud-ltc-f33-fresh-admission.mjs';
 import { MAX_LOGICAL_STATE_BYTES } from './cloud-ltc-state-envelope.mjs';
 import{assertNoQuarantinedUploadReuse}from'./cloud-ltc-upload-quarantine-proof.mjs';
 import { createHash } from 'node:crypto';
@@ -132,6 +133,7 @@ export class DurableCloudState {
       changed = true;
       return document.intents[operationId] = {operationId, runId: lease.runId, fence: lease.fence, payloadSha256, ...(payload === undefined ? {} : {payload: copy(payload)}), status: 'pending', evidenceSha256: null};
     });
+    assertF33ArchivedLineage(document);
     validateDocument(document);
     if (changed) await this.adapter.conditionalWrite(this.key, document, version);
     return copy(results);
@@ -254,7 +256,8 @@ export class DurableCloudState {
   }
 }
 
-function validateDocument(document) {
+export function validateDocument(document) {
+  assertF33ArchivedLineage(document);
   check(Buffer.byteLength(JSON.stringify(document)) <= MAX_LOGICAL_STATE_BYTES, 'state_capacity_exceeded');
   check(document?.schemaVersion === 1 && typeof document.paused === 'boolean' && typeof document.restoreHold === 'boolean' && Number.isSafeInteger(document.fence) && document.fence >= 0 && document.intents && document.receipts && !Array.isArray(document.intents) && !Array.isArray(document.receipts), 'invalid_state_document');
   if (document.lease) check(validKey(document.lease.runId) && Number.isSafeInteger(document.lease.fence) && document.lease.fence > 0 && document.lease.fence <= document.fence && Number.isFinite(document.lease.expiresAt), 'invalid_state_document');
