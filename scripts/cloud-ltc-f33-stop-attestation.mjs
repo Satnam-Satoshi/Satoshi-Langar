@@ -41,10 +41,14 @@ export function createStopAttestationReader({config,readAdmission,token,fetchImp
   })(),new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('timeout'));},timeoutMs);})]);}
   catch{throw Error('f33_stop_read_unconfirmed');}finally{clearTimeout(timer);controller.abort();if(reader)void reader.cancel().catch(()=>{});}
  }
- async function read(){const start=clock(),a=await readAdmission(),comments=[];
+ async function read(waitOnly=false){const start=clock(),a=await readAdmission(),comments=[];
+  if(waitOnly&&a.stopStepPending===true){
+   check(a.runId===c.runId&&Number.isSafeInteger(a.productionJobId)&&a.productionJobId>0&&Number.isFinite(a.productionJobStartedAt)&&a.productionJobStartedAt<=clock(),'job');
+   check(clock()>=start&&clock()-start<30000,'read_window');return null;
+  }
   for(let n=1;n<=3;n++){const rows=await page(n);comments.push(...rows);check(clock()>=start&&clock()-start<30000,'read_window');if(rows.length<100)return selectStopAttestation({comments,config:c,admission:a,now:clock()});check(n<3,'pagination');}
  }
- return Object.freeze({read,async wait(){const start=clock();for(;;){check(clock()>=start&&clock()-start<600000,'wait_expired');const p=await read();check(clock()>=start&&clock()-start<600000,'wait_expired');if(p)return p;await sleep(15000);}},async revalidate(expected){const p=await read();check(p&&p.commentId===expected.commentId&&p.bodySha256===expected.bodySha256&&JSON.stringify(p.localMaintenance)===JSON.stringify(expected.localMaintenance),'changed');return p;}});
+ return Object.freeze({read:()=>read(),async wait(){const start=clock();for(;;){check(clock()>=start&&clock()-start<600000,'wait_expired');const p=await read(true);check(clock()>=start&&clock()-start<600000,'wait_expired');if(p)return p;await sleep(15000);}},async revalidate(expected){const p=await read();check(p&&p.commentId===expected.commentId&&p.bodySha256===expected.bodySha256&&JSON.stringify(p.localMaintenance)===JSON.stringify(expected.localMaintenance),'changed');return p;}});
 }
 // Await evidence read before each mutation; the existing synchronous provider
 // authority/barrier callback still checks expiry at the actual network send.
