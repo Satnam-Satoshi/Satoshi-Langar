@@ -20,7 +20,9 @@ export function validateNewsroom(record){
  const {sha256,...body}=record;
  if(record.schemaVersion!==1||record.classification!=='Dated newsroom update'||record.date!==editionDate(record.preparedAt)||sha256!==digest(body))throw Error('Invalid newsroom record or digest');
  if(record.id!==`newsroom-${record.preparedAt.replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z')}`)throw Error('Invalid newsroom identity');
- const base=prepareEdition(record.baseSnapshot,storedRegistry,storedPolicy,{now:record.preparedAt});
+ // Checking an immutable historical record is read-only. A current emergency
+ // pause must stop new preparation/publication, not make the archive unverifiable.
+ const base=prepareEdition(record.baseSnapshot,storedRegistry,{...storedPolicy,paused:false},{now:record.preparedAt});
  if(digest(base.sources)!==digest(record.sources)||digest(base.briefs)!==digest(record.briefs)||digest(base.coverageGaps)!==digest(record.coverageGaps))throw Error('Newsroom base observations do not match validated snapshot');
  validateIntelligence(record.intelligence,{now:record.preparedAt,editionDate:record.date});
  validatePolicySnapshot(record.policyRecords,{now:record.preparedAt});

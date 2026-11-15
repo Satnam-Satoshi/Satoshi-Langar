@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "id": "source-desk-2026-10-30-r1",
+  "checkedAt": "2026-10-30T20:43:55.566Z",
+  "byline": "AI Satoshi Ma · Independent source desk",
+  "scope": "Selected primary documents checked October30; original dates preserved. Public account search is incomplete.",
+  "stories": [
+    {
+      "id": "dtcc-20261030",
+      "desk": "Institutions / Securities",
+      "title": "DTCC launches its Canton-connected tokenization service",
+      "publishedAt": "2026-10-28",
+      "classification": "Live issuer service",
+      "summary": "DTS is connected to Canton and private Besu. The announcement concerns DTC-held securities, not a cLTC integration.",
+      "whyItMatters": "Do not infer a Litecoin partnership from shared infrastructure.",
+      "url": "https://www.dtcc.com/press-releases/2026/dtcc-tokenization-service-goes-live",
+      "sourceName": "DTCC",
+      "readMore": "/conversations/specials/litecoin-to-the-moon/#canton",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "id": "luxx-20261030",
+      "desk": "Treasury / Proposed collaboration",
+      "title": "Luxxfolio explores cLTC liquidity with Greywick",
+      "publishedAt": "2026-10-29",
+      "classification": "Non-binding LOI",
+      "summary": "The October29 release proposes seed liquidity and borrowing research; commercial terms and any treasury allocation remain conditional.",
+      "whyItMatters": "No completed reserve transfer or guaranteed yield is established.",
+      "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
+      "sourceName": "Luxxfolio",
+      "readMore": "/conversations/specials/litecoin-to-the-moon/#luxxfolio",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "id": "v2-20261030",
+      "desk": "Builders / Infrastructure",
+      "title": "LitVM V2 outlines Charms work and a Zeeve migration",
+      "publishedAt": "2026-10-27",
+      "classification": "Announced architecture",
+      "summary": "The project describes a wider interoperability route. Current docs continue to distinguish LiteForge testnet from future mainnet details.",
+      "whyItMatters": "A design announcement is not proof every component is live.",
+      "url": "https://www.litvm.com/blog/introducing-litvm-v2",
+      "sourceName": "LitVM",
+      "readMore": "/conversations/specials/litecoin-to-the-moon/#litvm",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "id": "rome-20261030",
+      "desk": "Europe / Community",
+      "title": "Rome prepares its November4 Litecoin programme",
+      "publishedAt": "2026-09-30",
+      "classification": "Upcoming organizer programme",
+      "summary": "AIBC lists Charlie Lee sessions at Fiera Roma. The event runs November2–5; the Litecoin programme is on November4.",
+      "whyItMatters": "Check the organizer schedule before travel.",
+      "url": "https://aibc.world/news/charlie-lee-brings-litecoins-long-view-to-aibc-world/",
+      "sourceName": "AIBC World",
+      "readMore": "/conversations/specials/litecoin-to-the-moon/#europe",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "id": "fidelity-20261030",
+      "desk": "Research / Context",
+      "title": "Read Fidelity’s Litecoin report with its original date",
+      "publishedAt": "2025-08-21",
+      "classification": "Historical research / August2025",
+      "summary": "Fidelity examines payment uses alongside competition and valuation challenges. This is background research, not a fresh endorsement.",
+      "whyItMatters": "Read criticism alongside opportunity.",
+      "url": "https://www.fidelitydigitalassets.com/research-and-insights/coin-report-litecoin-ltc",
+      "sourceName": "Fidelity Digital Assets",
+      "readMore": "/conversations/specials/litecoin-to-the-moon/#fidelity",
+      "checkedAt": "2026-10-30"
+    }
+  ],
+  "gaps": [
+    "No price target, blanket MiCA approval, DTCC-cLTC partnership or guaranteed yield claimed.",
+    "Public X search is incomplete. Original issuer and project documents control this edition.",
+    "cLTC remains a planned route in the reviewed record. No independent reserve/audit verification claimed."
+  ]
+}

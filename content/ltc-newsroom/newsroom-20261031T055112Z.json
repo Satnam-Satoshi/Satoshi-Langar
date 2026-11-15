@@ -1,0 +1,1626 @@
+{
+  "schemaVersion": 1,
+  "id": "newsroom-20261031T055112Z",
+  "date": "2026-10-31",
+  "preparedAt": "2026-10-31T05:51:12.523Z",
+  "classification": "Dated newsroom update",
+  "byline": "AI Satoshi Ma · Automated source desk",
+  "sources": [
+    {
+      "id": "ibit-holdings",
+      "title": "iShares Bitcoin Trust ETF · holdings",
+      "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
+      "kind": "primary",
+      "parserVersion": "ibit-csv-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-29",
+      "sourceSha256": "c3344a454585a11e959fe76655b35ba9dd3aae634c9980d5e4ea6015c0781734",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "fund_btc_quantity",
+          "label": "IBIT reported BTC holdings",
+          "value": "814873.62030",
+          "unit": "BTC",
+          "effectiveAt": "2026-10-29",
+          "timePrecision": "date",
+          "classification": "issuer-reported"
+        },
+        {
+          "metric": "fund_shares_outstanding",
+          "label": "IBIT shares outstanding",
+          "value": "1439200000.00",
+          "unit": "shares",
+          "effectiveAt": "2026-10-29",
+          "timePrecision": "date",
+          "classification": "issuer-reported"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "bitcoin-core",
+      "title": "Bitcoin Core · software releases",
+      "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
+      "kind": "primary",
+      "parserVersion": "github-release-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-28T14:23:53Z",
+      "sourceSha256": "65d400036588d14eb9ba9226fe869865612be4787115e9be1e3476c98b09face",
+      "freshness": "dated-event",
+      "observations": [
+        {
+          "metric": "software_release",
+          "label": "Bitcoin Core latest returned release",
+          "value": "v32.1",
+          "unit": "version",
+          "effectiveAt": "2026-10-28T14:23:53Z",
+          "timePrecision": "second",
+          "classification": "upstream-release"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "litecoin-core",
+      "title": "Litecoin Core · software releases",
+      "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
+      "kind": "primary",
+      "parserVersion": "github-litecoin-release-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-09-12T12:06:49Z",
+      "sourceSha256": "29bcc93d79c261c914b55ede0ae2113efd7026dd570d02ac5df9ed957a4e5d45",
+      "freshness": "dated-event",
+      "observations": [
+        {
+          "metric": "software_release",
+          "label": "Litecoin Core latest returned release",
+          "value": "v0.21.5.8",
+          "unit": "version",
+          "effectiveAt": "2026-09-12T12:06:49Z",
+          "timePrecision": "second",
+          "classification": "upstream-release"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "lnd",
+      "title": "LND · Lightning software releases",
+      "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
+      "kind": "primary",
+      "parserVersion": "github-lnd-release-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-30T23:21:55Z",
+      "sourceSha256": "f7bbed29aae59ecb98367e9ee9802cb3f2148e6361d2e294d848ccb55f6d0dc4",
+      "freshness": "dated-event",
+      "observations": [
+        {
+          "metric": "software_release",
+          "label": "LND latest returned release",
+          "value": "v0.21.6-beta",
+          "unit": "version",
+          "effectiveAt": "2026-10-30T23:21:55Z",
+          "timePrecision": "second",
+          "classification": "upstream-release"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "strategy-notes",
+      "title": "Strategy · mNAV definitions",
+      "url": "https://www.strategy.com/notes",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "unavailable",
+      "httpStatus": 403,
+      "sourceAsOf": null,
+      "sourceSha256": null,
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": "http_failure"
+    },
+    {
+      "id": "coinshares-bitc",
+      "title": "CoinShares · Bitcoin ETP",
+      "url": "https://coinshares.com/etp/physical-bitcoin/",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "reference-retrieved",
+      "httpStatus": 200,
+      "sourceAsOf": null,
+      "sourceSha256": "7bf959488c76673e6d5ab695dae4d55c88655c389f86feeb8ee155d155b3025c",
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": null
+    },
+    {
+      "id": "sec-news",
+      "title": "SEC · official announcements",
+      "url": "https://www.sec.gov/newsroom/press-releases",
+      "kind": "primary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "unavailable",
+      "httpStatus": 403,
+      "sourceAsOf": null,
+      "sourceSha256": null,
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": "http_failure"
+    },
+    {
+      "id": "litecoin-register",
+      "title": "Litecoin Register · community research",
+      "url": "https://www.litecoinregister.com/",
+      "kind": "secondary",
+      "parserVersion": "source-check-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "reference-retrieved",
+      "httpStatus": 200,
+      "sourceAsOf": null,
+      "sourceSha256": "7639507772e5364ee1237e49abb220397c9aed5ed9afd5c02fcfab9adfba163e",
+      "freshness": "unknown",
+      "observations": null,
+      "errorCode": null
+    },
+    {
+      "id": "coinbase-btc-usd",
+      "title": "Coinbase Exchange · BTC/USD last trade",
+      "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
+      "kind": "primary",
+      "parserVersion": "coinbase-btc-ticker-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-31T05:48:33.609Z",
+      "sourceSha256": "c96ec16029cdddb96e74fac4f643951ab51b3bf2177d65be5724a7d73e897b60",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "btc_usd_last_trade",
+          "label": "BTC/USD last trade · Coinbase Exchange",
+          "value": "77125.14",
+          "unit": "USD",
+          "effectiveAt": "2026-10-31T05:48:33.609Z",
+          "timePrecision": "second",
+          "classification": "venue-reported"
+        }
+      ],
+      "errorCode": null
+    },
+    {
+      "id": "coinbase-ltc-usd",
+      "title": "Coinbase Exchange · LTC/USD last trade",
+      "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
+      "kind": "primary",
+      "parserVersion": "coinbase-ltc-ticker-v1",
+      "checkedAt": "2026-10-31T05:48:35.239Z",
+      "status": "collected",
+      "httpStatus": 200,
+      "sourceAsOf": "2026-10-31T05:48:32.059Z",
+      "sourceSha256": "7a784297182c0e01cb3ba9aa5d56c855f00e78fffb3fa01f0aee9472c883bd36",
+      "freshness": "dated-observation",
+      "observations": [
+        {
+          "metric": "ltc_usd_last_trade",
+          "label": "LTC/USD last trade · Coinbase Exchange",
+          "value": "55.142",
+          "unit": "USD",
+          "effectiveAt": "2026-10-31T05:48:32.059Z",
+          "timePrecision": "second",
+          "classification": "venue-reported"
+        }
+      ],
+      "errorCode": null
+    }
+  ],
+  "briefs": [
+    {
+      "id": "coinbase-btc-usd",
+      "desk": "Market snapshot",
+      "headline": "BTC/USD last trade: $77,125.14",
+      "effectiveAt": "2026-10-31T05:48:33.609Z",
+      "sourceIds": [
+        "coinbase-btc-usd"
+      ],
+      "paragraphs": [
+        "Coinbase Exchange returned a BTC/USD last trade of $77,125.14, timestamped 2026-10-31T05:48:33.609Z. This venue-reported trade was retrieved at 2026-10-31T05:48:35.239Z; the two times are recorded separately.",
+        "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
+        "For newcomers: a quote belongs to a venue, a trading pair and a moment. For experienced readers: inspect the exact decimal value, source timestamp and parser in the sourcebook before making comparisons."
+      ]
+    },
+    {
+      "id": "coinbase-ltc-usd",
+      "desk": "Market snapshot",
+      "headline": "LTC/USD last trade: $55.142",
+      "effectiveAt": "2026-10-31T05:48:32.059Z",
+      "sourceIds": [
+        "coinbase-ltc-usd"
+      ],
+      "paragraphs": [
+        "Coinbase Exchange returned a LTC/USD last trade of $55.142, timestamped 2026-10-31T05:48:32.059Z. This venue-reported trade was retrieved at 2026-10-31T05:48:35.239Z; the two times are recorded separately.",
+        "This is one exchange’s sampled last trade, not a global reference price, a live quote after publication or a 24-hour closing price. It does not establish a return, market-wide volume or a trend.",
+        "For newcomers: a quote belongs to a venue, a trading pair and a moment. For experienced readers: inspect the exact decimal value, source timestamp and parser in the sourcebook before making comparisons."
+      ]
+    },
+    {
+      "id": "ibit-holdings",
+      "desk": "Wall Street & institutions",
+      "headline": "IBIT’s dated holdings record: October 29, 2026",
+      "effectiveAt": "2026-10-29",
+      "sourceIds": [
+        "ibit-holdings"
+      ],
+      "paragraphs": [
+        "The iShares Bitcoin Trust ETF holdings file reports 814,873.62030 BTC and 1,439,200,000.00 shares outstanding as of October 29, 2026. The source supplies a date, not an intraday timestamp.",
+        "This is an issuer-reported balance at a point in time. It is not a live price, independently audited total or measurement of money entering the fund. Holdings changes alone are not ETF flows.",
+        "For newcomers: read the “as of” date before comparing a number. For experienced readers: the source notebook preserves the exact decimal strings, parser version and retrieved-file hash for this observation."
+      ]
+    },
+    {
+      "id": "bitcoin-core-release",
+      "desk": "Bitcoin & builders",
+      "headline": "Bitcoin Core v32.1: the dated upstream record",
+      "effectiveAt": "2026-10-28T14:23:53Z",
+      "sourceIds": [
+        "bitcoin-core"
+      ],
+      "paragraphs": [
+        "The official Bitcoin Core repository’s latest-release endpoint returned v32.1, published October 28, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+        "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup."
+      ]
+    },
+    {
+      "id": "litecoin-core-release",
+      "desk": "Litecoin & proof of work",
+      "headline": "Litecoin Core v0.21.5.8: the dated upstream record",
+      "effectiveAt": "2026-09-12T12:06:49Z",
+      "sourceIds": [
+        "litecoin-core"
+      ],
+      "paragraphs": [
+        "The official Litecoin Core repository’s latest-release endpoint returned v0.21.5.8, published September 12, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+        "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup."
+      ]
+    },
+    {
+      "id": "lnd-release",
+      "desk": "Lightning & builders",
+      "headline": "LND v0.21.6-beta: the dated upstream record",
+      "effectiveAt": "2026-10-30T23:21:55Z",
+      "sourceIds": [
+        "lnd"
+      ],
+      "paragraphs": [
+        "The official LND repository’s latest-release endpoint returned v0.21.6-beta, published October 30, 2026. This briefing records the endpoint result; it does not present the release as today’s announcement.",
+        "A version announcement describes software, not adoption across a network or a market forecast. Read the upstream notes and verification instructions before deciding whether an update suits your setup.",
+        "LND uses a beta suffix in the version name returned by its latest-release endpoint. Our parser preserves that suffix and rejects releases marked as drafts or prereleases by GitHub, as well as release-candidate tags. This is a description of the upstream channel, not a safety certification."
+      ]
+    }
+  ],
+  "intelligence": {
+    "schemaVersion": 1,
+    "parserVersion": "ltc-intelligence-v1",
+    "collectedAt": "2026-10-31T05:51:10.280Z",
+    "evaluatedAt": "2026-10-31T05:51:12.523Z",
+    "asOfDate": "2026-10-31",
+    "timeZone": "America/New_York",
+    "network": {
+      "status": "fresh",
+      "sourceId": "public-block-apis",
+      "sourceIds": [
+        "bitcoin-blocks",
+        "litecoin-blocks"
+      ],
+      "window": {
+        "start": "2026-10-30T00:00:00.000Z",
+        "end": "2026-10-31T00:00:00.000Z",
+        "timezone": "UTC",
+        "frequency": "1d"
+      },
+      "assets": [
+        {
+          "asset": "BTC",
+          "transactions": "490366",
+          "blocks": "144",
+          "feesNative": null,
+          "meanFeeNative": null,
+          "activeAddresses": null,
+          "verification": {
+            "method": "median-time-past",
+            "scannedBlocks": 190,
+            "tip": {
+              "height": 973936,
+              "hash": "000000000000000000002251754605a89b6b1ab55c63bb480f107548dfe4ad49",
+              "medianTime": "2026-10-31T05:06:20.000Z"
+            },
+            "lowerBoundary": {
+              "height": 973747,
+              "hash": "00000000000000000000e5ec8afda9ea0fafaa223be5d259dd73bd933407a9fe",
+              "medianTime": "2026-10-29T21:06:07.000Z"
+            },
+            "firstBlock": {
+              "height": 973757,
+              "hash": "0000000000000000000032a93db644f2235d6257ee69a75d63570b76730049b2",
+              "medianTime": "2026-10-30T00:06:29.000Z"
+            },
+            "lastBlock": {
+              "height": 973900,
+              "hash": "0000000000000000000117072bb5b63c1717082078d59e05783d4cb456db6b75",
+              "medianTime": "2026-10-30T23:51:38.000Z"
+            }
+          }
+        },
+        {
+          "asset": "LTC",
+          "transactions": "170849",
+          "blocks": "591",
+          "feesNative": null,
+          "meanFeeNative": null,
+          "activeAddresses": null,
+          "verification": {
+            "method": "median-time-past",
+            "scannedBlocks": 740,
+            "tip": {
+              "height": 3204718,
+              "hash": "c9a44fc34ebe0ff6c67bbc3569892385ecc2a3c2799cc4b858b99f1bc99bf112",
+              "medianTime": "2026-10-31T05:33:04.000Z"
+            },
+            "lowerBoundary": {
+              "height": 3203979,
+              "hash": "f614fe93d87ed5f540a114f16ff331f3c13375ca2ffcb0c181d7636879230ada",
+              "medianTime": "2026-10-29T23:33:15.000Z"
+            },
+            "firstBlock": {
+              "height": 3203988,
+              "hash": "f61efc2d74ac004084e14504f9ead6ab01dcd9e521b59f2f9e3412928ef06fbb",
+              "medianTime": "2026-10-30T00:00:06.000Z"
+            },
+            "lastBlock": {
+              "height": 3204578,
+              "hash": "6102b77911cb4dbf6c695e1338a38efa6c0a255e11f6d144ca9c4475fb272e98",
+              "medianTime": "2026-10-30T23:57:45.000Z"
+            }
+          }
+        }
+      ],
+      "comparison": {
+        "transactionRatioLtcToBtc": "0.348411186746",
+        "transactionDifferenceLtcMinusBtc": "-319517"
+      },
+      "history": [
+        {
+          "window": {
+            "start": "2026-10-30T00:00:00.000Z",
+            "end": "2026-10-31T00:00:00.000Z",
+            "timezone": "UTC",
+            "frequency": "1d"
+          },
+          "assets": [
+            {
+              "asset": "BTC",
+              "transactions": "490366",
+              "blocks": "144",
+              "feesNative": null,
+              "meanFeeNative": null,
+              "activeAddresses": null,
+              "verification": {
+                "method": "median-time-past",
+                "scannedBlocks": 190,
+                "tip": {
+                  "height": 973936,
+                  "hash": "000000000000000000002251754605a89b6b1ab55c63bb480f107548dfe4ad49",
+                  "medianTime": "2026-10-31T05:06:20.000Z"
+                },
+                "lowerBoundary": {
+                  "height": 973747,
+                  "hash": "00000000000000000000e5ec8afda9ea0fafaa223be5d259dd73bd933407a9fe",
+                  "medianTime": "2026-10-29T21:06:07.000Z"
+                },
+                "firstBlock": {
+                  "height": 973757,
+                  "hash": "0000000000000000000032a93db644f2235d6257ee69a75d63570b76730049b2",
+                  "medianTime": "2026-10-30T00:06:29.000Z"
+                },
+                "lastBlock": {
+                  "height": 973900,
+                  "hash": "0000000000000000000117072bb5b63c1717082078d59e05783d4cb456db6b75",
+                  "medianTime": "2026-10-30T23:51:38.000Z"
+                }
+              }
+            },
+            {
+              "asset": "LTC",
+              "transactions": "170849",
+              "blocks": "591",
+              "feesNative": null,
+              "meanFeeNative": null,
+              "activeAddresses": null,
+              "verification": {
+                "method": "median-time-past",
+                "scannedBlocks": 740,
+                "tip": {
+                  "height": 3204718,
+                  "hash": "c9a44fc34ebe0ff6c67bbc3569892385ecc2a3c2799cc4b858b99f1bc99bf112",
+                  "medianTime": "2026-10-31T05:33:04.000Z"
+                },
+                "lowerBoundary": {
+                  "height": 3203979,
+                  "hash": "f614fe93d87ed5f540a114f16ff331f3c13375ca2ffcb0c181d7636879230ada",
+                  "medianTime": "2026-10-29T23:33:15.000Z"
+                },
+                "firstBlock": {
+                  "height": 3203988,
+                  "hash": "f61efc2d74ac004084e14504f9ead6ab01dcd9e521b59f2f9e3412928ef06fbb",
+                  "medianTime": "2026-10-30T00:00:06.000Z"
+                },
+                "lastBlock": {
+                  "height": 3204578,
+                  "hash": "6102b77911cb4dbf6c695e1338a38efa6c0a255e11f6d144ca9c4475fb272e98",
+                  "medianTime": "2026-10-30T23:57:45.000Z"
+                }
+              }
+            }
+          ],
+          "comparison": {
+            "transactionRatioLtcToBtc": "0.348411186746",
+            "transactionDifferenceLtcMinusBtc": "-319517"
+          }
+        }
+      ],
+      "units": {
+        "transactions": "transactions",
+        "blocks": "blocks",
+        "activeAddresses": "addresses",
+        "feesNative": "native coin",
+        "meanFeeNative": "native coin per transaction"
+      },
+      "attribution": {
+        "name": "LTC Media calculations from mempool.space and Litecoin Space block records",
+        "url": "https://mempool.space/docs/api/rest",
+        "litecoinUrl": "https://litecoinspace.org/docs/api"
+      },
+      "gaps": [
+        "Fees and active addresses are unavailable from the accepted block-summary records."
+      ]
+    },
+    "markets": [
+      {
+        "routeId": "arc-cirbtc-1",
+        "marketId": "0xc2db905f174e5defcce01d321b09f15f78856a36a21b90cc7e1abbc29225815d",
+        "chainId": 5042,
+        "chain": "Arc",
+        "collateral": {
+          "symbol": "cirBTC",
+          "address": "0x171A4217b86A807A64eB94757Db6849fb4bDbAA0",
+          "decimals": 8
+        },
+        "loan": {
+          "symbol": "USDC",
+          "address": "0x3600000000000000000000000000000000000000",
+          "decimals": 6
+        },
+        "lltv": "0.86",
+        "oracleAddress": "0x2AA87fF48933Ce6aBA240BEE916Fc2e6Ec1e51Ab",
+        "irmAddress": "0xF02615d094Fc02fC031C35fe705e175aA4653f20",
+        "sourceId": "morpho-verified-markets",
+        "status": "fresh",
+        "state": {
+          "asOf": "2026-10-31T05:47:59.000Z",
+          "freshness": "fresh",
+          "borrowApy": "0.02372435103468352",
+          "supplyApy": "0.02104315377540525",
+          "utilization": "0.8881535513478357",
+          "liquidityUsdc": "20516970.20893",
+          "supplyUsdc": "183438727.435473",
+          "borrowUsdc": "162921757.226543"
+        },
+        "prices": {
+          "collateralUsd": {
+            "value": "77124.69779115079",
+            "asOf": "2026-10-31T05:42:02.000Z",
+            "status": "fresh",
+            "unit": "USD"
+          },
+          "usdcUsd": {
+            "value": "0.9998772505923971",
+            "asOf": "2026-10-31T05:48:52.000Z",
+            "status": "fresh",
+            "unit": "USD"
+          }
+        },
+        "gaps": []
+      },
+      {
+        "routeId": "arc-cirbtc-2",
+        "marketId": "0xabd1763943714b96b6590238d484a240019b4b842eb67fbcff7d96c081b7b566",
+        "chainId": 5042,
+        "chain": "Arc",
+        "collateral": {
+          "symbol": "cirBTC",
+          "address": "0x171A4217b86A807A64eB94757Db6849fb4bDbAA0",
+          "decimals": 8
+        },
+        "loan": {
+          "symbol": "USDC",
+          "address": "0x3600000000000000000000000000000000000000",
+          "decimals": 6
+        },
+        "lltv": "0.86",
+        "oracleAddress": "0x2DE8026f00061170e1297d438967752b6671dd1d",
+        "irmAddress": "0xF02615d094Fc02fC031C35fe705e175aA4653f20",
+        "sourceId": "morpho-verified-markets",
+        "status": "stale",
+        "state": {
+          "asOf": "2026-10-31T05:05:45.000Z",
+          "freshness": "stale",
+          "borrowApy": null,
+          "supplyApy": null,
+          "utilization": null,
+          "liquidityUsdc": null,
+          "supplyUsdc": null,
+          "borrowUsdc": null
+        },
+        "prices": {
+          "collateralUsd": {
+            "value": "77124.69779115079",
+            "asOf": "2026-10-31T05:42:02.000Z",
+            "status": "fresh",
+            "unit": "USD"
+          },
+          "usdcUsd": {
+            "value": "0.9998772505923971",
+            "asOf": "2026-10-31T05:48:52.000Z",
+            "status": "fresh",
+            "unit": "USD"
+          }
+        },
+        "gaps": [
+          "State is older than 15 minutes; rates and liquidity are withheld."
+        ]
+      },
+      {
+        "routeId": "base-cbbtc",
+        "marketId": "0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836",
+        "chainId": 8453,
+        "chain": "Base",
+        "collateral": {
+          "symbol": "cbBTC",
+          "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+          "decimals": 8
+        },
+        "loan": {
+          "symbol": "USDC",
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "decimals": 6
+        },
+        "lltv": "0.86",
+        "oracleAddress": "0x663BECd10daE6C4A3Dcd89F1d76c1174199639B9",
+        "irmAddress": "0x46415998764C29aB2a25CbeA6254146D50D22687",
+        "sourceId": "morpho-verified-markets",
+        "status": "fresh",
+        "state": {
+          "asOf": "2026-10-31T05:50:47.000Z",
+          "freshness": "fresh",
+          "borrowApy": "0.07032816882702624",
+          "supplyApy": "0.06377092826662469",
+          "utilization": "0.9095828842820672",
+          "liquidityUsdc": "160669175.941445",
+          "supplyUsdc": "1776977452.395984",
+          "borrowUsdc": "1616308276.454539"
+        },
+        "prices": {
+          "collateralUsd": {
+            "value": "77156.72184616164",
+            "asOf": "2026-10-31T05:48:52.000Z",
+            "status": "fresh",
+            "unit": "USD"
+          },
+          "usdcUsd": {
+            "value": "0.9998772505923971",
+            "asOf": "2026-10-31T05:48:52.000Z",
+            "status": "fresh",
+            "unit": "USD"
+          }
+        },
+        "gaps": []
+      },
+      {
+        "routeId": "base-cbltc",
+        "marketId": "0x9125d0fa03c3137166df68bcc72283477830de2a4a5536512374c573ad4583c3",
+        "chainId": 8453,
+        "chain": "Base",
+        "collateral": {
+          "symbol": "cbLTC",
+          "address": "0xcb17C9Db87B595717C857a08468793f5bAb6445F",
+          "decimals": 8
+        },
+        "loan": {
+          "symbol": "USDC",
+          "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "decimals": 6
+        },
+        "lltv": "0.625",
+        "oracleAddress": "0x47f961E6653423A77b1EF8Fb680eE53bf7d8a00d",
+        "irmAddress": "0x46415998764C29aB2a25CbeA6254146D50D22687",
+        "sourceId": "morpho-verified-markets",
+        "status": "fresh",
+        "state": {
+          "asOf": "2026-10-31T05:48:37.000Z",
+          "freshness": "fresh",
+          "borrowApy": "0.08241899131810167",
+          "supplyApy": "0.0743419676513063",
+          "utilization": "0.9054274128554813",
+          "liquidityUsdc": "86437.951667",
+          "supplyUsdc": "913985.270752",
+          "borrowUsdc": "827547.319085"
+        },
+        "prices": {
+          "collateralUsd": {
+            "value": null,
+            "asOf": "2026-10-31T05:23:03.000Z",
+            "status": "stale",
+            "unit": "USD"
+          },
+          "usdcUsd": {
+            "value": "0.9998772505923971",
+            "asOf": "2026-10-31T05:48:52.000Z",
+            "status": "fresh",
+            "unit": "USD"
+          }
+        },
+        "gaps": [
+          "One or more token prices are unavailable or older than 15 minutes."
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "bitcoin-blocks",
+        "url": "https://mempool.space/api/blocks",
+        "method": "GET",
+        "parserVersion": "ltc-intelligence-v1",
+        "retrievedAt": "2026-10-31T05:49:07.941Z",
+        "sha256": "8f704caff63da75f99950025ad49bc74972c97f37c494f2825d116ef32111f9a",
+        "requestSha256": null,
+        "httpStatus": 200,
+        "status": "retrieved",
+        "requestedWindow": {
+          "start": "2026-10-30T00:00:00.000Z",
+          "end": "2026-10-31T00:00:00.000Z"
+        },
+        "pages": [
+          {
+            "url": "https://mempool.space/api/block-height/0",
+            "retrievedAt": "2026-10-31T05:48:35.766Z",
+            "sha256": "09f663de96be771f50cab5ded00256ffe63773e2eaa9a604092951cc3d7c6621",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks",
+            "retrievedAt": "2026-10-31T05:48:37.381Z",
+            "sha256": "4f48ae3d0307618119c9b1b4536b4ee0be6799bda125ad8abc063e778f26c5b3",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973926",
+            "retrievedAt": "2026-10-31T05:48:38.992Z",
+            "sha256": "eee4c1f77d3efffacf88d843a6bbaa67f95a0e7e8d85e2bc4e475c7e190bb8fc",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973916",
+            "retrievedAt": "2026-10-31T05:48:40.600Z",
+            "sha256": "bfa06bc87cf559465ecb0b31507c7fef79264e2bd2eb46c45f0d9b99ef6b042d",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973906",
+            "retrievedAt": "2026-10-31T05:48:42.209Z",
+            "sha256": "b2f9b5b29fe8d9dde270c9ab22608ceae89ccbbb3abdf0d079ccff853a0f8dfe",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973896",
+            "retrievedAt": "2026-10-31T05:48:43.818Z",
+            "sha256": "25ad6dc77fae71ce4f329fe52f1a95ed8f2e2c731f6be6da6c230e6f2e483e9d",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973886",
+            "retrievedAt": "2026-10-31T05:48:45.427Z",
+            "sha256": "cda349fa8e94ce067e2a80a8f0ad559cc77462fd36cc15310490e59a5a015694",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973876",
+            "retrievedAt": "2026-10-31T05:48:47.035Z",
+            "sha256": "7e91332e83e51869f9d110a22d8d547dd2680b7ea5bae2fa23000f2eabbf5fde",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973866",
+            "retrievedAt": "2026-10-31T05:48:48.644Z",
+            "sha256": "f52fae8e6a6c68a3073eefa8f600695ee1d1ca0bf8476358c343fc349422434d",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973856",
+            "retrievedAt": "2026-10-31T05:48:50.254Z",
+            "sha256": "38824dc83beb57c4c5b2e2f0eb848c8e7d63babcec494d32c338cc6663a58fbc",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973846",
+            "retrievedAt": "2026-10-31T05:48:51.863Z",
+            "sha256": "425420309d61c90375e33e9e942d14116a03d697c7322292c3428bb7acf04c03",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973836",
+            "retrievedAt": "2026-10-31T05:48:53.472Z",
+            "sha256": "3ef060f3cc40689dcd120c0c11490eeb93142f3e692b868e296731caec26f3f7",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973826",
+            "retrievedAt": "2026-10-31T05:48:55.080Z",
+            "sha256": "e8902da7322b0e0ab6ee87fa22d2b5beddd2f5e34b6fbbf0f5e47fd13dc33c7b",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973816",
+            "retrievedAt": "2026-10-31T05:48:56.688Z",
+            "sha256": "f8dacd539c8196e9b3228cecf7ee47dfb5e0a556cffa48ac2e9fa841635d7e15",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973806",
+            "retrievedAt": "2026-10-31T05:48:58.295Z",
+            "sha256": "b6e07f567ec79b6c0fe9191426a3e3a95c97635f9c4ea45d593f3fea36398755",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973796",
+            "retrievedAt": "2026-10-31T05:48:59.903Z",
+            "sha256": "8fd15b72ba54a33f81f84637312f04dda8899f1b67559f3adc363c626cb9d1fe",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973786",
+            "retrievedAt": "2026-10-31T05:49:01.510Z",
+            "sha256": "8abc3e847b7ebd9d6807c188dca115ab55fe65358ddbe140fdb0e95d64642176",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973776",
+            "retrievedAt": "2026-10-31T05:49:03.119Z",
+            "sha256": "59327fed871c683c45cb8422b2b2e5cb7312cb0bda1c4e6bd332ddc91862979d",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973766",
+            "retrievedAt": "2026-10-31T05:49:04.726Z",
+            "sha256": "96a6066b07f3649d584c82041a46413ab339b798cb62c37fde7db8566e9335f9",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/blocks/973756",
+            "retrievedAt": "2026-10-31T05:49:06.333Z",
+            "sha256": "40458c3deffccc89e4a224bae8f752e62b20314c58cce77e48513372b353bf2d",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://mempool.space/api/block-height/973936",
+            "retrievedAt": "2026-10-31T05:49:07.941Z",
+            "sha256": "310928abfa678b148896c014a2a24a29f48445e07c9228134bb983513e48aa71",
+            "httpStatus": 200
+          }
+        ]
+      },
+      {
+        "id": "litecoin-blocks",
+        "url": "https://litecoinspace.org/api/blocks",
+        "method": "GET",
+        "parserVersion": "ltc-intelligence-v1",
+        "retrievedAt": "2026-10-31T05:51:09.836Z",
+        "sha256": "1790c2216bba7e1f294077f88b8110cdae8625e02eaaa66d4f0af2e35532f55c",
+        "requestSha256": null,
+        "httpStatus": 200,
+        "status": "retrieved",
+        "requestedWindow": {
+          "start": "2026-10-30T00:00:00.000Z",
+          "end": "2026-10-31T00:00:00.000Z"
+        },
+        "pages": [
+          {
+            "url": "https://litecoinspace.org/api/block-height/0",
+            "retrievedAt": "2026-10-31T05:49:08.198Z",
+            "sha256": "53abac3872cb6bc6e2de9967e98d5c446216f39bbe1499123fa7ea8495ae2d1e",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks",
+            "retrievedAt": "2026-10-31T05:49:09.825Z",
+            "sha256": "922ada10a3d93546fc2f6613aadf74a2e835832c874a786caf09640a3e51b7a3",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204708",
+            "retrievedAt": "2026-10-31T05:49:11.450Z",
+            "sha256": "493b8c5edc073da7a4f2b1914a870b2e7d2961b2982dd9206e96bacfa18c63ef",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204698",
+            "retrievedAt": "2026-10-31T05:49:13.086Z",
+            "sha256": "1c50e08556e1c637e7bdeb55301971c70bd1908245ab1db57c82712a95291d30",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204688",
+            "retrievedAt": "2026-10-31T05:49:14.707Z",
+            "sha256": "abe929f1e9300069758b9436aee50ab04eb0a5f3c1922bd30bf5fa1213ae5c31",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204678",
+            "retrievedAt": "2026-10-31T05:49:16.325Z",
+            "sha256": "36cfe745a119b539e12f18240c051eec5ebb4f9c7b08fe7f2547aa8b75bc04a0",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204668",
+            "retrievedAt": "2026-10-31T05:49:17.967Z",
+            "sha256": "4eef9202df71ec6755095cd2c628dcd0e7d5a947ce2d652c938cb891a3785d3c",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204658",
+            "retrievedAt": "2026-10-31T05:49:19.583Z",
+            "sha256": "d760bb24ca19e18fd2a3c7ec73b75bf39a0a2ab6c19bdbb1893faa5332aa3aa4",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204648",
+            "retrievedAt": "2026-10-31T05:49:21.204Z",
+            "sha256": "eb51069fe48078eee422253adce2943a99ae10c2ef4feb7d3bee1e1d6b0bbb19",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204638",
+            "retrievedAt": "2026-10-31T05:49:22.832Z",
+            "sha256": "158e1d1109634f27d277ce7dfc370d67da6d5a3d2da9ca3926c1a708aa9cc827",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204628",
+            "retrievedAt": "2026-10-31T05:49:24.448Z",
+            "sha256": "d168d3ac1c3ba26114232be0ad5e2bc960b5ac49897d62a4220e2e5cb07dfa2d",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204618",
+            "retrievedAt": "2026-10-31T05:49:26.065Z",
+            "sha256": "b6c0432237e09635ed79998fc50ca9d31c9d566d2cc69876c602cfa2f3ffcc80",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204608",
+            "retrievedAt": "2026-10-31T05:49:27.683Z",
+            "sha256": "10c0905466d1388ce60921dce0873054072e78c7e06ca0c55a37e7db8ed7ee1f",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204598",
+            "retrievedAt": "2026-10-31T05:49:29.322Z",
+            "sha256": "7d37d6dc33974cbeba7270ad25ae98bf80f8140fac892e55216f8482c99f2d49",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204588",
+            "retrievedAt": "2026-10-31T05:49:30.950Z",
+            "sha256": "74228b8175a8f3237dda3b2da643e127f4b62dac1f8a33d18b124ad8ffb1e9e3",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204578",
+            "retrievedAt": "2026-10-31T05:49:32.605Z",
+            "sha256": "a6fb67b01e15e73826190f5be58115beb1b1bfe16cea19c871b813a983c12245",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204568",
+            "retrievedAt": "2026-10-31T05:49:34.225Z",
+            "sha256": "8f12b8a8982f449b45319d242da74115b2a3de09783c71f010c0768779fdcd7a",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204558",
+            "retrievedAt": "2026-10-31T05:49:35.842Z",
+            "sha256": "a40e5e6a4190c9e665254e540a3a185a86b9c05a5db4a2cc16859065479398b6",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204548",
+            "retrievedAt": "2026-10-31T05:49:37.469Z",
+            "sha256": "a77a0928aa9cd06fcfac3fee9099b8555e24d7afb2dc689ba44a53847add8459",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204538",
+            "retrievedAt": "2026-10-31T05:49:39.088Z",
+            "sha256": "23ac9560b4afc549b403661b71e475252a2702fbd3d6f5bcd5a598ce00acf9f2",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204528",
+            "retrievedAt": "2026-10-31T05:49:40.705Z",
+            "sha256": "8f22d0c42029cdbcc8e7b3f20e174841678aa107d3ecf6b10c0263f3b78df87b",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204518",
+            "retrievedAt": "2026-10-31T05:49:42.320Z",
+            "sha256": "01cab5309231429c7c77626441f988996db7b225ed079b13f498130ada1d1cfb",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204508",
+            "retrievedAt": "2026-10-31T05:49:43.938Z",
+            "sha256": "7e39c7cca9e1f865ede44bde68bb014f9f936dc5259db9c6fffe8b1a2799092d",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204498",
+            "retrievedAt": "2026-10-31T05:49:45.553Z",
+            "sha256": "ff7efa3a0a40f0fe755ed962fb5b5b8e304351b6602222a54bf63c0e01f066ca",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204488",
+            "retrievedAt": "2026-10-31T05:49:47.172Z",
+            "sha256": "a4f3b9e7787b92aaa65e10a0abd8343ef718b33b3e6e4fc0f510490af42538c0",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204478",
+            "retrievedAt": "2026-10-31T05:49:48.789Z",
+            "sha256": "c0686b013d0448b1c5d5eba5b8965b29bae04590c629bf3a04d9e97ab1edb615",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204468",
+            "retrievedAt": "2026-10-31T05:49:50.411Z",
+            "sha256": "15642745a4fb81750515bf4c702ae6e3e25c1f7faac9303e738d77f23bd6d633",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204458",
+            "retrievedAt": "2026-10-31T05:49:52.028Z",
+            "sha256": "9e8909ba187dc28306f9630100aaf1248285dad5acdcc0a31384eda38e93f565",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204448",
+            "retrievedAt": "2026-10-31T05:49:53.651Z",
+            "sha256": "d45c9fec414b7ea4e69f3a5e26ca7fe326fddf6a286921e33e64c906e263e53a",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204438",
+            "retrievedAt": "2026-10-31T05:49:55.268Z",
+            "sha256": "477a4203d3cd7998e8b0a172bd83cac49970b147f1bd590116c8f00173cc02a2",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204428",
+            "retrievedAt": "2026-10-31T05:49:56.884Z",
+            "sha256": "cc19913ccc5201fd15bca5fc5939b50e5edaa632bd0fb3e393fb5c1430923dc5",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204418",
+            "retrievedAt": "2026-10-31T05:49:58.500Z",
+            "sha256": "a007481dff8ff75194f26a9230da17cacbc9cfeaf2a36f600063b866cf5f06cf",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204408",
+            "retrievedAt": "2026-10-31T05:50:00.117Z",
+            "sha256": "312f0d2c0aab77c34d95c1458cea68cbba6a39f2ec3404d6d23a9851f2c5439c",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204398",
+            "retrievedAt": "2026-10-31T05:50:01.737Z",
+            "sha256": "b4d48d588f9049445dbf1b1b324f9db1c9b3f5758794cf30ef26cdb9cd48e207",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204388",
+            "retrievedAt": "2026-10-31T05:50:03.355Z",
+            "sha256": "7552a36f3c3840503b9894026970c435da4ebc3b1aecd4b8bffa566b71ad3157",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204378",
+            "retrievedAt": "2026-10-31T05:50:04.977Z",
+            "sha256": "f3db47e69fea24f48286fce29280be29f5555337a2b66127d8bc0d9be1c9da8c",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204368",
+            "retrievedAt": "2026-10-31T05:50:06.616Z",
+            "sha256": "627b8a68d24a80da301668d6dd6e3b602045f3974f4133750ec6187daeb21a21",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204358",
+            "retrievedAt": "2026-10-31T05:50:08.236Z",
+            "sha256": "6e56bfd527529742ddc645ecafb6957f31e973938ffa974e9474b125e9045899",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204348",
+            "retrievedAt": "2026-10-31T05:50:09.873Z",
+            "sha256": "4cbcb0b6a33d19d4502be4a8b0d0b8110e4731944ad77521fab794f3f5ff8e41",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204338",
+            "retrievedAt": "2026-10-31T05:50:11.489Z",
+            "sha256": "0beb5e8ee70244550b0ee043959a44233b2d4cc6e6ea389bddc7a57981309c61",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204328",
+            "retrievedAt": "2026-10-31T05:50:13.108Z",
+            "sha256": "fb2e1f8e4cb2fe5d78edc4b3df54149f48f0d6154ebbd41a158bbe182201cd0d",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204318",
+            "retrievedAt": "2026-10-31T05:50:14.727Z",
+            "sha256": "88ce15e582ee8030de96758f1c24aa986e693e1f0f823e0de26874467d327290",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204308",
+            "retrievedAt": "2026-10-31T05:50:16.345Z",
+            "sha256": "3918561ae5a9a02b56db96695c1a134d613ed2502d6b9b427d9ec25dab0a98ae",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204298",
+            "retrievedAt": "2026-10-31T05:50:17.964Z",
+            "sha256": "99f9e983263f7fc9d33a7133199a4e990ec55bf96afedc29558f249f2ce190b3",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204288",
+            "retrievedAt": "2026-10-31T05:50:19.580Z",
+            "sha256": "da03763c92d7c34d574f6e790c2b536f92657c9b39dfffe3d125bd5b456a9a74",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204278",
+            "retrievedAt": "2026-10-31T05:50:21.198Z",
+            "sha256": "42ad0c21013ce5b9c932af345c8fa2baeec5e2b2ba80636eb1e3ed32cd9ff934",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204268",
+            "retrievedAt": "2026-10-31T05:50:22.817Z",
+            "sha256": "88756861d0b6d54c7c51d08d3e5d963832ee78468f967307f0eba424d9760ea4",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204258",
+            "retrievedAt": "2026-10-31T05:50:24.459Z",
+            "sha256": "f9fbd189aace08262962638b4fa1a35456926b103e8eab62571f69e6270e2a04",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204248",
+            "retrievedAt": "2026-10-31T05:50:26.075Z",
+            "sha256": "beaf6fe86cc11d2c5f167ea3a04a48c6ff342941fb08ed6d067e4c92b8c67bed",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204238",
+            "retrievedAt": "2026-10-31T05:50:27.692Z",
+            "sha256": "120516f47f9c887f3472aba33a08da99db528ea7b38a452d81bb8ee3749373bd",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204228",
+            "retrievedAt": "2026-10-31T05:50:29.311Z",
+            "sha256": "c128472421c73b4668cc0e527b28d93331fa58a1ebd6555edaf3bc9393d32011",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204218",
+            "retrievedAt": "2026-10-31T05:50:30.937Z",
+            "sha256": "234a352a0c2c68e0abf981eb1fbd55891ad6d9d288c804df9180701ee30d20b5",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204208",
+            "retrievedAt": "2026-10-31T05:50:32.554Z",
+            "sha256": "7e2544d62db315f104b1736677b4fec184ba195f76ed56aa42c720052145cb19",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204198",
+            "retrievedAt": "2026-10-31T05:50:34.170Z",
+            "sha256": "62056f2e96457f941fd323d2cc072f0a39f59d6230b7ca8e17f0a962f4452fd7",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204188",
+            "retrievedAt": "2026-10-31T05:50:35.815Z",
+            "sha256": "75d34bb39b1d0928ce9d0c3b52ff9edb885b20543867f64040ac3e28fcd7550b",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204178",
+            "retrievedAt": "2026-10-31T05:50:37.434Z",
+            "sha256": "ab0e01ec3883988ff3ee1f5ed2028d031c9e95814e24870b2a58c57a02b82062",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204168",
+            "retrievedAt": "2026-10-31T05:50:39.050Z",
+            "sha256": "079813954ef05ee3731f27bfb167a831e1fd15f49336c30778cc4df5182e7424",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204158",
+            "retrievedAt": "2026-10-31T05:50:40.667Z",
+            "sha256": "224ead30b21095217bedbe4facd755e2705a6a33b895f70c515a556dd9a1c253",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204148",
+            "retrievedAt": "2026-10-31T05:50:42.285Z",
+            "sha256": "40f3ee57a6221ab6e748f8e97606cf1baf2c05f8b552094662116e2614899916",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204138",
+            "retrievedAt": "2026-10-31T05:50:43.901Z",
+            "sha256": "6866c1aaf8969efc3fe176626a02ec422ffbe1e5a2d58022d6383ac6654515f2",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204128",
+            "retrievedAt": "2026-10-31T05:50:45.519Z",
+            "sha256": "c0b77cb6075a91c48baf78a8584793d97db35bca9db75e8d939e130197524fd7",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204118",
+            "retrievedAt": "2026-10-31T05:50:47.135Z",
+            "sha256": "e78fa9e39303a2d221f55a2fd8d64c385cbd4e36951e392aa4464293d59abd1c",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204108",
+            "retrievedAt": "2026-10-31T05:50:48.753Z",
+            "sha256": "1715cca5c8c095f8cb0f09fd86d6de70dbe665e4e9f4e56bb350c45bb853f02e",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204098",
+            "retrievedAt": "2026-10-31T05:50:50.370Z",
+            "sha256": "5a2a4d11a0480cd3e22153bf2a1922c759e242ac0444e3115f97f4f34d1b088f",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204088",
+            "retrievedAt": "2026-10-31T05:50:51.995Z",
+            "sha256": "5a5a4bf22c9ac801e9a5781e333507c920bb108943f2815ebde81c26362b3587",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204078",
+            "retrievedAt": "2026-10-31T05:50:53.612Z",
+            "sha256": "2fd93edb835e959051cce060215a3e220b525d56381c6a3d3e681e3eb263f7aa",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204068",
+            "retrievedAt": "2026-10-31T05:50:55.229Z",
+            "sha256": "3d99a192887744f0a1f72271c8d90dbf5ba260b6782b5ce0d0e6384eabafdc7c",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204058",
+            "retrievedAt": "2026-10-31T05:50:56.845Z",
+            "sha256": "f1655a574a93ee5ca4ed86a8afe7e0b357e9b353273701ba70d255576ae9b61b",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204048",
+            "retrievedAt": "2026-10-31T05:50:58.465Z",
+            "sha256": "6b2ae9a3498f831bf659aee83ac58e01ec78874ea0379ac2f5419116d9edeaa8",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204038",
+            "retrievedAt": "2026-10-31T05:51:00.083Z",
+            "sha256": "1b08728c356b735d35ffe2199c05769127360ab090f3eea72b7bd2f593b9ac99",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204028",
+            "retrievedAt": "2026-10-31T05:51:01.702Z",
+            "sha256": "e930d58984a0f4c336126af0ccce3f6f0dcd8d7914a3e6e9eefc34cb31bf939f",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204018",
+            "retrievedAt": "2026-10-31T05:51:03.364Z",
+            "sha256": "d45ff34969af4eff6b4bcc38770ce2779792cce85fe671ec2997e3e96167bb04",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3204008",
+            "retrievedAt": "2026-10-31T05:51:04.984Z",
+            "sha256": "9b40c76c601adebc06084341c8b934f9b6e5bb3c416aee2acae513aa4cdc6326",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3203998",
+            "retrievedAt": "2026-10-31T05:51:06.601Z",
+            "sha256": "d7ac9803bca542d4c6055036c57de0d1e5ed3e2b5e6dad6e6c7d6de2b36853e3",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/blocks/3203988",
+            "retrievedAt": "2026-10-31T05:51:08.219Z",
+            "sha256": "46d42f0f19e1d8b91bbee98a6a6f03924c2f4da9c62df5b8aabc6ab9ca67d08a",
+            "httpStatus": 200
+          },
+          {
+            "url": "https://litecoinspace.org/api/block-height/3204718",
+            "retrievedAt": "2026-10-31T05:51:09.836Z",
+            "sha256": "7b38fc23d13307fd9abad36769fabb4765e1ff656cc5dc8d72b08fff8c648208",
+            "httpStatus": 200
+          }
+        ]
+      },
+      {
+        "id": "morpho-verified-markets",
+        "url": "https://api.morpho.org/graphql",
+        "method": "POST",
+        "parserVersion": "ltc-intelligence-v1",
+        "retrievedAt": "2026-10-31T05:51:10.276Z",
+        "sha256": "3d5da116369718feb1daad52dded905e6577ff360c799939f9a5496e587d70f7",
+        "requestSha256": "583affec0b19f66b7cdfa0a3277a4b2a7713f1405398aaf12d88e940bfa047d0",
+        "httpStatus": 200,
+        "status": "retrieved"
+      }
+    ],
+    "notes": [
+      "LTC Media sums explorer-reported base-chain transaction counts, including coinbase transactions, for blocks whose median time falls inside the completed UTC day. Transactions are not payments or unique people.",
+      "The window uses block median time, not wall-clock arrival time or a rolling 24-hour provider statistic. Height and parent-hash continuity and both daily boundaries must pass before totals are accepted.",
+      "Fee and active-address fields are unavailable from this block-summary adapter and remain null. Explorer records are not an independently operated full-node audit.",
+      "Morpho APYs are variable annualized decimal fractions at the recorded state time, excluding incentive rewards. USDC supply APY is distinct from supplying wrapped collateral.",
+      "Markets are four configured routes, not an exhaustive list or a recommendation. No position, wallet, signing or transaction endpoint is queried.",
+      "Rate history can grow only from actual archived edition observations; missing days and stale rates are not interpolated."
+    ],
+    "gaps": [
+      "Some configured Morpho fields are unavailable or stale."
+    ]
+  },
+  "policyRecords": {
+    "schemaVersion": 1,
+    "collectedAt": "2026-10-31T05:51:10.462Z",
+    "sources": [
+      {
+        "id": "sec-press-releases",
+        "title": "SEC press releases",
+        "url": "https://www.sec.gov/news/pressreleases.rss",
+        "status": "collected",
+        "checkedAt": "2026-10-31T05:51:10.456Z",
+        "sha256": "367d46929fa962cb8db38385e74b172b015bffb60be568387d2e7977cf683fb3",
+        "errorCode": null,
+        "items": [
+          {
+            "id": "sec-press-releases-50914a0b386ea2ce3b63",
+            "title": "SEC Issues Exemptive Relief from Treasury Clearing Requirements for Certain Inter-Affiliate and Non-U.S. Repo Transactions",
+            "url": "https://www.sec.gov/newsroom/press-releases/2026-111-sec-issues-exemptive-relief-treasury-clearing-requirements-certain-inter-affiliate-non-us-repo",
+            "publishedAt": "2026-10-30T19:30:00.000Z",
+            "classification": "official-press-release"
+          },
+          {
+            "id": "sec-press-releases-fcdf492dcc44ac8a0f2f",
+            "title": "Two Entities Charged in $130 Million Fraud Scheme That Used False SEC Filings to Boost Investor Confidence",
+            "url": "https://www.sec.gov/newsroom/press-releases/2026-110-two-entities-charged-130-million-fraud-scheme-used-false-sec-filings-boost-investor-confidence",
+            "publishedAt": "2026-10-29T16:42:37.000Z",
+            "classification": "official-press-release"
+          }
+        ]
+      },
+      {
+        "id": "cftc-press-releases",
+        "title": "CFTC general press releases",
+        "url": "https://www.cftc.gov/RSS/RSSGP/rssgp.xml",
+        "status": "collected",
+        "checkedAt": "2026-10-31T05:51:10.449Z",
+        "sha256": "e39623f7df01b527a26ef409a5dd53365261fd21274275829f27a54172718c4a",
+        "errorCode": null,
+        "items": [
+          {
+            "id": "cftc-press-releases-ad454dfd64b12886a4d8",
+            "title": "CFTC to Host Roundtable on 24/7 Trading",
+            "url": "https://www.cftc.gov/PressRoom/PressReleases/9318-26",
+            "publishedAt": "2026-10-28T17:00:53.000Z",
+            "classification": "official-press-release"
+          },
+          {
+            "id": "cftc-press-releases-92df74592ef078af01d6",
+            "title": "ICYMI: Agricultural Leaders and Market Participants Join CFTC Chairman Selig in Overland Park, Kansas for AgCon 2026",
+            "url": "https://www.cftc.gov/PressRoom/PressReleases/9317-26",
+            "publishedAt": "2026-10-27T19:22:28.000Z",
+            "classification": "official-press-release"
+          }
+        ]
+      }
+    ]
+  },
+  "coverageGaps": [
+    "Strategy · mNAV definitions: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
+    "CoinShares · Bitcoin ETP: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
+    "SEC · official announcements: unavailable during this collection (HTTP 403). No claim or metric is supplied from this source.",
+    "Litecoin Register · community research: reference page retrieved only; no headline, holding, flow or valuation metric was parsed or verified.",
+    "No independently measured network telemetry, ETF/ETP flow series, company mNAV, Litecoin treasury total, consolidated live price, 24-hour return, new political headline or community event report is produced by this bounded edition."
+  ],
+  "baseSnapshot": {
+    "schemaVersion": 1,
+    "publication": "Lunch Time Conversations",
+    "generatedAt": "2026-10-31T05:48:35.239Z",
+    "timezone": "America/New_York",
+    "scheduleStatus": "collection-only; scheduler is separate",
+    "editorialStatus": "automated-source-check",
+    "coverage": "Coinbase Exchange BTC/USD and LTC/USD last-trade snapshots, IBIT holdings and official Bitcoin Core, Litecoin Core and LND releases; other sources are reference availability checks. No global price, ETF flow or mNAV calculation.",
+    "sourceCount": 10,
+    "failureCount": 2,
+    "sources": [
+      {
+        "id": "ibit-holdings",
+        "title": "iShares Bitcoin Trust ETF · holdings",
+        "url": "https://www.ishares.com/us/products/333011/ishares-bitcoin-trust-etf/latest-holdings.csv",
+        "kind": "primary",
+        "parserVersion": "ibit-csv-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-10-29",
+        "sourceSha256": "c3344a454585a11e959fe76655b35ba9dd3aae634c9980d5e4ea6015c0781734",
+        "freshness": "dated-observation",
+        "observations": [
+          {
+            "metric": "fund_btc_quantity",
+            "label": "IBIT reported BTC holdings",
+            "value": "814873.62030",
+            "unit": "BTC",
+            "effectiveAt": "2026-10-29",
+            "timePrecision": "date",
+            "classification": "issuer-reported"
+          },
+          {
+            "metric": "fund_shares_outstanding",
+            "label": "IBIT shares outstanding",
+            "value": "1439200000.00",
+            "unit": "shares",
+            "effectiveAt": "2026-10-29",
+            "timePrecision": "date",
+            "classification": "issuer-reported"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "bitcoin-core",
+        "title": "Bitcoin Core · software releases",
+        "url": "https://api.github.com/repos/bitcoin/bitcoin/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-release-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-10-28T14:23:53Z",
+        "sourceSha256": "65d400036588d14eb9ba9226fe869865612be4787115e9be1e3476c98b09face",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "Bitcoin Core latest returned release",
+            "value": "v32.1",
+            "unit": "version",
+            "effectiveAt": "2026-10-28T14:23:53Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "litecoin-core",
+        "title": "Litecoin Core · software releases",
+        "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-litecoin-release-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-09-12T12:06:49Z",
+        "sourceSha256": "29bcc93d79c261c914b55ede0ae2113efd7026dd570d02ac5df9ed957a4e5d45",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "Litecoin Core latest returned release",
+            "value": "v0.21.5.8",
+            "unit": "version",
+            "effectiveAt": "2026-09-12T12:06:49Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "lnd",
+        "title": "LND · Lightning software releases",
+        "url": "https://api.github.com/repos/lightningnetwork/lnd/releases/latest",
+        "kind": "primary",
+        "parserVersion": "github-lnd-release-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-10-30T23:21:55Z",
+        "sourceSha256": "f7bbed29aae59ecb98367e9ee9802cb3f2148e6361d2e294d848ccb55f6d0dc4",
+        "freshness": "dated-event",
+        "observations": [
+          {
+            "metric": "software_release",
+            "label": "LND latest returned release",
+            "value": "v0.21.6-beta",
+            "unit": "version",
+            "effectiveAt": "2026-10-30T23:21:55Z",
+            "timePrecision": "second",
+            "classification": "upstream-release"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "strategy-notes",
+        "title": "Strategy · mNAV definitions",
+        "url": "https://www.strategy.com/notes",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "unavailable",
+        "httpStatus": 403,
+        "sourceAsOf": null,
+        "sourceSha256": null,
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": "http_failure"
+      },
+      {
+        "id": "coinshares-bitc",
+        "title": "CoinShares · Bitcoin ETP",
+        "url": "https://coinshares.com/etp/physical-bitcoin/",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "reference-retrieved",
+        "httpStatus": 200,
+        "sourceAsOf": null,
+        "sourceSha256": "7bf959488c76673e6d5ab695dae4d55c88655c389f86feeb8ee155d155b3025c",
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": null
+      },
+      {
+        "id": "sec-news",
+        "title": "SEC · official announcements",
+        "url": "https://www.sec.gov/newsroom/press-releases",
+        "kind": "primary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "unavailable",
+        "httpStatus": 403,
+        "sourceAsOf": null,
+        "sourceSha256": null,
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": "http_failure"
+      },
+      {
+        "id": "litecoin-register",
+        "title": "Litecoin Register · community research",
+        "url": "https://www.litecoinregister.com/",
+        "kind": "secondary",
+        "parserVersion": "source-check-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "reference-retrieved",
+        "httpStatus": 200,
+        "sourceAsOf": null,
+        "sourceSha256": "7639507772e5364ee1237e49abb220397c9aed5ed9afd5c02fcfab9adfba163e",
+        "freshness": "unknown",
+        "observations": null,
+        "errorCode": null
+      },
+      {
+        "id": "coinbase-btc-usd",
+        "title": "Coinbase Exchange · BTC/USD last trade",
+        "url": "https://api.exchange.coinbase.com/products/BTC-USD/ticker",
+        "kind": "primary",
+        "parserVersion": "coinbase-btc-ticker-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-10-31T05:48:33.609Z",
+        "sourceSha256": "c96ec16029cdddb96e74fac4f643951ab51b3bf2177d65be5724a7d73e897b60",
+        "freshness": "dated-observation",
+        "observations": [
+          {
+            "metric": "btc_usd_last_trade",
+            "label": "BTC/USD last trade · Coinbase Exchange",
+            "value": "77125.14",
+            "unit": "USD",
+            "effectiveAt": "2026-10-31T05:48:33.609Z",
+            "timePrecision": "second",
+            "classification": "venue-reported"
+          }
+        ],
+        "errorCode": null
+      },
+      {
+        "id": "coinbase-ltc-usd",
+        "title": "Coinbase Exchange · LTC/USD last trade",
+        "url": "https://api.exchange.coinbase.com/products/LTC-USD/ticker",
+        "kind": "primary",
+        "parserVersion": "coinbase-ltc-ticker-v1",
+        "checkedAt": "2026-10-31T05:48:35.239Z",
+        "status": "collected",
+        "httpStatus": 200,
+        "sourceAsOf": "2026-10-31T05:48:32.059Z",
+        "sourceSha256": "7a784297182c0e01cb3ba9aa5d56c855f00e78fffb3fa01f0aee9472c883bd36",
+        "freshness": "dated-observation",
+        "observations": [
+          {
+            "metric": "ltc_usd_last_trade",
+            "label": "LTC/USD last trade · Coinbase Exchange",
+            "value": "55.142",
+            "unit": "USD",
+            "effectiveAt": "2026-10-31T05:48:32.059Z",
+            "timePrecision": "second",
+            "classification": "venue-reported"
+          }
+        ],
+        "errorCode": null
+      }
+    ]
+  },
+  "sha256": "4c741f7c576f94e9496175e417849f2f7a5176e6236fd0bbdfebe9b4876a6617"
+}

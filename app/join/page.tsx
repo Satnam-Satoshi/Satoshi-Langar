@@ -26,7 +26,7 @@ export default function JoinPage() {
     <header className={styles.intro}>
       <a className={styles.backLink} href="/ecosystem/">The open table</a>
       <div className={styles.introGrid}>
-        <div><p className={styles.eyebrow}>SATNAM SATOSHI / START HERE</p><h1>A place for you.<br/><em>A first step that fits.</em></h1></div>
+        <div><p className={styles.eyebrow}>SATNAM SATOSHI / START HERE</p><h1>A place for you. <br/><em>A first step that fits.</em></h1></div>
         <div className={styles.introNote}><p>Learn, create, build or serve. Bring a little curiosity and the time you have.</p><p className={styles.fine}>Free to begin. No account, wallet or payment required.</p><a className={styles.textLink} href="#member-benefits">See what is open to you</a></div>
       </div>
       <ol className={styles.progress} aria-label="Your contribution journey">

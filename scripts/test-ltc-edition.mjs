@@ -9,7 +9,8 @@ import { editionDate, prepareEdition, publishEdition, readEditionArchive } from 
 const now = '2026-10-03T00:12:42.491Z';
 const later = '2026-10-03T00:22:42.491Z';
 const registry = JSON.parse(await readFile(new URL('../config/ltc-sources.json', import.meta.url), 'utf8'));
-const policy = JSON.parse(await readFile(new URL('../config/ltc-publication.json', import.meta.url), 'utf8'));
+// Test an explicitly open fixture; deployed policy may be intentionally paused.
+const policy = {...JSON.parse(await readFile(new URL('../config/ltc-publication.json', import.meta.url), 'utf8')),paused:false};
 const csv = 'iShares Bitcoin Trust ETF\nFund Holdings as of,"Oct 1, 2026"\nShares Outstanding,"1,414,760,000.00"\nTicker,Name,Quantity,Market Currency\nBTC,BITCOIN,"803,343.05410",BTC\n';
 const release = { tag_name: 'v31.1', html_url: 'https://github.com/bitcoin/bitcoin/releases/tag/v31.1', published_at: '2026-07-08T09:14:15Z', draft: false, prerelease: false };
 const snapshot = await collectSnapshot(registry, { now, fetcher: async url => {

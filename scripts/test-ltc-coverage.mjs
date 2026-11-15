@@ -8,7 +8,8 @@ import { prepareEdition } from './prepare-ltc-edition.mjs';
 const catalog = JSON.parse(await readFile(new URL('../content/ltc-desks.json', import.meta.url), 'utf8'));
 const mapping = JSON.parse(await readFile(new URL('../config/ltc-coverage.json', import.meta.url), 'utf8'));
 const registry = JSON.parse(await readFile(new URL('../config/ltc-sources.json', import.meta.url), 'utf8'));
-const policy = JSON.parse(await readFile(new URL('../config/ltc-publication.json', import.meta.url), 'utf8'));
+// Test an explicitly open fixture; deployed policy may be intentionally paused.
+const policy = {...JSON.parse(await readFile(new URL('../config/ltc-publication.json', import.meta.url), 'utf8')),paused:false};
 const generatedAt = '2026-10-04T18:00:00Z';
 // Fixtures have a fixed review clock; future editorial updates must not time-travel these tests.
 catalog.updatedAt = '2026-10-04T16:50:36Z';

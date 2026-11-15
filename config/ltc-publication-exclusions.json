@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "policy": "prepared-records-never-publicly-released",
+  "editions": [
+    {
+      "id": "2026-10-31-r1",
+      "date": "2026-10-31",
+      "reason": "Prepared but never publicly released; the expired staged generation is retained as private recovery evidence, not a backdated publication.",
+      "editionSha256": "67b9315a9cfe357b090f45ccaa7455d2caf3937d05d07466825818f3055f316b"
+    }
+  ]
+}

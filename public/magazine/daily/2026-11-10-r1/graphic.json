@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "width": 1200,
+  "height": 630,
+  "editionId": "2026-11-10-r1",
+  "date": "2026-11-10",
+  "featureDate": "2026-11-10",
+  "headline": "Proof of Work: read the dates.",
+  "stories": [
+    {
+      "id": "watch-395c4385600350aad0b6",
+      "title": "LitVM: earlier context to revisit",
+      "desk": "Litecoin / Builders",
+      "classification": "Carry-forward historical context",
+      "sourceDates": [
+        "2026-10-27"
+      ],
+      "sourceURLs": [
+        "https://www.litvm.com/blog/introducing-litvm-v2"
+      ]
+    },
+    {
+      "id": "watch-2d04a940108b180a0ba2",
+      "title": "Luxxfolio: earlier context to revisit",
+      "desk": "Litecoin / Builders",
+      "classification": "Carry-forward historical context",
+      "sourceDates": [
+        "2026-10-29"
+      ],
+      "sourceURLs": [
+        "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/"
+      ]
+    },
+    {
+      "id": "watch-033c478aecbbf04f48d7",
+      "title": "Luxxfolio: earlier context to revisit",
+      "desk": "Litecoin / Builders",
+      "classification": "Carry-forward historical context",
+      "sourceDates": [
+        "2026-10-20"
+      ],
+      "sourceURLs": [
+        "https://luxxfolio.com/news/luxxfolio-announces-launch-of-luxxpool-public-beta/"
+      ]
+    }
+  ],
+  "sourceDates": [
+    "2026-10-27",
+    "2026-10-29",
+    "2026-10-20"
+  ],
+  "publishedAt": "2026-11-10T16:17:47.068Z",
+  "attribution": "AI-prepared · LTC Media · Read the dated sourcebook",
+  "readURL": "https://ltcmagazine.org/conversations/editions/2026-11-10-r1/",
+  "design": "content-led-news-map-v1",
+  "pngSha256": "aec42572f2e82b8a05fe9343ccf2854c10de1d3aa3bf51b8896c71ab35ceb5cb",
+  "svgSha256": "39c1bf5104f16903f8460ae7075da6935390785ddc0589ed684dc8b90fc262d4",
+  "pngBytes": 83761,
+  "renderer": "Next ImageResponse · original SVG · explicit Liberation Sans glyphs"
+}

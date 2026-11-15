@@ -1,0 +1,40 @@
+{
+  "checkedOn": "2026-10-15",
+  "purpose": "Owner-requested community onboarding, source-linked finance learning and original Litecoin block calendar",
+  "morpho": {
+    "transport": "Official Morpho MCP",
+    "marketId": "0x9125d0fa03c3137166df68bcc72283477830de2a4a5536512374c573ad4583c3",
+    "network": "Base",
+    "chainId": 8453,
+    "collateral": "cbLTC",
+    "loan": "USDC",
+    "lltv": "0.625",
+    "application": "https://app.morpho.org/base/variable/0x9125d0fa03c3137166df68bcc72283477830de2a4a5536512374c573ad4583c3",
+    "scope": "Read-only market inspection and external official-app handoff; no embedded signing, position monitoring, quote or transaction execution."
+  },
+  "litvm": {
+    "source": "https://docs.litvm.com/get-started-on-testnet/add-to-wallet",
+    "documentedNetwork": "LiteForge testnet",
+    "chainId": 4441,
+    "currency": "test zkLTC",
+    "mainnet": "Coming soon per inspected documentation",
+    "morphoOnLitvm": "Not verified; absent from returned supported-chain list."
+  },
+  "calendar": {
+    "sourceRecord": "litecoin-clock-20261015.json",
+    "method": "Provider-reported block checkpoint plus Litecoin Core protocol parameters; mathematical replay only. No automatic tip feed or fee/hashrate invention."
+  },
+  "learning": {
+    "source": "https://litecoin.com/learning-center/learning-center",
+    "walletSource": "https://support.nexuswallet.com/",
+    "status": "AI-prepared introductory guide; independent curriculum review pending."
+  },
+  "implementation": {
+    "networkCallsInBrowser": false,
+    "walletConnection": false,
+    "storedPersonalData": false,
+    "fundsMoved": false,
+    "dependenciesAdded": false,
+    "cloudActivated": false
+  }
+}

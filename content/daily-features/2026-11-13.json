@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-11-13",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-11-13T09:08:09.960Z",
+  "checkedAt": "2026-11-13",
+  "title": "Mining, Builders and the Next Test",
+  "theme": "Litecoin ecosystem",
+  "dek": "Luxxfolio expands its mining platform while LiteDrive opens a distinct experimental path. Company disclosures and test-network claims, clearly separated.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma / LTC Media · Primary-source review; no independent human fact-check claimed.",
+  "freshnessPolicy": "November 12 announcements retain their original dates. Undated technical documentation is a November 13 observation, not a launch announcement.",
+  "independence": "Independent publication. Company figures are attributed, not audited by LTC Media. Test coins are not native LTC.",
+  "stories": [
+    {
+      "id": "luxxfolio-mining-and-soqucoin",
+      "title": "Luxxfolio expands the fleet and adds Soqucoin’s founder.",
+      "desk": "Litecoin / Mining and treasury",
+      "classification": "Attributed company announcement",
+      "dek": "Mining, pool and treasury figures carry separate snapshot dates.",
+      "status": "Company disclosure November 12 · Checked November 13, 2026",
+      "eventDates": [
+        {
+          "date": "2026-11-12",
+          "label": "Corporate update published"
+        },
+        {
+          "date": "2026-11-11",
+          "label": "Pool operating snapshot"
+        },
+        {
+          "date": "2026-11-09",
+          "label": "Estimated LTC treasury snapshot"
+        }
+      ],
+      "paragraphs": [
+        "Luxxfolio says 50 additional miners bring its fleet to 338 machines and about 5.58 TH/s of nameplate capacity. Its November 12 update reports pool activity of 7.7 TH/s and 520 workers as of November 11. Pool capacity includes outside miners; it is not company-owned capacity.",
+        "The company estimated 26,838.23 LTC in treasury as of November 9 and appointed Soqucoin creator John Casey Wilson as an advisor. It said 5% of LuxxPool’s fees support the Litecoin Foundation. These figures are company-reported, not independently audited.",
+        "SOQUPOOL’s announced closure is November 19 at 16:00 UTC, or 11 a.m. New York time. Migration is not yet complete. LuxxWallet’s MWEB and LitVM features remain in development; this is not a Litecoin protocol upgrade or LitVM mainnet launch."
+      ],
+      "takeaway": "Compare company mining, third-party pool activity and treasury balances as separate dated measures.",
+      "discussionPrompt": "What public operating records would help readers reconcile pool activity with treasury growth?",
+      "sourceIds": [
+        "luxxfolio-corporate-update"
+      ]
+    },
+    {
+      "id": "litedrive-testnet-explainer",
+      "title": "LiteDrive: two experimental chains, not a Litecoin mainnet launch.",
+      "desk": "Litecoin / Technical explainer",
+      "classification": "Current project documentation; testnet only",
+      "dek": "LITE handles payments and DRIVE powers an EVM chain. Litecoin records help determine rewards, not transaction finality.",
+      "status": "Official project documentation checked November 13, 2026 · No production launch scheduled",
+      "eventDates": [],
+      "paragraphs": [
+        "LiteDrive’s website describes two separate blockchains: LVM, using LITE for payments, and an EVM chain, using DRIVE for applications and fees. They share RandomX mining, but balances and coins remain separate. The public network uses Litecoin Signet and test coins; the documented EVM chain ID is 51373.",
+        "Paid transactions on Litecoin are used to check whether LiteDrive block rewards qualify. They do not make LiteDrive blocks permanent. A recorded Litecoin transaction is therefore not equivalent to final settlement of every application action, and shared mining is not an automatic bridge between LITE, DRIVE and native LTC.",
+        "The site says production chains are disabled and no Litecoin-mainnet launch block has been chosen. Its Signet vault experiment locks test LTC to qualify for test LITE under stated rules. That is a testing mechanism, not a production yield offer. Readers can inspect the linked code and run a node without mining; test-network rules may change."
+      ],
+      "takeaway": "Treat LiteDrive as an independently documented test-network experiment, distinct from LitVM.",
+      "discussionPrompt": "Which tests would demonstrate reliable reward recovery and chain synchronization before production?",
+      "sourceIds": [
+        "litedrive-docs"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "luxxfolio-corporate-update",
+      "title": "Luxxfolio corporate update: pool growth, mining expansion and ecosystem development",
+      "publisher": "Luxxfolio Holdings Inc. via TMX Newsfile",
+      "url": "https://www.tmxnewsfile.com/release/323676/Luxxfolio-Provides-Corporate-Update-Highlighting-LuxxPool-Growth-Mining-Expansion-and-Litecoin-Ecosystem-Development",
+      "publishedAt": "2026-11-12",
+      "checkedAt": "2026-11-13",
+      "note": "Issuer press release, not independent verification. Treasury and pool snapshot dates retained."
+    },
+    {
+      "id": "litedrive-docs",
+      "title": "LiteDrive: two blockchains connected to Litecoin",
+      "publisher": "LiteDrive / NodeStrata Developers",
+      "url": "https://litedrive.io/",
+      "publishedAt": null,
+      "checkedAt": "2026-11-13",
+      "note": "Undated official documentation retrieved November 13; production disabled, Signet only. Retrieval is not an announcement date."
+    }
+  ]
+}

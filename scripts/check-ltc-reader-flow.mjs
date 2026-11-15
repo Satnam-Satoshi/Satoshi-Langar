@@ -1,8 +1,11 @@
+import {publicEditions} from './lib/ltc-public-editions.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {parse} from 'node:path';
 const read = path => readFile(path,'utf8');
-const editions=JSON.parse(await read('content/ltc/index.json'));
+const rawEditions=JSON.parse(await read('content/ltc/index.json'));
+const exclusions=JSON.parse(await read('config/ltc-publication-exclusions.json'));
+const editions=publicEditions(rawEditions,exclusions);
 const newest=editions.filter(e=>e.status==='published').sort((a,b)=>b.date.localeCompare(a.date)||b.revision-a.revision)[0];
 const original=JSON.parse(await read('content/ltc-extras/2026-10-06-delorean-r1.json'));
 const extra=JSON.parse(await read('content/ltc-extras/2026-10-06-delorean-r2.json'));
@@ -17,6 +20,7 @@ for(const page of ['index.html','conversations/index.html']) {
  assert(html.includes('aria-label="Current daily issue"'),`${page}: prominent daily navigation`);
  assert(html.includes(`editions/${newest.date}/index.html`),`${page}: current date destination`);
  assert(html.includes(newest.title),`${page}: actual daily title`);
+ for(const excluded of exclusions.editions)assert(!html.includes(`editions/${excluded.id}/`)&&(!editions.some(record=>record.date===excluded.date)?!html.includes(`editions/${excluded.date}/`):true),`${page}: never-public preparation is not a reading path`);
  assert(html.includes('id="special-editions"'),`${page}: special shelf`);
  for(const slug of ['proof-of-birthday','charlie-lee','iykyk']) assert(html.includes(slug),`${page}: ${slug} discoverability`);
  assert(html.includes('aria-label="Previous daily editions"'),`${page}: distinct past daily area`);

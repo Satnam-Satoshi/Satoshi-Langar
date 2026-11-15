@@ -1,0 +1,731 @@
+{
+  "schemaVersion": 1,
+  "agent": "LTC ecosystem news desk",
+  "date": "2026-11-13",
+  "timezone": "America/New_York",
+  "checkedAt": "2026-11-13T17:53:45.454Z",
+  "registrySha256": "c52e13ae6e2875e48e3f06021f69c66315285729bc24c63f1d48ea4cdcb6fcb0",
+  "mode": "read-only-editorial-research",
+  "publicationPerformed": false,
+  "sources": [
+    {
+      "id": "builder-litvm",
+      "publisher": "LitVM",
+      "url": "https://www.litvm.com/blog",
+      "category": "builders",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:44.552Z",
+      "sha256": "3dd7e7bf9a2981db6b2a6f9286950ee7222a3aac967eaa427d02f4fa6671d792",
+      "errorCode": null,
+      "reused": true,
+      "gaps": [
+        "A linked publisher article was unavailable or did not match the accepted dated format."
+      ]
+    },
+    {
+      "id": "builder-luxxfolio",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/",
+      "category": "institutions",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:44.552Z",
+      "sha256": "bc7266f26faf0a1d6cc81ff73b9b2ffbbcded99be285004ad7009b0b432eb05d",
+      "errorCode": null,
+      "reused": true,
+      "gaps": []
+    },
+    {
+      "id": "builder-foundation",
+      "publisher": "Litecoin Foundation",
+      "url": "https://litecoin.com/news",
+      "category": "builders",
+      "relevance": "direct",
+      "status": "unavailable",
+      "checkedAt": "2026-11-13T17:53:44.552Z",
+      "sha256": null,
+      "errorCode": "upstream_source_unavailable",
+      "reused": true,
+      "gaps": [
+        "Publisher index unavailable or changed; no alternate source or access bypass used."
+      ]
+    },
+    {
+      "id": "community-litecoin-foundation-news",
+      "publisher": "Litecoin Foundation news",
+      "url": "https://litecoin.com/news/rss.xml",
+      "category": "community",
+      "relevance": "direct",
+      "status": "unavailable",
+      "checkedAt": "2026-11-13T17:53:44.459Z",
+      "sha256": "4ca7a3048a2944703686e844514c2d30c14c15b7420a0671e9030bcd6445acfb",
+      "errorCode": "invalid_feed_identity",
+      "reused": true,
+      "gaps": []
+    },
+    {
+      "id": "community-litecoin-foundation-nexus",
+      "publisher": "Litecoin Foundation · Nexus releases",
+      "url": "https://api.github.com/repos/litecoin-foundation/nexus/releases?per_page=10",
+      "category": "wallets",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:44.475Z",
+      "sha256": "5aa08a8c4021690395e043d61512b6a387d16c5d942701951ff397675e60927e",
+      "errorCode": null,
+      "reused": true,
+      "gaps": []
+    },
+    {
+      "id": "policy-sec-press-releases",
+      "publisher": "SEC press releases",
+      "url": "https://www.sec.gov/news/pressreleases.rss",
+      "category": "policy",
+      "relevance": "keyword",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:44.140Z",
+      "sha256": "c8dac9dfb60a2a4c4e50a4678c1fbcd8ab7b95ce032fbfcde567e56aa7f67337",
+      "errorCode": null,
+      "reused": true,
+      "gaps": []
+    },
+    {
+      "id": "policy-cftc-press-releases",
+      "publisher": "CFTC general press releases",
+      "url": "https://www.cftc.gov/RSS/RSSGP/rssgp.xml",
+      "category": "policy",
+      "relevance": "keyword",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:44.081Z",
+      "sha256": "afb332ac6b3d09f3be0893b8a189873d54b0a060b44b7e9c5885cde46ae253f7",
+      "errorCode": null,
+      "reused": true,
+      "gaps": []
+    },
+    {
+      "id": "core",
+      "publisher": "Litecoin Core",
+      "category": "core",
+      "mode": "github-release",
+      "url": "https://api.github.com/repos/litecoin-project/litecoin/releases/latest",
+      "repository": "litecoin-project/litecoin",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "b3c42d7529536117489455d5a5427ccd62fc59ff8d43b16c5a21dbe19f9e60cf",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "response-changed-review-required"
+    },
+    {
+      "id": "foundation-projects",
+      "publisher": "Litecoin Foundation",
+      "category": "community",
+      "mode": "reference",
+      "url": "https://litecoin.com/projects",
+      "relevance": "direct",
+      "status": "unavailable",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": null,
+      "errorCode": "source_http_403",
+      "reused": false,
+      "gaps": [],
+      "change": "unavailable"
+    },
+    {
+      "id": "litvm-status",
+      "publisher": "LitVM",
+      "category": "scaling",
+      "mode": "reference",
+      "url": "https://docs.litvm.com/other-resources/network-status",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "d74dbf4c9e9ef0911af33c5665d26776b002958f00f0f01a681de3c744c667ff",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "response-changed-review-required"
+    },
+    {
+      "id": "litvm-config",
+      "publisher": "LitVM",
+      "category": "scaling",
+      "mode": "reference",
+      "url": "https://docs.litvm.com/get-started-on-testnet/network-configuration",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "ffc28c08d9db55c34bbe6c60e4c9f0eec6c13aa5ef8f1e0b50f0eba3a722a057",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "response-changed-review-required"
+    },
+    {
+      "id": "litvm-directory",
+      "publisher": "LitVM",
+      "category": "builders",
+      "mode": "reference",
+      "url": "https://testnet.litvm.com/",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "b138b17e89c582bcfc34ccbd14e05fff84ae4329a84e252f0e68f2e752427bf2",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "unchanged"
+    },
+    {
+      "id": "greywick-cltc",
+      "publisher": "Greywick Digital",
+      "category": "institutions",
+      "mode": "reference",
+      "url": "https://greywick.digital/cltc",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "7e53cd083d5953d5bbf0ef6eadfd05f3a7e9a0f83f149079fd8db7f3d80e1a87",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "unchanged"
+    },
+    {
+      "id": "soqupool",
+      "publisher": "LuxxPool",
+      "category": "mining",
+      "mode": "reference",
+      "url": "https://luxxpool.luxxlabs.ca/soqupool.html",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "1d97d5930a302268d999f21a0cf5c159d2d27dddc8cfac0507341874b4c303f3",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "unchanged"
+    },
+    {
+      "id": "f2pool",
+      "publisher": "F2Pool",
+      "category": "mining",
+      "mode": "html-index",
+      "url": "https://f2pool.io/mining/updates/",
+      "articlePrefix": "/mining/updates/",
+      "relevance": "keyword",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "5787b07fc17cae0ffb463c6883c65d49d2f42cccffae34c7db905e60d40f4218",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [
+        "No supported article links found."
+      ],
+      "change": "response-changed-review-required"
+    },
+    {
+      "id": "litestrategy",
+      "publisher": "Lite Strategy",
+      "category": "institutions",
+      "mode": "html-index",
+      "url": "https://investor.litestrategy.com/press-releases",
+      "articlePrefix": "/news-releases/news-release-details/",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "d65789739431a71bfc98d76d4ebefad089f4158963b1b6a2d35956491623e6ff",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "response-changed-review-required"
+    },
+    {
+      "id": "canary-ltcc",
+      "publisher": "Canary Capital",
+      "category": "etfs",
+      "mode": "reference",
+      "url": "https://canaryetfs.com/ltcc/",
+      "relevance": "direct",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "b47da23ddb8573a5b639182980be1a5f702ba0bdf5978dce1c298b83d72b48ee",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "response-changed-review-required"
+    },
+    {
+      "id": "grayscale-ltcn",
+      "publisher": "Grayscale",
+      "category": "etfs",
+      "mode": "reference",
+      "url": "https://www.grayscale.com/funds/grayscale-litecoin-trust",
+      "relevance": "direct",
+      "status": "unavailable",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": null,
+      "errorCode": "source_http_429",
+      "reused": false,
+      "gaps": [],
+      "change": "unavailable"
+    },
+    {
+      "id": "strike",
+      "publisher": "Strike",
+      "category": "payments",
+      "mode": "html-index",
+      "url": "https://strike.me/gb/en/blog/",
+      "articlePrefix": "/gb/en/blog/",
+      "relevance": "keyword",
+      "status": "retrieved",
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sha256": "e9e1175fa53dbff969d64e80374b2dd6632c0554b2b0660874cef1e72324e5fb",
+      "errorCode": null,
+      "reused": false,
+      "gaps": [],
+      "change": "response-changed-review-required"
+    }
+  ],
+  "events": [
+    {
+      "id": "ebab1ff5c7eabf232d091e64a6807f7085089eb94e23f0f229449bdd8fb96efa",
+      "sourceId": "builder-luxxfolio",
+      "publisher": "Luxxfolio",
+      "category": "institutions",
+      "title": "Luxxfolio Provides Corporate Update Highlighting LuxxPool Growth, Mining Expansion and Litecoin Ecosystem Development",
+      "url": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development",
+      "publishedAt": "2026-11-12",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:44.552Z",
+      "sourceSha256": "06e1d1e321cef367d409334c978a2a3e0fac3fcd6899b3b3dd30c883bc77f4a9",
+      "evidenceKind": "attributed-source-record",
+      "relevance": {
+        "score": 100,
+        "reason": "Explicit Litecoin ecosystem subject"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": true,
+      "ageDays": 1
+    },
+    {
+      "id": "33fbbcb162f793dc0f096b00c32e3edea85613f73091c940ecd88f6c7990fd6e",
+      "sourceId": "builder-luxxfolio",
+      "publisher": "Luxxfolio",
+      "category": "institutions",
+      "title": "Luxxfolio Partners with Greywick Digital to Pioneer Institutional Liquidity for cLTC on the Canton Network",
+      "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network",
+      "publishedAt": "2026-10-29",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:44.552Z",
+      "sourceSha256": "fb5cf1c535097d578750c0174a17a623f07b2101d587fa56a87c02c48e8b3fe2",
+      "evidenceKind": "attributed-source-record",
+      "relevance": {
+        "score": 100,
+        "reason": "Explicit Litecoin ecosystem subject"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": true,
+      "ageDays": 15
+    },
+    {
+      "id": "87b28af6a3474fdf7a0c5259a792281506433119d2ac15b7a40e1b59b7b33d08",
+      "sourceId": "builder-litvm",
+      "publisher": "LitVM",
+      "category": "builders",
+      "title": "Introducing LitVM V2: A Bigger Vision",
+      "url": "https://www.litvm.com/blog/introducing-litvm-v2",
+      "publishedAt": "2026-10-27",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:44.552Z",
+      "sourceSha256": "c07e191b09ebf657f2fff46421b884854b6c9c7f6b3909f614091e2e2559d020",
+      "evidenceKind": "attributed-source-record",
+      "relevance": {
+        "score": 100,
+        "reason": "Explicit Litecoin ecosystem subject"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": true,
+      "ageDays": 17
+    },
+    {
+      "id": "48f4d4f670bbffe53e150ffe32e56efa54fa0ee21a196c1ef0bf67e87597bf42",
+      "sourceId": "litestrategy",
+      "publisher": "Lite Strategy",
+      "category": "institutions",
+      "title": "Lite Strategy Marks 15 Years of Litecoin with Launch of \"Proof of Time\" Public Industry Archive",
+      "url": "https://investor.litestrategy.com/news-releases/news-release-details/lite-strategy-marks-15-years-litecoin-launch-proof-time-public",
+      "publishedAt": "2026-10-13T17:41:47.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sourceSha256": "6ed62bdcb07d72bdf86229261771769e9031042e20a2e17e9cdd739f51658bb7",
+      "evidenceKind": "full-html-response-with-publisher-date",
+      "relevance": {
+        "score": 100,
+        "reason": "Explicit Litecoin ecosystem subject"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [
+        "testnet",
+        "mainnet",
+        "planned"
+      ],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": false,
+      "ageDays": 31
+    },
+    {
+      "id": "205f042fe0863d75802f83be0bac70145dcada3e8fa85c1a5e7101849636bea7",
+      "sourceId": "core",
+      "publisher": "Litecoin Core",
+      "category": "core",
+      "title": "Litecoin Core v0.21.5.8",
+      "url": "https://github.com/litecoin-project/litecoin/releases/tag/v0.21.5.8",
+      "publishedAt": "2026-09-12T12:06:49.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sourceSha256": "b3c42d7529536117489455d5a5427ccd62fc59ff8d43b16c5a21dbe19f9e60cf",
+      "evidenceKind": "upstream-release-record",
+      "relevance": {
+        "score": 100,
+        "reason": "Explicit Litecoin ecosystem subject"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": true,
+      "ageDays": 62
+    },
+    {
+      "id": "06144dff2dd0b335d9bc9f0cf94a04d6deaccbea8196298733499417b647e3e0",
+      "sourceId": "litestrategy",
+      "publisher": "Lite Strategy",
+      "category": "institutions",
+      "title": "Lite Strategy Reports Fiscal 2027 First Quarter Financial Results",
+      "url": "https://investor.litestrategy.com/news-releases/news-release-details/lite-strategy-reports-fiscal-2027-first-quarter-financial",
+      "publishedAt": "2026-11-10T13:30:38.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sourceSha256": "ee269ec6854b3e0df5d65b63366c31b2ea2d5258a2e27262960643e281fe6f97",
+      "evidenceKind": "full-html-response-with-publisher-date",
+      "relevance": {
+        "score": 85,
+        "reason": "Dedicated primary ecosystem source"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [
+        "mainnet"
+      ],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": false,
+      "ageDays": 3
+    },
+    {
+      "id": "8815ff87853ebdac6f7ceaaedb30e91a7566385ace39efca23740bece657277a",
+      "sourceId": "litestrategy",
+      "publisher": "Lite Strategy",
+      "category": "institutions",
+      "title": "Lite Strategy Reports Fiscal Year 2026 Financial Results",
+      "url": "https://investor.litestrategy.com/news-releases/news-release-details/lite-strategy-reports-fiscal-year-2026-financial-results",
+      "publishedAt": "2026-09-29T12:30:20.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sourceSha256": "97b244e9d5d50137e8d749563c330667ee18d583911d3c4cf7ce18ee74cc9f3c",
+      "evidenceKind": "full-html-response-with-publisher-date",
+      "relevance": {
+        "score": 85,
+        "reason": "Dedicated primary ecosystem source"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": false,
+      "ageDays": 45
+    },
+    {
+      "id": "6af8dcf47e45473227094a36ef67d0aac737dc8365c7b30a02237a4e95f9e4e7",
+      "sourceId": "strike",
+      "publisher": "Strike",
+      "category": "payments",
+      "title": "Introducing Bitcoin Interest on Cash",
+      "url": "https://strike.me/gb/en/blog/introducing-bitcoin-interest-on-cash",
+      "publishedAt": "2026-10-06T13:00:00.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sourceSha256": "6d59ee62de84bf6b958ef28639c70e0206d82290b0e126384633e16d7ad57515",
+      "evidenceKind": "full-html-response-with-publisher-date",
+      "relevance": {
+        "score": 45,
+        "reason": "Related digital-asset infrastructure or policy"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": false,
+      "ageDays": 38
+    },
+    {
+      "id": "a798c45627b46ef2f943129089592ab08eec67d56820415a742be343478aebcc",
+      "sourceId": "policy-sec-press-releases",
+      "publisher": "SEC press releases",
+      "category": "policy",
+      "title": "SEC Proposes Executive and Director Compensation Disclosure Reforms",
+      "url": "https://www.sec.gov/newsroom/press-releases/2026-114-sec-proposes-executive-director-compensation-disclosure-reforms",
+      "publishedAt": "2026-11-13T16:57:00.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:44.140Z",
+      "sourceSha256": "c8dac9dfb60a2a4c4e50a4678c1fbcd8ab7b95ce032fbfcde567e56aa7f67337",
+      "evidenceKind": "attributed-source-record",
+      "relevance": {
+        "score": 0,
+        "reason": "No documented ecosystem relevance in title"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": false,
+      "coveredInPriorEdition": false,
+      "ageDays": 0
+    },
+    {
+      "id": "2d9b406dee903f5fc47247159c00aae57843a6364c7de434e1d991862e4dc715",
+      "sourceId": "policy-cftc-press-releases",
+      "publisher": "CFTC general press releases",
+      "category": "policy",
+      "title": "CFTC Files Lawsuit Against Arkansas as the Agency Defends its Federal Jurisdiction Over Prediction Markets",
+      "url": "https://www.cftc.gov/PressRoom/PressReleases/9325-26",
+      "publishedAt": "2026-11-13T15:46:14.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:44.081Z",
+      "sourceSha256": "afb332ac6b3d09f3be0893b8a189873d54b0a060b44b7e9c5885cde46ae253f7",
+      "evidenceKind": "attributed-source-record",
+      "relevance": {
+        "score": 0,
+        "reason": "No documented ecosystem relevance in title"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": false,
+      "coveredInPriorEdition": false,
+      "ageDays": 0
+    },
+    {
+      "id": "30421068f9e09688487fb38b429348dfed531ac5908fd0031ee0be123ae8717b",
+      "sourceId": "policy-sec-press-releases",
+      "publisher": "SEC press releases",
+      "category": "policy",
+      "title": "SEC Announces Enforcement Annual Results for Fiscal Year 2026",
+      "url": "https://www.sec.gov/newsroom/press-releases/2026-113-sec-announces-enforcement-annual-results-fiscal-year-2026",
+      "publishedAt": "2026-11-10T16:15:35.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:44.140Z",
+      "sourceSha256": "c8dac9dfb60a2a4c4e50a4678c1fbcd8ab7b95ce032fbfcde567e56aa7f67337",
+      "evidenceKind": "attributed-source-record",
+      "relevance": {
+        "score": 0,
+        "reason": "No documented ecosystem relevance in title"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": true,
+      "ageDays": 3
+    },
+    {
+      "id": "bed6ead34fa210fd59bf418ac70d51f6dab0ebb06a18f7defd57c45144b923b3",
+      "sourceId": "policy-cftc-press-releases",
+      "publisher": "CFTC general press releases",
+      "category": "policy",
+      "title": "CFTC Issues Impartial Access Requirements Interpretation",
+      "url": "https://www.cftc.gov/PressRoom/PressReleases/9323-26",
+      "publishedAt": "2026-11-05T22:00:03.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:44.081Z",
+      "sourceSha256": "afb332ac6b3d09f3be0893b8a189873d54b0a060b44b7e9c5885cde46ae253f7",
+      "evidenceKind": "attributed-source-record",
+      "relevance": {
+        "score": 0,
+        "reason": "No documented ecosystem relevance in title"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": true,
+      "ageDays": 8
+    },
+    {
+      "id": "c16e18fc5b67f2ba6abcf233ee28659b735bb3fc7f3923400a657aa54f7a7fe7",
+      "sourceId": "strike",
+      "publisher": "Strike",
+      "category": "payments",
+      "title": "Optimising the Strike Software Factory",
+      "url": "https://strike.me/gb/en/blog/optimising-the-strike-software-factory",
+      "publishedAt": "2026-08-20T08:00:00.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sourceSha256": "0e1e09f34ae22e1b6d96a3dbcb7aee1e1aa75c038af60b7765290fd1b3e1ed06",
+      "evidenceKind": "full-html-response-with-publisher-date",
+      "relevance": {
+        "score": 0,
+        "reason": "No documented ecosystem relevance in title"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": false,
+      "ageDays": 85
+    },
+    {
+      "id": "083a13dec61602ab27b568eedbf2e5e2bee9a17a753bc1c682ae666a96e00b14",
+      "sourceId": "strike",
+      "publisher": "Strike",
+      "category": "payments",
+      "title": "Continuous Red Teaming in the Age of AI",
+      "url": "https://strike.me/gb/en/blog/continuous-red-teaming-in-the-age-of-ai",
+      "publishedAt": "2026-08-04T12:00:00.000Z",
+      "effectiveAt": null,
+      "checkedAt": "2026-11-13T17:53:45.454Z",
+      "sourceSha256": "c34a3e00f8f4ee9604a257648c528eb247fedbc3848a6b84d6ecbc7a3e95ee75",
+      "evidenceKind": "full-html-response-with-publisher-date",
+      "relevance": {
+        "score": 0,
+        "reason": "No documented ecosystem relevance in title"
+      },
+      "productStage": "not-established-by-this-scan",
+      "stageSignals": [],
+      "editorialReviewRequired": true,
+      "previouslyObserved": true,
+      "coveredInPriorEdition": false,
+      "ageDays": 101
+    }
+  ],
+  "candidateEventIds": [
+    "06144dff2dd0b335d9bc9f0cf94a04d6deaccbea8196298733499417b647e3e0"
+  ],
+  "duplicates": [],
+  "coverage": [
+    {
+      "category": "core",
+      "sources": 1,
+      "retrieved": 1,
+      "datedEvents": 1
+    },
+    {
+      "category": "wallets",
+      "sources": 1,
+      "retrieved": 1,
+      "datedEvents": 0
+    },
+    {
+      "category": "privacy-security",
+      "sources": 0,
+      "retrieved": 0,
+      "datedEvents": 0
+    },
+    {
+      "category": "builders",
+      "sources": 3,
+      "retrieved": 2,
+      "datedEvents": 1
+    },
+    {
+      "category": "scaling",
+      "sources": 2,
+      "retrieved": 2,
+      "datedEvents": 0
+    },
+    {
+      "category": "payments",
+      "sources": 1,
+      "retrieved": 1,
+      "datedEvents": 3
+    },
+    {
+      "category": "mining",
+      "sources": 2,
+      "retrieved": 2,
+      "datedEvents": 0
+    },
+    {
+      "category": "institutions",
+      "sources": 3,
+      "retrieved": 3,
+      "datedEvents": 5
+    },
+    {
+      "category": "etfs",
+      "sources": 2,
+      "retrieved": 1,
+      "datedEvents": 0
+    },
+    {
+      "category": "policy",
+      "sources": 2,
+      "retrieved": 2,
+      "datedEvents": 4
+    },
+    {
+      "category": "community",
+      "sources": 2,
+      "retrieved": 0,
+      "datedEvents": 0
+    }
+  ],
+  "editorialReferences": [
+    {
+      "id": "mnav",
+      "publisher": "mNAV",
+      "url": "https://www.mnav.com/",
+      "status": "manual-review-required",
+      "automatedRetrieval": false,
+      "purpose": "Bitcoin treasury discovery; verify material changes against dated issuer disclosures.",
+      "accessLimit": "No automated retrieval or numeric feed: API and embedding entitlement has not been verified. No access date or current holdings are claimed."
+    },
+    {
+      "id": "bitbo-treasury-changes",
+      "publisher": "Bitbo",
+      "url": "https://bitbo.io/treasuries/latest-changes/",
+      "status": "manual-review-required",
+      "automatedRetrieval": false,
+      "purpose": "Bitcoin treasury discovery; distinguish date added, purchase date and holdings, and verify against issuer disclosures. Holdings changes are not fund flows.",
+      "accessLimit": "No automated retrieval or numeric feed: website terms restrict scraping and licensed API access has not been established. No access date or current holdings are claimed."
+    }
+  ],
+  "gaps": [
+    "This is a bounded primary-source watch, not complete access to every project or X timeline.",
+    "Official X posts require separate verified reads. Search snippets, reposts and directory listings are discovery evidence, not proof that a product is live.",
+    "ETF product pages are change watches only. Holdings, flows, NAV and prices remain with the existing verified financial-data collectors.",
+    "A reference-page hash change is an observation for editorial review, not a dated announcement or verified launch.",
+    "Cross-publisher reposts without the same canonical event URL require editorial deduplication before publication.",
+    "Litecoin Foundation: upstream_source_unavailable.",
+    "Litecoin Foundation news: invalid_feed_identity.",
+    "Litecoin Foundation: source_http_403.",
+    "Grayscale: source_http_429.",
+    "LitVM: A linked publisher article was unavailable or did not match the accepted dated format.",
+    "Litecoin Foundation: Publisher index unavailable or changed; no alternate source or access bypass used.",
+    "F2Pool: No supported article links found.",
+    "mNAV: manual review required (https://www.mnav.com/). Bitcoin treasury discovery; verify material changes against dated issuer disclosures. No automated retrieval or numeric feed: API and embedding entitlement has not been verified. No access date or current holdings are claimed.",
+    "Bitbo: manual review required (https://bitbo.io/treasuries/latest-changes/). Bitcoin treasury discovery; distinguish date added, purchase date and holdings, and verify against issuer disclosures. Holdings changes are not fund flows. No automated retrieval or numeric feed: website terms restrict scraping and licensed API access has not been established. No access date or current holdings are claimed."
+  ]
+}

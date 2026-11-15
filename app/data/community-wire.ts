@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { readCommunityArchive } from '../../scripts/lib/community-archive.mjs';
 
-type Snapshot = { collectedAt: string; sourceStatus: { id: string; sourceName: string; url: string; status: string; checkedAt: string|null; errorCode: string|null; sha256: string|null }[]; items: { id: string; sourceName: string; title: string; url: string; publishedAt: string; summaryClassification: string }[] };
-export const communityArchive = readCommunityArchive(path.join(process.cwd(),'content/ltc-community/archive')) as { id:string; snapshot:Snapshot; sha256:string }[];
+export type CommunitySnapshot = { collectedAt: string; sourceStatus: { id: string; sourceName: string; url: string; status: string; checkedAt: string|null; errorCode: string|null; sha256: string|null }[]; items: { id: string; sourceName: string; title: string; url: string; publishedAt: string; summaryClassification: string }[] };
+export const communityArchive = readCommunityArchive(path.join(process.cwd(),'content/ltc-community/archive')) as { id:string; snapshot:CommunitySnapshot; sha256:string }[];
 export const communityDate = (date:string) => new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeZone:'UTC'}).format(new Date(date));
 export const communityArchiveHref = (id:string) => `/conversations/community/records/${id}/`;
 

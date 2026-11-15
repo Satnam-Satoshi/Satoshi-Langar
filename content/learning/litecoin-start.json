@@ -1,0 +1,98 @@
+{
+  "status": "Source-linked introductory learning path; self-reported completion, not certification",
+  "sourceCutoff": "2026-10-15",
+  "title": "Your first seven days with Litecoin",
+  "lessons": [
+    {
+      "day": 1,
+      "title": "Understand what Litecoin is",
+      "goal": "Explain native LTC, a wallet and a transaction in plain language.",
+      "steps": [
+        "Read the network introduction and compare Bitcoin and Litecoin without ranking either as a guaranteed investment.",
+        "Explain why a wallet controls keys rather than storing coins inside the app.",
+        "Answer: is a company share or wrapped token the same thing as native LTC?"
+      ],
+      "completion": "Correctly distinguish native LTC, a wallet and a third-party product.",
+      "source": "https://litecoin.com/learning-center/learning-center",
+      "explanation": "Litecoin is an open-source network with rules that participating nodes check. LTC is its native unit. A wallet manages the keys used to authorize spending; an exchange account usually gives a service custody. Bitcoin and Litecoin have shared origins but different mining and timing rules."
+    },
+    {
+      "day": 2,
+      "title": "Choose a learning path and wallet",
+      "goal": "Recognize custody choices before installing anything.",
+      "steps": [
+        "Compare self-custody and a service holding keys for you; identify who can authorize and recover access.",
+        "Open the wallet publisher's official website and follow its current store links.",
+        "Review its supported network, backup method and support documentation. Installation is optional."
+      ],
+      "completion": "Identify the publisher and who controls recovery. No purchase required.",
+      "source": "https://support.nexuswallet.com/",
+      "explanation": "With self-custody, you are responsible for the keys and recovery process. With custodial services, the service controls access under its own terms. An official store listing should be reached from the publisher\u2019s verified website; an advertisement or familiar-looking logo does not establish authenticity."
+    },
+    {
+      "day": 3,
+      "title": "Understand backup and recovery",
+      "goal": "Keep secrets out of the learning platform.",
+      "steps": [
+        "Use a fictional recovery example in the practice lesson.",
+        "Read the selected wallet's current backup instructions before creating a wallet.",
+        "If choosing to create a real wallet, complete its backup privately. Never enter recovery words, private keys or backup images into our website, chat, a form or support message."
+      ],
+      "completion": "Explain recovery responsibilities using a fictional example; do not upload proof.",
+      "source": "https://support.nexuswallet.com/",
+      "explanation": "A recovery secret can give someone control over a wallet. A screenshot or cloud copy can expose it to other accounts and devices. The correct backup method depends on the wallet. Use its current instructions privately; practising here never requires creating or revealing a real secret."
+    },
+    {
+      "day": 4,
+      "title": "Read a receive request",
+      "goal": "Recognize the network, destination and amount.",
+      "steps": [
+        "Study a clearly labelled fictional Litecoin receive request.",
+        "Explain why native Litecoin and represented LTC on another chain are not interchangeable destinations.",
+        "Use the wallet publisher's receive guide if choosing a real-world transaction; verify details privately."
+      ],
+      "completion": "Identify which network a practice request belongs to.",
+      "source": "https://support.nexuswallet.com/",
+      "explanation": "A receive address tells a wallet where a transfer is intended to go on a particular network. A QR code is a convenient encoding, not a safety certificate. Native Litecoin, cbLTC on Base and a LitVM test token use different systems. Always identify the asset and network before treating a destination as compatible."
+    },
+    {
+      "day": 5,
+      "title": "Understand a send and confirmation",
+      "goal": "Know which checks happen before and after sending.",
+      "steps": [
+        "Use a fictional amount to inspect destination, network, fee and confirmation status.",
+        "Explain that the sender must verify details before authorizing, and that a wallet provider cannot simply reverse a confirmed transfer.",
+        "If independently choosing real practice, begin with a small affordable test and follow current official instructions; the course never initiates transfers."
+      ],
+      "completion": "Complete the simulated transaction checklist.",
+      "source": "https://support.nexuswallet.com/",
+      "explanation": "A transaction authorizes a transfer under the network\u2019s rules. A fee is separate from the amount received, and a broadcast transaction is not the same as a confirmed one. Blocks record transactions; the appropriate confirmation policy depends on the recipient and context. Litecoin transfers do not have a general chargeback mechanism."
+    },
+    {
+      "day": 6,
+      "title": "Explore privacy, builders and representations",
+      "goal": "Ask a better product question.",
+      "steps": [
+        "Read the introductory privacy explanation and distinguish native MWEB from application-layer features.",
+        "Choose a documented demo or project and identify its release stage, network and maintainer.",
+        "Explain that a testnet asset, bridge representation and native LTC have different assumptions."
+      ],
+      "completion": "Write one source-linked question about a project.",
+      "source": "https://litecoin.com/learning-center/learning-center",
+      "explanation": "Privacy depends on the actual implementation and how it is used. Native MWEB, wallet features and application-layer systems should be examined separately. A project on testnet is for experimentation; a wrapped asset adds issuer or bridge assumptions beyond those of native LTC."
+    },
+    {
+      "day": 7,
+      "title": "Make your first contribution",
+      "goal": "Help the next learner.",
+      "steps": [
+        "Choose one useful action: improve a glossary entry, report a broken link, suggest a sourced correction or explain a term.",
+        "Optionally subscribe through a tested consent flow when available; sign-in alone does not subscribe anyone.",
+        "Share the public lesson link with a willing friend. No address-book import or automatic invitations."
+      ],
+      "completion": "One voluntary contribution or a saved personal learning plan.",
+      "source": "https://litecoin.com/learning-center/learning-center",
+      "explanation": "An open community needs more than developers and asset owners. Clear documentation, translation, reproducible bug reports and sourced corrections help everyone. A useful contribution names the page or project, explains the issue and provides a public reference where possible."
+    }
+  ]
+}

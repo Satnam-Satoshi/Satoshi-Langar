@@ -18,6 +18,8 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
+      - name: Install pinned CLI for its offline argument-parser contract
+        run: npm install --global vercel@65.9.0
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
       - uses: actions/upload-artifact@v4

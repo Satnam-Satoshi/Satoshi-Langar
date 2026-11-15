@@ -1,3 +1,4 @@
+import {publicEditions} from './lib/ltc-public-editions.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile, stat, symlink, rm } from 'node:fs/promises';
@@ -11,7 +12,9 @@ async function loadModule(entryPoint) {
 }
 const { buildDailyFeed, savedCoverEnclosure, escapeFeedXml } = await loadModule('app/data/daily-feed.ts');
 const route = await loadModule('app/conversations/daily.xml/route.ts');
-const editions = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
+const rawEditions = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
+const exclusions = JSON.parse(await readFile('config/ltc-publication-exclusions.json', 'utf8'));
+const editions = publicEditions(rawEditions, exclusions);
 const itemIds = xml => [...xml.matchAll(/<guid isPermaLink="false">([^<]+)<\/guid>/g)].map(match => match[1]);
 const record = (date, revision, publishedAt) => ({ ...structuredClone(editions[0]), id: `${date}-r${revision}`, date, revision, publishedAt, presentation: undefined, corrections: [] });
 
@@ -28,6 +31,7 @@ test('static daily route contains exactly archived daily publication events with
   assert.ok(!xml.includes('ltc:feature:'));
   assert.ok(!xml.includes('[Editorial preview]'));
   for (const edition of editions) assert.ok(xml.includes(`https://ltcmagazine.org/conversations/editions/${edition.id}/`));
+  for(const excluded of exclusions.editions)assert.ok(!xml.includes(`ltc:edition:${excluded.id}`),'Never-public preparation has no publication event');
 });
 
 test('a correction to an older date is a separate newest publication event without changing its predecessor', async () => {

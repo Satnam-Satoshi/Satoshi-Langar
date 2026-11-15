@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-10-31",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-10-31T04:12:06.038Z",
+  "checkedAt": "2026-10-31",
+  "title": "Before the next block: verify what you run.",
+  "theme": "Proof of Work",
+  "dek": "A fresh Lightning operator notice, a Litecoin tools status check and dated builder and policy milestones: useful progress starts with precise evidence.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma · LTC Media under founder governance; no independent human fact-check claimed.",
+  "freshnessPolicy": "Original publication dates remain visible. Undated pages are status checks, not newly dated news; a proposal is not deployment.",
+  "independence": "Independent Satnam Satoshi publication; attribution is not endorsement.",
+  "stories": [
+    {
+      "id": "lnd-operator-readiness",
+      "title": "A fresh Lightning release puts operator readiness first",
+      "desk": "Bitcoin / Lightning",
+      "classification": "Official release; attributed security notice",
+      "dek": "LND v0.21.6-beta was published late October 30. Its maintainers distinguish a listener mitigation from the underlying Linux kernel fix.",
+      "status": "Published October 30, 23:21 UTC · Checked October 31",
+      "eventDates": [
+        {
+          "date": "2026-10-30",
+          "label": "Original LND release publication"
+        }
+      ],
+      "paragraphs": [
+        "LND’s official v0.21.6-beta release describes a Linux kernel vulnerability and says the release disables MPTCP listeners by default to close the demonstrated path through LND. The maintainers explicitly distinguish that mitigation from patching the kernel itself.",
+        "The release directs Linux operators to its upgrade, host-configuration and kernel guidance, and says Windows and macOS are unaffected. This is an attributed upstream notice: LTC Media has not reproduced the exploit or verified a reader’s machine. It does not establish a vulnerability in Litecoin consensus.",
+        "For newcomers, the useful habit is straightforward: identify the software and operating system you actually run, read the publisher’s exact instructions and verify release provenance. For operators, the original notice is the destination; this summary is not a substitute for its environment-specific steps."
+      ],
+      "takeaway": "Operational care is part of using open money; a mitigation and a root-cause fix are different milestones.",
+      "discussionPrompt": "Which version and operating-system checks belong in an accessible community operator checklist?",
+      "sourceIds": [
+        "lnd"
+      ]
+    },
+    {
+      "id": "lester-read-the-status",
+      "title": "A Litecoin builder checkpoint: read the status before connecting",
+      "desk": "Litecoin / Community tools",
+      "classification": "Undated status check",
+      "dek": "Lester Labs describes a public-testnet replacement and legacy recovery flow. The notice needs to stay visible beside the tools.",
+      "status": "Status page checked October 31 · Original publication date not provided",
+      "eventDates": [],
+      "paragraphs": [
+        "Lester Labs’ launchpad status page says known legacy factories remain blocked for new creation, funding, contributions and finalisation, while new activity uses a source-pinned replacement. It describes conditional recovery for existing participants and owners; eligibility depends on the historical contract and current state.",
+        "This page was checked today but supplies no original publication date. We are not announcing a fresh incident or certifying the replacement. Its documentation still describes LiteForge testnet tools. A community directory should send readers to current status and documentation before a transaction screen."
+      ],
+      "takeaway": "A working interface and a testnet listing are not a security review.",
+      "discussionPrompt": "Can builders make status, provenance and recovery guidance easier for first-time users to find?",
+      "sourceIds": [
+        "lester",
+        "lester-docs"
+      ]
+    },
+    {
+      "id": "builder-delivery-watch",
+      "title": "Two Litecoin delivery paths, with different next proofs",
+      "desk": "Litecoin / Builders and institutions",
+      "classification": "Dated announcements",
+      "dek": "LitVM’s October 27 infrastructure update and Luxxfolio’s October 29 cLTC proposal remain important checkpoints, not October 31 launches.",
+      "status": "Sources October 27 and October 29 · Checked October 31",
+      "eventDates": [
+        {
+          "date": "2026-10-27",
+          "label": "LitVM V2 announcement"
+        },
+        {
+          "date": "2026-10-29",
+          "label": "Luxxfolio / Greywick issuer announcement"
+        }
+      ],
+      "paragraphs": [
+        "LitVM’s V2 announcement describes Charms integration work and a Zeeve infrastructure migration. Its current connection documentation still labels LiteForge as testnet and leaves mainnet parameters to be announced. We are watching published network status and delivery evidence rather than relabelling a roadmap as a live service.",
+        "Luxxfolio’s October 29 Greywick announcement describes a non-binding letter of intent. Proposed cLTC liquidity, treasury allocation and financing remain subject to further terms and technical readiness. It is not evidence that reserves have already moved or that holders have a new guaranteed yield product."
+      ],
+      "takeaway": "Architecture, commercial terms, reserve evidence and live availability answer different questions.",
+      "discussionPrompt": "Which primary document would best establish the next delivered milestone?",
+      "sourceIds": [
+        "litvm",
+        "litvm-status",
+        "luxx"
+      ]
+    },
+    {
+      "id": "policy-around-the-clock",
+      "title": "Around-the-clock markets need more than an always-on screen",
+      "desk": "Policy / Market infrastructure",
+      "classification": "Official roundtable announcement",
+      "dek": "The CFTC has announced a December 15 discussion of 24/7 derivatives trading, including infrastructure and operational readiness.",
+      "status": "Announced October 28 · Event planned December 15",
+      "eventDates": [
+        {
+          "date": "2026-10-28",
+          "label": "Official roundtable announcement"
+        }
+      ],
+      "paragraphs": [
+        "The CFTC’s October 28 announcement schedules an industry roundtable for December 15. It identifies overnight trading, tokenization, staffing and infrastructure among the issues for discussion. The announcement is an invitation to examine market design, not a finalized permission or product approval.",
+        "Our editorial question is practical: a network can process transactions continuously while exchanges, custodians and support teams operate under different rules and service hours. Readers should keep the specific venue, asset and operational responsibilities beside any promise of access."
+      ],
+      "takeaway": "Continuous block production does not settle every question about a trading venue.",
+      "discussionPrompt": "What support and recovery expectations should users ask of a service that advertises 24/7 access?",
+      "sourceIds": [
+        "cftc"
+      ]
+    },
+    {
+      "id": "policy-scope",
+      "title": "Policy scope check: Treasury relief is not a Litecoin approval",
+      "desk": "Policy / Source literacy",
+      "classification": "Official SEC announcement",
+      "dek": "The SEC’s October 30 release concerns specified inter-affiliate and non-U.S. Treasury repo transactions.",
+      "status": "Published October 30 · Checked October 31",
+      "eventDates": [
+        {
+          "date": "2026-10-30",
+          "label": "Official SEC announcement"
+        }
+      ],
+      "paragraphs": [
+        "The SEC announced targeted relief related to Treasury clearing requirements on October 30. Its release describes conditions for certain inter-affiliate and non-U.S. repo transactions. The linked original identifies the actual rule scope and affected arrangements.",
+        "This is broader financial-infrastructure context. We make no inference that the release approves a Litecoin fund, tokenized LTC product or any builder covered elsewhere in this issue."
+      ],
+      "takeaway": "Read which instrument and rule a policy announcement actually addresses.",
+      "discussionPrompt": "Which scope labels help readers avoid confusing general market infrastructure with asset-specific approval?",
+      "sourceIds": [
+        "sec"
+      ]
+    },
+    {
+      "id": "core-release-checkpoint",
+      "title": "Keep the core-software checkpoint dated",
+      "desk": "Bitcoin / Protocol software",
+      "classification": "Upstream release observation",
+      "dek": "Bitcoin Core’s latest returned release is 32.1, published October 28; the release page points readers to its official distribution channel.",
+      "status": "Published October 28 · Checked October 31",
+      "eventDates": [
+        {
+          "date": "2026-10-28",
+          "label": "Bitcoin Core release publication"
+        }
+      ],
+      "paragraphs": [
+        "Bitcoin Core’s publisher release page identifies version 32.1 and directs readers to its own release notes and download location. This observation preserves the publication date; checking the page today does not make the release new today.",
+        "We have not installed software for readers or independently verified release binaries. Litecoin Core and Bitcoin Core remain separate software projects; a release for one is not an update to the other."
+      ],
+      "takeaway": "Use the publisher’s verification instructions and preserve the original release date.",
+      "discussionPrompt": "What would make release verification easier to teach?",
+      "sourceIds": [
+        "bitcoin"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "lnd",
+      "url": "https://github.com/lightningnetwork/lnd/releases/tag/v0.21.6-beta",
+      "title": "LND v0.21.6-beta release and operator notice",
+      "publisher": "Lightning Network / LND",
+      "publishedAt": "2026-10-30T23:21:55Z",
+      "checkedAt": "2026-10-31",
+      "note": "Official release; security statements attributed to maintainers. No independent exploit reproduction or binary verification performed."
+    },
+    {
+      "id": "lester",
+      "url": "https://www.lester-labs.com/litvm-launchpad",
+      "title": "LitVM launchpad security status",
+      "publisher": "Lester Labs",
+      "publishedAt": null,
+      "checkedAt": "2026-10-31",
+      "note": "Undated operational page checked October 31; not a newly dated launch or independent contract audit."
+    },
+    {
+      "id": "lester-docs",
+      "url": "https://www.lester-labs.com/docs",
+      "title": "Lester Labs developer documentation",
+      "publisher": "Lester Labs",
+      "publishedAt": null,
+      "checkedAt": "2026-10-31",
+      "note": "Describes LiteForge testnet tools. Listing is not independent verification of safety or deployment."
+    },
+    {
+      "id": "litvm",
+      "url": "https://www.litvm.com/blog/introducing-litvm-v2",
+      "title": "Introducing LitVM V2: A Bigger Vision",
+      "publisher": "LitVM",
+      "publishedAt": "2026-10-27",
+      "checkedAt": "2026-10-31",
+      "note": "Publisher architecture announcement; milestones and activity figures not independently audited."
+    },
+    {
+      "id": "litvm-status",
+      "url": "https://docs.litvm.com/get-started-on-testnet/add-to-wallet",
+      "title": "LitVM network configuration and availability",
+      "publisher": "LitVM",
+      "publishedAt": null,
+      "checkedAt": "2026-10-31",
+      "note": "Current documentation check; mainnet connection details remain unpublished. No transaction was requested."
+    },
+    {
+      "id": "luxx",
+      "url": "https://luxxfolio.com/news/luxxfolio-partners-with-greywick-digital-to-pioneer-institutional-liquidity-for-cltc-on-the-canton-network/",
+      "title": "Luxxfolio / Greywick institutional liquidity proposal",
+      "publisher": "Luxxfolio",
+      "publishedAt": "2026-10-29",
+      "checkedAt": "2026-10-31",
+      "note": "Issuer-published non-binding LOI; no completed treasury allocation, audited reserve or financing is established."
+    },
+    {
+      "id": "cftc",
+      "url": "https://www.cftc.gov/PressRoom/PressReleases/9318-26",
+      "title": "CFTC to Host Roundtable on 24/7 Trading",
+      "publisher": "CFTC",
+      "publishedAt": "2026-10-28",
+      "checkedAt": "2026-10-31",
+      "note": "Official event announcement, not a new trading permission or finalized rule."
+    },
+    {
+      "id": "sec",
+      "url": "https://www.sec.gov/newsroom/press-releases/2026-111-sec-issues-exemptive-relief-treasury-clearing-requirements-certain-inter-affiliate-non-us-repo",
+      "title": "SEC Treasury-clearing exemptive relief",
+      "publisher": "SEC",
+      "publishedAt": "2026-10-30",
+      "checkedAt": "2026-10-31",
+      "note": "Official announcement concerns specified Treasury repo transactions; no Litecoin approval is implied."
+    },
+    {
+      "id": "bitcoin",
+      "url": "https://github.com/bitcoin/bitcoin/releases/tag/v32.1",
+      "title": "Bitcoin Core 32.1 release",
+      "publisher": "Bitcoin Core",
+      "publishedAt": "2026-10-28T14:23:53Z",
+      "checkedAt": "2026-10-31",
+      "note": "Upstream release identity only; no automatic installation or binary audit."
+    }
+  ],
+  "gaps": [
+    "No newly dated October 31 Aztech, Lester Labs or Dappit announcement was independently established from the reviewed sources. Lester coverage is an undated status-page check.",
+    "Dappit homepage returned no readable article text in the public browser check. No launch, partnership or activity metric is inferred.",
+    "The bounded publisher adapters cover at most two linked articles per configured publisher; they do not cover all X activity.",
+    "A separate Litecoin Foundation index/feed check was unavailable or did not satisfy the accepted feed identity."
+  ]
+}

@@ -19,6 +19,12 @@ export function prepareFlagship({snapshot,registry,policy,coverage,intelligence,
   'Network observations, when accepted, are derived from cited explorer block metadata, not from a node operated by LTC Media. Morpho rates are variable, timestamped snapshots of four exact markets.',
   'Agency-feed titles are dated official records, not independent adjudications or political analysis. Longer educational features retain their original research date.',
   'No ETF/ETP flow series, company mNAV, Litecoin treasury total, composite global price, personal position assessment or community event report is produced by this issue.']};
+ // A reviewed dated feature may supply cover COPY, never artwork or financial observations.
+ // Older features can remain context but cannot relabel a later publication.
+ if(features.editionCover && features.issueDate===date){
+  edition.presentation={...edition.presentation,cover:{...edition.presentation.cover,...features.editionCover}};
+  edition.title=features.editionCover.title;edition.dek=features.editionCover.subtitle;
+ }
  validateFlagshipRecord(edition);
  return edition;
 }

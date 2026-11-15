@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "width": 1200,
+  "height": 630,
+  "editionId": "2026-11-13-r1",
+  "date": "2026-11-13",
+  "featureDate": "2026-11-13",
+  "headline": "Mining, Builders and the Next Test",
+  "stories": [
+    {
+      "id": "luxxfolio-mining-and-soqucoin",
+      "title": "Luxxfolio expands the fleet and adds Soqucoin’s founder.",
+      "desk": "Litecoin / Mining and treasury",
+      "classification": "Attributed company announcement",
+      "sourceDates": [
+        "2026-11-12"
+      ],
+      "sourceURLs": [
+        "https://www.tmxnewsfile.com/release/323676/Luxxfolio-Provides-Corporate-Update-Highlighting-LuxxPool-Growth-Mining-Expansion-and-Litecoin-Ecosystem-Development"
+      ]
+    },
+    {
+      "id": "litedrive-testnet-explainer",
+      "title": "LiteDrive: two experimental chains, not a Litecoin mainnet launch.",
+      "desk": "Litecoin / Technical explainer",
+      "classification": "Current project documentation; testnet only",
+      "sourceDates": [
+        "Publication date not supplied"
+      ],
+      "sourceURLs": [
+        "https://litedrive.io/"
+      ]
+    }
+  ],
+  "sourceDates": [
+    "2026-11-12",
+    "Publication date not supplied"
+  ],
+  "publishedAt": "2026-11-13T17:53:49.283Z",
+  "attribution": "AI-prepared · LTC Media · Read the dated sourcebook",
+  "readURL": "https://ltcmagazine.org/conversations/editions/2026-11-13-r1/",
+  "design": "content-led-news-map-v1",
+  "pngSha256": "8f4e40376edba69493c33942224e871e70f00aa1a5be8e54c5abe01e88950ca8",
+  "svgSha256": "3a78696673da9cc6474d8c83bb0449acaae539c11b2e490db5cdeb853e8e3d46",
+  "pngBytes": 81130,
+  "renderer": "Next ImageResponse · original SVG · explicit Liberation Sans glyphs"
+}

@@ -1,0 +1,28 @@
+import { validateSoftwareReview } from './ltc-software-release.mjs';
+import { dailyPublicationFixture } from './test-daily-publication-fixture.mjs';
+import { releaseGeneration } from '../cloud-ltc-generation.mjs';
+import { TARGET } from '../cloud-ltc-release.mjs';
+import { softwareRecoveryHash as hash } from '../cloud-ltc-software-stage-recovery-policy.mjs';
+const hex = digit => digit.repeat(64);
+export function softwareRecoveryFixture() {
+ const started=Date.parse('2026-11-04T14:00:00Z'), now=Date.parse('2026-11-04T16:00:00Z');
+ const document=dailyPublicationFixture();document.latestRelease.publicationProvenance={editionSha256:hex('a'),sourceDeskSha256:hex('b'),dailyGraphicSha256:hex('c')};
+ const manifest=[{file:'index.html',sha256:hex('d')}],buildOutput=[{file:'config.json',sha256:hex('e')}],changedPaths=['app/page.tsx'];
+ const previousManifest=[{file:'index.html',sha256:hex('f')}];document.latestRelease.artifactManifestSha256=hash(previousManifest);
+ const originalReview={schemaVersion:1,kind:'reviewed-software-only-release',approved:true,actorId:'268053325',approvalId:'original',approvedAt:'2026-11-04T13:00:00Z',expiresAt:'2026-11-04T15:00:00Z',source:'a'.repeat(40),implementationSha256:hex('b'),target:TARGET,priorReleaseSha256:hash(document.latestRelease),previousDeployment:document.latestRelease.deployment,rollbackManifestSha256:document.latestRelease.artifactManifestSha256,artifactManifestSha256:hash(manifest),buildOutputSha256:hash(buildOutput),preserveDailyPublication:true,rollbackOnConfirmedVerificationFailure:true,expiryScope:'admission-and-first-promotion',rollbackAfterExpiryWithinLease:true,visualQaRunId:'1234',allowedChangedPaths:changedPaths};
+ const originalContext=validateSoftwareReview(originalReview,{source:originalReview.source,implementationSha256:originalReview.implementationSha256,manifest,buildOutput,changedPaths,document,now:started,target:TARGET});
+ const origin={runId:'900001',attempt:'1',fence:27,workflowHead:'c'.repeat(40)};
+ document.fence=27;document.lease={runId:'software-900001-1',fence:27,expiresAt:started+3600000};
+ for(let n=0;n<42;n++){
+  const operationId=`archive-${n}`,payload={kind:'drive-evidence',role:'release-artifacts',generation:releaseGeneration(document.lease),artifactPackageManifestSha256:hex('f'),artifactBundleCount:42,artifactBundleIndex:n,fileId:`fixture_part_${n}`,folderId:'fixture_folder',sha256:hash(n),bytes:100+n};
+  const item={operationId,runId:document.lease.runId,fence:27,payload,payloadSha256:hash(payload),status:'confirmed'};
+  item.proof={operationId,payloadSha256:item.payloadSha256,status:'applied',proof:{fileId:payload.fileId,folderId:payload.folderId,sha256:payload.sha256,length:payload.bytes,ownerPermissionId:'fixture_owner',ownerOnly:true,downloadVerified:true}};
+  item.evidenceSha256=hash(item.proof);document.intents[operationId]=item;document.receipts[operationId]={receipt:structuredClone(item),sha256:hash(item)};
+ }
+ const payload={kind:'vercel-stage',editionId:document.latestRelease.editionId,artifactPackageManifestSha256:hex('f'),commit:originalReview.source,buildOutputSha256:hash(buildOutput),artifactManifestSha256:hash(manifest)};
+ const stage={operationId:'stage-fixture',runId:document.lease.runId,fence:27,payload,payloadSha256:hash(payload),status:'uncertain',evidenceSha256:null};document.intents[stage.operationId]=stage;
+ const review={schemaVersion:1,kind:'reviewed-existing-software-stage-recovery',approved:true,actorId:'268053325',approvalId:'recover-fixture',target:TARGET,approvedAt:'2026-11-04T15:30:00Z',expiresAt:'2026-11-04T17:00:00Z',controllerSource:'d'.repeat(40),controllerImplementationSha256:hex('e'),operatorWorkflowHead:'e'.repeat(40),artifactSource:originalReview.source,artifactImplementationSha256:originalReview.implementationSha256,origin,originalPaused:false,candidateDeployment:'dpl_FixtureCandidate',previousDeployment:document.latestRelease.deployment,artifactPartCount:42,bindings:{websiteDocumentId:'fixture_document',folderId:'fixture_folder',ownerPermissionId:'fixture_owner'},snapshotSha256:hash(document),originalReviewSha256:hash(originalReview),originalContextSha256:hash(originalContext),priorReleaseSha256:hash(document.latestRelease),artifactManifestSha256:hash(manifest),buildOutputSha256:hash(buildOutput),artifactPackageManifestSha256:hex('f'),stageOperationId:stage.operationId,stageIntentSha256:hash(stage),noRebuild:true,noRedeploy:true,noArtifactReupload:true,noGitWrites:true,preserveDailyPublication:true,preserveHistoricalMarkers:true,allowNewFencedClaim:true,firstPromotionOnly:true,allProjectProductionAliasesApproved:true,rollbackOnConfirmedVerificationFailure:true,expiryScope:'admission-and-first-promotion',rollbackAfterExpiryWithinLease:true,authorizeRoutineActivation:false};
+ const env={GITHUB_ACTIONS:'true',GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_REF:'refs/heads/main',GITHUB_REPOSITORY:TARGET.repository,GITHUB_ACTOR_ID:'268053325',GITHUB_RUN_ID:'900002',GITHUB_RUN_ATTEMPT:'1',GITHUB_SHA:review.operatorWorkflowHead,LTC_CLOUD_PUBLISH:'false',LTC_SOFTWARE_RELEASE_ENABLED:'false',LTC_RECOVERY_CONTROLLER_SOURCE:review.controllerSource,LTC_ACCEPTED_IMPLEMENTATION_SHA256:review.controllerImplementationSha256,LTC_SOFTWARE_STAGE_RECOVERY_REVIEW_SHA256:hash(review)};
+ const originRun={id:900001,run_attempt:1,status:'completed',conclusion:'failure',event:'workflow_dispatch',head_branch:'main',head_sha:origin.workflowHead,repository:{full_name:TARGET.repository},path:'.github/workflows/ltc-software-release.yml',actor:{id:268053325},run_started_at:new Date(started).toISOString(),updated_at:'2026-11-04T15:10:00Z'};
+ return {env,review,document,originRun,originalReview,originalContext,manifest,buildOutput,changedPaths,previousManifest,now};
+}
