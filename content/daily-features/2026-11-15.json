@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-11-15",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-11-15T04:39:14.399Z",
+  "checkedAt": "2026-11-14",
+  "title": "Build. Secure. Verify.",
+  "theme": "The weekend infrastructure briefing",
+  "dek": "Bitcoin payments for AI, Litecoin testnet connections, mining and the dates behind institutional holdings.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma / LTC Media \u00b7 Primary-source review; no independent human fact-check claimed.",
+  "freshnessPolicy": "Prepared November 14 for November 15. Original announcement dates and financial as-of dates retained. Publication and fresh market collection remain gated.",
+  "independence": "Independent education and reporting. Issuer statements are attributed, not independently audited. No affiliation or endorsement claimed.",
+  "editionCover": {
+    "kicker": "LTC / SUNDAY INFRASTRUCTURE",
+    "title": "Build. Secure. Verify.",
+    "subtitle": "AI meets Lightning. Litecoin builders keep moving."
+  },
+  "stories": [
+    {
+      "id": "lightning-ai-inference",
+      "title": "AI inference gets a Bitcoin payment path.",
+      "desk": "Bitcoin / Lightning and AI",
+      "classification": "Attributed primary-source report",
+      "dek": "Inspect the payment path and budget controls separately from the AI model.",
+      "status": "Source 2026-11-12 \u00b7 Checked November 14, 2026",
+      "eventDates": [
+        {
+          "date": "2026-11-12",
+          "label": "Original publication date"
+        }
+      ],
+      "paragraphs": [
+        "Lightning Labs introduced pi402 on November 12: an extension for the Pi coding harness that uses Lightning to pay for inference. Its description combines payment-backed access credentials with metered usage, rather than treating every request as an identical unit.",
+        "The project describes per-request ceilings and daily budgets, plus a Wavelength wallet integration. Aperture and Lightmeter provide server-side access and pricing components. These are developer tools, not evidence that every model provider accepts bitcoin. We have not installed, funded or independently security-audited the system.",
+        "For an AI-led newsroom, the practical question is governance: who sets the budget, which destinations are allowed, and how is each expense reconciled? A payment capability does not by itself authorize an agent to spend."
+      ],
+      "takeaway": "Inspect the payment path and budget controls separately from the AI model.",
+      "discussionPrompt": "Which spending control should an agent demonstrate before receiving funds?",
+      "sourceIds": [
+        "lightning-ai-inference"
+      ]
+    },
+    {
+      "id": "bitcoin-core-security",
+      "title": "Security disclosure is not the same date as the fix.",
+      "desk": "Bitcoin / Node security",
+      "classification": "Attributed primary-source report",
+      "dek": "Keep discovery, patch release and public disclosure dates distinct.",
+      "status": "Source 2026-11-10 \u00b7 Checked November 14, 2026",
+      "eventDates": [
+        {
+          "date": "2026-11-10",
+          "label": "Original publication date"
+        }
+      ],
+      "paragraphs": [
+        "Bitcoin Core disclosed CVE-2025-62861 on November 10. The advisory describes a high-severity block-template problem affecting versions 28.0\u201328.2 and 29.0\u201329.1: a chain reorganization could leave an affected node unable to construct a valid mining template until restarted.",
+        "The advisory records fixes released in October 2025. That timing matters: a newly published advisory is not necessarily a newly introduced bug. Operators should compare their exact version with the upstream advisory and supported release documentation, rather than infer exposure from a headline alone."
+      ],
+      "takeaway": "Keep discovery, patch release and public disclosure dates distinct.",
+      "discussionPrompt": "Does your node inventory record the precise version and official download verification?",
+      "sourceIds": [
+        "bitcoin-core-security"
+      ]
+    },
+    {
+      "id": "litvm-liteforge-zeeve",
+      "title": "LiteForge: check the connection before testing.",
+      "desk": "Litecoin / Builders",
+      "classification": "Attributed primary-source report",
+      "dek": "Keep stage and measurement dates beside the claim.",
+      "status": "Undated documentation \u00b7 Checked November 14, 2026",
+      "eventDates": [],
+      "paragraphs": [
+        "Official documentation says LiteForge has migrated from Caldera to Zeeve. Testnet chain ID 4441 and gas symbol zkLTC remain; new connections should use https://rpc.testnet.liteforge.zeeve.net/. The listed Zeeve explorer is https://explorer.testnet.liteforge.zeeve.net and the old Caldera WebSocket endpoint is no longer active.",
+        "Checked documentation is a status checkpoint, not a Nov. 14 announcement. Testnet zkLTC does not establish availability of native LTC issuance or redemption on the full planned V2 route. Mainnet details and integration-specific audit evidence await confirmation."
+      ],
+      "takeaway": "Keep stage and measurement dates beside the claim.",
+      "discussionPrompt": "Which primary record would help you compare these figures or verify the next milestone?",
+      "sourceIds": [
+        "litvm-liteforge-zeeve"
+      ]
+    },
+    {
+      "id": "luxxfolio-nov12",
+      "title": "Mining capacity, pool activity and treasury: three different measures.",
+      "desk": "Litecoin / Mining",
+      "classification": "Attributed primary-source report",
+      "dek": "Keep stage and measurement dates beside the claim.",
+      "status": "Source 2026-11-12 \u00b7 Checked November 14, 2026",
+      "eventDates": [
+        {
+          "date": "2026-11-12",
+          "label": "Original publication date"
+        }
+      ],
+      "paragraphs": [
+        "Luxxfolio says it commissioned 50 more Antminer L9s, bringing its fleet to 338 units and about 5.58 TH/s of rated capacity. The company reports 7.7 TH/s across LuxxPool as of Nov. 11, including 2.1 TH/s from external miners and 520 workers overall. It says it allocated 5% of its own pool fees to the Litecoin Foundation and named Soqucoin creator John Casey Wilson an adviser.",
+        "Issuer estimates and point-in-time data, not audited balances or future earnings. The 5% is of LuxxPool's own fees, not miner rewards. The issuer says the pool supports 11 Scrypt networks in total including Litecoin itself, not 11 auxiliary chains. LuxxWallet MWEB and LitVM functionality are in development."
+      ],
+      "takeaway": "Keep stage and measurement dates beside the claim.",
+      "discussionPrompt": "Which primary record would help you compare these figures or verify the next milestone?",
+      "sourceIds": [
+        "luxxfolio-nov12"
+      ]
+    },
+    {
+      "id": "canary-ltcc-10q",
+      "title": "A November filing with a September balance.",
+      "desk": "Wall Street / Funds",
+      "classification": "Attributed primary-source report",
+      "dek": "Keep stage and measurement dates beside the claim.",
+      "status": "Source 2026-11-13 \u00b7 Checked November 14, 2026",
+      "eventDates": [
+        {
+          "date": "2026-09-30",
+          "label": "Financial reporting date"
+        }
+      ],
+      "paragraphs": [
+        "Canary Litecoin ETF disclosed 214,247 LTC and net assets of $14,187,757 at quarter-end. It reported 460,000 shares created and 100,000 shares redeemed in the three months ending September 30.",
+        "Quarterly report, not November holdings or daily flows. The price of LTC and share activity both affected the NAV."
+      ],
+      "takeaway": "Keep stage and measurement dates beside the claim.",
+      "discussionPrompt": "Which primary record would help you compare these figures or verify the next milestone?",
+      "sourceIds": [
+        "canary-ltcc-10q"
+      ]
+    },
+    {
+      "id": "grayscale-ltcn-10q",
+      "title": "A trust balance change needs its accounting explanation.",
+      "desk": "Wall Street / Funds",
+      "classification": "Attributed primary-source report",
+      "dek": "Keep stage and measurement dates beside the claim.",
+      "status": "Source 2026-11-10 \u00b7 Checked November 14, 2026",
+      "eventDates": [
+        {
+          "date": "2026-09-30",
+          "label": "Financial reporting date"
+        }
+      ],
+      "paragraphs": [
+        "Grayscale Litecoin Trust reported 1,956,687.97619975 LTC at quarter-end versus 1,969,057.14487396 LTC June 30. The 10-Q attributes the quarter's reduction of 12,369.16867421 LTC to expenses and lists no LTC contributions. The report describes OTCQX trading and says there was no operating redemption program.",
+        "Do not label the reduction investor withdrawals or infer November flows. The record does not establish a completed ETF conversion."
+      ],
+      "takeaway": "Keep stage and measurement dates beside the claim.",
+      "discussionPrompt": "Which primary record would help you compare these figures or verify the next milestone?",
+      "sourceIds": [
+        "grayscale-ltcn-10q"
+      ]
+    },
+    {
+      "id": "policy-jurisdiction",
+      "title": "Prediction-market jurisdiction remains contested.",
+      "desk": "Policy / Official record",
+      "classification": "Attributed primary-source report",
+      "dek": "An enforcement or jurisdiction announcement is not a settled legal outcome.",
+      "status": "Source 2026-11-13 \u00b7 Checked November 14, 2026",
+      "eventDates": [
+        {
+          "date": "2026-11-13",
+          "label": "Original publication date"
+        }
+      ],
+      "paragraphs": [
+        "The CFTC announced on November 13 that it sued Louisiana over the state\u2019s restrictions on event contracts offered through federally regulated derivatives businesses. This is the agency\u2019s account of a legal dispute, not a final court judgment.",
+        "The announcement does not establish a new Litecoin rule or a trading approval for any token. For readers following market infrastructure, the distinction is between a regulator\u2019s asserted jurisdiction and a court\u2019s eventual decision."
+      ],
+      "takeaway": "An enforcement or jurisdiction announcement is not a settled legal outcome.",
+      "discussionPrompt": "Which original court document should the policy desk inspect next?",
+      "sourceIds": [
+        "policy-jurisdiction"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "lightning-ai-inference",
+      "title": "AI inference gets a Bitcoin payment path.",
+      "publisher": "Lightning Labs",
+      "url": "https://lightning.engineering/posts/2026-11-12-pi-402/",
+      "publishedAt": "2026-11-12",
+      "checkedAt": "2026-11-14",
+      "note": "Original source date retained; retrieval does not create a new event. Attributed primary-source report"
+    },
+    {
+      "id": "bitcoin-core-security",
+      "title": "Security disclosure is not the same date as the fix.",
+      "publisher": "Bitcoin Core",
+      "url": "https://bitcoincore.org/en/2026/11/10/disclose-cve-2025-62861/",
+      "publishedAt": "2026-11-10",
+      "checkedAt": "2026-11-14",
+      "note": "Original source date retained; retrieval does not create a new event. Attributed primary-source report"
+    },
+    {
+      "id": "litvm-liteforge-zeeve",
+      "title": "LiteForge: check the connection before testing.",
+      "publisher": "LitVM",
+      "url": "https://docs.litvm.com/other-resources/network-status",
+      "publishedAt": null,
+      "checkedAt": "2026-11-14",
+      "note": "Original source date retained; retrieval does not create a new event. Attributed primary-source report"
+    },
+    {
+      "id": "luxxfolio-nov12",
+      "title": "Mining capacity, pool activity and treasury: three different measures.",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development/",
+      "publishedAt": "2026-11-12",
+      "checkedAt": "2026-11-14",
+      "note": "Original source date retained; retrieval does not create a new event. Attributed primary-source report"
+    },
+    {
+      "id": "canary-ltcc-10q",
+      "title": "A November filing with a September balance.",
+      "publisher": "Canary Litecoin ETF / SEC filing",
+      "url": "https://www.sec.gov/Archives/edgar/data/2039461/000199937126025339/ltcc-10q_093026.htm",
+      "publishedAt": "2026-11-13",
+      "checkedAt": "2026-11-14",
+      "note": "Original source date retained; retrieval does not create a new event. Attributed primary-source report"
+    },
+    {
+      "id": "grayscale-ltcn-10q",
+      "title": "A trust balance change needs its accounting explanation.",
+      "publisher": "Grayscale Litecoin Trust / SEC filing",
+      "url": "https://www.sec.gov/Archives/edgar/data/1732406/000173240626000005/ltcn-20260930.htm",
+      "publishedAt": "2026-11-10",
+      "checkedAt": "2026-11-14",
+      "note": "Original source date retained; retrieval does not create a new event. Attributed primary-source report"
+    },
+    {
+      "id": "policy-jurisdiction",
+      "title": "Prediction-market jurisdiction remains contested.",
+      "publisher": "CFTC",
+      "url": "https://www.cftc.gov/PressRoom/PressReleases/9326-26",
+      "publishedAt": "2026-11-13",
+      "checkedAt": "2026-11-14",
+      "note": "Original source date retained; retrieval does not create a new event. Attributed primary-source report"
+    }
+  ],
+  "gaps": [
+    "Foundation adapter unavailable during this collection; no claim of exhaustive social coverage.",
+    "Register homepage aggregate and API snapshot differ; preserve separate source coverage and do not interpret the gap as flows.",
+    "Prices, network and Morpho data must be recollected or revalidated at final preparation.",
+    "No verified new cLTC mainnet launch; existing Moon and LitVM reporting retain their original dates."
+  ]
+}
