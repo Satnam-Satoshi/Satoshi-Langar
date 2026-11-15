@@ -39,7 +39,7 @@ function setup() {
  const jobs={total_count:2,jobs:[{id:1,name:'owner-approval',run_id:123,run_attempt:1,head_sha:native.workflowSha,status:'completed',conclusion:'success'},{id:2,name:'activate-fresh-website-once',run_id:123,run_attempt:1,head_sha:native.workflowSha,status:'in_progress',conclusion:null}]};
  const approval=[{state:'approved',user:{id:268053325,type:'User'},environments:[{id:27323462394,name:'ltc-receipt-owner-approval'}]}];
  const responses=[run,jobs,approval];let writes=0,raw=envelope,revision='retired-revision';
- const dependencies={clock:()=>now,fetchImpl:async()=>new Response(JSON.stringify(responses.shift()),{headers:{'content-type':'application/json'}}),verifyImplementation:async(implementation,source)=>{assert.equal(implementation,configuration.implementationSha256);assert.equal(source,configuration.sourceCommit);},acquireExclusion:async()=>({assertHeld:()=>true}),readState:async()=>({value:structuredClone(snapshot),version:'retired-revision'}),readFinishedReceipt:async()=>structuredClone(receipt),verifyPublicBaseline:async()=>{},compareAndSwapExact:async(request,{beforeSend})=>{beforeSend();writes++;raw=request.envelope;revision='fresh-revision';},readRawEnvelope:async()=>({raw,revision}),saveResult:async()=>{}};
+ const dependencies={clock:()=>now,fetchImpl:async()=>new Response(JSON.stringify(responses.shift()),{headers:{'content-type':'application/json'}}),verifyImplementation:async(implementation,source)=>{assert.equal(implementation,configuration.implementationSha256);assert.equal(source,configuration.sourceCommit);},acquireExclusion:async()=>({assertHeld:()=>true}),readState:async()=>({value:structuredClone(snapshot),version:'retired-revision'}),readFinishedReceipt:async()=>structuredClone(receipt),verifyPublicBaseline:async()=>{},verifyPublicPointers:async()=>{},compareAndSwapExact:async(request,{beforeSend})=>{beforeSend();writes++;raw=request.envelope;revision='fresh-revision';},readRawEnvelope:async()=>({raw,revision}),saveResult:async()=>{}};
  return {args:{configuration,native,token:'synthetic'},dependencies,receipt,writes:()=>writes};
 }
 test('native owner gated fresh activation performs one CAS and exact readback',async()=>{const f=setup(),result=await executeF33FreshActivation(f.args,f.dependencies);assert.equal(result.status,'fresh-website-admission-verified');assert.equal(f.writes(),1);assert.equal(result.publicationPerformed,false);assert.equal(result.barrierReleaseAllowed,false);});
@@ -63,4 +63,23 @@ test('real exact-CAS adapter preserves receipt and sends once under native reque
  const receiptBefore=rows.receipt.raw,result=await executeF33FreshActivation(f.args,{...f.dependencies,...provider});
  assert.equal(result.status,'fresh-website-admission-verified');assert.equal(writes,1);assert.equal(rows.receipt.raw,receiptBefore);
  await assert.rejects(provider.compareAndSwapExact({}, {beforeSend:()=>{}}),/single_attempt/);assert.equal(writes,1);
+});
+
+test('slow full-byte scan precedes fresh proof acquisition and is not repeated',async()=>{
+ const f=setup();let now=Date.parse('2026-11-15T12:00:00Z'),scan=0,proofTime=null,pointers=0;
+ f.dependencies.clock=()=>now;
+ f.dependencies.verifyPublicBaseline=async()=>{scan++;assert.equal(proofTime,null);now+=600000;};
+ f.dependencies.acquireExclusion=async()=>{proofTime=now;return {assertHeld:()=>now-proofTime<300000};};
+ f.dependencies.verifyPublicPointers=async()=>{pointers++;assert.equal(now,proofTime);now+=1000;};
+ const r=await executeF33FreshActivation(f.args,f.dependencies);
+ assert.equal(r.status,'fresh-website-admission-verified');assert.equal(scan,1);assert.equal(pointers,1);assert.equal(f.writes(),1);
+});
+test('slow post-proof pointer read still expires authority without writes',async()=>{
+ const f=setup();let now=Date.parse('2026-11-15T12:00:00Z');f.dependencies.clock=()=>now;
+ f.dependencies.verifyPublicPointers=async()=>{now+=300001;};
+ await assert.rejects(executeF33FreshActivation(f.args,f.dependencies));assert.equal(f.writes(),0);
+});
+test('changed post-proof alias blocks admission without writes',async()=>{
+ const f=setup();f.dependencies.verifyPublicPointers=async()=>{throw Error('public_changed');};
+ await assert.rejects(executeF33FreshActivation(f.args,f.dependencies),/public_changed/);assert.equal(f.writes(),0);
 });

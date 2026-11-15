@@ -31,15 +31,18 @@ export async function runFreshActivation({env=process.env,root=process.cwd()}={}
     r.evidence.controls.writerEvidenceSha256===exclusionConfig.localStopEvidenceSha256;
   return barrier.acquire(binding);
  };
- const verifyPublicBaseline=async(expected)=>{
+ const verifyPublicPointers=async(expected)=>{
   const project=await vercel(`/v9/projects/${TARGET.project}`);assertVercelProjectPolicy(project,TARGET);
   for(const domain of TARGET.domains){const deployment=await vercel(`/v13/deployments/${new URL(domain).hostname}`);assertVercelDeploymentIdentity(deployment,TARGET);check(deployment.id===expected,'public_changed');}
+ };
+ const verifyPublicBaseline=async(expected)=>{
+  await verifyPublicPointers(expected);
   const manifest=await loadPreviousReleaseManifest({state:{inspect:async()=>(await provider.readState()).value},evidenceConfig:input.evidenceConfig,env});
   await verifyPublicDomains(manifest);
  };
  const saveResult=async result=>writeFile(path.join(env.RUNNER_TEMP,'ltc-f33-fresh-activation-result.json'),JSON.stringify({...result,configuration})+'\n',{mode:0o600,flag:'wx'});
  return executeF33FreshActivation({configuration,native,token:env.GITHUB_TOKEN},{...provider,verifyImplementation:(digest,sha)=>{check(sha===source,'source');return verifyImplementation(root,digest);},
-  acquireExclusion,verifyPublicBaseline,saveResult});
+  acquireExclusion,verifyPublicBaseline,verifyPublicPointers,saveResult});
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
  check(process.argv.length===2,'arguments');Promise.resolve().then(()=>runFreshActivation()).then(r=>{console.log(JSON.stringify(r));if(r.status!=='fresh-website-admission-verified')process.exitCode=1;},()=>{console.error('fresh_activation_withheld');process.exitCode=1;});

@@ -26,11 +26,11 @@ export function verifyFinishedF33Receipt(receipt, snapshot, configuration) {
 // This function deliberately has no permissive default for that requirement.
 export async function executeF33FreshActivation({configuration, native, token}, {
   clock = Date.now, fetchImpl = fetch, verifyImplementation, acquireExclusion,
-  readState, readFinishedReceipt, verifyPublicBaseline, compareAndSwapExact,
+  readState, readFinishedReceipt, verifyPublicBaseline, verifyPublicPointers, compareAndSwapExact,
   readRawEnvelope, saveResult,
 }) {
   for (const fn of [verifyImplementation, acquireExclusion, readState, readFinishedReceipt,
-    verifyPublicBaseline, compareAndSwapExact, readRawEnvelope, saveResult]) check(typeof fn === 'function', 'adapter_required');
+    verifyPublicBaseline, verifyPublicPointers, compareAndSwapExact, readRawEnvelope, saveResult]) check(typeof fn === 'function', 'adapter_required');
   const c = structuredClone(configuration);
   check(native.runId === c.ownerRunId && native.sourceSha === c.sourceCommit &&
     native.executedSourceSha === c.sourceCommit && native.expectedAdmissionSha256 === f33Digest(c), 'native_binding');
@@ -57,7 +57,10 @@ export async function executeF33FreshActivation({configuration, native, token}, 
   const current = await readState();
   check(current.version === snapshot.version && same(current.value,snapshot.value), 'snapshot_changed');
   verifyFinishedF33Receipt(await readFinishedReceipt(), current.value, c);
-  await verifyPublicBaseline(c.previousDeployment, current.value.latestRelease);
+  // Immutable deployment bytes were fully verified before short-lived authority.
+  // Recheck exact project/alias identity only here; never repeat the long scan
+  // inside the 300-second credential/exclusion proof window.
+  await verifyPublicPointers(c.previousDeployment);
   guard();
   const envelope = encodeStateEnvelope('website',candidate,binding.nonce);
   let sends=0;
