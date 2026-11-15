@@ -1,0 +1,72 @@
+# INACTIVE REVIEW TEMPLATE. No dispatch/install authority; all pins must be filled.
+name: One paused F33 retirement
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: ltc-production-publication
+  cancel-in-progress: false
+jobs:
+  owner-approval:
+    name: owner-approval
+    if: github.ref == 'refs/heads/main' && github.run_attempt == 1
+    environment: ltc-receipt-owner-approval
+    permissions: {}
+    runs-on: ubuntu-24.04
+    steps:
+      - run: 'true'
+  retire-private-recovery-once:
+    name: retire-private-recovery-once
+    needs: owner-approval
+    if: github.ref == 'refs/heads/main' && github.run_attempt == 1
+    environment: ltc-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: REVIEWED_SOURCE_SHA_REQUIRED
+          persist-credentials: false
+      - name: Verify source and assemble private scope
+        env:
+          SOURCE_SHA: REVIEWED_SOURCE_SHA_REQUIRED
+          EDITORIAL_SOURCE_SHA: REVIEWED_EDITORIAL_SOURCE_SHA_REQUIRED
+          CLI_SHA256: REVIEWED_CLI_SHA256_REQUIRED
+          SOURCE_MANIFEST_JSON: REVIEWED_DEPENDENCY_MANIFEST_REQUIRED
+          SOURCE_MANIFEST_SHA256: REVIEWED_MANIFEST_SHA256_REQUIRED
+          OTHER_WORKFLOWS_JSON: REVIEWED_OTHER_WORKFLOWS_REQUIRED
+          OTHER_WORKFLOWS_SHA256: REVIEWED_OTHER_WORKFLOWS_HASH_REQUIRED
+          SOURCE_POLICY_SHA256: REVIEWED_SOURCE_POLICY_HASH_REQUIRED
+          LOCAL_MAINTENANCE_JSON: REVIEWED_FRESH_LOCAL_STOP_REQUIRED
+          WORKFLOW_SHA: ${{ github.workflow_sha }}
+          TARGET_FOLDER: ${{ secrets.LTC_STATE_FOLDER_ID }}
+          TARGET_OWNER: ${{ secrets.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
+          STATE_DOCUMENT: ${{ secrets.LTC_STATE_DOCUMENT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test -n "$TARGET_FOLDER"; test -n "$TARGET_OWNER"; test -n "$STATE_DOCUMENT"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          [[ "$CLI_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          printf '%s  %s\n' "$CLI_SHA256" scripts/cloud-ltc-f33-retirement-cli.mjs | sha256sum --check --status
+          node --input-type=module <<'NODE'
+          import {writeFile} from 'node:fs/promises'; import path from 'node:path';
+          import {verifyRetirementSource} from './scripts/cloud-ltc-f33-retirement-cli.mjs';
+          const e=process.env;
+          const config={github:{runId:e.GITHUB_RUN_ID,sourceSha:e.SOURCE_SHA,executedSourceSha:e.SOURCE_SHA,workflowSha:e.WORKFLOW_SHA,workflowPath:'.github/workflows/ltc-f33-paused-retirement.yml',environmentId:27323462394},lookup:{folderId:e.TARGET_FOLDER,ownerPermissionId:e.TARGET_OWNER,incident:'November 14 publication recovery',runId:'43648883553',attempt:1,identitySource:'protected-publisher-credential'},state:{schemaVersion:1,provider:'google-docs',publicationEnabled:false,ledgerKey:'website',folderId:e.TARGET_FOLDER,documentId:e.STATE_DOCUMENT},incident:{folderId:e.TARGET_FOLDER,ownerPermissionId:e.TARGET_OWNER,originRunId:'43608206507',originAttempt:1},barrier:{group:'ltc-production-publication',cancelInProgress:false,scope:'cooperative-known-writers',runId:e.GITHUB_RUN_ID,workflowSha:e.WORKFLOW_SHA,sourceSha:e.EDITORIAL_SOURCE_SHA,workflowInventorySha256:e.OTHER_WORKFLOWS_SHA256,otherWorkflows:JSON.parse(e.OTHER_WORKFLOWS_JSON),sourcePolicySha256:e.SOURCE_POLICY_SHA256,localMaintenance:JSON.parse(e.LOCAL_MAINTENANCE_JSON),cloudPublicationEnabled:false,softwarePublicationEnabled:false,sourcePolicyPaused:true},sourceManifest:JSON.parse(e.SOURCE_MANIFEST_JSON),sourceManifestSha256:e.SOURCE_MANIFEST_SHA256};
+          await verifyRetirementSource({root:process.cwd(),config});
+          await writeFile(path.join(e.RUNNER_TEMP,'ltc-f33-retirement-private.json'),JSON.stringify(config),{flag:'wx',mode:0o600});
+          NODE
+      - name: Retire paused lineage once
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          LTC_CLOUD_PUBLISH: ${{ vars.LTC_CLOUD_PUBLISH }}
+          LTC_SOFTWARE_RELEASE_ENABLED: ${{ vars.LTC_SOFTWARE_RELEASE_ENABLED }}
+          LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
+          LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
+          LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: node scripts/cloud-ltc-f33-retirement-cli.mjs
