@@ -14,7 +14,7 @@ test('both homepages keep treasury research links beside Litecoin Register',()=>
 test('Moon is the primary homepage feature while the daily issue remains accessible',()=>{
  const home=read('app/components/HomeFront.tsx'),magazine=read('app/conversations/page.tsx'),feature=read('app/components/MoonHomeFeature.tsx');
  assert.ok(home.indexOf('<MoonHomeFeature primaryHeading/>')<home.indexOf('<div className={styles.lead}>'));
- assert.ok(magazine.indexOf('<MoonHomeFeature/>')<magazine.indexOf('<section id="daily"'));
+ assert.ok(magazine.indexOf('<MoonHomeFeature/>')<magazine.indexOf('<div id="daily"><LtcPdfIssue/>'));
  assert.ok(feature.includes('data-primary-feature="litecoin-to-the-moon"'));assert.ok(feature.includes('editionDateHref(latestLtcEdition.date)'));
  assert.ok(read('scripts/qa-site-browser.mjs').includes('Moon must precede the daily issue as the first main section'));
 });
