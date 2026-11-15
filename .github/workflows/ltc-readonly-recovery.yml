@@ -1,5 +1,5 @@
-# INACTIVE LOCAL REVIEW ARTIFACT. Not installed or dispatched; resource operations are read-only.
-name: One read-only recovery inspection
+# Reviewed manual read-only reconciliation; no mutation or retry authority.
+name: One full read-only recovery inspection
 on:
   workflow_dispatch:
 permissions:
@@ -28,36 +28,37 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
-          ref: 3fbbbe05531c8fd0f0050a9be2c443e3e40a95ec
+          ref: ed535cf55b7b4167bbf64868448e2839bf6aa986
           persist-credentials: false
       - name: Verify source and assemble private target without Google credentials
         env:
-          SOURCE_SHA: 3fbbbe05531c8fd0f0050a9be2c443e3e40a95ec
-          CLI_SHA256: b7717c8eba0b1b3bb883e4a67643e9b35eff96823bc363974c52a75c9a630e85
-          SOURCE_MANIFEST_JSON: '{"scripts/cloud-ltc-docs-state.mjs":"670b6214f86358272bad9efb1f010a7e0856d3356846122d36711e3e60a0db5d","scripts/cloud-ltc-evidence.mjs":"9db668414c783eb7ed69e73e678ae76d0832952907804fd92fa9e43625046319","scripts/cloud-ltc-f33-readonly-cli.mjs":"b7717c8eba0b1b3bb883e4a67643e9b35eff96823bc363974c52a75c9a630e85","scripts/cloud-ltc-f33-readonly.mjs":"5b13e0cecfa3cfab69bf82b21e8c27f404c1144c0c7537065a40e425764984aa","scripts/cloud-ltc-google-auth.mjs":"52bbf1d4e672a4071627f4f95846ba49da117dd5fa0e9901263c201d0e1d726e","scripts/cloud-ltc-google-client.mjs":"fb05c04f1be5a2919a683a76de82c712a61891f4c507ee8146ed21131a4b81d3","scripts/cloud-ltc-google-runtime.mjs":"45d1965350b7bc17d0206daf00d2dcd0102ae570ce94d656bbbc7d826ec0ab92","scripts/cloud-ltc-native-inspection-authority.mjs":"a97b8df1b5d0a038ec4f4b3723dac7f39545f9b2e22051c41d7e1c11736b5147","scripts/cloud-ltc-receipt-provenance-lookup.mjs":"7667e7a20f2f1fc12a233e0e04f3c3412e632b802c5c1590c314ff55ab998627","scripts/cloud-ltc-receipt-provenance.mjs":"8c6a7d8bae43babbcd0bbff0e6bdb8895698de53eb14ee3fe461904a11423723","scripts/cloud-ltc-state-envelope.mjs":"528eb377c6491095222b86ba5c0713fc8b32e318a9bdb6f8944595a7386ca121"}'
-          SOURCE_MANIFEST_SHA256: 25579e05b82c474cd89003bf00c27792b8a023169941a037807ce9ddfa0d0888
+          SOURCE_SHA: ed535cf55b7b4167bbf64868448e2839bf6aa986
+          CLI_SHA256: 8c4835dc51aeb4702a83203e41d51d216cedebd2eff45a43ddfba9d2d21f712b
+          SOURCE_MANIFEST_JSON: '{"scripts/cloud-ltc-acceptance-proof.mjs":"83d72380e161b353c836d2e2751eb8dfacb39caa845d9f0b77ae2dfa0e1e3509","scripts/cloud-ltc-acceptance.mjs":"7e3bb4efe5f29fa6beff70403947cdce895d9932b641343f3e4a467c6d285556","scripts/cloud-ltc-artifacts.mjs":"f95ec0aebeff28452beee73363dafc43b771737668fffdd53d625cf313f2bf3a","scripts/cloud-ltc-daily-admission.mjs":"6a7d4babe902e4a8ff66917749713f7d0177e6565c230cbba359ab07794e366a","scripts/cloud-ltc-docs-state.mjs":"670b6214f86358272bad9efb1f010a7e0856d3356846122d36711e3e60a0db5d","scripts/cloud-ltc-evidence.mjs":"9db668414c783eb7ed69e73e678ae76d0832952907804fd92fa9e43625046319","scripts/cloud-ltc-f33-full-readonly-cli.mjs":"8c4835dc51aeb4702a83203e41d51d216cedebd2eff45a43ddfba9d2d21f712b","scripts/cloud-ltc-f33-full-readonly.mjs":"2f8ceb24b5c289a103f616cf9138ec16576813f01914620e018e01bb5d7cd4c3","scripts/cloud-ltc-f33-readonly.mjs":"5b13e0cecfa3cfab69bf82b21e8c27f404c1144c0c7537065a40e425764984aa","scripts/cloud-ltc-generation.mjs":"fe636c8d5fdf7a7b83722b8bd77b6486eb1948e1d9cb8677c40c86817466fb2b","scripts/cloud-ltc-google-auth.mjs":"52bbf1d4e672a4071627f4f95846ba49da117dd5fa0e9901263c201d0e1d726e","scripts/cloud-ltc-google-client.mjs":"fb05c04f1be5a2919a683a76de82c712a61891f4c507ee8146ed21131a4b81d3","scripts/cloud-ltc-google-runtime.mjs":"45d1965350b7bc17d0206daf00d2dcd0102ae570ce94d656bbbc7d826ec0ab92","scripts/cloud-ltc-migration-gate.mjs":"fac4d30c1f294147f061782e8053f4f8d9e7d766cb282aecab63f007f877f690","scripts/cloud-ltc-native-inspection-authority.mjs":"a97b8df1b5d0a038ec4f4b3723dac7f39545f9b2e22051c41d7e1c11736b5147","scripts/cloud-ltc-operations.mjs":"d4e8a0b4a210daf93f5dd98a46b35050311f20251a4c5ed073a195c794701908","scripts/cloud-ltc-production.mjs":"a3a565ae59150cb4b5e429928a01e06ed112f1254479d9310016f846702300af","scripts/cloud-ltc-promotion-runtime.mjs":"703f63957adad4eb58f0c2558209f8e600a37d6438d5a4fd284d6f2de4e1b69c","scripts/cloud-ltc-receipt-provenance-lookup.mjs":"7667e7a20f2f1fc12a233e0e04f3c3412e632b802c5c1590c314ff55ab998627","scripts/cloud-ltc-receipt-provenance.mjs":"8c6a7d8bae43babbcd0bbff0e6bdb8895698de53eb14ee3fe461904a11423723","scripts/cloud-ltc-reconcile.mjs":"ad29aa9aac2882362f2e95cede522e4dd6c2714d5b957878b19f8b143ec84f87","scripts/cloud-ltc-rehearsal.mjs":"91eb939557e2f929c806442198174417930df56cfbf4aff61423b60d96729b4b","scripts/cloud-ltc-release-providers.mjs":"52a9ef68d9265fff7227c3ac70d554767ebdcdad6b4a0b6330bd7ce5f2e6e3a2","scripts/cloud-ltc-release.mjs":"d5758d5a011c57fd2784eb88cb175721b91d99ec183596bfc5d793c1f3f13832","scripts/cloud-ltc-routine-followup-proof.mjs":"b7379379809f806dd5aab71ae54a8836c3feda9355add71feffa34aa3e44a349","scripts/cloud-ltc-routine-followup-retirement.mjs":"344b610748a9bb04445a28a9c62cc8ce90dce424cd35ee08e2083fa26f1cb5a9","scripts/cloud-ltc-routine-retirement-proof.mjs":"2c6bd8b9acb356cc7e95003c70991263613eca4228d7be018036751954eaf43b","scripts/cloud-ltc-routine-retirement.mjs":"1284be6bb291c13705fc9725a9e22a39bc505cb4b543d1cfbfa010bd99ed6493","scripts/cloud-ltc-routine-summary-proof.mjs":"3bb6a4654bdb3aa42c0f4ece501b3863faa190e984c398ebe328e2661232ff0e","scripts/cloud-ltc-setup-quarantine-runner.mjs":"25defbbd84d1ce30872f50408b316f68d708ad3283751b252e36bafb2500e4ab","scripts/cloud-ltc-setup-quarantine.mjs":"335545d70eb6212394ee7738f53788479d7523fb121f66fd531a875fdaa8c4ad","scripts/cloud-ltc-state-envelope.mjs":"528eb377c6491095222b86ba5c0713fc8b32e318a9bdb6f8944595a7386ca121","scripts/cloud-ltc-state.mjs":"dab04e39ca67a3875abeb23df091f15fb3852085597f98c239c4e33396f038d3","scripts/cloud-ltc-upload-quarantine-proof.mjs":"11c5f8aef05e29a092688522a5fc0f85fb34892eb4d0eb4cd52a3fe49a1c9d8a","scripts/collect-ltc.mjs":"ffbc8f38dcf3bfd4403970463c6b3584a950811b557392100342377f9efde7a6","scripts/lib/ltc-coverage.mjs":"8c25ce50ca1ba45f7f976024cd2cf54924d196223749acb7ba944eb2ca6a8fb6","scripts/lib/ltc-flagship-record.mjs":"bcde13c7a679c2c3b75247bf77c82e95e7c65c65bdab13fb11cbc3aaae46e75c","scripts/lib/ltc-intelligence.mjs":"9121a5bea559e844fd38ada42d88952f36177d89f67dc7ccfbb2d4ed69fcd903","scripts/lib/ltc-policy.mjs":"2c2343af77becbd2f219038ba0cdfdceb01b666f134e1f40009644f04b67eb73","scripts/lib/ltc-presentation.mjs":"07926ec402d5a3ef215d415d35f9c93414d3253a87ead00b0eed45442668329d","scripts/lib/ltc-routine-data.mjs":"6b9fdce024869331be73e5e5edbe8d390949c0ada43a07a5278c405b86dc8837","scripts/lib/ltc-software-release.mjs":"29d2babc21d1441d2bcfa2a4636da1d21f897ac89247dd79e021f0358a4b8fb7","scripts/prepare-ltc-edition.mjs":"0546702ddc454ffc5b29e29c936b3f9ffad70e0afbf6b2da9b357940f0e15767"}'
+          SOURCE_MANIFEST_SHA256: 51801d03fa839d8a382c4da2831d531f920893ed5e9e71763b71a9864207b8aa
           INCIDENT_LABEL: 'November 14 publication recovery'
           WORKFLOW_SHA: ${{ github.workflow_sha }}
-          TARGET_FOLDER: ${{ vars.LTC_STATE_FOLDER_ID }}
-          TARGET_OWNER: ${{ vars.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
-          STATE_DOCUMENT: ${{ vars.LTC_STATE_DOCUMENT_ID }}
+          TARGET_FOLDER: ${{ secrets.LTC_STATE_FOLDER_ID }}
+          TARGET_OWNER: ${{ secrets.LTC_EVIDENCE_OWNER_PERMISSION_ID }}
+          STATE_DOCUMENT: ${{ secrets.LTC_STATE_DOCUMENT_ID }}
           RECEIPT_ORIGIN_RUN: '43648883553'
           FAILED_PUBLICATION_RUN: '43608206507'
         shell: bash
         run: |
           set -euo pipefail
+          test -n "$TARGET_FOLDER" && test -n "$TARGET_OWNER" && test -n "$STATE_DOCUMENT"
           test "$GITHUB_RUN_ATTEMPT" = 1
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
           [[ "$CLI_SHA256" =~ ^[a-f0-9]{64}$ ]]
-          printf '%s  %s\n' "$CLI_SHA256" scripts/cloud-ltc-f33-readonly-cli.mjs | sha256sum --check --status
+          printf '%s  %s\n' "$CLI_SHA256" scripts/cloud-ltc-f33-full-readonly-cli.mjs | sha256sum --check --status
           node --input-type=module <<'NODE'
           import {writeFile} from 'node:fs/promises';
           import path from 'node:path';
-          import {verifyInspectionSource} from './scripts/cloud-ltc-f33-readonly-cli.mjs';
+          import {verifyInspectionSource} from './scripts/cloud-ltc-f33-full-readonly-cli.mjs';
           const e=process.env;
           const config={github:{runId:e.GITHUB_RUN_ID,sourceSha:e.SOURCE_SHA,executedSourceSha:e.SOURCE_SHA,workflowSha:e.WORKFLOW_SHA,workflowPath:'.github/workflows/ltc-readonly-recovery.yml',environmentId:27323462394},lookup:{folderId:e.TARGET_FOLDER,ownerPermissionId:e.TARGET_OWNER,incident:e.INCIDENT_LABEL,runId:e.RECEIPT_ORIGIN_RUN,attempt:1,identitySource:'protected-publisher-credential'},state:{schemaVersion:1,provider:'google-docs',publicationEnabled:false,ledgerKey:'website',folderId:e.TARGET_FOLDER,documentId:e.STATE_DOCUMENT},incident:{folderId:e.TARGET_FOLDER,ownerPermissionId:e.TARGET_OWNER,originRunId:e.FAILED_PUBLICATION_RUN,originAttempt:1},sourceManifest:JSON.parse(e.SOURCE_MANIFEST_JSON),sourceManifestSha256:e.SOURCE_MANIFEST_SHA256};
           await verifyInspectionSource({root:process.cwd(),config});
-          await writeFile(path.join(e.RUNNER_TEMP,'ltc-readonly-recovery-private.json'),JSON.stringify(config),{flag:'wx',mode:0o600});
+          await writeFile(path.join(e.RUNNER_TEMP,'ltc-full-readonly-recovery-private.json'),JSON.stringify(config),{flag:'wx',mode:0o600});
           NODE
       - name: Inspect private recovery once
         env:
@@ -65,4 +66,5 @@ jobs:
           LTC_GOOGLE_CLIENT_ID: ${{ secrets.LTC_GOOGLE_CLIENT_ID }}
           LTC_GOOGLE_CLIENT_SECRET: ${{ secrets.LTC_GOOGLE_CLIENT_SECRET }}
           LTC_GOOGLE_REFRESH_TOKEN: ${{ secrets.LTC_GOOGLE_REFRESH_TOKEN }}
-        run: node scripts/cloud-ltc-f33-readonly-cli.mjs
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: node scripts/cloud-ltc-f33-full-readonly-cli.mjs
