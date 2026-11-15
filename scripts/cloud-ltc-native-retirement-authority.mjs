@@ -18,7 +18,8 @@ export function validateNativeRetirementApproval({config:c,run,jobs,approvals,no
  check(relevant.length===1,'review_conflict');
  const a=relevant[0];
  check(a.state==='approved'&&a.user?.id===268053325&&a.user.type==='User'&&a.environments.length===1&&a.environments[0].name===gate&&a.environments[0].id===c.environmentId,'owner_approval');
- return Object.freeze({runId:c.runId,observedAt:now,expiresAt:now+300000});
+ const stopSteps=(createJob.steps??[]).filter(s=>s.name==='Wait for post-approval fresh writer-stop evidence');const stopStep=stopSteps.length===1?stopSteps[0]:null;
+ return Object.freeze({stopStepStartedAt:stopStep&&(stopStep.status==='in_progress'&&stopStep.conclusion===null||stopStep.status==='completed'&&stopStep.conclusion==='success')?Date.parse(stopStep.started_at):NaN,runId:c.runId,productionJobId:createJob.id,productionJobStartedAt:Date.parse(createJob.started_at),observedAt:now,expiresAt:now+300000});
 }
 // Trusted reviewed workflow verifies checkout/manifest before constructing this
 // reader. API evidence does not independently prove executed source or settings.
