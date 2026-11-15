@@ -7,10 +7,12 @@ export function validateNativeFreshActivationApproval({config:c,run,jobs,approva
  check(c.workflowPath==='.github/workflows/ltc-f33-fresh-activation.yml','path');
  check(Number.isFinite(now),'clock');
  check(String(run?.id)===c.runId&&run.run_attempt===1&&run.repository?.full_name===repo&&run.event==='workflow_dispatch'&&run.head_branch==='main'&&run.head_sha===c.workflowSha&&run.path===c.workflowPath&&run.status==='in_progress','run');
- check(jobs?.total_count===2&&Array.isArray(jobs.jobs)&&jobs.jobs.length===2,'jobs');
+ check(jobs?.total_count===3&&Array.isArray(jobs.jobs)&&jobs.jobs.length===3,'jobs');
  const gateJob=jobs.jobs.find(j=>j.name==='owner-approval');
  const createJob=jobs.jobs.find(j=>j.name==='activate-fresh-website-once');
- check(gateJob&&createJob&&gateJob.id!==createJob.id,'job_names');
+ const preflightJob=jobs.jobs.find(j=>j.name==='read-only-preflight');
+ check(preflightJob&&preflightJob.status==='completed'&&preflightJob.conclusion==='skipped','preflight_inactive');
+ check(gateJob&&createJob&&gateJob.id!==createJob.id&&new Set(jobs.jobs.map(j=>j.id)).size===3,'job_names');
  for(const j of jobs.jobs)check(String(j.run_id)===c.runId&&j.run_attempt===1&&j.head_sha===c.workflowSha,'job_binding');
  check(gateJob.status==='completed'&&gateJob.conclusion==='success'&&createJob.status==='in_progress'&&createJob.conclusion===null,'job_status');
  check(Array.isArray(approvals)&&approvals.length>0&&approvals.length<=20,'reviews');

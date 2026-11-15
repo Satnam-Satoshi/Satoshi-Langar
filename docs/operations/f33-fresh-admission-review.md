@@ -152,3 +152,15 @@ simultaneous execution, but the intentionally strict exclusion also rejects
 another queued run. Dispatch only after publication is terminal and its lease
 has been released; otherwise the next proof refresh can stop the publisher.
 This constraint is not a promise of independent/non-disruptive maintenance.
+
+### Protected read-only preflight mode
+
+The activation workflow defaults to `read-only-preflight`, behind the same
+native owner environment gate. It runs selected private reads and the existing
+pure real-bundle checks in-job. Transport permits Google GETs and OAuth token
+refresh only; no Docs/Drive mutation, GitHub mutation, Vercel or Buffer is sent.
+Only categorical status/phase is printed, with no private artifact upload.
+Missing exact review/migration values remain blockers. The runner never creates
+admission values, rewrites migration pins or changes the paused policy.
+Actual activation requires mode `activate` and its explicit enabled gate;
+native activation evidence also requires the preflight job to be skipped.
