@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "generation": "cloud-newsroom-v2-journal-inventory",
+  "journalInventory": {
+    "schemaVersion": 1,
+    "roots": {}
+  }
+}
