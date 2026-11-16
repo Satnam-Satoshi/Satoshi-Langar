@@ -51,11 +51,21 @@ def validate(m, *, today=None):
     wrap_measured(m['title'],64,True,2)
     wrap_measured(m['subtitle'],31,True,2)
     wrap_measured(m['claim'],25,False,3)
-    b=m['binding']; require(b['kind']=='legacy_public_readback','unsupported binding kind')
-    require(bool(re.fullmatch(r'[A-Za-z0-9._-]{1,50}',b['edition_revision'])),'bad revision')
+    b=m['binding']
+    require(b['kind'] in ['legacy_public_readback','canonical_daily_published_readback'],'unsupported binding kind')
     url(b['canonical_story_url']); require(bool(re.fullmatch(r'[0-9a-f]{64}',b['pdf_sha256'])),'bad PDF hash')
-    require(bool(re.fullmatch(r'[0-9a-f]{40}',b['source_revision'])),'bad source revision')
-    require(bool(b['deployment_id']),'missing deployment')
+    if b['kind']=='legacy_public_readback':
+        require(bool(re.fullmatch(r'[A-Za-z0-9._-]{1,50}',b['edition_revision'])),'bad revision')
+        require(bool(re.fullmatch(r'[0-9a-f]{40}',b['source_revision'])),'bad source revision')
+        require(bool(b['deployment_id']),'missing deployment')
+    else:
+        require(type(b['edition_revision']) is int and b['edition_revision']>0,'bad daily revision')
+        require(b['issue_id']==m['edition_date']+'-r'+str(b['edition_revision']),'daily issue identity')
+        for k in ['content_sha256','reader_sha256']:
+            require(bool(re.fullmatch(r'[0-9a-f]{64}',b[k])),'bad daily hash')
+        u=url(b['canonical_story_url'])
+        expected='/conversations/editions/'+m['edition_date']+('' if b['edition_revision']==1 else '-r'+str(b['edition_revision']))+'/'
+        require(u.hostname=='ltcmagazine.org' and u.path==expected and u.fragment==m['story_key'],'daily canonical URL')
     for k in ['event_date','publication_date']:
         require(k in m,'missing '+k)
         if m[k] is not None:date(m[k])
@@ -85,14 +95,25 @@ def render(m,out,evidence_path, *, today=None):
       text('Sources checked: '+m['checked_date'],60,1160,24,True),
       text('SATNAM SATOSHI / ltcmagazine.org',60,1210,25,True),
       text('AI-assisted editorial / Original vector artwork',60,1250,20),
-      text('Read the ecosystem special. Verify before you act.',60,1300,20)]
+      text('Read the full edition. Verify before you act.',60,1300,20)]
     parts.append('</svg>')
     svg=out/(m['story_key']+'.svg');png=svg.with_suffix('.png')
     svg.write_text(''.join(parts))
     subprocess.run(['inkscape',str(svg),'--export-filename='+str(png)],check=True,capture_output=True,timeout=60)
     from PIL import Image
-    with Image.open(png) as im: require(im.size==(1080,1350),'bad PNG size')
-    record={**m,'artifact':{'svg':str(svg),'png':str(png),'bytes':png.stat().st_size,'sha256':hashlib.sha256(png.read_bytes()).hexdigest(),'dimensions':[1080,1350]},'renderer_version':'1.1.0','input_sha256':hashlib.sha256(json.dumps(m,sort_keys=True,separators=(',',':')).encode()).hexdigest(),'svg_sha256':hashlib.sha256(svg.read_bytes()).hexdigest(),'publishAllowed':False,'visual_qa':'pending'}
+    # Lossless pixel-preserving normalization. Never relax the admission profile.
+    # Reconstruct a fresh image to strip Inkscape tEXt and inherited ancillary metadata.
+    from io import BytesIO
+    with Image.open(png) as im:
+        require(im.size==(1080,1350),'bad PNG size')
+        require(im.mode in ('RGB','RGBA'),'unsupported render color mode')
+        pixels=im.tobytes(); mode=im.mode; size=im.size
+    clean=Image.frombytes(mode,size,pixels)
+    normalized=BytesIO();clean.save(normalized,format='PNG',optimize=False,compress_level=9)
+    with Image.open(BytesIO(normalized.getvalue())) as check:
+        require(check.mode==mode and check.size==size and check.tobytes()==pixels,'normalization changed pixels')
+    png.write_bytes(normalized.getvalue())
+    record={**m,'artifact':{'svg':str(svg),'png':str(png),'bytes':png.stat().st_size,'sha256':hashlib.sha256(png.read_bytes()).hexdigest(),'dimensions':[1080,1350]},'renderer_version':'1.2.0','input_sha256':hashlib.sha256(json.dumps(m,sort_keys=True,separators=(',',':')).encode()).hexdigest(),'svg_sha256':hashlib.sha256(svg.read_bytes()).hexdigest(),'publishAllowed':False,'visual_qa':'pending'}
     (out/(m['story_key']+'.manifest.json')).write_text(json.dumps(record,indent=2))
     return record
 
