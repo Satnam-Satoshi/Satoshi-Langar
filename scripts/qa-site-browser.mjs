@@ -12,7 +12,7 @@ const origin = 'https://satnamsatoshi.com';
 const records = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
 const exclusions = JSON.parse(await readFile('config/ltc-publication-exclusions.json', 'utf8'));
 const latestIssue = publicationDays(publicEditions(records, exclusions))[0].latest.id;
-const routes = ['/conversations/specials/2026-11-16-ecosystem/','/conversations/editions/2026-11-16/',`/conversations/editions/${latestIssue}/`, '/conversations/daily/', '/conversations/updates/', '/conversations/specials/litecoin-builders-november/', '/conversations/specials/litecoin-to-the-moon/', '/mission/', '/langar/', '/agents/', '/', '/conversations/', '/conversations/archive/', '/conversations/desks/', '/conversations/desks/bitcoin-products/', '/conversations/litecoin/', '/conversations/litecoin-distribution/', '/conversations/start/', '/conversations/finance/', '/conversations/timechain/', '/conversations/community/', '/about/', '/sikh-bitcoin/', '/miikey/', '/join/', '/donate/'];
+const routes = ['/privacy/','/roadmap/','/projects/','/kalakar/','/wallets/','/treasury/','/press/','/subscribe/','/ecosystem/','/sign-in/','/account-help/','/sikh-bitcoin/course/foundations/','/conversations/specials/2026-11-16-ecosystem/','/conversations/editions/2026-11-16/',`/conversations/editions/${latestIssue}/`, '/conversations/daily/', '/conversations/updates/', '/conversations/specials/litecoin-builders-november/', '/conversations/specials/litecoin-to-the-moon/', '/mission/', '/langar/', '/agents/', '/', '/conversations/', '/conversations/archive/', '/conversations/desks/', '/conversations/desks/bitcoin-products/', '/conversations/litecoin/', '/conversations/litecoin-distribution/', '/conversations/start/', '/conversations/finance/', '/conversations/timechain/', '/conversations/community/', '/about/', '/sikh-bitcoin/', '/miikey/', '/join/', '/donate/'];
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.xml': 'application/xml' };
 const results = [], errors = [];
 try {
@@ -62,8 +62,9 @@ try {
             if (width < 500) await menu.click();
           }
           if (route === '/conversations/litecoin/') {
-            const weight = await page.locator('h1 em').evaluate(el => getComputedStyle(el).fontWeight);
-            assert.ok(Number(weight) >= 800, 'Fieldbook hero emphasis must retain bold approved typography');
+            const typography = await page.locator('h1').evaluate(el => ({weight:getComputedStyle(el).fontWeight, emphasis:getComputedStyle(el.querySelector('em')).fontStyle}));
+            assert.ok(Number(typography.weight) >= 800, 'Explore headline retains bold editorial typography');
+            assert.equal(typography.emphasis, 'italic', 'Explore serif emphasis follows the new editorial design');
           }
           if (route === '/conversations/daily/' || route === '/conversations/editions/2026-11-16/') {
             assert.equal(await page.getByRole('heading', {name:'The Next Build', exact:true}).count(), 1);
