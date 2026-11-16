@@ -101,12 +101,18 @@ test('old receipts and altered inert-HTML attestations cannot enter admission',(
 
 // Synthetic external coordinator observations only, never production trust creation.
 function policyFixture(s){
- Object.assign(s,{url:'https://api.exchange.coinbase.com/products/BTC-USD/ticker',metricKind:'venue-quote',snapshotSha256:'e'.repeat(64),parserId:'coinbase-ticker',parserVersion:'1',publisherId:'coinbase',evidence:{path:'evidence/btc.json',sha256:'e'.repeat(64),retrievedAt:s.retrievedAt}});
+ Object.assign(s,{url:'https://api.exchange.coinbase.com/products/BTC-USD/ticker',metricKind:'venue-quote',snapshotSha256:'e'.repeat(64),parserId:'coinbase-ticker',parserVersion:'1',publisherId:'coinbase',evidence:{kind:'snapshot',path:'evidence/btc.json',sha256:'e'.repeat(64),retrievedAt:s.retrievedAt}});
  const key=JSON.stringify([s.id,s.url,s.metricKind]);
- return {trustedSourcePolicies:{[key]:{classification:'current',publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion,maxRetrievalAgeSeconds:7200,maxEffectiveAgeSeconds:7200}},trustedEvidence:{[key]:{bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
+ return {trustedSourcePolicies:{[key]:{classification:'current',publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion,maxRetrievalAgeSeconds:7200,maxEffectiveAgeSeconds:7200}},trustedEvidence:{[key]:{kind:'snapshot',bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
 }
 test('admission cannot trust a source-selected24h window, provenance or historical waiver',()=>{
  const x=fixture(),s=x.input.receipt.validation.manifest.sources[0];s.effectiveAt='2026-11-16T16:59:59Z';s.maxRetrievalAgeSeconds=86400;s.maxEffectiveAgeSeconds=86400;assert.ok(blocked(x).errors.includes('source_effective_value_stale'));
  const y=fixture();delete y.trusted.trustedEvidence;assert.ok(blocked(y).errors.includes('external_source_policy_and_evidence_required'));
  const z=fixture();z.input.receipt.validation.manifest.sources[0].classification='historical';assert.ok(blocked(z).errors.includes('unknown_or_mismatched_source_policy'));
+});
+test('explicit historical null-age receipt stays eligible without current quote waiver',()=>{
+ const x=fixture(),s=x.input.receipt.validation.manifest.sources[0],p=Object.values(x.trusted.trustedSourcePolicies)[0];
+ s.classification='historical';s.effectiveAt='2026-11-13';s.maxEffectiveAgeSeconds=null;s.label='Dated historical observation; not current';p.classification='historical';p.maxEffectiveAgeSeconds=null;
+ assert.equal(evaluateCloudNewsroomV2DataAdmission(x.input,x.trusted).status,'eligible-for-preview-review');
+ p.classification='current';blocked(x);
 });

@@ -115,9 +115,9 @@ test('actual HTML active content rejected even with matching declared hash and s
 
 // Synthetic external coordinator observations only, never production trust creation.
 function policyFixture(s){
- Object.assign(s,{url:'https://api.exchange.coinbase.com/products/BTC-USD/ticker',metricKind:'venue-quote',snapshotSha256:'e'.repeat(64),parserId:'coinbase-ticker',parserVersion:'1',publisherId:'coinbase',evidence:{path:'evidence/btc.json',sha256:'e'.repeat(64),retrievedAt:s.retrievedAt}});
+ Object.assign(s,{url:'https://api.exchange.coinbase.com/products/BTC-USD/ticker',metricKind:'venue-quote',snapshotSha256:'e'.repeat(64),parserId:'coinbase-ticker',parserVersion:'1',publisherId:'coinbase',evidence:{kind:'snapshot',path:'evidence/btc.json',sha256:'e'.repeat(64),retrievedAt:s.retrievedAt}});
  const key=JSON.stringify([s.id,s.url,s.metricKind]);
- return {trustedSourcePolicies:{[key]:{classification:'current',publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion,maxRetrievalAgeSeconds:7200,maxEffectiveAgeSeconds:7200}},trustedEvidence:{[key]:{bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
+ return {trustedSourcePolicies:{[key]:{classification:'current',publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion,maxRetrievalAgeSeconds:7200,maxEffectiveAgeSeconds:7200}},trustedEvidence:{[key]:{kind:'snapshot',bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
 }
 test('actual ingestion holds stale quote and Morpho despite bundle24h window',async t=>{
  for(const [kind,effective,cap]of [['venue-quote','2026-11-16T16:59:59Z',7200],['morpho','2026-11-16T18:44:59Z',900]]){
@@ -129,4 +129,18 @@ test('actual ingestion holds stale quote and Morpho despite bundle24h window',as
 test('actual ingestion requires external evidence and preserves provenance',async t=>{
  const x=await fixture(t),r=await ingestCloudNewsroomV2Bundle(x);assert.equal(r.validation.manifest.sources[0].snapshotSha256,x.manifest.sources[0].snapshotSha256);assert.deepEqual(r.validation.manifest.sources[0].evidence,x.manifest.sources[0].evidence);
  delete x.trustedEvidence;await rejected(x);
+});
+test('explicit historical policy and null effective age pass real-file ingestion',async t=>{
+ const x=await fixture(t),s=x.manifest.sources[0],p=Object.values(x.trustedSourcePolicies)[0];
+ s.classification='historical';s.effectiveAt='2026-11-13';s.maxEffectiveAgeSeconds=null;s.label='Dated historical observation; not current';p.classification='historical';p.maxEffectiveAgeSeconds=null;
+ const r=await ingestCloudNewsroomV2Bundle(x);assert.equal(r.status,'accepted-receipt',JSON.stringify(r.errors));assert.equal(r.validation.manifest.sources[0].maxEffectiveAgeSeconds,null);
+ p.classification='current';await rejected(x);
+});
+test('coordinator-observed failed fetch is a withheld gap, never a fabricated snapshot',async t=>{
+ const x=await fixture(t),s=x.manifest.sources[0],key=JSON.stringify([s.id,s.url,s.metricKind]);
+ Object.assign(s,{status:'unavailable',claimVerified:false,value:null,effectiveAt:null,maxEffectiveAgeSeconds:null,snapshotSha256:null,evidence:{kind:'fetch-attempt',attemptId:'attempt-1',retrievedAt:s.retrievedAt,outcome:'timeout'}});
+ x.manifest.scope.coveredSourceIds=[];x.manifest.gaps=[{sourceId:s.id,reason:'Coordinator observed timeout; values withheld.',valuesWithheld:true}];
+ x.trustedEvidence[key]={kind:'fetch-attempt',attempted:true,sourceId:s.id,url:s.url,attemptId:'attempt-1',retrievedAt:s.retrievedAt,outcome:'timeout',publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion};
+ const r=await ingestCloudNewsroomV2Bundle(x);assert.equal(r.status,'accepted-receipt',JSON.stringify(r.errors));assert.equal(r.validation.manifest.sources[0].snapshotSha256,null);
+ s.value=123;await rejected(x);s.value=null;s.evidence.attemptId='producer-invented';await rejected(x);s.evidence.attemptId='attempt-1';x.trustedEvidence[key].snapshotSha256='f'.repeat(64);await rejected(x);
 });

@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {checkTrustedSourcePolicies,sourcePolicyKey} from './cloud-newsroom-v2-source-policy.mjs';
 function fixture(kind='venue-quote'){
- const s={id:'metric',url:'https://api.exchange.coinbase.com/products/BTC-USD/ticker',metricKind:kind,classification:'current',status:'verified',retrievedAt:'2026-11-16T18:59:00Z',effectiveAt:'2026-11-16T18:59:00Z',maxRetrievalAgeSeconds:100,maxEffectiveAgeSeconds:100,snapshotSha256:'a'.repeat(64),publisherId:'coinbase',parserId:'ticker',parserVersion:'1',evidence:{path:'evidence/ticker.json',sha256:'a'.repeat(64),retrievedAt:'2026-11-16T18:59:00Z'}};
+ const s={id:'metric',url:'https://api.exchange.coinbase.com/products/BTC-USD/ticker',metricKind:kind,classification:'current',status:'verified',claimVerified:true,retrievedAt:'2026-11-16T18:59:00Z',effectiveAt:'2026-11-16T18:59:00Z',maxRetrievalAgeSeconds:100,maxEffectiveAgeSeconds:100,snapshotSha256:'a'.repeat(64),publisherId:'coinbase',parserId:'ticker',parserVersion:'1',evidence:{kind:'snapshot',path:'evidence/ticker.json',sha256:'a'.repeat(64),retrievedAt:'2026-11-16T18:59:00Z'}};
  const key=sourcePolicyKey(s),cap=kind==='morpho'?900:7200;
- return {sources:[s],now:'2026-11-16T19:00:00Z',trustedSourcePolicies:{[key]:{classification:'current',maxRetrievalAgeSeconds:cap,maxEffectiveAgeSeconds:cap,publisherId:'coinbase',parserId:'ticker',parserVersion:'1'}},trustedEvidence:{[key]:{bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
+ return {sources:[s],now:'2026-11-16T19:00:00Z',trustedSourcePolicies:{[key]:{classification:'current',maxRetrievalAgeSeconds:cap,maxEffectiveAgeSeconds:cap,publisherId:'coinbase',parserId:'ticker',parserVersion:'1'}},trustedEvidence:{[key]:{kind:'snapshot',bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
 }
 test('external exact source policy and observed snapshot permit matched source',()=>assert.equal(checkTrustedSourcePolicies(fixture()).status,'trusted-source-evidence-matched'));
 test('24h bundle windows cannot relax quote2h or Morpho15min',()=>{
@@ -16,7 +16,7 @@ test('unknown URL, absent trust, historical relabel and forged evidence hold',()
 });
 test('trusted caps themselves cannot exceed hard ceilings; explicit historical policy required',()=>{
  const x=fixture();Object.values(x.trustedSourcePolicies)[0].maxEffectiveAgeSeconds=86400;assert.equal(checkTrustedSourcePolicies(x).status,'hold');
- const y=fixture();y.sources[0].classification='historical';y.sources[0].effectiveAt='2020-01-01';Object.values(y.trustedSourcePolicies)[0].classification='historical';assert.equal(checkTrustedSourcePolicies(y).status,'trusted-source-evidence-matched');
+ const y=fixture();y.sources[0].classification='historical';y.sources[0].effectiveAt='2020-01-01';Object.values(y.trustedSourcePolicies)[0].classification='historical';Object.values(y.trustedSourcePolicies)[0].maxEffectiveAgeSeconds=null;y.sources[0].maxEffectiveAgeSeconds=null;y.sources[0].label='Dated historical observation; not current';assert.equal(checkTrustedSourcePolicies(y).status,'trusted-source-evidence-matched');
 });
 
 import {readFileSync} from 'node:fs';
