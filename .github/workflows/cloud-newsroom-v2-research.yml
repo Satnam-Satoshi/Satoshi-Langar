@@ -36,6 +36,8 @@ jobs:
       - name: Verify renderer input gates without publishing
         working-directory: tools/cloud-marketing
         run: /usr/bin/python3 -B -m unittest -v
+      - name: Verify private HTML evidence parser without publishing
+        run: /usr/bin/python3 -I -B -m unittest discover -s tools/cloud-newsroom-v2 -p 'test_*.py' -v
       - name: Verify source lineage and tests without production credentials
         shell: bash
         run: |
