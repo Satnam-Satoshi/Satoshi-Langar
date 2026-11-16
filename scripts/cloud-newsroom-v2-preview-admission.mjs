@@ -9,7 +9,7 @@ export function admitV2Preview(env, git, now = Date.now()) {
   if(!Number.isFinite(now)||now<Date.parse('2026-11-16T00:00:00Z')||now>=Date.parse('2026-11-17T00:00:00Z'))return false;
   const head=git('HEAD');if(!/^[a-f0-9]{40}$/.test(head)||env.VERCEL_GIT_COMMIT_SHA!==head)return false;
   const parents=git('commit').split('\n\n')[0].split('\n').filter(x=>x.startsWith('parent '));
-  if(parents.length!==1||parents[0]!=='parent d9e65796cd23996b274622ee47e265a066d01e76')return false;
+  if(parents.length!==1||parents[0]!=='parent 4325ebeb628733968556aeefd5f9807a79b14ba6')return false;
   const stable=git('tree').split('\n').filter(Boolean).filter(x=>!EXCLUDED.has(x.split('\t')[1])).join('\n')+'\n';
   return createHash('sha256').update(stable).digest('hex')==='a3bf73abc561c8986bb77667ec1323ab515dfab75ebeac8b7c33e460779dd05d';
  }catch{return false;}

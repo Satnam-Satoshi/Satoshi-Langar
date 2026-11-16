@@ -6,7 +6,7 @@ import {admitV2Preview} from './cloud-newsroom-v2-preview-admission.mjs';
 const sha='a'.repeat(40),now=Date.parse('2026-11-16T19:00:00Z');
 const env={VERCEL_ENV:'preview',VERCEL_TARGET_ENV:'preview',VERCEL_GIT_REPO_OWNER:'Satnam-Satoshi',VERCEL_GIT_REPO_SLUG:'Satoshi-Langar',VERCEL_GIT_COMMIT_REF:'agent/cloud-newsroom-v2-20261116',VERCEL_GIT_COMMIT_SHA:sha};
 const tree=execFileSync('git',['ls-tree','-r','d9e65796cd23996b274622ee47e265a066d01e76'],{encoding:'utf8'});
-const git=ref=>ref==='HEAD'?sha:ref==='tree'?tree:'parent d9e65796cd23996b274622ee47e265a066d01e76\n\npreview';
+const git=ref=>ref==='HEAD'?sha:ref==='tree'?tree:'parent 4325ebeb628733968556aeefd5f9807a79b14ba6\n\npreview';
 test('exact approved preview source admitted',()=>assert.equal(admitV2Preview(env,git,now),true));
 test('missing or wrong context and production denied',()=>{for(const key of Object.keys(env))for(const value of [undefined,'production','other'])assert.equal(admitV2Preview({...env,[key]:value},git,now),false);});
 test('time boundaries, wrong parent, modified tree and git failures denied',()=>{
