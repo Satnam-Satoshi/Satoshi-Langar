@@ -1,3 +1,4 @@
+import { pdfIssue } from '../data/pdf-issue';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
 import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
@@ -12,7 +13,7 @@ const routes = [
 ];
 
 export default function CommunityEditionFront({ community = false }: { community?: boolean }) {
-  const issue = latestLtcEdition;
+  const issue = pdfIssue;
   const titleId = community ? 'home-title' : 'frontpage-title';
   const Title = community ? 'h1' : 'h2';
   const checked = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'America/New_York' }).format(new Date(sourceDesk.checkedAt));
@@ -22,8 +23,8 @@ export default function CommunityEditionFront({ community = false }: { community
       <p className={s.kicker}>Bitcoin roots · The Litecoin family · An open table</p>
       <Title id={titleId}>Follow the work.<br/><em>Find your people.</em></Title>
       <p className={s.dek}>The networks, the builders and the world around open money. Read the evidence. Learn something useful. Help shape what comes next.</p>
-      <div className={s.actions}><a className={s.primary} href={issue ? editionDateHref(issue.date) : '/conversations/archive/'}>Read the latest issue ↗</a><a href="/conversations/#source-desk">Scan the source desk →</a></div>
-      {issue && <a className={s.issue} href={editionDateHref(issue.date)}><span>Latest published issue <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></span><strong>{issue.title}</strong><span>Open the magazine &amp; sourcebook ↗</span></a>}
+      <div className={s.actions}><a className={s.primary} href={issue ? issue.page : '/conversations/archive/'}>Read the latest issue ↗</a><a href="/conversations/#source-desk">Scan the source desk →</a></div>
+      {issue && <a className={s.issue} href={issue.page}><span>Latest published issue <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></span><strong>{issue.title}</strong><span>Open the magazine &amp; sourcebook ↗</span></a>}
       <p className={s.note}>Free to read. No wallet required. AI-assisted reporting with human ownership, original source dates and visible corrections.</p>
     </div>
     <aside className={s.feature} aria-label="Special edition and source headlines">

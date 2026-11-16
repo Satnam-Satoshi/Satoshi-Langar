@@ -15,7 +15,7 @@ test('Moon is the primary homepage feature while the daily issue remains accessi
  const home=read('app/components/HomeFront.tsx'),magazine=read('app/conversations/page.tsx'),feature=read('app/components/MoonHomeFeature.tsx');
  assert.ok(home.indexOf('<MoonHomeFeature primaryHeading/>')<home.indexOf('<div className={styles.lead}>'));
  assert.ok(magazine.indexOf('<MoonHomeFeature/>')<magazine.indexOf('<div id="daily"><LtcPdfIssue/>'));
- assert.ok(feature.includes('data-primary-feature="litecoin-to-the-moon"'));assert.ok(feature.includes('editionDateHref(latestLtcEdition.date)'));
+ assert.ok(feature.includes('data-primary-feature="litecoin-to-the-moon"'));assert.ok(feature.includes('href={pdfIssue.page}'));
  assert.ok(read('scripts/qa-site-browser.mjs').includes('Moon must precede the daily issue as the first main section'));
 });
 

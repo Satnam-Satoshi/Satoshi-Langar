@@ -1,3 +1,4 @@
+import { pdfIssue } from '../data/pdf-issue';
 import { SocialLinks } from '../components/SocialLinks';
 import styles from './community.module.css';
 import { communityAnswers, communityDestinations, communityPaths } from '../data/community-hub';
@@ -9,7 +10,7 @@ export const metadata = {
   description:'A home for the Litecoin and Bitcoin curious: learn, build, create and serve. Find community links, free AI Satoshi Ma guidance and a useful first contribution.',
   openGraph:{ title:'Many minds. One open table.', description:'The Satnam Satoshi community: humans, AI and useful work.', images:[{url:'https://satnamsatoshi.com/images/community/open-table.jpg',width:1672,height:941,alt:'An imagined community sharing knowledge, art and food.'}] },
 };
-const issue = latestLtcEdition;
+const issue = pdfIssue;
 const pitch = propose('Community question or contribution','Page or project:\n\nMy question or proposed contribution:\n\nSources / evidence:\n\nOne useful next step:');
 const correction = propose('LTC source check / story pitch','Page / issue date:\n\nClaim to check or story idea:\n\nOriginal source and its date:\n\nSuggested correction or next step:');
 const introPrompt = 'Help me choose a first contribution to Satnam Satoshi. Start by asking about my interests and available time. Use https://satnamsatoshi.com/ecosystem/ and cite the project pages you use. Distinguish current features from proposals. If you cannot read a page, say so. Do not ask for wallet secrets or private information.';
@@ -54,7 +55,7 @@ export default function CommunityPage(){return <main className={styles.hub}>
   </section>
 
   <section className={styles.readingSection} id="community-reading" aria-labelledby="reading-title"><div className={styles.sectionHeading}><div><p className={styles.eyebrow}>04 / ON THE READING TABLE</p><h2 id="reading-title">Stay curious.<br/><em>Bring receipts.</em></h2></div><p>Read the latest published issue, explore Litecoin’s story and check the source behind a claim.</p></div><div className={styles.readingGrid}>
-    {issue&&<a className={styles.issueCard} href={editionDateHref(issue.date)}><div className={styles.issueArt}>{issue.presentation?.artDirection?.coverAsset&&<img src={`/magazine/${issue.presentation.artDirection.coverAsset}`} alt="Original illustrated cover artwork for the latest LTC issue." width="1200" height="800" loading="lazy"/>}<span>LTC<br/><small>PROOF OF WORK</small></span></div><div><p className={styles.eyebrow}>LATEST PUBLISHED / {formatEditionDate(issue.date)}</p><h3>{issue.presentation?.cover.title||issue.title}</h3><p>Network evidence, open money, policy records and the people building the next chapter.</p><strong>Read the daily issue ↗</strong></div></a>}
+    {issue&&<a className={styles.issueCard} href={issue.page}><div className={styles.issueArt}>{issue.cover&&<img src={issue.cover} alt="Original illustrated cover artwork for the latest LTC issue." width="1200" height="800" loading="lazy"/>}<span>LTC<br/><small>PROOF OF WORK</small></span></div><div><p className={styles.eyebrow}>LATEST PUBLISHED / {formatEditionDate(issue.date)}</p><h3>{issue.title}</h3><p>Network evidence, open money, policy records and the people building the next chapter.</p><strong>Read the daily issue ↗</strong></div></a>}
     <div className={styles.readingStack}><a href="/conversations/specials/proof-of-birthday/"><span>THE COLLECTOR’S EDITION / 84 PAGES</span><h3>Proof of Birthday.</h3><p>Fifteen years of Litecoin. A story worth turning the pages for.</p><b>Open the special ↗</b></a><a href="/conversations/litecoin/"><span>THE LITECOIN FIELDBOOK</span><h3>Follow the builders.</h3><p>Foundation projects, MWEB, LitVM, open-source work and the questions to ask.</p><b>Explore the ecosystem ↗</b></a><a href="/conversations/archive/"><span>THE PUBLICATION LIBRARY</span><h3>Every issue has a date.</h3><p>Revisit past editions, original records and visible corrections.</p><b>Browse the archive ↗</b></a></div>
   </div><div className={styles.resourceRail}><a href="https://litecoin.com/news">Foundation news ↗</a><a href="https://litecoinregister.com/?c=table">Litecoin Register ↗</a><a href="https://bitcoincore.org/en/releases/">Bitcoin Core releases ↗</a><a href="/conversations/desks/">All LTC research desks →</a></div><p className={styles.fine}>External publishers retain their own dates and methods. A tracker entry or social post is a starting point for research, not verified investment advice.</p></section>
 
