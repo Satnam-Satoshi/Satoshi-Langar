@@ -50,6 +50,17 @@
       "productionAliasesUnchanged": true,
       "nonexistentExploreProbe404": true
     },
-    "fullSuiteStatus": "historical-fixture-correction-local-independent-rerun-pending"
+    "fullSuiteStatus": "historical-fixture-correction-local-independent-rerun-pending",
+    "archive": {
+      "kind": "owned-library-bootstrap-evidence",
+      "sha256": "1775df7dbc935cf90d0153ce557d189f24e7f526ba2c5fd04267ac04ff652849",
+      "bytes": 3197,
+      "exactReadbackVerified": true,
+      "ownedRootPresenceVerified": true,
+      "sharingPerformed": false,
+      "aclVerified": false,
+      "worm": false,
+      "retention": "subject-to-account-policy"
+    }
   }
 }
