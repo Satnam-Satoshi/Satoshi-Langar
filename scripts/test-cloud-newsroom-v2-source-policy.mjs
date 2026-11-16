@@ -40,3 +40,9 @@ test('allowlisted GitHub host never grants arbitrary publisher/source policy aut
   const y=fixture();y.sources[0].url=url;assert.equal(checkTrustedSourcePolicies(y).status,'hold');
  }
 });
+
+test('canonical ISO formatting preserves exact evidence instant, not a changed clock',()=>{
+ const x=fixture();x.sources[0].retrievedAt='2026-11-16T18:59:00.000Z';assert.equal(checkTrustedSourcePolicies(x).status,'trusted-source-evidence-matched');
+ for(const value of ['2026-11-16T18:59:00.001Z','2026-11-16T18:59:00+00:00','not-a-date',null]){const y=structuredClone(x);Object.values(y.trustedEvidence)[0].retrievedAt=value;assert.equal(checkTrustedSourcePolicies(y).status,'hold');}
+ const z=structuredClone(x);z.sources[0].evidence.retrievedAt='2026-11-16T18:59:01Z';assert.equal(checkTrustedSourcePolicies(z).status,'hold');
+});

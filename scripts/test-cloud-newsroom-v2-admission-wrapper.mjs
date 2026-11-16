@@ -7,7 +7,7 @@ import { mkdtempSync, realpathSync, mkdirSync, writeFileSync, rmSync, symlinkSyn
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { runCloudNewsroomV2Admission } from './cloud-newsroom-v2-admission-wrapper.mjs';
+import { runCloudNewsroomV2Admission, observeCloudNewsroomV2GitCandidate } from './cloud-newsroom-v2-admission-wrapper.mjs';
 import { projectReceiptToPdfRegistry } from './lib/ltc-pdf-receipt.mjs';
 const hash=v=>createHash('sha256').update(v).digest('hex'),pin='a'.repeat(40),impl='b'.repeat(40),implHash='c'.repeat(64);
 function receipt(date='2026-11-16'){
@@ -47,3 +47,10 @@ function policyFixture(s){
  const key=JSON.stringify([s.id,s.url,s.metricKind]);
  return {trustedSourcePolicies:{[key]:{classification:'current',publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion,maxRetrievalAgeSeconds:7200,maxEffectiveAgeSeconds:7200}},trustedEvidence:{[key]:{kind:'snapshot',bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
 }
+
+test('predeployment observer captures real immutable objects without inventing provider env',()=>use(x=>{
+ const scope={repoRoot:x.input.repoRoot,repository:x.trust.repository,branch:x.trust.branch,candidateCommit:x.input.env.VERCEL_GIT_COMMIT_SHA,priorCommit:x.trust.trusted.priorCommit};
+ const result=observeCloudNewsroomV2GitCandidate(scope);assert.equal(result.candidateCommit,scope.candidateCommit);assert.equal(result.candidateTreeGitSha,x.git('rev-parse','HEAD^{tree}'));assert.deepEqual(result.candidateParents,[scope.priorCommit]);assert.equal(result.candidateTree.find(e=>e.path==='app/page.tsx').sha256,hash('reviewed'));assert.ok(result.currentRegistryText);assert.ok(result.candidateRegistryText);assert.equal(result.promotionAuthorized,undefined);
+ x.put('app/page.tsx','uncommitted ignored');assert.deepEqual(observeCloudNewsroomV2GitCandidate(scope),result);
+ for(const patch of [{repository:'other/repo'},{branch:'wrong'},{candidateCommit:'a'.repeat(40)},{priorCommit:'bad'}])assert.throws(()=>observeCloudNewsroomV2GitCandidate({...scope,...patch}));
+}));

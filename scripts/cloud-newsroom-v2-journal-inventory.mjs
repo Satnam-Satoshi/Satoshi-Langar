@@ -17,6 +17,9 @@ export function createCloudNewsroomV2JournalInventory({namespace,tools,allowMuta
  return Object.freeze({
   async claimRoot(){const r=await read(),root=current(r);if(root){validate(root);return {created:false,journalId:id};}if(Object.keys(r.value.journalInventory?.roots??{}).length>=16)throw Error('inventory_capacity_hold');r.value.journalInventory??={schemaVersion:1,roots:{}};if(r.value.journalInventory.schemaVersion!==1)throw Error('inventory_schema');r.value.journalInventory.roots[id]={id,keys:{}};await save(r,r.value);return {created:true,journalId:id};},
   async claimKey(key){if(typeof key!=='string'||key.length>240)throw Error('inventory_key_bounds');const r=await read(),root=current(r);validate(root);const k=digest(key);if(root.keys[k]===true)return {created:false};if(Object.keys(root.keys).length>=128)throw Error('inventory_capacity_hold');root.keys[k]=true;await save(r,r.value);return {created:true};},
+  /** Read-only lifetime-key capacity. Warning at112; full128 holds NEW claims.
+   * Existing keys remain valid; never deletes, rotates or initializes a root. */
+  async capacity(){const r=await read(),root=current(r);validate(root);const used=Object.keys(root.keys).length;return {status:used===128?'full':used>=112?'warning':'available',used,limit:128,remaining:128-used,alertAt:112,canClaimNew:used<128};},
   async hasKey(key){if(typeof key!=='string'||key.length>240)throw Error('inventory_key_bounds');const r=await read(),root=current(r);validate(root);return root.keys[digest(key)]===true;}
  });
 }
