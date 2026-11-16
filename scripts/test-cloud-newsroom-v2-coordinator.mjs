@@ -220,3 +220,15 @@ test('QA renewal cannot bypass source drift or retry a failing QA within same ad
  const x=fixture(),verify=x.adapters.qa.verify;let checks=0;x.adapters.qa.verify=async args=>{checks++;return {...await verify(args),expiresAt:'2026-11-16T19:00:30Z'};};await x.advance();await x.advance();x.time('2026-11-16T19:01:00Z');assert.equal((await x.advance()).status,'hold');assert.equal(checks,2);assert.ok(!x.calls.includes('promote'));
  const y=fixture();y.adapters.qa.verify=async args=>({...args,passed:true,expiresAt:'2026-11-16T19:00:30Z'});await y.advance();await y.advance();y.time('2026-11-16T19:01:00Z');y.adapters.provider.getDeployment=async()=>({id:'new',projectId:y.req.projectId,sourceCommit:'a'.repeat(40),repository:y.req.repository,target:'preview',status:'READY'});assert.equal((await y.advance()).reason,'preview_identity_mismatch');assert.ok(!y.calls.includes('promote'));
 });
+function libraryArchiveFixture(x){const old=x.adapters.archive.persistQa;x.adapters.archive.persistQa=async args=>({...await old(args),kind:'owned-library-qa-receipt',accessAssurance:'owned-root-create-no-sharing-in-workflow',aclVerified:false,worm:false,retention:'subject-to-account-policy',locator:{provider:'openai-library',fileId:'PRIVATE_LIBRARY_FILE_123',version:7}});}
+test('limited Library readback assurance retained accurately while all private locator identifiers disappear',async()=>{
+ const x=fixture();libraryArchiveFixture(x);const states=[],cas=x.adapters.state.cas;x.adapters.state.cas=async(...args)=>{states.push(structuredClone(args[2]));return cas(...args);};
+ const results=[];for(let i=0;i<4;i++)results.push(await x.advance());assert.equal(results.at(-1).status,'published-verified');
+ for(const ref of [x.state().completed[0].previewQaArchive,x.state().completed[0].publicQaArchive]){assert.equal(ref.kind,'owned-library-qa-receipt');assert.equal(ref.accessAssurance,'owned-root-create-no-sharing-in-workflow');assert.equal(ref.aclVerified,false);assert.equal(ref.worm,false);assert.equal(ref.retention,'subject-to-account-policy');assert.equal(ref.verified,true);}
+ for(const v of [...states,...results])assert.doesNotMatch(JSON.stringify(v),/PRIVATE_LIBRARY_FILE|"locator"|"fileId"|"version"|https?:\/\//);
+});
+test('Library archive rejects wrong kind/provider, overclaimed assurance or missing byte verification',async()=>{
+ for(const mutate of [r=>r.kind='private-qa-receipt',r=>r.locator.provider='google-drive',r=>r.accessAssurance='private-acl-verified',r=>r.aclVerified=true,r=>r.worm=true,r=>r.retention='permanent',r=>r.verified=false,r=>r.locator.version=-1,r=>r.locator.version='7',r=>r.locator.fileId='https://private.example/secret']){
+  const x=fixture();libraryArchiveFixture(x);const archive=x.adapters.archive.persistQa;x.adapters.archive.persistQa=async args=>{const ref=await archive(args);mutate(ref);return ref;};await x.advance();assert.equal((await x.advance()).status,'hold');assert.equal(x.state().run.phase,'preview-recorded');assert.ok(!x.calls.includes('promote'));
+ }
+});

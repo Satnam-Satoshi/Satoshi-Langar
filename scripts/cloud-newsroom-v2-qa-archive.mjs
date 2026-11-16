@@ -49,6 +49,12 @@ function validateProof(p){
   if(!o.observations.some(a=>a.role==='promo'&&a.sha256===o.promoSha256&&/\/promo\.(png|jpg|webp)$/.test(new URL(a.url).pathname)))fail('missing-qa-promo-readback');
  }
 }
+/** Pure shared QA payload preparation; no archive or access claim. */
+export function prepareCloudNewsroomV2QaArchivePayload(request){
+  const serialized=canonical(request),bytes=new TextEncoder().encode(serialized+'\n');if(bytes.length>MAX_BYTES)fail('qa-receipt-size-limit');
+  const snapshot=JSON.parse(serialized);exactKeys(snapshot,['proof','phase','deploymentId','sourceCommit','projectId']);validateProof(snapshot.proof);if(!['phase','deploymentId','sourceCommit','projectId'].every(k=>snapshot[k]===snapshot.proof[k]))fail('qa-archive-request-identity');const sha256=hash(bytes),name=`ltc-qa-${sha256}.json`;
+  return {bytes,sha256,name,snapshot};
+}
 /** No upload occurs without invoking persistQa. Callback implementations and private
  * folder access policy must be separately supplied/authorized and independently
  * verified. A locator's shape does NOT prove Drive ACLs or durable provider state.
@@ -57,8 +63,7 @@ function validateProof(p){
 export function createCloudNewsroomV2QaArchive({transport,approvedFolderId}){
  if(typeof transport?.writeImmutable!=='function'||typeof transport?.read!=='function'||typeof transport?.inspectMetadata!=='function'||!id(approvedFolderId))fail('explicit-private-archive-adapter-required');
  return Object.freeze({async persistQa(request){
-  const serialized=canonical(request),bytes=new TextEncoder().encode(serialized+'\n');if(bytes.length>MAX_BYTES)fail('qa-receipt-size-limit');
-  const snapshot=JSON.parse(serialized);exactKeys(snapshot,['proof','phase','deploymentId','sourceCommit','projectId']);validateProof(snapshot.proof);if(!['phase','deploymentId','sourceCommit','projectId'].every(k=>snapshot[k]===snapshot.proof[k]))fail('qa-archive-request-identity');const sha256=hash(bytes),name=`ltc-qa-${sha256}.json`;
+  const {bytes,sha256,name,snapshot}=prepareCloudNewsroomV2QaArchivePayload(request);
   const ownerOnly=item=>item?.shared===false&&item.trashed===false&&Array.isArray(item.permissions)&&item.permissions.length>0&&item.permissions.every(permission=>permission.type==='user'&&permission.role==='owner'&&permission.deleted!==true);
   let folder;try{folder=await transport.inspectMetadata({locator:Object.freeze({provider:'google-drive',folderId:approvedFolderId,fileId:approvedFolderId})});}catch{fail('qa-archive-folder-unconfirmed');}
   if(!ownerOnly(folder)||folder.id!==approvedFolderId||folder.mimeType!=='application/vnd.google-apps.folder')fail('qa-archive-private-folder-required');

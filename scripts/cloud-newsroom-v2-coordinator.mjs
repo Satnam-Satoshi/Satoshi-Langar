@@ -41,10 +41,18 @@ export function normalizeCloudNewsroomV2CoordinatorRequest({receipt,evaluation,e
 }
 const validQaArchive=(ref,phase,run,projectId,requirePrivateLocator=true)=>{
  const l=ref?.locator,id=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,200}$/.test(v);
- const bound=ref?.verified===true&&ref.kind==='private-qa-receipt'&&hex(ref.sha256,64)&&Number.isSafeInteger(ref.bytes)&&ref.bytes>0&&ref.bytes<=4*1024*1024&&ref.phase===phase&&ref.deploymentId===run.deploymentId&&ref.sourceCommit===run.candidateCommit&&ref.projectId===projectId;
+ const bound=ref?.verified===true&&hex(ref.sha256,64)&&Number.isSafeInteger(ref.bytes)&&ref.bytes>0&&ref.bytes<=4*1024*1024&&ref.phase===phase&&ref.deploymentId===run.deploymentId&&ref.sourceCommit===run.candidateCommit&&ref.projectId===projectId;
  if(!bound)return false;
- if(!requirePrivateLocator)return Object.keys(ref).sort().join(',')==='bytes,deploymentId,kind,phase,projectId,sha256,sourceCommit,verified';
- return obj(l)&&Object.keys(l).sort().join(',')==='fileId,folderId,provider'&&l.provider==='google-drive'&&id(l.folderId)&&id(l.fileId);
+ if(ref.kind==='private-qa-receipt'){
+  // Existing strict Drive contract is unchanged.
+  if(!requirePrivateLocator)return Object.keys(ref).sort().join(',')==='bytes,deploymentId,kind,phase,projectId,sha256,sourceCommit,verified';
+  return obj(l)&&Object.keys(l).sort().join(',')==='fileId,folderId,provider'&&l.provider==='google-drive'&&id(l.folderId)&&id(l.fileId);
+ }
+ if(ref.kind!=='owned-library-qa-receipt'||ref.accessAssurance!=='owned-root-create-no-sharing-in-workflow'||ref.aclVerified!==false||ref.worm!==false||ref.retention!=='subject-to-account-policy')return false;
+ // Limited Library evidence is NOT proof of private ACL or WORM retention.
+ if(!requirePrivateLocator)return Object.keys(ref).sort().join(',')==='accessAssurance,aclVerified,bytes,deploymentId,kind,phase,projectId,retention,sha256,sourceCommit,verified,worm';
+ return obj(l)&&Object.keys(l).sort().join(',')==='fileId,provider,version'&&l.provider==='openai-library'&&id(l.fileId)&&Number.isSafeInteger(l.version)&&l.version>=0;
+
 };
 export function createCloudNewsroomV2Coordinator(adapters){
  if(!adapters?.archive?.persistQa||!adapters?.admission?.observeGrant||!adapters?.state?.read||!adapters.state.cas||!adapters.provider?.createPreview||!adapters.provider.getDeployment||!adapters.provider.getDomainDeployment||!adapters.provider.promote||!adapters.qa?.verify||!adapters.qa.verifyPublic||!adapters.clock)throw Error('explicit_adapters_required');
@@ -79,10 +87,10 @@ export function createCloudNewsroomV2Coordinator(adapters){
    const archiveQa=async(proof,phase,run)=>{
     const ref=await adapters.archive.persistQa({proof:clone(proof),phase,deploymentId:run.deploymentId,sourceCommit:run.candidateCommit,projectId:s.projectId});
     await live();
-    if(!validQaArchive(ref,phase,run,s.projectId))throw Error('verified_bound_private_qa_archive_required');
+    if(!validQaArchive(ref,phase,run,s.projectId))throw Error('verified_bound_qa_archive_required');
     // Public Git state stores only a digest reference. Resolve its content-addressed
-    // filename in the externally configured approved PRIVATE folder, never here.
-    return {verified:true,kind:ref.kind,sha256:ref.sha256,bytes:ref.bytes,phase,deploymentId:ref.deploymentId,sourceCommit:ref.sourceCommit,projectId:ref.projectId};
+    // filename through the externally configured approved archive backend, never here.
+    return {verified:true,kind:ref.kind,sha256:ref.sha256,bytes:ref.bytes,phase,deploymentId:ref.deploymentId,sourceCommit:ref.sourceCommit,projectId:ref.projectId,...(ref.kind==='owned-library-qa-receipt'?{accessAssurance:ref.accessAssurance,aclVerified:false,worm:false,retention:ref.retention}:{})};
    };
    let run=s.run;
    if(run&&(run.runId!==request.runId||run.owner!==request.owner||run.editionDate!==request.editionDate||run.candidateCommit!==request.candidateCommit||run.artifactSha256!==request.artifactSha256||run.pdfSha256!==request.pdfSha256||run.reviewedCodeCommit!==s.approvedCodeCommit||run.repository!==s.repository||run.projectId!==s.projectId||run.branch!==s.branch||run.candidateTreeGitSha!==request.candidateTreeGitSha||run.receiptSha256!==request.receiptSha256||run.reviewDigest!==request.reviewDigest||!same(run.domains,domains(s.domains))))return result('hold','active_run_conflict');
