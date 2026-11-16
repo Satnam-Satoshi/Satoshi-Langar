@@ -4,7 +4,7 @@ Status: engineering prototype. No scheduled production run, cloud production cre
 
 ## Source of truth and generation
 
-Start from the exact live site source `fd45e107ac37e537195b7311baeba8cd40b2f035`, not `config/ltc-cloud-source.json`'s historical branch. The new nonproduction branch is `agent/cloud-newsroom-v2-20261116`. Existing configuration, F33 retirement/admission artifacts, ledger, old workflows and publisher pause remain untouched.
+Start from the exact live site source `fd45e107ac37e537195b7311baeba8cd40b2f035`, not `config/ltc-cloud-source.json`'s historical branch. The new nonproduction branch is `agent/cloud-newsroom-v2-20261116`. Existing configuration, F33 retirement/admission artifacts and legacy ledger remain untouched. Following the owner’s later explicit request to pause the old publisher, only the two old daily GitHub workflow schedules were disabled; their history is preserved.
 
 The new research registry contains 43 reviewed public URLs drawn from the current site's primary-source records. This is bounded coverage, not a promise to scan every project or social post. Reference retrieval and changed hashes are candidates, not verified new announcements. A failed source remains an explicit coverage gap. Every source retains publication/event/effective dates separately from retrieval time.
 
@@ -52,3 +52,13 @@ Run from a clean cloud runner with no Mac mounts, shell or login; prove remote s
 - Vercel OIDC (outbound federation, not assumed publishing authorization): https://vercel.com/docs/oidc
 
 The prototype may be built and tested without any of the missing production permissions. Activation remains an explicit future step, not an implied outcome of committing these files.
+
+## Verified prototype evidence (November 16, 2026)
+
+- GitHub-hosted read-only run 43939911709 on commit 60feecbcb55e426d730ad7de5221d60cf3770e40 succeeded: 21 tests, 43 source attempts, 37 retrievals and six explicit gaps. Artifact 14262252634 records this bounded result. This is cloud research, not publishing.
+- Isolated branch `agent/cloud-newsroom-v2-cas-proof-20261116` contains only new synthetic state. One conditional update succeeded; a second update using its stale initial blob SHA returned HTTP 409 and readback preserved the winner. This proves GitHub Contents storage CAS, not a production lease or provider-side fencing.
+- New manifest validator, injected GitHub CAS transport and simulation harness expand the suite to 58 passing tests. Manifest producer identity and observation evidence are caller-supplied, not independently configured. The harness requires simulation-only adapters and cannot publish.
+- Old daily workflows 373667484 and 419242882 were verified `disabled_manually`; no active runs were observed. Local old daily publisher remains PAUSED. Existing magazine email and social workflows were not altered. Other manual release identities still require inventory before exclusivity can be asserted.
+- Existing Supabase project is INACTIVE. No resume, key read, schema or permission change was performed. GitHub CAS avoids requiring that database for the prototype.
+
+The GitHub CAS adapter has no credential lookup and accepts an injected, separately approved transport. Its narrow path/branch checks constrain this code, not the credential’s platform permissions. The simulation ledger uses a deliberately separate schema and must not be silently connected to production.
