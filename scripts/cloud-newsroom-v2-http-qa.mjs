@@ -29,6 +29,12 @@ export function createCloudNewsroomV2HttpQa({transport,clock,trustedPlan}){
  const pdf=r.artifacts.find(a=>a.role==='pdf'),reader=r.artifacts.find(a=>a.role==='html');
  if(plan.artifactSha256!==plan.pdfSha256||pdf.sha256!==plan.pdfSha256||reader.htmlSafety?.status!=='accepted-inert-subset'||reader.htmlSafety.profile!=='ltc-inert-html-v1'||reader.htmlSafety.sanitized!==false||reader.htmlSafety.resourceFetchesAllowed!==false)fail('receipt-pdf-reader-binding');
  if(!Array.isArray(plan.criticalRoutes)||!plan.criticalRoutes.length||plan.criticalRoutes.length>20||new Set(plan.criticalRoutes.map(r=>r.path)).size!==plan.criticalRoutes.length||plan.criticalRoutes.some(r=>!safePath(r.path)||!Array.isArray(r.markers)||!r.markers.length||r.markers.some(m=>typeof m!=='string'||!m||m.length>1000)))fail('critical-route-plan-required');
+ const imageArtifacts=['cover','promo'].map(role=>{
+  const observed=r.artifacts.find(a=>a.role===role),declared=m.artifacts.find(a=>a.role===role);
+  const suffix=role==='cover'?(declared.mimeType==='image/png'?'cover.png':null):({'image/png':'promo.png','image/jpeg':'promo.jpg','image/webp':'promo.webp'}[declared.mimeType]);
+  if(!suffix||(observed.mimeType!==undefined&&observed.mimeType!==declared.mimeType))fail('unsupported-or-mismatched-image-mime');
+  return {...observed,mimeType:declared.mimeType,publicPath:`/magazine/daily/${m.editionDate}/r${m.revision}/${suffix}`};
+ });
  const ttl=plan.proofTtlMs??60000;if(!Number.isSafeInteger(ttl)||ttl<1||ttl>120000)fail('bounded-proof-expiry-required');
  const htmlLimit=2*1024*1024,pdfPath=`/magazine/daily/${m.editionDate}/r${m.revision}/edition.pdf`,readerPath=`/magazine/daily/${m.editionDate}/r${m.revision}/reader.html`;
  freeze(plan);
@@ -53,9 +59,15 @@ export function createCloudNewsroomV2HttpQa({transport,clock,trustedPlan}){
   const readerBytes=await fetchBytes(origin+readerPath,reader.bytes,'text/html');
   if(readerBytes.length!==reader.bytes||sha(readerBytes)!==reader.sha256)fail('reader-bytes-or-hash');
   observations.push({url:origin+readerPath,bytes:readerBytes.length,sha256:sha(readerBytes)});
+  for(const image of imageArtifacts){
+   const bytes=await fetchBytes(origin+image.publicPath,image.bytes,image.mimeType);
+   const signature=image.mimeType==='image/png'?bytes.length>=33&&[137,80,78,71,13,10,26,10].every((b,i)=>bytes[i]===b):image.mimeType==='image/jpeg'?bytes.length>=5&&bytes[0]===255&&bytes[1]===216&&bytes[2]===255&&bytes.at(-2)===255&&bytes.at(-1)===217:bytes.length>=20&&String.fromCharCode(...bytes.subarray(0,4))==='RIFF'&&String.fromCharCode(...bytes.subarray(8,12))==='WEBP'&&new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength).getUint32(4,true)+8===bytes.length;
+   if(bytes.length!==image.bytes||sha(bytes)!==image.sha256||!signature)fail(`${image.role}-bytes-signature-or-hash`);
+   observations.push({role:image.role,url:origin+image.publicPath,bytes:bytes.length,sha256:sha(bytes),mimeType:image.mimeType});
+  }
   observations.push(await html(origin+editionPath,[`<link rel="canonical" href="${p.canonicalUrl}"`, `<h1>${escape(p.title)}</h1>`,`dateTime="${m.editionDate}"`,`href="${pdfPath}"`,'data-trusted-daily-reader="ltc-inert-html-v1"',`id="reader-${id}"`]));
   for(const route of plan.criticalRoutes)observations.push(await html(origin+route.path,route.markers));
-  return {domain:host,routesPassed:true,pdfBytesPassed:true,pdfSha256:pdf.sha256,readerBytesPassed:true,readerSha256:reader.sha256,observations};
+  return {domain:host,routesPassed:true,pdfBytesPassed:true,pdfSha256:pdf.sha256,readerBytesPassed:true,readerSha256:reader.sha256,coverBytesPassed:true,coverSha256:imageArtifacts[0].sha256,promoBytesPassed:true,promoSha256:imageArtifacts[1].sha256,observations};
  };
  const verify=async(request,publicPhase)=>{
   try{

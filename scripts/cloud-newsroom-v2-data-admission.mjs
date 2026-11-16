@@ -116,6 +116,15 @@ export function evaluateCloudNewsroomV2DataAdmission(input, trusted) {
     if(!equal(added,[...allowed.keys()].sort()))fail('candidate_addition_allowlist_mismatch');
     for(const [p,a]of allowed){const actual=candidate.get(p);if(prior.has(p)||!actual||actual.mode!=='100644'||actual.sha256!==a.sha256||actual.bytes!==a.bytes)fail('new_artifact_tree_mismatch');}
   }catch{fail('receipt_registry_projection_failed');}}
-  return finish({candidateCommit:input.candidateCommit,priorCommit:trusted.priorCommit,reviewedSourceCommit:review.sourceCommit,expiresAt:review.expiresAt,registryPath:PDF_REGISTRY_PATH,
+  // Admission cannot outlive the oldest usable evidence, even when code review is longer lived.
+  const deadlines=[time(review.expiresAt)];
+  for(const source of Array.isArray(m?.sources)?m.sources:[]){
+    deadlines.push(time(source.retrievedAt)+source.maxRetrievalAgeSeconds*1000);
+    if(source.status==='verified'&&source.classification==='current')deadlines.push(sourceTime(source.effectiveAt)+source.maxEffectiveAgeSeconds*1000);
+  }
+  const earliest=Math.min(...deadlines);
+  if(!Number.isFinite(earliest)||earliest<=now)fail('source_admission_deadline_expired');
+  const expiresAt=Number.isFinite(earliest)?new Date(earliest).toISOString():null;
+  return finish({candidateCommit:input.candidateCommit,priorCommit:trusted.priorCommit,reviewedSourceCommit:review.sourceCommit,expiresAt,registryPath:PDF_REGISTRY_PATH,
     registrySha256:candidate.get(PDF_REGISTRY_PATH)?.sha256,issueId:projection?.issue.id,artifactPaths:projection?.assetCopies.map(x=>x.destination)??[],nextStep:'independent-preview-review-only'});
 }

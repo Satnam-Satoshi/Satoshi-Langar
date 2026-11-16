@@ -116,3 +116,9 @@ test('explicit historical null-age receipt stays eligible without current quote 
  assert.equal(evaluateCloudNewsroomV2DataAdmission(x.input,x.trusted).status,'eligible-for-preview-review');
  p.classification='current';blocked(x);
 });
+test('admission expiry is earliest review, retrieval or effective source deadline',()=>{
+ const x=fixture();assert.equal(evaluateCloudNewsroomV2DataAdmission(x.input,x.trusted).proposal.expiresAt,'2026-11-16T19:02:00.000Z');
+ x.input.receipt.validation.manifest.sources[0].maxEffectiveAgeSeconds=180;assert.equal(evaluateCloudNewsroomV2DataAdmission(x.input,x.trusted).proposal.expiresAt,'2026-11-16T19:01:00.000Z');
+ x.trusted.review.expiresAt='2026-11-16T19:00:30Z';assert.equal(evaluateCloudNewsroomV2DataAdmission(x.input,x.trusted).proposal.expiresAt,'2026-11-16T19:00:30.000Z');
+ const y=fixture();y.input.now='2026-11-16T19:02:00Z';assert.ok(blocked(y).errors.includes('source_admission_deadline_expired'));
+});

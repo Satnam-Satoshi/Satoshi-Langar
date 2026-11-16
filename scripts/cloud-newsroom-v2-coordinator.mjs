@@ -15,7 +15,7 @@ const clone=v=>JSON.parse(JSON.stringify(v));
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const stamp=v=>typeof v==='string'?Date.parse(v):NaN;
 const domains=v=>Array.isArray(v)&&v.length===2&&new Set(v).size===2&&v.every(x=>typeof x==='string'&&/^[a-z0-9.-]+$/.test(x))?[...v].sort():null;
-const safePhase=p=>['claimed','preview-recorded','qa-passed'].includes(p);
+const safePhase=p=>['claimed','grant-pending','preview-recorded','qa-passed'].includes(p);
 /** Normalize trusted pipeline outputs, never a producer-provided identity mapping.
  * observed is coordinator-observed Git/receipt fingerprint metadata; evaluatorInput
  * is the EXACT input whose receipt/tree the actual evaluator checked. This pure
@@ -39,8 +39,15 @@ export function normalizeCloudNewsroomV2CoordinatorRequest({receipt,evaluation,e
  const identity={candidateCommit:p.candidateCommit,candidateTreeGitSha:observed.candidateTreeGitSha,receiptSha256:observed.receiptSha256,reviewDigest:observed.reviewDigest,artifactSha256:pdf.sha256,pdfSha256:pdf.sha256,reviewedCodeCommit:p.reviewedSourceCommit,branch:observed.branch};
  return {owner,runId,editionDate:m.editionDate,repository:observed.repository,projectId:observed.projectId,...identity,admission:{status:'eligible-for-preview-review',...identity,expiresAt:p.expiresAt}};
 }
+const validQaArchive=(ref,phase,run,projectId,requirePrivateLocator=true)=>{
+ const l=ref?.locator,id=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,200}$/.test(v);
+ const bound=ref?.verified===true&&ref.kind==='private-qa-receipt'&&hex(ref.sha256,64)&&Number.isSafeInteger(ref.bytes)&&ref.bytes>0&&ref.bytes<=4*1024*1024&&ref.phase===phase&&ref.deploymentId===run.deploymentId&&ref.sourceCommit===run.candidateCommit&&ref.projectId===projectId;
+ if(!bound)return false;
+ if(!requirePrivateLocator)return Object.keys(ref).sort().join(',')==='bytes,deploymentId,kind,phase,projectId,sha256,sourceCommit,verified';
+ return obj(l)&&Object.keys(l).sort().join(',')==='fileId,folderId,provider'&&l.provider==='google-drive'&&id(l.folderId)&&id(l.fileId);
+};
 export function createCloudNewsroomV2Coordinator(adapters){
- if(!adapters?.state?.read||!adapters.state.cas||!adapters.provider?.createPreview||!adapters.provider.getDeployment||!adapters.provider.getDomainDeployment||!adapters.provider.promote||!adapters.qa?.verify||!adapters.qa.verifyPublic||!adapters.clock)throw Error('explicit_adapters_required');
+ if(!adapters?.archive?.persistQa||!adapters?.admission?.observeGrant||!adapters?.state?.read||!adapters.state.cas||!adapters.provider?.createPreview||!adapters.provider.getDeployment||!adapters.provider.getDomainDeployment||!adapters.provider.promote||!adapters.qa?.verify||!adapters.qa.verifyPublic||!adapters.clock)throw Error('explicit_adapters_required');
  return Object.freeze({advance:async function(request){
   const result=(status,reason,extra={})=>({status,reason,...extra,namespace:COORDINATOR_NAMESPACE,cooperativeOnly:true,limitations:['Provider owner/manual writes are not fenced by this coordinator.','Adapter authentication, durable CAS and independent QA/approval remain external responsibilities.']});
   let record,s,now;
@@ -55,11 +62,21 @@ export function createCloudNewsroomV2Coordinator(adapters){
    const latest=s.completed[0];
    if(latest&&request.editionDate<=latest.editionDate)return result(request.editionDate===latest.editionDate&&request.pdfSha256===latest.pdfSha256?'duplicate-no-op':'hold','monotonic_completed_date_fence');
    const save=async next=>{if(!boundedState(next))throw Error('coordinator_state_size_limit');const written=await adapters.state.cas(COORDINATOR_NAMESPACE,record.version,next);if(written?.ok!==true)throw Error('cas_conflict');const observed=await adapters.state.read(COORDINATOR_NAMESPACE);if(observed?.version!==written.version||!same(observed.value,next))throw Error('cas_readback_mismatch');record=observed;s=clone(observed.value);};
-   const live=async()=>{const latest=await adapters.state.read(COORDINATOR_NAMESPACE);const time=stamp(await adapters.clock());if(latest?.version!==record.version||!same(latest.value,s)||latest.value.lease?.owner!==request.owner||latest.value.lease?.fence!==s.fence||latest.value.run?.owner!==request.owner||latest.value.run?.runId!==request.runId||latest.value.emergencyStop!==false||latest.value.enabled!==true||latest.value.previewEnabled!==true||latest.value.approvedCodeCommit!==s.approvedCodeCommit||!Number.isFinite(time)||!(stamp(s.lease?.expiresAt)>time))throw Error('live_state_or_lease_changed');now=time;};
+   const live=async()=>{const latest=await adapters.state.read(COORDINATOR_NAMESPACE);const time=stamp(await adapters.clock());if(latest?.version!==record.version||!same(latest.value,s)||latest.value.lease?.owner!==request.owner||latest.value.lease?.fence!==s.fence||latest.value.run?.owner!==request.owner||latest.value.run?.runId!==request.runId||latest.value.emergencyStop!==false||latest.value.enabled!==true||latest.value.previewEnabled!==true||latest.value.approvedCodeCommit!==s.approvedCodeCommit||!Number.isFinite(time)||!(stamp(admission.expiresAt)>time)||!(stamp(s.lease?.expiresAt)>time))throw Error('live_state_or_lease_changed');now=time;};
    const grantFor=(run,fence,leaseExpiry)=>{
     const end=Math.min(stamp(leaseExpiry),stamp(admission.expiresAt),now+900000);
     if(!(end>now))throw Error('preview_grant_expired');
     return {schemaVersion:1,generation:COORDINATOR_NAMESPACE,kind:'preview-admission',mode:'cooperative-preview-only',productionAuthorized:false,promotionAuthorized:false,repository:s.repository,branch:s.branch,projectId:s.projectId,candidateCommit:run.candidateCommit,candidateTreeGitSha:run.candidateTreeGitSha,approvedCodeCommit:s.approvedCodeCommit,receiptSha256:run.receiptSha256,reviewDigest:run.reviewDigest,owner:request.owner,fence,notBefore:new Date(now).toISOString(),expiresAt:new Date(end).toISOString()};
+   };
+   // The adapter must archive exact canonical proof bytes and independently read
+   // them back. This imports-free coordinator validates the bound receipt only.
+   const archiveQa=async(proof,phase,run)=>{
+    const ref=await adapters.archive.persistQa({proof:clone(proof),phase,deploymentId:run.deploymentId,sourceCommit:run.candidateCommit,projectId:s.projectId});
+    await live();
+    if(!validQaArchive(ref,phase,run,s.projectId))throw Error('verified_bound_private_qa_archive_required');
+    // Public Git state stores only a digest reference. Resolve its content-addressed
+    // filename in the externally configured approved PRIVATE folder, never here.
+    return {verified:true,kind:ref.kind,sha256:ref.sha256,bytes:ref.bytes,phase,deploymentId:ref.deploymentId,sourceCommit:ref.sourceCommit,projectId:ref.projectId};
    };
    let run=s.run;
    if(run&&(run.runId!==request.runId||run.owner!==request.owner||run.editionDate!==request.editionDate||run.candidateCommit!==request.candidateCommit||run.artifactSha256!==request.artifactSha256||run.pdfSha256!==request.pdfSha256||run.reviewedCodeCommit!==s.approvedCodeCommit||run.repository!==s.repository||run.projectId!==s.projectId||run.branch!==s.branch||run.candidateTreeGitSha!==request.candidateTreeGitSha||run.receiptSha256!==request.receiptSha256||run.reviewDigest!==request.reviewDigest||!same(run.domains,domains(s.domains))))return result('hold','active_run_conflict');
@@ -78,7 +95,18 @@ export function createCloudNewsroomV2Coordinator(adapters){
    await live();run=s.run;
    if(run.phase==='claimed'){
     const previewGrant=grantFor(run,s.fence,s.lease.expiresAt);
-    await save({...s,previewGrant,run:{...run,phase:'create-intent',intentAt:new Date(now).toISOString(),fence:s.fence}});await live();
+    await save({...s,previewGrant,run:{...run,phase:'grant-pending',fence:s.fence}});run=s.run;
+   }
+   if(run.phase==='grant-pending'){
+    await live();
+    let visible;try{visible=await adapters.admission.observeGrant({expectedGrant:clone(s.previewGrant),owner:request.owner,fence:s.fence,repository:s.repository,branch:s.branch,projectId:s.projectId});}catch{return result('awaiting-grant','grant_visibility_read_unavailable');}
+    if(!obj(visible)||visible.schemaVersion!==1||visible.generation!==COORDINATOR_NAMESPACE||visible.enabled!==true||visible.previewEnabled!==true||visible.emergencyStop!==false||visible.oldWritersDisabled!==true||visible.repository!==s.repository||visible.branch!==s.branch||visible.projectId!==s.projectId||visible.approvedCodeCommit!==s.approvedCodeCommit||!Number.isSafeInteger(visible.fence))return result('hold','visible_grant_authority_mismatch');
+    if(visible.fence<s.fence)return result('awaiting-grant','older_grant_not_yet_visible');
+    if(visible.fence===s.fence&&!visible.previewGrant)return result('awaiting-grant','grant_not_yet_visible');
+    if(visible.fence!==s.fence||!same(visible.previewGrant,s.previewGrant)||visible.lease?.owner!==request.owner||visible.lease?.fence!==s.fence||visible.lease?.expiresAt!==s.lease.expiresAt)return result('hold','visible_grant_binding_mismatch');
+    await live();
+    if(!(stamp(s.previewGrant?.expiresAt)>now)||!(stamp(visible.lease.expiresAt)>now))return result('awaiting-grant','visible_grant_expired');
+    await save({...s,run:{...run,phase:'create-intent',intentAt:new Date(now).toISOString(),fence:s.fence}});await live();
     let deployment;try{deployment=await adapters.provider.createPreview({repository:s.repository,branch:s.branch,projectId:s.projectId,sourceCommit:run.candidateCommit,target:'preview',production:false,runId:run.runId,fence:s.fence,artifactSha256:run.artifactSha256});}catch{return result('hold','create_result_uncertain_no_retry');}
     if(typeof deployment?.id!=='string'||!deployment.id)return result('hold','create_result_missing_id_no_retry');
     await save({...s,run:{...s.run,phase:'preview-recorded',deploymentId:deployment.id}});
@@ -86,6 +114,7 @@ export function createCloudNewsroomV2Coordinator(adapters){
    }
    if(run.phase==='create-intent')return result('hold','create_intent_requires_provider_reconciliation_no_retry');
    if(['promotion-intent','public-qa-pending'].includes(run.phase)){
+    if(!validQaArchive(run.previewQaArchive,'preview',run,s.projectId,false))return result('hold','preview_qa_archive_required');
     const actual={};for(const d of s.domains)actual[d]=await adapters.provider.getDomainDeployment({domain:d,projectId:s.projectId});
     await live();if(s.domains.some(d=>actual[d]?.deploymentId!==run.deploymentId||actual[d]?.projectId!==s.projectId))return result('hold','promotion_uncertain_or_partial_no_retry',{deploymentId:run.deploymentId});
     if(run.phase==='promotion-intent'){
@@ -96,10 +125,11 @@ export function createCloudNewsroomV2Coordinator(adapters){
     await live();
     const observations=publicQa?.domainObservations;
     if(publicQa?.passed!==true||publicQa.deploymentId!==run.deploymentId||publicQa.sourceCommit!==run.candidateCommit||publicQa.artifactSha256!==run.artifactSha256||publicQa.pdfSha256!==run.pdfSha256||publicQa.projectId!==s.projectId||!same(domains(publicQa.domains),domains(s.domains))||!(stamp(publicQa.checkedAt)>=stamp(run.promotionIntentAt))||stamp(publicQa.checkedAt)>now||!(stamp(publicQa.expiresAt)>now)||!Array.isArray(observations)||observations.length!==2||!same(domains(observations.map(o=>o?.domain)),domains(s.domains))||observations.some(o=>o.routesPassed!==true||o.pdfBytesPassed!==true||o.pdfSha256!==run.pdfSha256))return result('hold','public_route_or_pdf_qa_failed_or_unbound',{deploymentId:run.deploymentId});
+    const publicQaArchive=await archiveQa(publicQa,'public',run);
     // Domain aliases may have changed while public content was being checked.
     for(const domain of s.domains){const current=await adapters.provider.getDomainDeployment({domain,projectId:s.projectId});if(current?.deploymentId!==run.deploymentId||current?.projectId!==s.projectId)return result('hold','public_qa_domain_changed');}
     await live();if(!(stamp(publicQa.expiresAt)>now))return result('hold','public_qa_expired');
-    const done={editionDate:run.editionDate,artifactSha256:run.artifactSha256,pdfSha256:run.pdfSha256,candidateCommit:run.candidateCommit,deploymentId:run.deploymentId,publicQa:{passed:true,checkedAt:publicQa.checkedAt,expiresAt:publicQa.expiresAt,domains:domains(s.domains),pdfSha256:run.pdfSha256}};
+    const done={editionDate:run.editionDate,artifactSha256:run.artifactSha256,pdfSha256:run.pdfSha256,candidateCommit:run.candidateCommit,deploymentId:run.deploymentId,previewQaArchive:clone(run.previewQaArchive),publicQaArchive,publicQa:{passed:true,checkedAt:publicQa.checkedAt,expiresAt:publicQa.expiresAt,domains:domains(s.domains),pdfSha256:run.pdfSha256}};
     await save({...s,completed:[done],expectedDomains:Object.fromEntries(s.domains.map(d=>[d,run.deploymentId])),run:null,lease:null,previewGrant:null});
     return result('published-verified','both_domains_and_public_artifacts_verified',done);
    }
@@ -110,8 +140,10 @@ export function createCloudNewsroomV2Coordinator(adapters){
    if(run.phase==='preview-recorded'){
     const qa=await adapters.qa.verify({deploymentId:run.deploymentId,sourceCommit:run.candidateCommit,artifactSha256:run.artifactSha256,pdfSha256:run.pdfSha256,projectId:s.projectId});await live();
     if(qa?.passed!==true||qa.deploymentId!==run.deploymentId||qa.sourceCommit!==run.candidateCommit||qa.artifactSha256!==run.artifactSha256||qa.pdfSha256!==run.pdfSha256||qa.projectId!==s.projectId||!(stamp(qa.expiresAt)>now))return result('hold','independent_qa_failed_or_unbound');
-    await save({...s,run:{...run,phase:'qa-passed',qa:{passed:true,deploymentId:qa.deploymentId,sourceCommit:qa.sourceCommit,artifactSha256:qa.artifactSha256,pdfSha256:qa.pdfSha256,projectId:qa.projectId,expiresAt:qa.expiresAt}}});return result('preview-verified','awaiting_publication_authority',{deploymentId:run.deploymentId});
+    const previewQaArchive=await archiveQa(qa,'preview',run);
+    await save({...s,run:{...run,phase:'qa-passed',previewQaArchive,qa:{passed:true,deploymentId:qa.deploymentId,sourceCommit:qa.sourceCommit,artifactSha256:qa.artifactSha256,pdfSha256:qa.pdfSha256,projectId:qa.projectId,expiresAt:qa.expiresAt}}});return result('preview-verified','awaiting_publication_authority',{deploymentId:run.deploymentId});
    }
+   if(!validQaArchive(run.previewQaArchive,'preview',run,s.projectId,false))return result('hold','preview_qa_archive_required');
    if(!(stamp(run.qa?.expiresAt)>now))return result('hold','qa_expired');
    const approval=request.approval;
    if(s.publicationEnabled!==true||approval?.approved!==true||approval.projectId!==s.projectId||approval.deploymentId!==run.deploymentId||approval.sourceCommit!==run.candidateCommit||approval.artifactSha256!==run.artifactSha256||approval.pdfSha256!==run.pdfSha256||!same(domains(approval.domains),domains(s.domains))||!(stamp(approval.expiresAt)>now))return result('hold','explicit_both_domain_publication_approval_required');

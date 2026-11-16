@@ -7,14 +7,15 @@ const hex=(v,n)=>typeof v==='string'&&new RegExp('^[a-f0-9]{'+n+'}$').test(v);
 function payload(r){if(r?.isError)throw Error('connector_error');if(r?.structuredContent){if(r.structuredContent.error||r.structuredContent.error_code)throw Error('connector_error');return r.structuredContent;}for(const block of r?.content??[])if(block.type==='text'){try{const p=JSON.parse(block.text);if(p.error)throw Error('connector_error');return p.result??p;}catch(e){if(e.message==='connector_error')throw e;}}throw Error('unrecognized_connector_result');}
 const dep=r=>{const p=payload(r);return p.deployment??p;};
 const scope=V2_CONNECTOR_SCOPE;
-export function createCloudNewsroomV2ConnectorAdapters({tools,qaVerifier,clock,allowMutations=false,allowPromotion=false}){
+export function createCloudNewsroomV2ConnectorAdapters({tools,qaVerifier,grantObserver,qaArchive,clock,allowMutations=false,allowPromotion=false}){
  for(const k of ['githubFetchFile','githubUpdateFile','vercelCreateDeployment','vercelGetDeployment','vercelPromote'])if(typeof tools?.[k]!=='function')throw Error('explicit_connector_required');
+ if(typeof grantObserver!=='function'||typeof qaArchive?.persistQa!=='function')throw Error('explicit_grant_observer_and_qa_archive_required');
  if(typeof qaVerifier?.verify!=='function'||typeof qaVerifier?.verifyPublic!=='function'||typeof clock!=='function')throw Error('independent_qa_and_clock_required');
  const namespace=n=>{if(n!=='cloud-newsroom-v2')throw Error('foreign_state_namespace');};
  const mutation=()=>{if(allowMutations!==true)throw Error('mutations_not_enabled');};
  const project=p=>{if(p!==scope.projectId)throw Error('foreign_project');};
  return {
-  clock,qa:{verify:args=>qaVerifier.verify(args),verifyPublic:args=>qaVerifier.verifyPublic(args)},
+  clock,admission:{observeGrant:args=>grantObserver(args)},archive:{persistQa:args=>{mutation();return qaArchive.persistQa(args);}},qa:{verify:args=>qaVerifier.verify(args),verifyPublic:args=>qaVerifier.verifyPublic(args)},
   state:{
    async read(n){namespace(n);const p=payload(await tools.githubFetchFile({repository_full_name:scope.repository,ref:scope.stateBranch,path:scope.statePath,encoding:'utf-8'}));if(p.encoding!=='utf-8'||typeof p.content!=='string'||!hex(p.sha,40))throw Error('invalid_state_read');const value=JSON.parse(p.content);if(value.schemaVersion!==1||value.generation!=='cloud-newsroom-v2')throw Error('foreign_state');return{version:p.sha,value};},
    async cas(n,version,value){namespace(n);mutation();if(!hex(version,40)||value?.schemaVersion!==1||value.generation!=='cloud-newsroom-v2')throw Error('invalid_state_cas');const r=await tools.githubUpdateFile({repository_full_name:scope.repository,branch:scope.stateBranch,path:scope.statePath,sha:version,message:'Cloud newsroom v2 coordinated state transition',content:JSON.stringify(value)+'\n'});const error=r?.structuredContent?.error??r?.structuredContent; if(r?.isError&&(error?.status===409||error?.code==='CONFLICT'||error?.error_code==='CONFLICT'))return{ok:false};const p=payload(r);if(!hex(p.content_sha,40))throw Error('state_write_uncertain');return{ok:true,version:p.content_sha};}

@@ -7,7 +7,7 @@ function fixture(){
  let value={schemaVersion:1,generation:'cloud-newsroom-v2',branch:'agent/cloud-newsroom-v2-20261116',enabled:true,previewEnabled:true,publicationEnabled:true,emergencyStop:false,oldWritersDisabled:true,approvedCodeCommit:'a'.repeat(40),repository:'Satnam-Satoshi/Satoshi-Langar',projectId:'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx',domains:['ltcmagazine.org','satnamsatoshi.com'],expectedDomains:{'ltcmagazine.org':'old','satnamsatoshi.com':'old'},fence:0,completed:[],run:null,lease:null};
  const req={branch:value.branch,candidateTreeGitSha:'d'.repeat(40),receiptSha256:'e'.repeat(64),reviewDigest:'f'.repeat(64),owner:'coordinator',runId:'run-1',editionDate:'2026-11-16',candidateCommit:'b'.repeat(40),artifactSha256:'c'.repeat(64),pdfSha256:'c'.repeat(64),reviewedCodeCommit:value.approvedCodeCommit,repository:value.repository,projectId:value.projectId,admission:{branch:value.branch,candidateTreeGitSha:'d'.repeat(40),receiptSha256:'e'.repeat(64),reviewDigest:'f'.repeat(64),status:'eligible-for-preview-review',candidateCommit:'b'.repeat(40),artifactSha256:'c'.repeat(64),pdfSha256:'c'.repeat(64),reviewedCodeCommit:value.approvedCodeCommit,expiresAt:'2026-11-16T20:00:00Z'},approval:{approved:true,projectId:'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx',deploymentId:'new',sourceCommit:'b'.repeat(40),artifactSha256:'c'.repeat(64),pdfSha256:'c'.repeat(64),domains:[...value.domains],expiresAt:'2026-11-16T20:00:00Z'}};
  const domainState=Object.fromEntries(value.domains.map(d=>[d,'old']));
- const adapters={clock:async()=>time,state:{read:async ns=>{assert.equal(ns,'cloud-newsroom-v2');return {version,value:structuredClone(value)};},cas:async(ns,expected,next)=>{calls.push('cas:'+next.run?.phase);if(expected!==version)return {ok:false};value=structuredClone(next);version++;return {ok:true,version};}},provider:{createPreview:async args=>{assert.equal(value.run.phase,'create-intent');assert.equal(args.production,false);assert.equal(args.target,'preview');calls.push('create');return {id:'new'};},getDeployment:async()=>({id:'new',projectId:'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx',sourceCommit:req.candidateCommit,repository:'Satnam-Satoshi/Satoshi-Langar',target:'preview',status:'READY'}),getDomainDeployment:async({domain})=>({deploymentId:domainState[domain],projectId:'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx'}),promote:async args=>{assert.equal(value.run.phase,'promotion-intent');calls.push('promote');for(const d of args.domains)domainState[d]='new';}},qa:{verify:async args=>({...args,passed:true,expiresAt:'2026-11-16T20:00:00Z'}),verifyPublic:async args=>({...args,passed:true,checkedAt:time,expiresAt:'2026-11-16T20:00:00Z',domainObservations:args.domains.map(domain=>({domain,routesPassed:true,pdfBytesPassed:true,pdfSha256:args.pdfSha256}))})}};
+ const adapters={archive:{persistQa:async args=>({verified:true,kind:'private-qa-receipt',sha256:'e'.repeat(64),bytes:100,locator:{provider:'google-drive',folderId:'private-folder',fileId:'qa-'+args.phase},phase:args.phase,deploymentId:args.deploymentId,sourceCommit:args.sourceCommit,projectId:args.projectId})},admission:{observeGrant:async()=>structuredClone(value)},clock:async()=>time,state:{read:async ns=>{assert.equal(ns,'cloud-newsroom-v2');return {version,value:structuredClone(value)};},cas:async(ns,expected,next)=>{calls.push('cas:'+next.run?.phase);if(expected!==version)return {ok:false};value=structuredClone(next);version++;return {ok:true,version};}},provider:{createPreview:async args=>{assert.equal(value.run.phase,'create-intent');assert.equal(args.production,false);assert.equal(args.target,'preview');calls.push('create');return {id:'new'};},getDeployment:async()=>({id:'new',projectId:'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx',sourceCommit:req.candidateCommit,repository:'Satnam-Satoshi/Satoshi-Langar',target:'preview',status:'READY'}),getDomainDeployment:async({domain})=>({deploymentId:domainState[domain],projectId:'prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx'}),promote:async args=>{assert.equal(value.run.phase,'promotion-intent');calls.push('promote');for(const d of args.domains)domainState[d]='new';}},qa:{verify:async args=>({...args,passed:true,expiresAt:'2026-11-16T20:00:00Z'}),verifyPublic:async args=>({...args,passed:true,checkedAt:time,expiresAt:'2026-11-16T20:00:00Z',domainObservations:args.domains.map(domain=>({domain,routesPassed:true,pdfBytesPassed:true,pdfSha256:args.pdfSha256}))})}};
  const coordinator=createCloudNewsroomV2Coordinator(adapters);
  return {req,adapters,calls,domains:domainState,advance:()=>coordinator.advance(req),state:()=>value,mutate:fn=>{fn(value);version++;},time:t=>{time=t;}};
 }
@@ -139,4 +139,64 @@ test('fixed24KiB UTF8 current-state bound fails before oversized CAS or provider
  const x=fixture();x.req.runId='界'.repeat(10000);assert.equal((await x.advance()).status,'hold');assert.equal(x.calls.length,0);
  const y=fixture();y.mutate(s=>s.unrecognizedLargeField='X'.repeat(25000));assert.equal((await y.advance()).status,'hold');assert.equal(y.calls.length,0);
  const z=fixture();z.mutate(s=>s.completed=[{editionDate:'2026-11-14',pdfSha256:'a'.repeat(64)},{editionDate:'2026-11-15',pdfSha256:'a'.repeat(64)}]);assert.equal((await z.advance()).status,'hold');assert.equal(z.calls.length,0);
+});
+test('stale CDN state causes awaiting-grant and never create until exact grant visible',async()=>{
+ const x=fixture(),cached=structuredClone(x.state());x.adapters.admission.observeGrant=async()=>cached;
+ assert.equal((await x.advance()).status,'awaiting-grant');assert.equal(x.state().run.phase,'grant-pending');assert.ok(!x.calls.includes('create'));assert.equal((await x.advance()).status,'awaiting-grant');assert.ok(!x.calls.includes('create'));
+ x.adapters.admission.observeGrant=async args=>{assert.deepEqual(args.expectedGrant,x.state().previewGrant);assert.equal(args.fence,x.state().fence);return structuredClone(x.state());};
+ assert.equal((await x.advance()).status,'awaiting-preview');assert.equal(x.calls.filter(c=>c==='create').length,1);
+});
+test('expired grant-pending lease refreshes monotonically but still waits for CDN visibility',async()=>{
+ const x=fixture(),cached=structuredClone(x.state());x.adapters.admission.observeGrant=async()=>cached;await x.advance();const first=structuredClone(x.state());x.time('2026-11-16T19:03:00Z');x.adapters.admission.observeGrant=async()=>first;
+ assert.equal((await x.advance()).status,'awaiting-grant');assert.equal(x.state().fence,2);assert.equal(x.state().previewGrant.fence,2);assert.equal(x.state().run.phase,'grant-pending');assert.ok(!x.calls.includes('create'));
+ x.adapters.admission.observeGrant=async()=>structuredClone(x.state());assert.equal((await x.advance()).status,'awaiting-preview');assert.equal(x.calls.filter(c=>c==='create').length,1);
+});
+test('boolean, changed candidate grant, absent authority and emergencyStop cannot authorize create',async()=>{
+ for(const observation of [x=>true,x=>({...structuredClone(x.state()),emergencyStop:true}),x=>({...structuredClone(x.state()),enabled:false}),x=>({...structuredClone(x.state()),previewGrant:{...x.state().previewGrant,candidateTreeGitSha:'a'.repeat(40)}}),x=>({...structuredClone(x.state()),lease:{...x.state().lease,owner:'someone-else'}})]){
+  const x=fixture();x.adapters.admission.observeGrant=async()=>observation(x);assert.equal((await x.advance()).status,'hold');assert.ok(!x.calls.includes('create'));assert.equal(x.state().run.phase,'grant-pending');
+ }
+});
+test('visibility read timeout has no create side effect and can retry observation only',async()=>{
+ const x=fixture();x.adapters.admission.observeGrant=async()=>{throw Error('CDN timeout');};assert.equal((await x.advance()).status,'awaiting-grant');assert.ok(!x.calls.includes('create'));x.adapters.admission.observeGrant=async()=>structuredClone(x.state());assert.equal((await x.advance()).status,'awaiting-preview');assert.equal(x.calls.filter(c=>c==='create').length,1);
+});
+test('admission expiry during domain read or promotion intent CAS prevents promote',async()=>{
+ for(const mode of ['domain-read','promotion-cas']){
+  const x=fixture();x.req.admission.expiresAt='2026-11-16T19:00:30Z';await x.advance();await x.advance();
+  if(mode==='domain-read'){const get=x.adapters.provider.getDomainDeployment;x.adapters.provider.getDomainDeployment=async args=>{const r=await get(args);x.time('2026-11-16T19:00:31Z');return r;};}
+  else{const cas=x.adapters.state.cas;x.adapters.state.cas=async(...args)=>{const r=await cas(...args);if(args[2].run?.phase==='promotion-intent')x.time('2026-11-16T19:00:31Z');return r;};}
+  assert.equal((await x.advance()).status,'hold');assert.ok(!x.calls.includes('promote'));
+ }
+});
+test('admission expiry during grant observation or create intent CAS prevents create',async()=>{
+ for(const mode of ['grant-read','create-cas']){
+  const x=fixture();x.req.admission.expiresAt='2026-11-16T19:00:30Z';
+  if(mode==='grant-read')x.adapters.admission.observeGrant=async()=>{x.time('2026-11-16T19:00:31Z');return structuredClone(x.state());};
+  else{const cas=x.adapters.state.cas;x.adapters.state.cas=async(...args)=>{const r=await cas(...args);if(args[2].run?.phase==='create-intent')x.time('2026-11-16T19:00:31Z');return r;};}
+  assert.equal((await x.advance()).status,'hold');assert.ok(!x.calls.includes('create'));
+ }
+});
+test('missing archive adapter or failed preview archive cannot reach promotion',async()=>{
+ const x=fixture();delete x.adapters.archive;assert.throws(()=>createCloudNewsroomV2Coordinator(x.adapters),/explicit_adapters_required/);
+ const y=fixture();await y.advance();y.adapters.archive.persistQa=async()=>{throw Error('archive unavailable');};assert.equal((await y.advance()).status,'hold');assert.equal(y.state().run.phase,'preview-recorded');assert.ok(!y.calls.includes('promote'));
+});
+test('archive receipt wrong identity, phase, hash, unverified or URL locator holds preview',async()=>{
+ for(const mutate of [r=>r.verified=false,r=>r.sourceCommit='a'.repeat(40),r=>r.phase='public',r=>r.sha256='not-a-hash',r=>r.locator.fileId='https://secret.example/token',r=>r.locator.url='https://example.com',r=>r.bytes=0]){
+  const x=fixture();await x.advance();const archive=x.adapters.archive.persistQa;x.adapters.archive.persistQa=async args=>{const r=await archive(args);mutate(r);return r;};assert.equal((await x.advance()).status,'hold');assert.equal(x.state().run.phase,'preview-recorded');assert.ok(!x.calls.includes('promote'));
+ }
+});
+test('public archive failure keeps reconciliation pending; successful retry stores only bound references',async()=>{
+ const x=fixture();await x.advance();await x.advance();await x.advance();const archive=x.adapters.archive.persistQa,proofs=[];
+ x.adapters.archive.persistQa=async args=>{proofs.push(args);if(args.phase==='public')throw Error('readback failed');return archive(args);};assert.equal((await x.advance()).status,'hold');assert.equal(x.state().completed.length,0);assert.equal(x.state().run.phase,'public-qa-pending');
+ x.adapters.archive.persistQa=async args=>{proofs.push(args);return archive(args);};assert.equal((await x.advance()).status,'published-verified');const done=x.state().completed[0];assert.equal(done.previewQaArchive.phase,'preview');assert.equal(done.publicQaArchive.phase,'public');assert.equal(done.publicQaArchive.verified,true);assert.ok(!Object.hasOwn(done.publicQaArchive,'proof'));assert.ok(proofs.every(p=>p.proof.domainObservations.length===2));assert.equal(x.calls.filter(c=>c==='promote').length,1);
+});
+test('public state and result never contain validated private archive folder/file identifiers',async()=>{
+ const x=fixture(),cas=x.adapters.state.cas,archive=x.adapters.archive.persistQa,states=[],results=[];
+ x.adapters.archive.persistQa=async args=>({...await archive(args),locator:{provider:'google-drive',folderId:'PRIVATE_FOLDER_DO_NOT_PUBLISH_123',fileId:'PRIVATE_FILE_DO_NOT_PUBLISH_'+args.phase}});
+ x.adapters.state.cas=async(...args)=>{states.push(structuredClone(args[2]));return cas(...args);};
+ for(let i=0;i<4;i++)results.push(await x.advance());assert.equal(results.at(-1).status,'published-verified');
+ for(const value of [...states,...results]){const json=JSON.stringify(value);assert.doesNotMatch(json,/PRIVATE_FOLDER_DO_NOT_PUBLISH|PRIVATE_FILE_DO_NOT_PUBLISH|folderId|fileId|google-drive|"locator"|https?:\/\//);}
+ const done=x.state().completed[0];assert.equal(done.publicQaArchive.verified,true);assert.match(done.publicQaArchive.sha256,/^[a-f0-9]{64}$/);assert.equal(done.publicQaArchive.phase,'public');
+});
+test('legacy state archive locator cannot leak into completion',async()=>{
+ const x=fixture();await x.advance();await x.advance();x.mutate(s=>s.run.previewQaArchive.locator={provider:'google-drive',folderId:'private-folder',fileId:'private-file'});assert.equal((await x.advance()).status,'hold');assert.ok(!x.calls.includes('promote'));
 });
