@@ -1,8 +1,1 @@
-{
-  "schemaVersion": 1,
-  "generation": "cloud-newsroom-v2-journal-inventory",
-  "journalInventory": {
-    "schemaVersion": 1,
-    "roots": {}
-  }
-}
+{"schemaVersion":1,"generation":"cloud-newsroom-v2-journal-inventory","journalInventory":{"schemaVersion":1,"roots":{"2bbc0119951ef528eb9d8a10b82fa90289c188d804626137cb814b180e8f4984":{"id":"2bbc0119951ef528eb9d8a10b82fa90289c188d804626137cb814b180e8f4984","keys":{}}}}}
