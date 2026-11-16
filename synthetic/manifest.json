@@ -1,0 +1,30 @@
+{
+  "kind": "synthetic-transport-proof-not-publication",
+  "publicationAllowed": false,
+  "artifacts": [
+    {
+      "path": "synthetic/synthetic.pdf",
+      "bytes": 1440,
+      "sha256": "89a94059ecdc5ffdb4049bf1d33ba744044151576d0bce292114c74b922e80cb",
+      "gitBlobSha": "ba18b2c07790bdb966bcf4a074eda3c56557a50c"
+    },
+    {
+      "path": "synthetic/reader.html",
+      "bytes": 177,
+      "sha256": "9b1442ae52af1028781477ebbcba1cfabd07cc545a50ddc727d2fa76cc7d58ad",
+      "gitBlobSha": "5421d3b5c5ee95a2d022620bd541988916fcf78a"
+    },
+    {
+      "path": "synthetic/cover.png",
+      "bytes": 1718,
+      "sha256": "13ba2ad80786db968831019604d112593ef7c708a189d8a5c6f12baf97d94cb5",
+      "gitBlobSha": "44e01b4c8069c3cb6da58ee1810f34f0160f127e"
+    },
+    {
+      "path": "synthetic/promo.png",
+      "bytes": 1662,
+      "sha256": "7daf4bca18605ddc40d7ea8ea29c389dddca2b8a435d2bbf2c15e55b8d6261f3",
+      "gitBlobSha": "466b4b086262da68b067a9cf369964e818dadb79"
+    }
+  ]
+}
