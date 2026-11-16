@@ -9,8 +9,8 @@ test('custom magazine interiors implement the approved design, not only shell to
 
 test('daily route follows the actual latest publication, not a historical design review',async()=>{
  const daily=await read('app/conversations/daily/page.tsx');
- assert.match(daily,/<LtcPdfIssue full\/>/);assert.match(daily,/conversations\/editions\/2026-11-16\//);
- const pdf=await read('app/components/LtcPdfIssue.tsx');assert.match(await read('app/data/pdf-issue.ts'),/LTC-2026-11-16-v1\.0\.pdf/);assert.match(pdf,/unchanged PDF/);
+ assert.match(daily,/<LtcPdfIssue full issue=\{pdfIssue\}\/>/);assert.match(daily,/href=\{pdfIssue.page\}/);assert.match(daily,/canonical: `https:\/\/ltcmagazine.org\$\{pdfIssue.page\}`/);
+ const pdf=await read('app/components/LtcPdfIssue.tsx');assert.match(await read('app/data/pdf-issue.ts'),/pdfIssues.find\(issue=>issue.id===pdfRegistry.current\)/);const registry=JSON.parse(await read('content/ltc-pdf/issues.json'));assert.ok(registry.issues.some(issue=>issue.id===registry.current));assert.match(pdf,/unchanged PDF/);
  assert.doesNotMatch(daily,/const btcCompanies|const products|October 2 design review/);
  const edition=await read('app/conversations/editions/[id]/page.tsx');
  assert.match(edition,/Edition reading paths/);assert.match(edition,/styles.editionDesk/);

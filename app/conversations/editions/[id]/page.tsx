@@ -1,3 +1,5 @@
+import LtcPdfIssue from '../../../components/LtcPdfIssue';
+import { getPdfIssueByRoute, pdfEditionRouteIds } from '../../../data/pdf-issue';
 import LtcNewsExtraCard from '../../../components/LtcNewsExtraCard';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -9,10 +11,12 @@ import LtcCoverage from '../../../components/LtcCoverage';
 import LtcFlagship from '../../../components/LtcFlagship';
 
 export const dynamicParams = false;
-export function generateStaticParams() { return [...ltcEditions.map(edition => ({ id: edition.id })), ...ltcPublicationDays.map(day => ({ id: day.date }))]; }
+export function generateStaticParams() { const concrete = new Set(['2026-11-15','2026-11-16']); return [...new Set([...ltcEditions.map(edition=>edition.id),...ltcPublicationDays.map(day=>day.date),...pdfEditionRouteIds])].filter(id=>!concrete.has(id)).map(id=>({id})); }
 function findEdition(id: string) { return ltcPublicationDays.find(day => day.date === id)?.latest ?? ltcEditions.find(edition => edition.id === id); }
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
+  const pdf = getPdfIssueByRoute(id);
+  if (pdf) { const title = `LTC · ${formatEditionDate(pdf.date)} · ${pdf.title} (r${pdf.revision})`; return {title,description:pdf.dek,alternates:{canonical:`https://ltcmagazine.org${pdf.page}`},openGraph:{title,description:pdf.dek,url:`https://ltcmagazine.org${pdf.page}`,images:[{url:`https://ltcmagazine.org${pdf.cover}`,width:pdf.coverWidth,height:pdf.coverHeight}]}}; }
   const edition = findEdition(id);
   if (!edition) return {};
   const title = `LTC · ${formatEditionDate(edition.date)} · ${edition.title}`;
@@ -30,6 +34,8 @@ function numberLabel(value: string) {
 
 export default async function EditionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const pdf = getPdfIssueByRoute(id);
+  if (pdf) return <main><nav aria-label="Magazine navigation" style={{padding:'1.5rem'}}><a href="/conversations/">← LTC Magazine</a></nav><LtcPdfIssue full issue={pdf}/></main>;
   const edition = findEdition(id);
   if (!edition) notFound();
   const briefs = orderedEditionBriefs(edition);

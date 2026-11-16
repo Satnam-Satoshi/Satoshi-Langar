@@ -1,6 +1,7 @@
+import {pdfDisplayIssues} from './lib/ltc-pdf-registry.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync} from 'node:fs';
-const current='/conversations/editions/2026-11-16/';
+const current=pdfDisplayIssues(JSON.parse(readFileSync('content/ltc-pdf/issues.json','utf8')))[0].page;
 const read=p=>readFileSync(`dist/${p}/index.html`,'utf8').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'');
 for(const route of ['conversations','conversations/desks','ecosystem','subscribe',...readdirSync('dist/conversations/desks',{withFileTypes:true}).filter(d=>d.isDirectory()).map(d=>`conversations/desks/${d.name}`)]){
  const html=read(route);

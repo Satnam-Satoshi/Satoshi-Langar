@@ -1,3 +1,5 @@
+import { pdfRegistry } from '../../data/pdf-issue';
+import { withPdfFeedItems } from '../../../scripts/lib/ltc-pdf-feed.mjs';
 import { octoberSixExtra, newsExtraRevisions, newsExtraHref } from '../../data/news-extra';
 import {editorialSpecials,specialHref} from '../../data/editorial-specials';
 import { magazineArticles, articleHref, magazineIssue } from '../../data/magazine';
@@ -15,5 +17,5 @@ export function GET() {
   const previews = [...magazineArticles].reverse().map(article => `<item><title>${escapeXml(`[Editorial preview] ${article.title}`)}</title><link>${canonicalBase}${articleHref(article.slug)}</link><guid isPermaLink="false">${escapeXml(article.preparedDate ? `ltc:feature:${article.slug}:preview-v1` : `ltc:${magazineIssue.id}:${articleHref(article.slug)}:preview-v1`)}</guid><description>${escapeXml(`${article.dek} Prepared with AI. Human editorial review pending. Sources checked ${article.sourceCheckedDate ?? magazineIssue.date}. This is an editorial preview, separate from the automated source briefings.`)}</description><category>${escapeXml(article.desk)}</category></item>`).join('');
   const methodology = `<item><title>${escapeXml('[Editorial preview] What mNAV can—and cannot—tell us.')}</title><link>${canonicalBase}/conversations/methodology/</link><guid isPermaLink="false">${escapeXml(`ltc:${magazineIssue.id}:/conversations/methodology/:preview-v1`)}</guid><description>A founding AI-prepared explainer on company ratios, source dates, debt and dilution. Human editorial review pending.</description><category>Markets &amp; institutions</category></item>`;
   const xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>LTC Media — Lunch Time Conversations</title><link>${canonicalBase}/conversations/</link><description>Dated AI-prepared source briefings and original editorial previews from LTC Media. Source dates, coverage limits and human-review status remain visible.</description><language>en</language><atom:link href="${canonicalBase}/conversations/feed.xml" rel="self" type="application/rss+xml"/>${newestDate ? `<lastBuildDate>${new Date(newestDate).toUTCString()}</lastBuildDate>` : ''}${extra}${specials}${editions}${previews}${methodology}</channel></rss>`;
-  return new Response(xml, { headers: { 'Content-Type': 'application/rss+xml; charset=utf-8' } });
+  return new Response(withPdfFeedItems(xml,pdfRegistry), { headers: { 'Content-Type': 'application/rss+xml; charset=utf-8' } });
 }

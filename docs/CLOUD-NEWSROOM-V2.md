@@ -1,6 +1,6 @@
 # New cloud newsroom v2: isolated build, not an activated publisher
 
-Status: engineering prototype. No scheduled production run, cloud production credential, global writer fence, editorial generation service or new publication has been established. A successful research test proves only the specific tested read-only cloud execution, not autonomous publishing.
+Status: engineering prototype. No scheduled production run, global writer fence or newly published v2 edition has been established. Existing server-managed connector access has now built a full protected preview, without creating a new credential. A successful research test proves only the specific tested read-only cloud execution, not autonomous publishing.
 
 ## Source of truth and generation
 
@@ -37,7 +37,7 @@ Inventory all scheduled/manual workflows, webhooks, Git deployments and local au
 - Durable source branch: repository contents write to the named nonproduction branch for reviewed code/artifacts. No main merge, broad administration or production enablement is implied.
 - Research runtime: repository contents read, public HTTPS reads, private evidence-artifact write; no Vercel, email, social, wallet or financial transaction credentials.
 - New ledger: narrow atomic insert/update on the new publisher namespace, immutable receipts, TTL/lease owner/fence checks. No access to mutate the legacy ledger. Provider and actual CAS semantics remain to be selected and tested.
-- Production identity: only the existing Vercel project and required deployment-read/create/promote operations, short lifetime where supported. Standard Vercel team tokens may be broader than one project: verify actual scope before approval. Do not export/reuse the Mac's personal OAuth credential or mistake Vercel-to-backend OIDC/Deployment Protection trusted access for permission to create/promote deployments.
+- Production identity: only the existing Vercel project and required deployment-read/create/promote operations, short lifetime where supported. Vercel introduced project-scoped tokens on July 30, 2026; use that narrow scope if a token is actually needed and verify its permissions. The tested connector path does not require creating one. Do not export/reuse the Mac's personal OAuth credential or mistake Vercel-to-backend OIDC/Deployment Protection trusted access for permission to create/promote deployments.
 - Repository environment/branch settings, secret creation, identity-role changes and disabling old credential paths require owner approval with material scope specified. Cloud schedule activation requires the canonical daily producer agreement and first end-to-end cloud proof.
 
 ## Required proof before enabling daily publication
@@ -62,3 +62,9 @@ The prototype may be built and tested without any of the missing production perm
 - Existing Supabase project is INACTIVE. No resume, key read, schema or permission change was performed. GitHub CAS avoids requiring that database for the prototype.
 
 The GitHub CAS adapter has no credential lookup and accepts an injected, separately approved transport. Its narrow path/branch checks constrain this code, not the credential’s platform permissions. The simulation ledger uses a deliberately separate schema and must not be silently connected to production.
+
+## Subsequent full-cloud preview proof
+
+Explicit canonical Git repository ID and commit `309d738cee1f67a5bcd2ee2208dd1c9fc9d50944` were accepted by the existing Vercel connector. Deployment `dpl_6wzRXbhXSYsrfv61eYEL9YbrPVpz` reached READY as staging/preview. The approved source-pinned preview exception expires November 17 at 00:00 UTC and never admitted production. Vercel logs confirmed cloud clone, guard evaluation, full build and 406-page export. Private authenticated QA verified critical pages, PDF sizes/ETags and live APIs; both public domains remained on the earlier production deployment. This proves full-site preview transport/build, not a recurring producer or production activation.
+
+Current token reference: https://vercel.com/changelog/project-scoped-tokens . No upgrade or broad team token is justified by this proof.

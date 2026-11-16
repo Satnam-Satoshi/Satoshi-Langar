@@ -1,3 +1,4 @@
+import {pdfDisplayIssues} from './lib/ltc-pdf-registry.mjs';
 import {publicEditions} from './lib/ltc-public-editions.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -15,18 +16,24 @@ const route = await loadModule('app/conversations/daily.xml/route.ts');
 const rawEditions = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
 const exclusions = JSON.parse(await readFile('config/ltc-publication-exclusions.json', 'utf8'));
 const editions = publicEditions(rawEditions, exclusions);
+const pdfIssues=pdfDisplayIssues(JSON.parse(await readFile('content/ltc-pdf/issues.json','utf8')));
 const itemIds = xml => [...xml.matchAll(/<guid isPermaLink="false">([^<]+)<\/guid>/g)].map(match => match[1]);
 const record = (date, revision, publishedAt) => ({ ...structuredClone(editions[0]), id: `${date}-r${revision}`, date, revision, publishedAt, presentation: undefined, corrections: [] });
 
-test('static daily route contains exactly archived daily publication events with stable existing IDs', async () => {
+test('static daily route preserves all legacy events and adds exact immutable PDF events', async () => {
   assert.equal(route.dynamic, 'force-static');
   const response = await route.GET();
   assert.equal(response.headers.get('content-type'), 'application/rss+xml; charset=utf-8');
   const xml = await response.text();
   assert.equal(xml, await (await route.GET()).text(), 'Repeated builds must not introduce wall-clock changes');
   const expected = [...editions].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || b.date.localeCompare(a.date) || b.revision - a.revision).map(edition => `ltc:edition:${edition.id}`);
-  assert.deepEqual(itemIds(xml), expected);
-  assert.equal((xml.match(/<item>/g) || []).length, expected.length);
+  const pdfIds=pdfIssues.map(issue=>`ltc:pdf:${issue.id}`);
+  assert.deepEqual(itemIds(xml), [...expected,...pdfIds]);
+  assert.deepEqual(itemIds(xml).filter(id=>id.startsWith('ltc:edition:')),expected,'legacy event IDs/order remain unchanged');
+  assert.equal(new Set(itemIds(xml)).size,itemIds(xml).length,'no duplicate publication IDs');
+  assert.equal((xml.match(/<item>/g) || []).length, expected.length+pdfIds.length);
+  for(const issue of pdfIssues){assert.ok(xml.includes(`https://ltcmagazine.org${issue.page}`));assert.ok(xml.includes(`<enclosure url="https://ltcmagazine.org${issue.pdf}" length="${issue.bytes}" type="application/pdf"/>`));}
+  for(const item of xml.match(/<item>[\s\S]*?<\/item>/g)||[])if(item.includes('ltc:pdf:'))assert.ok(!item.includes('<pubDate>'),'prepared date is not fabricated publication time');
   assert.ok(xml.includes('href="https://ltcmagazine.org/conversations/daily.xml"'));
   assert.ok(!xml.includes('ltc:feature:'));
   assert.ok(!xml.includes('[Editorial preview]'));

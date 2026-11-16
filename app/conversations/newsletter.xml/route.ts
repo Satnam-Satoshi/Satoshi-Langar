@@ -1,6 +1,8 @@
+import { pdfRegistry } from '../../data/pdf-issue';
+import { withPdfFeedItems } from '../../../scripts/lib/ltc-pdf-feed.mjs';
 import { ltcEditions } from '../../data/editions';
 import { buildNewsletterFeed } from '../../data/newsletter-feed';
 export const dynamic = 'force-static';
 export async function GET() {
- return new Response(await buildNewsletterFeed(ltcEditions), { headers: { 'Content-Type': 'application/rss+xml; charset=utf-8' } });
+ return new Response(withPdfFeedItems(await buildNewsletterFeed(ltcEditions),pdfRegistry), { headers: { 'Content-Type': 'application/rss+xml; charset=utf-8' } });
 }

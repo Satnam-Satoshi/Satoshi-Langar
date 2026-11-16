@@ -1,3 +1,4 @@
+import {validatePdfRegistry,pdfDisplayIssues,pdfStaticRouteIds} from './lib/ltc-pdf-registry.mjs';
 import {publicEditions,excludedPublicationPath} from './lib/ltc-public-editions.mjs';
 import {createHash} from 'node:crypto';
 import {readCommunityArchive} from './lib/community-archive.mjs';
@@ -73,13 +74,38 @@ if(JSON.stringify(exportedIndex)!==JSON.stringify(editions)) failures.push('Expo
 const rss=await readFile(path.join(root,'conversations/feed.xml'),'utf8');
 const dailyRss=await readFile(path.join(root,'conversations/daily.xml'),'utf8');
 for(const feed of ['conversations/feed.xml','conversations/daily.xml','conversations/newsletter.xml','sitemap.xml','sitemap-magazine.xml','sitemap-community.xml']){const text=await readFile(path.join(root,feed),'utf8');for(const excluded of exclusions.editions)if(text.includes(`ltc:edition:${excluded.id}`)||text.includes(`/editions/${excluded.id}/`)||(!editions.some(record=>record.date===excluded.date)&&text.includes(`/editions/${excluded.date}/`)))failures.push(`${feed}: never-public edition remains discoverable`);}
+const pdfRegistry=validatePdfRegistry(JSON.parse(await readFile('content/ltc-pdf/issues.json','utf8')),{legacyRouteIds:editions.flatMap(edition=>[edition.id,edition.date])});
+const pdfIssues=pdfDisplayIssues(pdfRegistry);
+const expectedPdfIds=pdfIssues.map(issue=>`ltc:pdf:${issue.id}`);
+for(const issue of pdfIssues){
+ for(const [asset,expectedHash,expectedSize] of [[issue.pdf,issue.sha256,issue.bytes],[issue.cover,issue.coverSha256,issue.coverBytes]]){
+  try{const bytes=await readFile(path.join(root,asset.slice(1)));if(bytes.length!==expectedSize||createHash('sha256').update(bytes).digest('hex')!==expectedHash)failures.push(`PDF registry artifact hash/size mismatch: ${issue.id} ${asset}`);}catch{failures.push(`PDF registry artifact missing: ${issue.id} ${asset}`);}
+ }
+}
+for(const id of pdfStaticRouteIds(pdfRegistry))await stat(path.join(root,`conversations/editions/${id}/index.html`));
+for(const feed of ['conversations/feed.xml','conversations/daily.xml','conversations/newsletter.xml']){
+ const xml=await readFile(path.join(root,feed),'utf8');
+ const ids=[...xml.matchAll(/<guid isPermaLink="false">(ltc:pdf:[^<]+)<\/guid>/g)].map(match=>match[1]);
+ if(JSON.stringify(ids)!==JSON.stringify(expectedPdfIds))failures.push(`${feed}: PDF IDs must match immutable registry exactly without duplicates`);
+ for(const [,item] of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)){
+  const id=item.match(/<guid isPermaLink="false">ltc:pdf:([^<]+)<\/guid>/)?.[1];if(!id)continue;
+  const issue=pdfIssues.find(record=>record.id===id);if(!issue){failures.push(`${feed}: unknown PDF identity ${id}`);continue;}
+  const enclosures=[...item.matchAll(/<enclosure url="([^"]+)" length="(\d+)" type="([^"]+)"\/>/g)];
+  if(enclosures.length!==1||enclosures[0][1]!==`https://ltcmagazine.org${issue.pdf}`||Number(enclosures[0][2])!==issue.bytes||enclosures[0][3]!=='application/pdf')failures.push(`${feed}: PDF enclosure differs from exact saved artifact ${id}`);
+  if(!item.includes(`<link>https://ltcmagazine.org${issue.page}</link>`))failures.push(`${feed}: PDF route differs from immutable record ${id}`);
+  if(item.includes('<pubDate>'))failures.push(`${feed}: PDF has unrecorded publication timestamp ${id}`);
+ }
+}
 const expectedDailyIds=[...editions].sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)||b.date.localeCompare(a.date)||b.revision-a.revision).map(edition=>`ltc:edition:${edition.id}`);
 const dailyIds=[...dailyRss.matchAll(/<guid isPermaLink="false">([^<]+)<\/guid>/g)].map(match=>match[1]);
-if(JSON.stringify(dailyIds)!==JSON.stringify(expectedDailyIds))failures.push('Daily feed must contain only daily edition publication events in publication order');
+if(JSON.stringify(dailyIds)!==JSON.stringify([...expectedDailyIds,...expectedPdfIds]))failures.push('Daily feed must preserve all legacy publication events in order and append exactly the immutable PDF registry events');
+if(JSON.stringify(dailyIds.filter(id=>id.startsWith('ltc:edition:')))!==JSON.stringify(expectedDailyIds))failures.push('Daily feed changed legacy publication identity or order');
 if(!dailyRss.includes('href="https://ltcmagazine.org/conversations/daily.xml"')||dailyRss.includes('ltc:feature:'))failures.push('Daily feed has an invalid canonical URL or editorial preview');
 for(const [,item] of dailyRss.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+ if(/<guid isPermaLink="false">ltc:pdf:/.test(item))continue; // PDF enclosure was checked against bytes and registry above.
  const id=item.match(/<guid isPermaLink="false">ltc:edition:([^<]+)<\/guid>/)?.[1];
  const edition=editions.find(record=>record.id===id);
+ if(!edition){failures.push(`Daily feed has unknown publication identity ${id}`);continue;}
  const asset=edition?.presentation?.artDirection?.coverAsset;
  const enclosure=item.match(/<enclosure url="([^"]+)" length="(\d+)" type="([^"]+)"\/>/);
  if(asset){

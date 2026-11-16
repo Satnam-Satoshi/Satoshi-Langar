@@ -1,3 +1,5 @@
+import {validatePdfRegistry} from './lib/ltc-pdf-registry.mjs';
+import {verifyPdfRegistryAssets} from './lib/ltc-pdf-assets.mjs';
 import { readdir, readFile, mkdir, writeFile, rm, copyFile } from 'node:fs/promises';
 import path from 'node:path';
 import { readCommunityArchive } from './lib/community-archive.mjs';
@@ -12,6 +14,8 @@ for (const record of exclusions.editions) {
  const bytes = await readFile(`content/ltc/${record.id}.json`);
  if (createHash('sha256').update(bytes).digest('hex') !== record.editionSha256) throw Error('excluded_edition_bytes_changed');
 }
+const pdfRegistry=validatePdfRegistry(JSON.parse(await readFile('content/ltc-pdf/issues.json','utf8')), {legacyRouteIds:editions.flatMap(issue=>[issue.id,issue.date])});
+const pdfAssets=await verifyPdfRegistryAssets(pdfRegistry,path.resolve('public'));
 const seoPages = [];
 await rm(target, { recursive: true, force: true });
 async function walk(directory) {
@@ -20,7 +24,7 @@ async function walk(directory) {
   if(excludedPublicationPath(relative.split(path.sep).join('/'),exclusions,editions)) continue;
   if(relative==='conversations/specials/litecoin-at-15') continue;
   if(entry.isDirectory()) { await walk(input); continue; }
-  const publicExtras=['magazine/litecoin-to-the-moon/revision-3.json','magazine/ecosystem-special-20261116/LTC-Ecosystem-Special-2026-11-16-v1.0.pdf','data/market-checkpoint-20261116.json','magazine/daily/LTC-2026-11-16-v1.0.pdf','magazine/daily/LTC-2026-11-15-v1.0.pdf','magazine/litecoin-to-the-moon/revision-1.json','magazine/litecoin-to-the-moon/revision-2.json','data/litecoin-distribution-20261011.json','data/litecoin-distribution-20261013.json','data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','scripts/ecosystem-help.js','scripts/open-money.js','scripts/timechain-live.js','scripts/market-live.js','scripts/register-live.js','scripts/morpho-live.js','conversations/feed.xml','conversations/daily.xml','conversations/newsletter.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
+  const publicExtras=[...pdfAssets,'magazine/litecoin-to-the-moon/revision-3.json','magazine/ecosystem-special-20261116/LTC-Ecosystem-Special-2026-11-16-v1.0.pdf','data/market-checkpoint-20261116.json','magazine/litecoin-to-the-moon/revision-1.json','magazine/litecoin-to-the-moon/revision-2.json','data/litecoin-distribution-20261011.json','data/litecoin-distribution-20261013.json','data/ltc-snapshot.json','data/community-auth.json','scripts/community.js','scripts/auth.js','scripts/learning.js','scripts/copy-address.js','scripts/ecosystem-help.js','scripts/open-money.js','scripts/timechain-live.js','scripts/market-live.js','scripts/register-live.js','scripts/morpho-live.js','conversations/feed.xml','conversations/daily.xml','conversations/newsletter.xml','magazine/LTC-2026-10-02-design-review.pdf','magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf','magazine/proof-of-birthday/Proof-of-Birthday-LTC-84-pages-r3.pdf','magazine/proof-of-birthday/fonts/OFL.txt'];
   if(relative==='magazine/litecoin-15/Litecoin-at-15-84-page-advance-edition.pdf') continue;
   const dailyGraphicMetadata = entry.name === 'graphic.json' && routineDataRecord(`public/${relative}`)?.kind === 'graphic';
   if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^data\/litecoin-distribution-\d{8}\.json$/.test(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative) && !dailyGraphicMetadata) continue;

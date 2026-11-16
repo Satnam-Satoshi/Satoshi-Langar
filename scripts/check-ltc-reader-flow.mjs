@@ -1,8 +1,11 @@
+import {pdfDisplayIssues} from './lib/ltc-pdf-registry.mjs';
 import {publicEditions} from './lib/ltc-public-editions.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {parse} from 'node:path';
 const read = path => readFile(path,'utf8');
+const currentPdf=pdfDisplayIssues(JSON.parse(await read('content/ltc-pdf/issues.json')))[0];
+const currentPdfDate=new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeZone:'UTC'}).format(new Date(currentPdf.date+'T12:00:00Z'));
 const rawEditions=JSON.parse(await read('content/ltc/index.json'));
 const exclusions=JSON.parse(await read('config/ltc-publication-exclusions.json'));
 const editions=publicEditions(rawEditions,exclusions);
@@ -17,10 +20,10 @@ assert(extra.registerRows.every(r=>r.primary&&r.finding),'Every institutional co
 assert.equal(extra.registerRows.find(r=>r.name==='Grayscale Litecoin Trust').effective,'2026-10-05','Preserve issuer effective date, separate from Register record');
 for(const page of ['index.html','conversations/index.html']) {
  const html=await read(`dist/${page}`);
- assert(html.includes('aria-label="Read the November 16, 2026 edition"'),`${page}: prominent PDF daily navigation`);
- assert(html.includes('editions/2026-11-16/index.html'),`${page}: current PDF date destination`);
- assert(html.includes('The Next Build'),`${page}: current PDF daily title`);
- assert(html.includes('Latest published · November 16, 2026'),`${page}: current global publication notice`);
+ assert(html.includes(`aria-label="Read the ${currentPdfDate} edition"`),`${page}: prominent PDF daily navigation`);
+ assert(html.includes(`${currentPdf.page.replace('/conversations/','')}index.html`),`${page}: current PDF date destination`);
+ assert(html.includes(currentPdf.title),`${page}: current PDF daily title`);
+ assert(html.includes(`Latest published · ${currentPdfDate}`),`${page}: current global publication notice`);
  assert(html.includes('aria-label="Previous web briefing"'),`${page}: prior generated briefing identified separately`);
  assert(html.includes(`editions/${newest.date}/index.html`),`${page}: previous web briefing destination preserved`);
  assert(html.includes(newest.title),`${page}: previous web briefing title preserved`);
