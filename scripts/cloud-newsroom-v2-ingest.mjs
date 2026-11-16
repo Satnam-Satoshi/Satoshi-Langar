@@ -1,3 +1,5 @@
+import { checkTrustedSourcePolicies } from './cloud-newsroom-v2-source-policy.mjs';
+import { inspectCloudNewsroomV2Html, MAX_INERT_HTML_BYTES } from './cloud-newsroom-v2-html-safety.mjs';
 /** Bounded, read-only local handoff ingestion. No network, writes or delivery.
  * An accepted receipt verifies the supplied local bytes, not producer identity,
  * research truth, PDF rendering, novelty, or permission to publish. The bundle
@@ -63,6 +65,7 @@ async function observeArtifact(root, artifact, rootStat) {
     await unchangedChain(inspection.chain);
     const hash = createHash('sha256'), buffer = Buffer.alloc(64 * 1024);
     let bytes = 0, header = Buffer.alloc(0);
+    const htmlChunks = [];
     while (true) {
       const count = Math.min(buffer.length, MAX_ARTIFACT_BYTES + 1 - bytes);
       const { bytesRead } = await handle.read(buffer, 0, count, bytes);
@@ -70,6 +73,10 @@ async function observeArtifact(root, artifact, rootStat) {
       bytes += bytesRead;
       if (bytes > MAX_ARTIFACT_BYTES) fault('artifact_size_limit');
       hash.update(buffer.subarray(0, bytesRead));
+      if (artifact.role === 'html') {
+        if (bytes > MAX_INERT_HTML_BYTES) fault('html_safety_byte_bounds');
+        htmlChunks.push(Buffer.from(buffer.subarray(0, bytesRead)));
+      }
       if (header.length < 33) header = Buffer.concat([header, buffer.subarray(0, Math.min(bytesRead, 33-header.length))]);
     }
     const after = await handle.stat();
@@ -77,7 +84,9 @@ async function observeArtifact(root, artifact, rootStat) {
     await unchangedChain(inspection.chain);
     const final = await lstat(inspection.file);
     if (!final.isFile() || !sameFile(final, after) || await realpath(inspection.file) !== inspection.file) fault('artifact_changed_after_read');
-    return { role: artifact.role, path: artifact.path, editionId: artifact.editionId, revision: artifact.revision,
+    const htmlSafety = artifact.role === 'html' ? inspectCloudNewsroomV2Html(Buffer.concat(htmlChunks)) : null;
+    if (htmlSafety && htmlSafety.status !== 'accepted-inert-subset') fault('html_safety_hold:' + htmlSafety.reason);
+    return { ...(htmlSafety ? { htmlSafety } : {}), role: artifact.role, path: artifact.path, editionId: artifact.editionId, revision: artifact.revision,
       sha256: hash.digest('hex'), bytes, verification: 'actual-local-file-bytes',
       ...(artifact.role === 'cover' ? { dimensions: artifact.mimeType === 'image/png' ? coverPngDimensions(header) : null } : {}) };
   } finally { await handle.close(); }
@@ -99,6 +108,8 @@ export async function ingestCloudNewsroomV2Bundle(input) {
     request = structuredClone(input);
   } catch { return finish('rejected', ['invalid_ingestion_input']); }
   const { now, expectedProducer, manifest, existingDailyIssues } = request;
+  const sourcePolicy=checkTrustedSourcePolicies({sources:manifest?.sources,now,trustedSourcePolicies:request.trustedSourcePolicies,trustedEvidence:request.trustedEvidence});
+  if(sourcePolicy.status!=='trusted-source-evidence-matched')return finish('rejected',sourcePolicy.errors);
   if (!obj(manifest?.presentation) || !plain(manifest.presentation.title,160) || !plain(manifest.presentation.dek,500)) return finish('rejected',['bounded_plain_text_presentation_required']);
   // Metadata preflight only. These declared observations do not enter a receipt;
   // the second validation below is bound to fingerprints computed from files.

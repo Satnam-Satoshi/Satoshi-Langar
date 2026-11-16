@@ -1,3 +1,4 @@
+import {parseVerifiedPdfReader} from './lib/ltc-pdf-reader.mjs';
 import {validatePdfRegistry,pdfDisplayIssues,pdfStaticRouteIds} from './lib/ltc-pdf-registry.mjs';
 import {publicEditions,excludedPublicationPath} from './lib/ltc-public-editions.mjs';
 import {createHash} from 'node:crypto';
@@ -9,6 +10,8 @@ import {buildSeoSitemaps,validatePageSeo} from './lib/site-seo.mjs';
 const validatedArchive=await validateLtcArchive(); // Validate every raw immutable record, including never-public preparations.
 const exclusions=JSON.parse(await readFile('config/ltc-publication-exclusions.json','utf8'));
 const editions=publicEditions(validatedArchive,exclusions);
+const pdfRegistry=validatePdfRegistry(JSON.parse(await readFile('content/ltc-pdf/issues.json','utf8')),{legacyRouteIds:editions.flatMap(edition=>[edition.id,edition.date])});
+const readerArtifacts=new Map(pdfRegistry.issues.filter(issue=>issue.reader).map(issue=>[issue.reader.path.slice(1),issue.reader]));
 for(const excluded of exclusions.editions){const bytes=await readFile(`content/ltc/${excluded.id}.json`);if(createHash('sha256').update(bytes).digest('hex')!==excluded.editionSha256)throw Error('Excluded raw edition changed');}
 const root=path.resolve('dist'); let count=0; const failures=[];
 const seoPages=[]; const assetPaths=new Set();
@@ -22,6 +25,8 @@ async function walk(dir){
   const file=path.join(dir,entry.name);
   if(entry.isDirectory()){await walk(file);continue;}
   if(!entry.name.endsWith('.html'))continue;
+  const reader=readerArtifacts.get(path.relative(root,file).split(path.sep).join('/'));
+  if(reader){try{parseVerifiedPdfReader(await readFile(file),reader);}catch(error){failures.push(`${file}: registered inert reader invalid: ${error.message}`);}continue;} // Only exact validated registry source artifacts bypass ordinary page SEO; never reading destinations.
   count++; const html=await readFile(file,'utf8');
   for(const excluded of exclusions.editions){const identities=[excluded.id,...(editions.some(record=>record.date===excluded.date)?[]:[excluded.date])];for(const id of identities)if(html.includes(`editions/${id}/`)||html.includes(`ltc-editions/${id}.json`))failures.push(`${file}: never-public edition remains discoverable ${id}`);}
   const seo=validatePageSeo(html,path.relative(root,file).split(path.sep).join('/'),{editions,assetPaths});
@@ -74,11 +79,10 @@ if(JSON.stringify(exportedIndex)!==JSON.stringify(editions)) failures.push('Expo
 const rss=await readFile(path.join(root,'conversations/feed.xml'),'utf8');
 const dailyRss=await readFile(path.join(root,'conversations/daily.xml'),'utf8');
 for(const feed of ['conversations/feed.xml','conversations/daily.xml','conversations/newsletter.xml','sitemap.xml','sitemap-magazine.xml','sitemap-community.xml']){const text=await readFile(path.join(root,feed),'utf8');for(const excluded of exclusions.editions)if(text.includes(`ltc:edition:${excluded.id}`)||text.includes(`/editions/${excluded.id}/`)||(!editions.some(record=>record.date===excluded.date)&&text.includes(`/editions/${excluded.date}/`)))failures.push(`${feed}: never-public edition remains discoverable`);}
-const pdfRegistry=validatePdfRegistry(JSON.parse(await readFile('content/ltc-pdf/issues.json','utf8')),{legacyRouteIds:editions.flatMap(edition=>[edition.id,edition.date])});
 const pdfIssues=pdfDisplayIssues(pdfRegistry);
 const expectedPdfIds=pdfIssues.map(issue=>`ltc:pdf:${issue.id}`);
 for(const issue of pdfIssues){
- for(const [asset,expectedHash,expectedSize] of [[issue.pdf,issue.sha256,issue.bytes],[issue.cover,issue.coverSha256,issue.coverBytes]]){
+ for(const [asset,expectedHash,expectedSize] of [[issue.pdf,issue.sha256,issue.bytes],[issue.cover,issue.coverSha256,issue.coverBytes],...(issue.reader?[[issue.reader.path,issue.reader.sha256,issue.reader.bytes]]:[])]){
   try{const bytes=await readFile(path.join(root,asset.slice(1)));if(bytes.length!==expectedSize||createHash('sha256').update(bytes).digest('hex')!==expectedHash)failures.push(`PDF registry artifact hash/size mismatch: ${issue.id} ${asset}`);}catch{failures.push(`PDF registry artifact missing: ${issue.id} ${asset}`);}
  }
 }

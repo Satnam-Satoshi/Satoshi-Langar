@@ -1,3 +1,4 @@
+import { checkTrustedSourcePolicies } from './cloud-newsroom-v2-source-policy.mjs';
 /** Pure data-diff boundary. NEVER deployment/promotion admission or an effect runner.
  * The second argument is supplied by the trusted coordinator, NOT by a candidate
  * bundle. Caller must independently bind full trees/registry bytes/receipt to
@@ -85,6 +86,9 @@ export function evaluateCloudNewsroomV2DataAdmission(input, trusted) {
     const entry=prior.get('public'+p);if(!entry||entry.sha256!==hash||entry.bytes!==bytes)fail('prior_registered_asset_tree_mismatch');
   }
   const receipt=input.receipt,m=receipt?.validation?.manifest;
+  for(const error of checkTrustedSourcePolicies({sources:m?.sources,now:input.now,trustedSourcePolicies:trusted.trustedSourcePolicies,trustedEvidence:trusted.trustedEvidence}).errors)fail(error);
+  const html=Array.isArray(receipt?.artifacts)?receipt.artifacts.filter(a=>a?.role==='html'):[],h=html[0]?.htmlSafety;
+  if(html.length!==1||html[0]?.verification!=='actual-local-file-bytes'||!obj(h)||Object.keys(h).sort().join(',')!=='profile,resourceFetchesAllowed,sanitized,status'||h.status!=='accepted-inert-subset'||h.profile!=='ltc-inert-html-v1'||h.sanitized!==false||h.resourceFetchesAllowed!==false)fail('verified_inert_html_profile_required');
   if(!obj(receipt)||receipt.status!=='accepted-receipt'||receipt.operational!==false||!Array.isArray(receipt.effects)||receipt.effects.length||!Array.isArray(receipt.errors)||receipt.errors.length||receipt.validation?.status!=='validated-description'||!m||!Array.isArray(receipt.validation.errors)||receipt.validation.errors.length)fail('accepted_ingestion_receipt_required');
   if(!m||m.sourceCommit!==review.sourceCommit||m.implementationCommit!==review.implementationCommit||m.implementationSha256!==review.implementationSha256)fail('receipt_reviewed_pin_mismatch');
   if(!m||!day(m.editionDate)||Number.isFinite(now)&&m.editionDate!==nyDay(now)||!Number.isFinite(time(m.preparedAt))||time(m.preparedAt)>now)fail('receipt_edition_clock_mismatch');

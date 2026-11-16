@@ -12,12 +12,13 @@ export function validatePdfRegistry(input, { legacyRouteIds = [] } = {}) {
   if(!input || input.schemaVersion !== 1 || !Array.isArray(input.issues) || input.issues.length === 0 || typeof input.current !== 'string') throw Error('invalid-pdf-registry');
   const ids=new Set(), paths=new Set(), hashes=new Set(), legacy=new Set(legacyRouteIds);
   for(const issue of input.issues){
-    const fields=['id','date','revision','title','dek','preparedDate','pdf','cover','pages','bytes','sha256','coverBytes','coverSha256','coverWidth','coverHeight','correction'];
+    const fields=['id','date','revision','title','dek','preparedDate','pdf','cover','pages','bytes','sha256','coverBytes','coverSha256','coverWidth','coverHeight','correction','reader'];
     if(!issue || Object.keys(issue).some(key=>!fields.includes(key)) || !date(issue.date) || !positive(issue.revision) || issue.id !== `${issue.date}-r${issue.revision}` || !text(issue.title) || !text(issue.dek) || !date(issue.preparedDate)) throw Error('invalid-pdf-identity');
     if(ids.has(issue.id)) throw Error('duplicate-pdf-identity'); ids.add(issue.id);
     if(legacy.has(issue.id) || legacy.has(pdfRouteId(issue))) throw Error('pdf-legacy-route-collision');
     if(!asset(issue.pdf,/\.pdf$/) || !asset(issue.cover,/\.png$/) || !positive(issue.pages) || !positive(issue.bytes) || !positive(issue.coverBytes) || !positive(issue.coverWidth) || !positive(issue.coverHeight) || !sha(issue.sha256) || !sha(issue.coverSha256)) throw Error('invalid-pdf-artifact');
     if(paths.has(issue.pdf) || paths.has(issue.cover)) throw Error('duplicate-pdf-artifact-path');paths.add(issue.pdf);paths.add(issue.cover);
+    if(Object.hasOwn(issue,'reader')){const r=issue.reader;if(!r||Object.keys(r).sort().join(',')!=='bytes,path,sha256'||!asset(r.path,/\.html$/)||!sha(r.sha256)||!positive(r.bytes)||r.bytes>1024*1024)throw Error('invalid-pdf-reader');if(paths.has(r.path))throw Error('duplicate-pdf-artifact-path');paths.add(r.path);}
     if(hashes.has(issue.sha256)) throw Error('duplicate-pdf-bytes');hashes.add(issue.sha256);
     if(issue.revision === 1 ? issue.correction !== null : !issue.correction || issue.correction.replacesId !== `${issue.date}-r${issue.revision-1}` || !text(issue.correction.reason)) throw Error('invalid-pdf-correction');
   }

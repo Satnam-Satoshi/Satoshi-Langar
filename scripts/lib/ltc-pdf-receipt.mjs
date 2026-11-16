@@ -16,6 +16,7 @@ export function projectReceiptToPdfRegistry(registry,receipt){
   const observed=receipt.artifacts.filter(a=>a.role===role),described=m.artifacts.filter(a=>a.role===role);
   if(observed.length!==1||described.length!==1)throw Error('duplicate-receipt-role');
   const a=observed[0],d=described[0];
+  if(role==='html'){const h=a.htmlSafety;if(!h||Object.keys(h).sort().join(',')!=='profile,resourceFetchesAllowed,sanitized,status'||h.status!=='accepted-inert-subset'||h.profile!=='ltc-inert-html-v1'||h.sanitized!==false||h.resourceFetchesAllowed!==false)throw Error('verified-inert-html-profile-required');}
   if(a.verification!=='actual-local-file-bytes'||a.editionId!==m.editionId||a.revision!==m.revision||a.path!==d.path||a.sha256!==d.sha256||a.bytes!==d.bytes||!a.path.startsWith(`artifacts/${m.editionDate}/r${m.revision}/`)||a.path.includes('..'))throw Error('receipt-artifact-mismatch');
   const suffix=role==='pdf'&&d.mimeType==='application/pdf'?'edition.pdf':role==='html'&&d.mimeType==='text/html'?'reader.html':role==='cover'&&d.mimeType==='image/png'?'cover.png':role==='promo'?({'image/png':'promo.png','image/jpeg':'promo.jpg','image/webp':'promo.webp'}[d.mimeType]):null;
   if(!suffix)throw Error('unsupported-public-artifact-type');
@@ -28,6 +29,8 @@ export function projectReceiptToPdfRegistry(registry,receipt){
   if(!replaced||m.correction?.preserveOriginal!==true||m.correction.replacesRevision!==replaced.revision||m.correction.replacesPdfSha256!==replaced.sha256)throw Error('receipt-correction-history-mismatch');
   correction={replacesId:replaced.id,reason:m.correction.reason};
  }else if(m.correction!==null)throw Error('unexpected-receipt-correction');
- const issue={id,date:m.editionDate,revision:m.revision,title:p.title,dek:p.dek,preparedDate:p.preparedDate,pdf:copies.find(a=>a.role==='pdf').destination.slice(6),cover:copies.find(a=>a.role==='cover').destination.slice(6),pages:pdf.pages,bytes:pdf.bytes,sha256:pdf.sha256,coverBytes:cover.bytes,coverSha256:cover.sha256,coverWidth:dimensions.width,coverHeight:dimensions.height,correction};
+ const html=copies.find(a=>a.role==='html');
+ const reader={path:html.destination.slice(6),sha256:html.sha256,bytes:html.bytes};
+ const issue={reader,id,date:m.editionDate,revision:m.revision,title:p.title,dek:p.dek,preparedDate:p.preparedDate,pdf:copies.find(a=>a.role==='pdf').destination.slice(6),cover:copies.find(a=>a.role==='cover').destination.slice(6),pages:pdf.pages,bytes:pdf.bytes,sha256:pdf.sha256,coverBytes:cover.bytes,coverSha256:cover.sha256,coverWidth:dimensions.width,coverHeight:dimensions.height,correction};
  return {status:'candidate-data-only',registry:appendPdfIssue(prior,issue),issue,assetCopies:copies,effects:[],operational:false};
 }

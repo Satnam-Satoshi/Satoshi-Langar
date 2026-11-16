@@ -1,3 +1,5 @@
+import { inspectCloudNewsroomV2Html } from './cloud-newsroom-v2-html-safety.mjs';
+const inertHtmlFixture='<!doctype html><html><head><title>Synthetic fixture</title></head><body><p>Not publication evidence.</p></body></html>';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -24,7 +26,7 @@ function receiptFixture(){
  const date='2026-11-17',revision=1,editionId='ltc-daily-'+date;
  const artifacts=[['pdf','application/pdf','pdf'],['html','text/html','html'],['cover','image/png','png'],['promo','image/png','png']].map(([role,mimeType,ext],i)=>({role,mimeType,path:`artifacts/${date}/r1/${role}.${ext}`,editionId,editionDate:date,revision,sha256:String(i+1).repeat(64),bytes:100+i,...(role==='pdf'?{pages:29}:{})}));
  const manifest={kind:'daily',generation:'cloud-newsroom-v2',editionDate:date,editionId,revision,preparedAt:date+'T18:00:00Z',artifacts,correction:null};
- return {status:'accepted-receipt',errors:[],validation:{status:'validated-description',manifest},publication:{registryId:date+'-r1',page:`/conversations/editions/${date}/`,canonicalUrl:`https://ltcmagazine.org/conversations/editions/${date}/`,preparedDate:date,preparedAt:manifest.preparedAt,title:'Synthetic bridge test',dek:'Not a real publication.'},coverDimensions:{width:100,height:150,verification:'png-ihdr-with-crc'},artifacts:artifacts.map(a=>({...a,verification:'actual-local-file-bytes'}))};
+ return {status:'accepted-receipt',errors:[],validation:{status:'validated-description',manifest},publication:{registryId:date+'-r1',page:`/conversations/editions/${date}/`,canonicalUrl:`https://ltcmagazine.org/conversations/editions/${date}/`,preparedDate:date,preparedAt:manifest.preparedAt,title:'Synthetic bridge test',dek:'Not a real publication.'},coverDimensions:{width:100,height:150,verification:'png-ihdr-with-crc'},artifacts:artifacts.map(a=>({...a,verification:'actual-local-file-bytes',...(a.role==='html'?{htmlSafety:inspectCloudNewsroomV2Html(Buffer.from(inertHtmlFixture))}:{})}))};
 }
 test('receipt projection produces a data-only candidate and four exact new public destinations',()=>{
  const receipt=receiptFixture(),prior=copy(),plan=projectReceiptToPdfRegistry(prior,receipt);assert.deepEqual(prior,registry);assert.equal(plan.status,'candidate-data-only');assert.deepEqual(plan.effects,[]);assert.equal(plan.operational,false);assert.equal(plan.issue.pdf,'/magazine/daily/2026-11-17/r1/edition.pdf');assert.equal(plan.registry.current,'2026-11-17-r1');assert.deepEqual(plan.assetCopies.map(a=>a.destination),['edition.pdf','reader.html','cover.png','promo.png'].map(file=>'public/magazine/daily/2026-11-17/r1/'+file));assert.deepEqual(findPdfIssue(plan.registry,'2026-11-16'),findPdfIssue(registry,'2026-11-16'));
@@ -32,4 +34,9 @@ test('receipt projection produces a data-only candidate and four exact new publi
 test('receipt projection rejects unaccepted, inconsistent, missing-dimension and wrong-MIME receipts',()=>{
  const mutations=[r=>r.status='rejected',r=>r.artifacts[0].sha256='0'.repeat(64),r=>r.coverDimensions=null,r=>r.publication.page='/elsewhere/',r=>r.validation.manifest.artifacts[2].mimeType='image/jpeg',r=>r.publication.title='<script>'];
  for(const mutate of mutations){const r=receiptFixture();mutate(r);assert.throws(()=>projectReceiptToPdfRegistry(registry,r));}
+});
+test('bridge holds old receipts and malicious HTML profile claims',()=>{
+ for(const safety of [undefined,{status:'hold',profile:'ltc-inert-html-v1',sanitized:false,resourceFetchesAllowed:false},{status:'accepted-inert-subset',profile:'ltc-inert-html-v0',sanitized:false,resourceFetchesAllowed:false},{status:'accepted-inert-subset',profile:'ltc-inert-html-v1',sanitized:false,resourceFetchesAllowed:true}]){
+  const r=receiptFixture();r.artifacts.find(a=>a.role==='html').htmlSafety=safety;assert.throws(()=>projectReceiptToPdfRegistry(registry,r),/verified-inert-html-profile-required/);
+ }
 });

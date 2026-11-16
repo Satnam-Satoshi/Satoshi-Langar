@@ -5,6 +5,7 @@ export type PdfIssue = {
  id:string; date:string; revision:number; title:string; dek:string; preparedDate:string;
  page:string; pdf:string; cover:string; pages:number; size:string; bytes:number; sha256:string;
  coverBytes:number; coverSha256:string; coverWidth:number; coverHeight:number;
+ reader?:{path:string;sha256:string;bytes:number};
  correction:null|{replacesId:string;reason:string};
 };
 export const pdfRegistry = validatePdfRegistry(rawRegistry, {legacyRouteIds:[...ltcEditions.map(issue=>issue.id),...ltcPublicationDays.map(day=>day.date)]});

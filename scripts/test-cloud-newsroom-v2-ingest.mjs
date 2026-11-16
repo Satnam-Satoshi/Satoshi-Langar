@@ -14,16 +14,17 @@ async function fixture(t) {
   const producer = { id: PRODUCER, generation: GENERATION, kind: 'daily' }, artifacts = [];
   await mkdir(path.join(root, 'artifacts/2026-11-16/r1'), { recursive: true });
   for (const [role, mimeType, ext] of [['pdf', 'application/pdf', 'pdf'], ['html', 'text/html', 'html'], ['cover', 'image/png', 'png'], ['promo', 'image/png', 'png']]) {
-    const content = role === 'cover' ? Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64') : Buffer.from(`synthetic-${role}-test-only-not-rendered`), relative = `artifacts/2026-11-16/r1/${role}.${ext}`;
+    const content = role === 'cover' ? Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64') : Buffer.from(role === 'html' ? '<!doctype html><html lang="en"><head><title>Fixture</title></head><body><h1>Synthetic edition</h1><p>Not publication evidence.</p></body></html>' : `synthetic-${role}-test-only-not-rendered`), relative = `artifacts/2026-11-16/r1/${role}.${ext}`;
     await writeFile(path.join(root, relative), content);
     artifacts.push({ ...identity, role, path: relative, sha256: createHash('sha256').update(content).digest('hex'), bytes: content.length, mimeType, url: null, ...(role === 'pdf' ? { pages: 29 } : {}) });
   }
-  return { bundleRoot: root, now: '2026-11-16T19:00:00Z', expectedProducer: producer, existingDailyIssues: [], manifest: {
+  const request={ bundleRoot: root, now: '2026-11-16T19:00:00Z', expectedProducer: producer, existingDailyIssues: [], manifest: {
     schemaVersion: 1, generation: GENERATION, kind: 'daily', timezone: 'America/New_York', ...identity, producer: { ...producer }, sourceCommit: 'fd45e107ac37e537195b7311baeba8cd40b2f035', implementationCommit: 'a'.repeat(40), implementationSha256: 'b'.repeat(64), preparedAt: '2026-11-16T18:59:30Z', presentation: {title:'Synthetic daily edition',dek:'Test fixture, not public reporting.'}, artifacts,
     sources: [{ id: 'btc', url: 'https://api.exchange.coinbase.com/products/BTC-USD/ticker', primary: true, status: 'verified', claimVerified: true, value: 123.45, classification: 'current', label: null, publishedAt: null, eventAt: null, effectiveAt: '2026-11-16T18:58:00Z', retrievedAt: '2026-11-16T18:59:00Z', maxRetrievalAgeSeconds: 180, maxEffectiveAgeSeconds: 300 }],
     scope: { summary: 'Synthetic bounded test, never publication evidence.', coveredSourceIds: ['btc'], exclusions: ['Test has no verified live observation.'] }, gaps: [], correction: null,
     novelty: { verified: true, hasMaterialChange: true, checkedAt: '2026-11-16T18:59:30Z', producerId: PRODUCER, editionId: identity.editionId, revision: 1, pdfSha256: artifacts[0].sha256, comparedEditionKeys: [], summary: 'Synthetic novelty attestation for validator test only.' },
   } };
+  Object.assign(request,policyFixture(request.manifest.sources[0]));return request;
 }
 async function rejected(x) { const r = await ingestCloudNewsroomV2Bundle(x); assert.equal(r.status, 'rejected'); assert.deepEqual(r.effects, []); assert.equal(r.operational, false); return r; }
 test('actual files produce immutable receipt with exact computed fingerprints, no mutations', async t => {
@@ -103,4 +104,29 @@ test('presentation is explicit bounded plain text and canonical route is not mod
 });
 test('cover PNG header dimensions and CRC are checked against actual bytes', async t => {
   const x=await fixture(t),a=x.manifest.artifacts.find(a=>a.role==='cover'),file=path.join(x.bundleRoot,a.path),bytes=await readFile(file); bytes[20]=1; await writeFile(file,bytes); a.sha256=createHash('sha256').update(bytes).digest('hex'); const r=await rejected(x); assert.ok(r.errors.includes('invalid_cover_png_header_crc'));
+});
+test('actual HTML active content rejected even with matching declared hash and size', async t => {
+ for (const html of ['<!doctype html><html><head><title>X</title></head><body><script>alert(1)</script></body></html>', '<!doctype html><html><head><title>X</title></head><body><p onclick="alert(1)">X</p></body></html>']) {
+  const x=await fixture(t),a=x.manifest.artifacts.find(a=>a.role==='html');
+  await writeFile(path.join(x.bundleRoot,a.path),html);a.sha256=createHash('sha256').update(html).digest('hex');a.bytes=Buffer.byteLength(html);
+  const r=await rejected(x);assert.ok(r.errors[0].startsWith('html_safety_hold:'));
+ }
+});
+
+// Synthetic external coordinator observations only, never production trust creation.
+function policyFixture(s){
+ Object.assign(s,{url:'https://api.exchange.coinbase.com/products/BTC-USD/ticker',metricKind:'venue-quote',snapshotSha256:'e'.repeat(64),parserId:'coinbase-ticker',parserVersion:'1',publisherId:'coinbase',evidence:{path:'evidence/btc.json',sha256:'e'.repeat(64),retrievedAt:s.retrievedAt}});
+ const key=JSON.stringify([s.id,s.url,s.metricKind]);
+ return {trustedSourcePolicies:{[key]:{classification:'current',publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion,maxRetrievalAgeSeconds:7200,maxEffectiveAgeSeconds:7200}},trustedEvidence:{[key]:{bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
+}
+test('actual ingestion holds stale quote and Morpho despite bundle24h window',async t=>{
+ for(const [kind,effective,cap]of [['venue-quote','2026-11-16T16:59:59Z',7200],['morpho','2026-11-16T18:44:59Z',900]]){
+  const x=await fixture(t),s=x.manifest.sources[0],old=JSON.stringify([s.id,s.url,s.metricKind]);s.metricKind=kind;s.effectiveAt=effective;s.maxRetrievalAgeSeconds=86400;s.maxEffectiveAgeSeconds=86400;
+  const key=JSON.stringify([s.id,s.url,s.metricKind]),p=x.trustedSourcePolicies[old],e=x.trustedEvidence[old];x.trustedSourcePolicies={[key]:{...p,maxRetrievalAgeSeconds:cap,maxEffectiveAgeSeconds:cap}};x.trustedEvidence={[key]:e};
+  const r=await rejected(x);assert.ok(r.errors.includes('source_age_cap_exceeded'));assert.ok(r.errors.includes('source_effective_value_stale'));
+ }
+});
+test('actual ingestion requires external evidence and preserves provenance',async t=>{
+ const x=await fixture(t),r=await ingestCloudNewsroomV2Bundle(x);assert.equal(r.validation.manifest.sources[0].snapshotSha256,x.manifest.sources[0].snapshotSha256);assert.deepEqual(r.validation.manifest.sources[0].evidence,x.manifest.sources[0].evidence);
+ delete x.trustedEvidence;await rejected(x);
 });

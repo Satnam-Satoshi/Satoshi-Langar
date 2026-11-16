@@ -6,13 +6,39 @@
  * `draft-ready` is not publication approval or evidence that anything ran.
  */
 export const GENERATION = 'cloud-newsroom-v2';
+// Host gate is only a syntax/source-family restriction, never publisher authority.
+// Exact source ID + URL + metric policies remain mandatory at ingestion/admission.
 export const PRIMARY_HOSTS = Object.freeze([
-  'litecoin.com', 'litecoin.org', 'github.com', 'api.exchange.coinbase.com',
-  'litecoinregister.com', 'docs.litvm.com', 'testnet.litvm.com',
-  'greywick.digital', 'www.lithiumlend.com', 'litestrategy.gcs-web.com',
-  'www.dtcc.com', 'blog.digitalasset.com', 'canton.foundation',
-  'www.sec.gov', 'www.cftc.gov', 'api.blockcypher.com',
+  'aibc.world',
+  'api.blockcypher.com',
+  'api.exchange.coinbase.com',
+  'api.github.com',
+  'blog.digitalasset.com',
+  'canaryetfs.com',
+  'canton.foundation',
+  'docs.litvm.com',
   'explorer.testnet.liteforge.zeeve.net',
+  'f2pool.io',
+  'github.com',
+  'greywick.digital',
+  'investor.litestrategy.com',
+  'litecoin.com',
+  'litecoin.org',
+  'litecoinregister.com',
+  'litestrategy.gcs-web.com',
+  'luxxfolio.com',
+  'luxxpool.luxxlabs.ca',
+  'strike.me',
+  'testnet.litvm.com',
+  'website-prod.nadex.com',
+  'www.binance.com',
+  'www.cftc.gov',
+  'www.dtcc.com',
+  'www.fidelitydigitalassets.com',
+  'www.grayscale.com',
+  'www.lithiumlend.com',
+  'www.litvm.com',
+  'www.sec.gov',
 ]);
 const SHA = /^[a-f0-9]{64}$/;
 const COMMIT = /^[a-f0-9]{40}$/;

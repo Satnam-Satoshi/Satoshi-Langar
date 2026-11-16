@@ -1,3 +1,4 @@
+import {readVerifiedPdfReader} from './ltc-pdf-reader.mjs';
 import {readFile,realpath} from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -6,6 +7,7 @@ import {validatePdfRegistry} from './ltc-pdf-registry.mjs';
 export async function verifyPdfRegistryAssets(input, publicRoot){
  const registry=validatePdfRegistry(input),root=await realpath(publicRoot),paths=[];
  for(const issue of registry.issues){
+  if(issue.reader){readVerifiedPdfReader(issue.reader,root);paths.push(issue.reader.path.slice(1));}
   for(const role of ['pdf','cover']){
    const assetPath=issue[role],resolved=await realpath(path.join(root,assetPath.slice(1)));
    if(!resolved.startsWith(root+path.sep))throw Error('pdf-asset-escapes-public-root');

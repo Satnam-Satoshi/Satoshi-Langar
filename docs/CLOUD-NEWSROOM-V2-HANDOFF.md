@@ -44,3 +44,19 @@ This first integration is a foundation, not completion of whole-site daily publi
 - **Phase 4: highlights and specials.** Add source-verified new revisions for Moon and other highlighted editions only when developments warrant them; keep originals immutable. Connect reviewed promotional art to the same canonical facts/artifacts. External campaigns remain separately authorized and deduplicated.
 
 Each phase requires explicit implemented paths, actual cloud tests, source/visual coverage evidence and verified public readback. A source scan, draft schema, simulated lease or preview build alone does not prove daily publication or full-site coverage.
+
+## Required source policy and observed evidence (audit hardening)
+
+The coordinator supplies `trustedSourcePolicies` and `trustedEvidence` separately from the incoming bundle. Their key is `JSON.stringify([source.id, source.url, source.metricKind])`. A policy includes classification, publisherId, parserId/version and maximum retrieval/effective age. Hard ceilings are two hours for venue quotes, fifteen minutes for Morpho, twenty minutes for chain state and twenty-four hours for current primary observations. The bundle cannot choose a looser cap or relabel a current metric historical without an explicit trusted historical policy.
+
+Each source retains metricKind, publisherId, parserId/version, snapshotSha256 and `evidence:{path,sha256,retrievedAt}`. Trusted evidence includes these identities plus `bytesObserved:true`, sourceId and exact URL. Create that observation only by actually reading/hashing the captured source bytes, not by copying the producer's claims. Unknown source/URL/metric/publisher/parser or mismatched hashes hold publication. Host allowlisting alone never establishes primary-source authenticity.
+
+The bounded scanner now retains raw source bytes in its new temporary evidence directory, including bounded PDF downloads with PDF magic validation. It still marks them uninterpreted and requiring extraction. Its retrieval expiry is not the source's effective date. Raw evidence must be explicitly retained privately by the canonical producer; the GitHub availability-proof job uploads metadata only, so a temporary path is not a durable evidence archive. PDF extraction and editorial interpretation must happen before a verified-source claim.
+
+## Inert reader and cooperative gate
+
+HTML is an explicitly restricted inert input profile, not arbitrary browser content or a general sanitizer. Active content, CSS, images/resource-fetch tags, foreign namespaces, unfamiliar syntax and unreviewed links hold for review. The original illustrated PDF/cover are retained. A reviewed React renderer supplies the editorial theme for accepted inert body nodes; it does not inject incoming CSS or executable markup. Plain-text deception/prompt injection still requires source-aware editorial review.
+
+The locally tested cooperative preview gate reads one new-v2 CAS state document from a fixed repository branch. Its exact candidate commit/tree/project and <=15-minute grant must match the current lease owner/fence. Public state admits only a preview build. The saved private automation's reviewed code pin and the coordinator's independent checks remain authoritative for production promotion. This is not malicious-repository-writer protection or provider fencing. The optional signature verifier remains disabled with no key configured; no new signer service or key is needed for cooperative mode.
+
+No new gate is installed in vercel.json yet. No recurring production workflow or new state branch has been activated by implementing these modules.

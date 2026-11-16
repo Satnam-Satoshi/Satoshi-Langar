@@ -1,3 +1,5 @@
+import { inspectCloudNewsroomV2Html } from './cloud-newsroom-v2-html-safety.mjs';
+const inertHtmlFixture='<!doctype html><html><head><title>Synthetic fixture</title></head><body><p>Not publication evidence.</p></body></html>';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -8,9 +10,10 @@ const hash=v=>createHash('sha256').update(v).digest('hex'),pin='a'.repeat(40),im
 const entry=(path,text)=>({path,mode:'100644',sha256:hash(text),bytes:Buffer.byteLength(text)});
 function receipt(date='2026-11-16'){
  const id=`ltc-daily-${date}`,artifacts=['pdf','html','cover','promo'].map((role,i)=>({role,path:`artifacts/${date}/r1/${role}`,editionId:id,editionDate:date,revision:1,sha256:hash(date+role),bytes:100+i,mimeType:i===0?'application/pdf':i===1?'text/html':'image/png',...(i===0?{pages:29}:{})}));
- return {status:'accepted-receipt',errors:[],operational:false,effects:[],artifacts:artifacts.map(a=>({...a,verification:'actual-local-file-bytes'})),coverDimensions:{width:675,height:900,verification:'png-ihdr-with-crc',renderVerified:false},publication:{registryId:`${date}-r1`,page:`/conversations/editions/${date}/`,canonicalUrl:`https://ltcmagazine.org/conversations/editions/${date}/`,title:'Synthetic source-led daily',dek:'Test evidence, not a publication claim.',preparedAt:`${date}T18:59:30Z`,preparedDate:date},validation:{status:'validated-description',errors:[],manifest:{schemaVersion:1,generation:'cloud-newsroom-v2',kind:'daily',editionId:id,editionDate:date,revision:1,sourceCommit:pin,implementationCommit:impl,implementationSha256:implHash,preparedAt:`${date}T18:59:30Z`,artifacts,correction:null,sources:[{id:'btc',status:'verified',claimVerified:true,classification:'current',value:123,publishedAt:null,eventAt:null,effectiveAt:`${date}T18:58:00Z`,retrievedAt:`${date}T18:59:00Z`,maxRetrievalAgeSeconds:180,maxEffectiveAgeSeconds:300}]}}};
+ return {status:'accepted-receipt',errors:[],operational:false,effects:[],artifacts:artifacts.map(a=>({...a,verification:'actual-local-file-bytes',...(a.role==='html'?{htmlSafety:inspectCloudNewsroomV2Html(Buffer.from(inertHtmlFixture))}:{})})),coverDimensions:{width:675,height:900,verification:'png-ihdr-with-crc',renderVerified:false},publication:{registryId:`${date}-r1`,page:`/conversations/editions/${date}/`,canonicalUrl:`https://ltcmagazine.org/conversations/editions/${date}/`,title:'Synthetic source-led daily',dek:'Test evidence, not a publication claim.',preparedAt:`${date}T18:59:30Z`,preparedDate:date},validation:{status:'validated-description',errors:[],manifest:{schemaVersion:1,generation:'cloud-newsroom-v2',kind:'daily',editionId:id,editionDate:date,revision:1,sourceCommit:pin,implementationCommit:impl,implementationSha256:implHash,preparedAt:`${date}T18:59:30Z`,artifacts,correction:null,sources:[{id:'btc',status:'verified',claimVerified:true,classification:'current',value:123,publishedAt:null,eventAt:null,effectiveAt:`${date}T18:58:00Z`,retrievedAt:`${date}T18:59:00Z`,maxRetrievalAgeSeconds:180,maxEffectiveAgeSeconds:300}]}}};
 }
 function candidate(trusted,r=receipt(),candidateCommit='f'.repeat(40)){
+ Object.assign(trusted,policyFixture(r.validation.manifest.sources[0]));
  const projection=projectReceiptToPdfRegistry(JSON.parse(trusted.currentRegistryText),r),text=JSON.stringify(projection.registry,null,2)+'\n';
  return {now:`${r.validation.manifest.editionDate}T19:00:00Z`,candidateCommit,candidateParents:[trusted.priorCommit],candidateRegistryText:text,receipt:r,candidateTree:[...structuredClone(trusted.priorTree.filter(e=>e.path!==PDF_REGISTRY_PATH)),entry(PDF_REGISTRY_PATH,text),...projection.assetCopies.map(a=>({path:a.destination,mode:'100644',sha256:a.sha256,bytes:a.bytes}))]};
 }
@@ -89,4 +92,21 @@ test('invalid values, SHA1 blobs, absent source pin and self-attested inventory 
  const x=fixture();x.input.candidateTree[0].sha256='a'.repeat(40);blocked(x);
  const y=fixture();y.trusted.review.sourceCommit=null;blocked(y);
  const z=fixture();z.input.priorArtifactInventory=[{path:'app/page.tsx',role:'html'}];z.input.candidateTree[0].sha256=hash('evil');blocked(z);
+});
+test('old receipts and altered inert-HTML attestations cannot enter admission',()=>{
+ for(const safety of [undefined,{status:'accepted-inert-subset',profile:'unknown',sanitized:false,resourceFetchesAllowed:false},{status:'accepted-inert-subset',profile:'ltc-inert-html-v1',sanitized:true,resourceFetchesAllowed:false},{status:'accepted-inert-subset',profile:'ltc-inert-html-v1',sanitized:false,resourceFetchesAllowed:true},{status:'accepted-inert-subset',profile:'ltc-inert-html-v1',sanitized:false,resourceFetchesAllowed:false,override:true}]){
+  const x=fixture();x.input.receipt.artifacts.find(a=>a.role==='html').htmlSafety=safety;assert.ok(blocked(x).errors.includes('verified_inert_html_profile_required'));
+ }
+});
+
+// Synthetic external coordinator observations only, never production trust creation.
+function policyFixture(s){
+ Object.assign(s,{url:'https://api.exchange.coinbase.com/products/BTC-USD/ticker',metricKind:'venue-quote',snapshotSha256:'e'.repeat(64),parserId:'coinbase-ticker',parserVersion:'1',publisherId:'coinbase',evidence:{path:'evidence/btc.json',sha256:'e'.repeat(64),retrievedAt:s.retrievedAt}});
+ const key=JSON.stringify([s.id,s.url,s.metricKind]);
+ return {trustedSourcePolicies:{[key]:{classification:'current',publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion,maxRetrievalAgeSeconds:7200,maxEffectiveAgeSeconds:7200}},trustedEvidence:{[key]:{bytesObserved:true,sourceId:s.id,url:s.url,snapshotSha256:s.snapshotSha256,path:s.evidence.path,retrievedAt:s.retrievedAt,publisherId:s.publisherId,parserId:s.parserId,parserVersion:s.parserVersion}}};
+}
+test('admission cannot trust a source-selected24h window, provenance or historical waiver',()=>{
+ const x=fixture(),s=x.input.receipt.validation.manifest.sources[0];s.effectiveAt='2026-11-16T16:59:59Z';s.maxRetrievalAgeSeconds=86400;s.maxEffectiveAgeSeconds=86400;assert.ok(blocked(x).errors.includes('source_effective_value_stale'));
+ const y=fixture();delete y.trusted.trustedEvidence;assert.ok(blocked(y).errors.includes('external_source_policy_and_evidence_required'));
+ const z=fixture();z.input.receipt.validation.manifest.sources[0].classification='historical';assert.ok(blocked(z).errors.includes('unknown_or_mismatched_source_policy'));
 });

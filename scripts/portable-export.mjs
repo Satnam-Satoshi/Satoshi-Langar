@@ -1,3 +1,4 @@
+import {parseVerifiedPdfReader} from './lib/ltc-pdf-reader.mjs';
 import {validatePdfRegistry} from './lib/ltc-pdf-registry.mjs';
 import {verifyPdfRegistryAssets} from './lib/ltc-pdf-assets.mjs';
 import { readdir, readFile, mkdir, writeFile, rm, copyFile } from 'node:fs/promises';
@@ -16,6 +17,7 @@ for (const record of exclusions.editions) {
 }
 const pdfRegistry=validatePdfRegistry(JSON.parse(await readFile('content/ltc-pdf/issues.json','utf8')), {legacyRouteIds:editions.flatMap(issue=>[issue.id,issue.date])});
 const pdfAssets=await verifyPdfRegistryAssets(pdfRegistry,path.resolve('public'));
+const readerArtifacts=new Map(pdfRegistry.issues.filter(issue=>issue.reader).map(issue=>[issue.reader.path.slice(1),issue.reader]));
 const seoPages = [];
 await rm(target, { recursive: true, force: true });
 async function walk(directory) {
@@ -29,6 +31,7 @@ async function walk(directory) {
   const dailyGraphicMetadata = entry.name === 'graphic.json' && routineDataRecord(`public/${relative}`)?.kind === 'graphic';
   if(!/\.(html|css|svg|png|jpg|jpeg|webp|ico|woff2?|ttf)$/.test(entry.name) && !publicExtras.includes(relative) && !/^data\/litecoin-distribution-\d{8}\.json$/.test(relative) && !/^toolkits\/[a-z0-9-]+\.(md|txt)$/.test(relative) && !dailyGraphicMetadata) continue;
   await mkdir(path.dirname(output),{recursive:true});
+  if(readerArtifacts.has(relative)){const bytes=await readFile(input);parseVerifiedPdfReader(bytes,readerArtifacts.get(relative));await writeFile(output,bytes);continue;} // Exact inert source download only; the edition route renders its reviewed theme.
   if(entry.name.endsWith('.html')) {
    let html=await readFile(input,'utf8');
    // Keep native static navigation. Only explicitly reviewed progressive enhancements ship.
