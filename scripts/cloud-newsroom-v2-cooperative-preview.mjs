@@ -17,7 +17,7 @@ export function planCooperativePreviewGrant({admission,candidateTreeGitSha,recei
 }
 export async function evaluateCooperativePreview({env,git,now,fetcher}){
  if(env.VERCEL_ENV!=='preview'||env.VERCEL_TARGET_ENV!=='preview')return false;
- try{const state=await readCloudPreviewGrant(fetcher),g=state.previewGrant; if(state.schemaVersion!==1||state.generation!=='cloud-newsroom-v2'||!g||state.lease?.owner!==g.owner||state.lease?.fence!==g.fence||!Number.isSafeInteger(state.lease?.expiresAt)||state.lease.expiresAt<=now)return false;return g.mode==='cooperative-preview-only'&&g.promotionAuthorized===false&&permitsCloudPreviewGrant(g,env,{head:git('HEAD'),tree:git('HEAD^{tree}')},now);}catch{return false;}
+ try{const state=await readCloudPreviewGrant(fetcher),g=state.previewGrant; if(state.schemaVersion!==1||state.generation!=='cloud-newsroom-v2'||state.enabled!==true||state.emergencyStop!==false||state.previewEnabled!==true||state.fence!==state.lease?.fence||!g||state.lease?.owner!==g.owner||state.lease?.fence!==g.fence||typeof state.lease?.expiresAt!=='string'||!Number.isFinite(Date.parse(state.lease.expiresAt))||Date.parse(state.lease.expiresAt)<=now)return false;return g.mode==='cooperative-preview-only'&&g.promotionAuthorized===false&&permitsCloudPreviewGrant(g,env,{head:git('HEAD'),tree:git('HEAD^{tree}')},now);}catch{return false;}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  const allow=await evaluateCooperativePreview({env:process.env,now:Date.now(),git:ref=>execFileSync('git',['rev-parse',ref],{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim()});

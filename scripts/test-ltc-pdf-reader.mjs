@@ -8,7 +8,7 @@ import {createRequire} from 'node:module';
 import {build} from 'esbuild';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
-import {parseVerifiedPdfReader,readVerifiedPdfReader} from './lib/ltc-pdf-reader.mjs';
+import {parseVerifiedPdfReader,readVerifiedPdfReader,extractPdfReaderOutline} from './lib/ltc-pdf-reader.mjs';
 import {validatePdfRegistry,appendPdfIssue,findPdfIssue} from './lib/ltc-pdf-registry.mjs';
 const registry=JSON.parse(await readFile('content/ltc-pdf/issues.json','utf8'));
 const wrap=body=>`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Research reader</title></head><body>${body}</body></html>`;
@@ -28,7 +28,24 @@ test('future full reader renders reviewed theme, accessible table and safe escap
   const mod={exports:{}};new Function('require','module','exports',bundled.outputFiles[0].text)(createRequire(import.meta.url),mod,mod.exports);
   process.chdir(root);
   const markup=renderToStaticMarkup(React.createElement(mod.exports.default,{issue:{...registry.issues[1],reader:descriptor()}}));
-  assert.ok(markup.includes('data-trusted-daily-reader="ltc-inert-html-v1"'));assert.ok(markup.includes('Read beyond'));assert.ok(markup.includes('<caption>Dated observations</caption>'));assert.ok(markup.includes('scope="col"'));assert.ok(markup.includes('tabindex="0"'));assert.ok(markup.includes('https://litecoin.com/'));assert.ok(markup.includes('&lt;script&gt; is quoted text'));assert.ok(!markup.includes('<script'));assert.ok(!markup.includes('Research reader'));assert.ok(!markup.includes('<main>'));assert.ok(!markup.includes('reader.html'));
+  assert.ok(markup.includes('data-trusted-daily-reader="ltc-inert-html-v1"'));assert.ok(markup.includes('Read beyond'));assert.ok(markup.includes('id="story-2026-11-16-r1-0-0"'));assert.ok(markup.includes('<caption>Dated observations</caption>'));assert.ok(markup.includes('scope="col"'));assert.ok(markup.includes('tabindex="0"'));assert.ok(markup.includes('https://litecoin.com/'));assert.ok(markup.includes('&lt;script&gt; is quoted text'));assert.ok(!markup.includes('<script'));assert.ok(!markup.includes('Research reader'));assert.ok(!markup.includes('<main>'));assert.ok(!markup.includes('reader.html'));
   await writeFile(file,Buffer.from(wrap('<script>bad</script>')));assert.throws(()=>renderToStaticMarkup(React.createElement(mod.exports.default,{issue:{...registry.issues[1],reader:descriptor()}})),/identity/);
  }finally{process.chdir(previous);await rm(root,{recursive:true,force:true});}
+});
+
+test('story outline is deterministic, byte-bound and revision namespaced, not guessed slugs',()=>{
+ const source=Buffer.from(wrap('<main><header><h1>Masthead</h1></header><section><h2>Native &amp; open</h2><p>Source claims stay dated.</p><section><h3>A nested detail</h3></section><table><caption>Metrics</caption><tbody><tr><th scope="row"><h2>Not a story</h2></th><td>42</td></tr></tbody></table></section><h2>Builder notes</h2><p>Testnet only.</p><h3>A subsection</h3><p>Not another campaign.</p></main>'));
+ const first=extractPdfReaderOutline(parseVerifiedPdfReader(source,descriptor(source)),'2026-11-17-r1');
+ const again=extractPdfReaderOutline(parseVerifiedPdfReader(source,descriptor(source)),'2026-11-17-r1');
+ assert.deepEqual(first,again);assert.equal(first.length,2);
+ assert.deepEqual(first.map(story=>story.headingText),['Native & open','Builder notes']);
+ assert.deepEqual(first.map(story=>story.fragment),['story-2026-11-17-r1-0-1','story-2026-11-17-r1-0-2']);
+ assert.equal(first[0].readerSha256,descriptor(source).sha256);assert.match(first[0].contentSha256,/^[a-f0-9]{64}$/);assert.ok(Object.isFrozen(first[0]));
+ const revision=extractPdfReaderOutline(parseVerifiedPdfReader(source,descriptor(source)),'2026-11-17-r2');
+ assert.notEqual(revision[0].fragment,first[0].fragment);assert.equal(revision[0].contentSha256,first[0].contentSha256);
+ const changed=Buffer.from(source.toString().replace('Testnet only.','Testnet, not mainnet.'));
+ const updated=extractPdfReaderOutline(parseVerifiedPdfReader(changed,descriptor(changed)),'2026-11-17-r2');
+ assert.notEqual(updated[1].contentSha256,first[1].contentSha256);assert.equal(updated[0].contentSha256,first[0].contentSha256);
+ assert.throws(()=>extractPdfReaderOutline({profile:'ltc-inert-html-v1',nodes:[]},'2026-11-17-r1'),/verified-reader/);
+ assert.throws(()=>extractPdfReaderOutline(parseVerifiedPdfReader(source,descriptor(source)),'current'),/immutable-reader/);
 });

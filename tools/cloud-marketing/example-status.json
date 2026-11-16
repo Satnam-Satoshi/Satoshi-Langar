@@ -1,0 +1,45 @@
+{
+  "story_key": "synthetic-status",
+  "title": "SYNTHETIC STATUS",
+  "subtitle": "UNIT TEST FIXTURE. DO NOT PUBLISH.",
+  "claim": "Synthetic status fixture only. No real mainnet or availability assertion.",
+  "stage": "unverified",
+  "checked_date": "2026-11-16",
+  "edition_date": "2026-11-16",
+  "event_date": null,
+  "publication_date": null,
+  "sources": [
+    {
+      "url": "https://example.com/status",
+      "primary": true,
+      "supports_claim": true,
+      "checked_date": "2026-11-16"
+    }
+  ],
+  "tags": [
+    {
+      "platform": "X",
+      "handle": "@ExampleAccount",
+      "official_source_url": "https://example.com/connect",
+      "linked_target": "https://twitter.com/ExampleAccount",
+      "outbound_link_verified": true,
+      "checked_date": "2026-11-16"
+    }
+  ],
+  "theme": "blue",
+  "verification": {
+    "human_or_agent_reviewed": true,
+    "claim_supported": true
+  },
+  "alt": "Synthetic unit-test cover. Not public editorial evidence.",
+  "binding": {
+    "kind": "legacy_public_readback",
+    "edition_revision": "synthetic-v1",
+    "canonical_story_url": "https://example.com/synthetic-issue/#synthetic-story",
+    "pdf_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "source_revision": "0000000000000000000000000000000000000000",
+    "deployment_id": "SYNTHETIC-NOT-PUBLISHED"
+  },
+  "evidence_sha256": "1d20e6af3cfde9c8389b1c4369a373abecb071432bc74abff581c85914762974",
+  "synthetic_fixture": true
+}
