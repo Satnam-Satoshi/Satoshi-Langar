@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 import { previewExitCode } from './pdf-preview-ignore.mjs';
 const sha='a'.repeat(40), now=Date.parse('2026-11-15T18:00:00Z');
 const env={VERCEL_ENV:'preview',VERCEL_TARGET_ENV:'preview',VERCEL_GIT_REPO_OWNER:'Satnam-Satoshi',VERCEL_GIT_REPO_SLUG:'Satoshi-Langar',VERCEL_GIT_COMMIT_SHA:sha};
-const tree=execFileSync('git',['ls-tree','-r','HEAD'],{encoding:'utf8'});
+// Positive fixture is the historical reviewed tree, not each new release HEAD.
+const tree=execFileSync('git',['ls-tree','-r','52d2e5a08e4fbec181e43a8aa625c0fa01cc992a'],{encoding:'utf8'});
 const git=ref=>ref==='HEAD'?sha:ref==='tree'?tree:'parent 247df76011141fae768af3be3ee6a0aa141064a3\n\nmessage';
 test('permits only pinned-parent repository preview',()=>assert.equal(previewExitCode(env,git,now),1));
 test('production, missing context, other repo, old source and expired requests skip',()=>{
@@ -27,3 +28,5 @@ test('wrapper only permits successful exact allow marker, all errors skip',()=>{
   assert.equal(spawnSync('sh',['-c',`node() { ${body}; }; ${wrapper}`]).status,expected,body);
  }
 });
+
+test('fresh November 16 source is not admitted by the historical guard',()=>{const fresh=execFileSync('git',['ls-tree','-r','HEAD'],{encoding:'utf8'});assert.equal(previewExitCode(env,ref=>ref==='tree'?fresh:git(ref),now),0);});
