@@ -17,10 +17,10 @@ assert(extra.registerRows.every(r=>r.primary&&r.finding),'Every institutional co
 assert.equal(extra.registerRows.find(r=>r.name==='Grayscale Litecoin Trust').effective,'2026-10-05','Preserve issuer effective date, separate from Register record');
 for(const page of ['index.html','conversations/index.html']) {
  const html=await read(`dist/${page}`);
- assert(html.includes('aria-label="Read the November 15 edition"'),`${page}: prominent PDF daily navigation`);
- assert(html.includes('editions/2026-11-15/index.html'),`${page}: current PDF date destination`);
- assert(html.includes('The Evidence Issue'),`${page}: current PDF daily title`);
- assert(html.includes('Latest published · November 15, 2026'),`${page}: current global publication notice`);
+ assert(html.includes('aria-label="Read the November 16, 2026 edition"'),`${page}: prominent PDF daily navigation`);
+ assert(html.includes('editions/2026-11-16/index.html'),`${page}: current PDF date destination`);
+ assert(html.includes('The Next Build'),`${page}: current PDF daily title`);
+ assert(html.includes('Latest published · November 16, 2026'),`${page}: current global publication notice`);
  assert(html.includes('aria-label="Previous web briefing"'),`${page}: prior generated briefing identified separately`);
  assert(html.includes(`editions/${newest.date}/index.html`),`${page}: previous web briefing destination preserved`);
  assert(html.includes(newest.title),`${page}: previous web briefing title preserved`);

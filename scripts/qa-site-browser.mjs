@@ -12,7 +12,7 @@ const origin = 'https://satnamsatoshi.com';
 const records = JSON.parse(await readFile('content/ltc/index.json', 'utf8'));
 const exclusions = JSON.parse(await readFile('config/ltc-publication-exclusions.json', 'utf8'));
 const latestIssue = publicationDays(publicEditions(records, exclusions))[0].latest.id;
-const routes = ['/conversations/editions/2026-11-15/',`/conversations/editions/${latestIssue}/`, '/conversations/daily/', '/conversations/updates/', '/conversations/specials/litecoin-builders-november/', '/conversations/specials/litecoin-to-the-moon/', '/mission/', '/langar/', '/agents/', '/', '/conversations/', '/conversations/archive/', '/conversations/desks/', '/conversations/desks/bitcoin-products/', '/conversations/litecoin/', '/conversations/litecoin-distribution/', '/conversations/start/', '/conversations/finance/', '/conversations/timechain/', '/conversations/community/', '/about/', '/sikh-bitcoin/', '/miikey/', '/join/', '/donate/'];
+const routes = ['/conversations/editions/2026-11-16/',`/conversations/editions/${latestIssue}/`, '/conversations/daily/', '/conversations/updates/', '/conversations/specials/litecoin-builders-november/', '/conversations/specials/litecoin-to-the-moon/', '/mission/', '/langar/', '/agents/', '/', '/conversations/', '/conversations/archive/', '/conversations/desks/', '/conversations/desks/bitcoin-products/', '/conversations/litecoin/', '/conversations/litecoin-distribution/', '/conversations/start/', '/conversations/finance/', '/conversations/timechain/', '/conversations/community/', '/about/', '/sikh-bitcoin/', '/miikey/', '/join/', '/donate/'];
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.xml': 'application/xml' };
 const results = [], errors = [];
 try {
@@ -65,11 +65,11 @@ try {
             const weight = await page.locator('h1 em').evaluate(el => getComputedStyle(el).fontWeight);
             assert.ok(Number(weight) >= 800, 'Fieldbook hero emphasis must retain bold approved typography');
           }
-          if (route === '/conversations/daily/' || route === '/conversations/editions/2026-11-15/') {
-            assert.equal(await page.getByRole('heading', {name:'The Evidence Issue', exact:true}).count(), 1);
+          if (route === '/conversations/daily/' || route === '/conversations/editions/2026-11-16/') {
+            assert.equal(await page.getByRole('heading', {name:'The Next Build', exact:true}).count(), 1);
             const pdf = page.getByRole('link', {name:'Open the PDF', exact:false});
             assert.equal(await pdf.count(),1);
-            assert.ok((await pdf.getAttribute('href')).endsWith('magazine/daily/LTC-2026-11-15-v1.0.pdf'));
+            assert.ok((await pdf.getAttribute('href')).endsWith('magazine/daily/LTC-2026-11-16-v1.0.pdf'));
             await pdf.scrollIntoViewIfNeeded();
             await page.screenshot({path:path.join(output,`${engine}-${width}-${route.includes('editions')?'dated':'daily'}-pdf-reader.png`),animations:'disabled'});
           }
