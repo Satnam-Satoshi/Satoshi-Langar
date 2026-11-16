@@ -200,3 +200,23 @@ test('public state and result never contain validated private archive folder/fil
 test('legacy state archive locator cannot leak into completion',async()=>{
  const x=fixture();await x.advance();await x.advance();x.mutate(s=>s.run.previewQaArchive.locator={provider:'google-drive',folderId:'private-folder',fileId:'private-file'});assert.equal((await x.advance()).status,'hold');assert.ok(!x.calls.includes('promote'));
 });
+test('delayed promotion outcome reconciles expired source evidence with explicit stale result and no Vercel writes',async()=>{
+ const x=fixture();x.req.admission.expiresAt='2026-11-16T19:01:00Z';await x.advance();await x.advance();
+ const promote=x.adapters.provider.promote;x.adapters.provider.promote=async args=>{await promote(args);throw Error('provider committed but response lost');};
+ assert.equal((await x.advance()).status,'awaiting-reconciliation');x.time('2026-11-16T19:03:00Z');
+ const writes=x.calls.filter(c=>c==='create'||c==='promote').length,r=await x.advance();assert.equal(r.status,'published-reconciled-stale-evidence');assert.equal(r.sourceEvidenceStale,true);assert.equal(r.sourceEvidenceExpiresAt,'2026-11-16T19:01:00Z');assert.match(r.reason,/no_freshness_claim/);assert.equal(x.calls.filter(c=>c==='create'||c==='promote').length,writes);assert.equal(x.state().completed[0].sourceEvidenceStale,true);
+});
+test('expired-source reconciliation still rejects immutable binding drift and cannot resume new effects',async()=>{
+ const x=fixture();x.req.admission.expiresAt='2026-11-16T19:01:00Z';await x.advance();await x.advance();await x.advance();x.time('2026-11-16T19:03:00Z');x.req.candidateCommit='a'.repeat(40);x.req.admission.candidateCommit=x.req.candidateCommit;assert.equal((await x.advance()).status,'hold');assert.equal(x.state().completed.length,0);assert.equal(x.calls.filter(c=>c==='promote').length,1);
+ const y=fixture();y.req.admission.expiresAt='2026-11-16T19:01:00Z';await y.advance();await y.advance();y.time('2026-11-16T19:03:00Z');const before=structuredClone(y.state());assert.equal((await y.advance()).reason,'fresh_external_admission_required');assert.deepEqual(y.state(),before);assert.ok(!y.calls.includes('promote'));
+});
+test('expired preview QA is rechecked and rearchived once for same READY candidate, not recreated or promoted',async()=>{
+ const x=fixture(),verify=x.adapters.qa.verify,archive=x.adapters.archive.persistQa;let checks=0,archives=0;
+ x.adapters.qa.verify=async args=>{checks++;return {...await verify(args),expiresAt:checks===1?'2026-11-16T19:00:30Z':'2026-11-16T19:05:00Z'};};
+ x.adapters.archive.persistQa=async args=>{if(args.phase==='preview')archives++;return archive(args);};
+ await x.advance();await x.advance();x.time('2026-11-16T19:01:00Z');const r=await x.advance();assert.equal(r.status,'preview-verified');assert.match(r.reason,/qa_refreshed/);assert.equal(checks,2);assert.equal(archives,2);assert.equal(x.state().run.qa.expiresAt,'2026-11-16T19:05:00Z');assert.equal(x.calls.filter(c=>c==='create').length,1);assert.ok(!x.calls.includes('promote'));
+});
+test('QA renewal cannot bypass source drift or retry a failing QA within same advance',async()=>{
+ const x=fixture(),verify=x.adapters.qa.verify;let checks=0;x.adapters.qa.verify=async args=>{checks++;return {...await verify(args),expiresAt:'2026-11-16T19:00:30Z'};};await x.advance();await x.advance();x.time('2026-11-16T19:01:00Z');assert.equal((await x.advance()).status,'hold');assert.equal(checks,2);assert.ok(!x.calls.includes('promote'));
+ const y=fixture();y.adapters.qa.verify=async args=>({...args,passed:true,expiresAt:'2026-11-16T19:00:30Z'});await y.advance();await y.advance();y.time('2026-11-16T19:01:00Z');y.adapters.provider.getDeployment=async()=>({id:'new',projectId:y.req.projectId,sourceCommit:'a'.repeat(40),repository:y.req.repository,target:'preview',status:'READY'});assert.equal((await y.advance()).reason,'preview_identity_mismatch');assert.ok(!y.calls.includes('promote'));
+});
