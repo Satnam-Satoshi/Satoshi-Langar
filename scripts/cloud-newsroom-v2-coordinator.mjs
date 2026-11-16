@@ -4,6 +4,11 @@
  * manual changes. Tests are mocked; this module alone proves no live operation.
  */
 export const COORDINATOR_NAMESPACE='cloud-newsroom-v2';
+export const MAX_COORDINATOR_STATE_BYTES=24*1024;
+// Rolling latest pointer, not a separate append-only ledger. The Git CAS adapter
+// must preserve prior versions as commits; monotonic dates fence older replays.
+const boundedState=s=>new TextEncoder().encode(JSON.stringify(s)).byteLength<=MAX_COORDINATOR_STATE_BYTES;
+const validDate=d=>typeof d==='string'&&/^\d{4}-\d\d-\d\d$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d).toISOString().slice(0,10)===d;
 const hex=(v,n)=>typeof v==='string'&&new RegExp('^[a-f0-9]{'+n+'}$').test(v);
 const obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const clone=v=>JSON.parse(JSON.stringify(v));
@@ -42,14 +47,14 @@ export function createCloudNewsroomV2Coordinator(adapters){
   try{
    now=stamp(await adapters.clock());if(!Number.isFinite(now))return result('hold','invalid_clock');
    record=await adapters.state.read(COORDINATOR_NAMESPACE);s=clone(record?.value);
-   if(!obj(s)||s.schemaVersion!==1||s.generation!==COORDINATOR_NAMESPACE||s.enabled!==true||s.previewEnabled!==true||s.emergencyStop!==false||s.oldWritersDisabled!==true)return result('hold','disabled_or_emergency_stop');
-   if(!hex(s.approvedCodeCommit,40)||!domains(s.domains)||s.projectId!=='prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx'||s.repository!=='Satnam-Satoshi/Satoshi-Langar'||s.branch!=='agent/cloud-newsroom-v2-20261116'||!Number.isSafeInteger(s.fence)||s.fence<0||!Array.isArray(s.completed))return result('hold','invalid_trusted_state');
-   if(!obj(request)||typeof request.owner!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(request.owner)||typeof request.runId!=='string'||!request.runId||!hex(request.candidateCommit,40)||!hex(request.artifactSha256,64)||!hex(request.pdfSha256,64)||request.reviewedCodeCommit!==s.approvedCodeCommit||!/^\d{4}-\d\d-\d\d$/.test(request.editionDate)||request.repository!==s.repository||request.branch!==s.branch||request.projectId!==s.projectId||!hex(request.candidateTreeGitSha,40)||!hex(request.receiptSha256,64)||!hex(request.reviewDigest,64))return result('hold','candidate_identity_or_review_pin_mismatch');
+   if(!obj(s)||!boundedState(s)||s.schemaVersion!==1||s.generation!==COORDINATOR_NAMESPACE||s.enabled!==true||s.previewEnabled!==true||s.emergencyStop!==false||s.oldWritersDisabled!==true)return result('hold','disabled_or_emergency_stop');
+   if(!hex(s.approvedCodeCommit,40)||!domains(s.domains)||s.projectId!=='prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx'||s.repository!=='Satnam-Satoshi/Satoshi-Langar'||s.branch!=='agent/cloud-newsroom-v2-20261116'||!Number.isSafeInteger(s.fence)||s.fence<0||!Array.isArray(s.completed)||s.completed.length>1||s.completed.some(c=>!obj(c)||!validDate(c.editionDate)||!hex(c.pdfSha256,64)))return result('hold','invalid_trusted_state');
+   if(!obj(request)||typeof request.owner!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(request.owner)||typeof request.runId!=='string'||!request.runId||!hex(request.candidateCommit,40)||!hex(request.artifactSha256,64)||!hex(request.pdfSha256,64)||request.reviewedCodeCommit!==s.approvedCodeCommit||!validDate(request.editionDate)||request.repository!==s.repository||request.branch!==s.branch||request.projectId!==s.projectId||!hex(request.candidateTreeGitSha,40)||!hex(request.receiptSha256,64)||!hex(request.reviewDigest,64))return result('hold','candidate_identity_or_review_pin_mismatch');
    const admission=request.admission;
    if(admission?.status!=='eligible-for-preview-review'||admission.candidateCommit!==request.candidateCommit||admission.artifactSha256!==request.artifactSha256||admission.pdfSha256!==request.pdfSha256||admission.reviewedCodeCommit!==s.approvedCodeCommit||admission.candidateTreeGitSha!==request.candidateTreeGitSha||admission.receiptSha256!==request.receiptSha256||admission.reviewDigest!==request.reviewDigest||admission.branch!==s.branch||!(stamp(admission.expiresAt)>now))return result('hold','fresh_external_admission_required');
-   const completed=s.completed.filter(x=>x.editionDate===request.editionDate);
-   if(completed.length)return result(completed.some(x=>x.artifactSha256===request.artifactSha256)?'duplicate-no-op':'hold','daily_identity_already_recorded');
-   const save=async next=>{const written=await adapters.state.cas(COORDINATOR_NAMESPACE,record.version,next);if(written?.ok!==true)throw Error('cas_conflict');const observed=await adapters.state.read(COORDINATOR_NAMESPACE);if(observed?.version!==written.version||!same(observed.value,next))throw Error('cas_readback_mismatch');record=observed;s=clone(observed.value);};
+   const latest=s.completed[0];
+   if(latest&&request.editionDate<=latest.editionDate)return result(request.editionDate===latest.editionDate&&request.pdfSha256===latest.pdfSha256?'duplicate-no-op':'hold','monotonic_completed_date_fence');
+   const save=async next=>{if(!boundedState(next))throw Error('coordinator_state_size_limit');const written=await adapters.state.cas(COORDINATOR_NAMESPACE,record.version,next);if(written?.ok!==true)throw Error('cas_conflict');const observed=await adapters.state.read(COORDINATOR_NAMESPACE);if(observed?.version!==written.version||!same(observed.value,next))throw Error('cas_readback_mismatch');record=observed;s=clone(observed.value);};
    const live=async()=>{const latest=await adapters.state.read(COORDINATOR_NAMESPACE);const time=stamp(await adapters.clock());if(latest?.version!==record.version||!same(latest.value,s)||latest.value.lease?.owner!==request.owner||latest.value.lease?.fence!==s.fence||latest.value.run?.owner!==request.owner||latest.value.run?.runId!==request.runId||latest.value.emergencyStop!==false||latest.value.enabled!==true||latest.value.previewEnabled!==true||latest.value.approvedCodeCommit!==s.approvedCodeCommit||!Number.isFinite(time)||!(stamp(s.lease?.expiresAt)>time))throw Error('live_state_or_lease_changed');now=time;};
    const grantFor=(run,fence,leaseExpiry)=>{
     const end=Math.min(stamp(leaseExpiry),stamp(admission.expiresAt),now+900000);
@@ -94,8 +99,8 @@ export function createCloudNewsroomV2Coordinator(adapters){
     // Domain aliases may have changed while public content was being checked.
     for(const domain of s.domains){const current=await adapters.provider.getDomainDeployment({domain,projectId:s.projectId});if(current?.deploymentId!==run.deploymentId||current?.projectId!==s.projectId)return result('hold','public_qa_domain_changed');}
     await live();if(!(stamp(publicQa.expiresAt)>now))return result('hold','public_qa_expired');
-    const done={editionDate:run.editionDate,artifactSha256:run.artifactSha256,pdfSha256:run.pdfSha256,candidateCommit:run.candidateCommit,deploymentId:run.deploymentId,publicQa:clone(publicQa)};
-    await save({...s,completed:[...s.completed,done],expectedDomains:Object.fromEntries(s.domains.map(d=>[d,run.deploymentId])),run:null,lease:null,previewGrant:null});
+    const done={editionDate:run.editionDate,artifactSha256:run.artifactSha256,pdfSha256:run.pdfSha256,candidateCommit:run.candidateCommit,deploymentId:run.deploymentId,publicQa:{passed:true,checkedAt:publicQa.checkedAt,expiresAt:publicQa.expiresAt,domains:domains(s.domains),pdfSha256:run.pdfSha256}};
+    await save({...s,completed:[done],expectedDomains:Object.fromEntries(s.domains.map(d=>[d,run.deploymentId])),run:null,lease:null,previewGrant:null});
     return result('published-verified','both_domains_and_public_artifacts_verified',done);
    }
    if(!['preview-recorded','qa-passed'].includes(run.phase))return result('hold','unknown_run_phase');
@@ -105,14 +110,14 @@ export function createCloudNewsroomV2Coordinator(adapters){
    if(run.phase==='preview-recorded'){
     const qa=await adapters.qa.verify({deploymentId:run.deploymentId,sourceCommit:run.candidateCommit,artifactSha256:run.artifactSha256,pdfSha256:run.pdfSha256,projectId:s.projectId});await live();
     if(qa?.passed!==true||qa.deploymentId!==run.deploymentId||qa.sourceCommit!==run.candidateCommit||qa.artifactSha256!==run.artifactSha256||qa.pdfSha256!==run.pdfSha256||qa.projectId!==s.projectId||!(stamp(qa.expiresAt)>now))return result('hold','independent_qa_failed_or_unbound');
-    await save({...s,run:{...run,phase:'qa-passed',qa}});return result('preview-verified','awaiting_publication_authority',{deploymentId:run.deploymentId});
+    await save({...s,run:{...run,phase:'qa-passed',qa:{passed:true,deploymentId:qa.deploymentId,sourceCommit:qa.sourceCommit,artifactSha256:qa.artifactSha256,pdfSha256:qa.pdfSha256,projectId:qa.projectId,expiresAt:qa.expiresAt}}});return result('preview-verified','awaiting_publication_authority',{deploymentId:run.deploymentId});
    }
    if(!(stamp(run.qa?.expiresAt)>now))return result('hold','qa_expired');
    const approval=request.approval;
    if(s.publicationEnabled!==true||approval?.approved!==true||approval.projectId!==s.projectId||approval.deploymentId!==run.deploymentId||approval.sourceCommit!==run.candidateCommit||approval.artifactSha256!==run.artifactSha256||approval.pdfSha256!==run.pdfSha256||!same(domains(approval.domains),domains(s.domains))||!(stamp(approval.expiresAt)>now))return result('hold','explicit_both_domain_publication_approval_required');
    for(const domain of s.domains){const actual=await adapters.provider.getDomainDeployment({domain,projectId:s.projectId});if(actual?.deploymentId!==run.expectedDomains[domain]||actual?.projectId!==s.projectId)return result('hold','production_baseline_changed');}
    await live();if(!(stamp(run.qa.expiresAt)>now)||!(stamp(approval.expiresAt)>now))return result('hold','qa_or_approval_expired');
-   await save({...s,run:{...run,phase:'promotion-intent',promotionIntentAt:new Date(now).toISOString(),approval:clone(approval),fence:s.fence}});await live();
+   await save({...s,run:{...run,phase:'promotion-intent',promotionIntentAt:new Date(now).toISOString(),approval:{approved:true,projectId:approval.projectId,deploymentId:approval.deploymentId,sourceCommit:approval.sourceCommit,artifactSha256:approval.artifactSha256,pdfSha256:approval.pdfSha256,domains:domains(approval.domains),expiresAt:approval.expiresAt},fence:s.fence}});await live();
    try{await adapters.provider.promote({deploymentId:run.deploymentId,projectId:s.projectId,domains:[...s.domains],sourceCommit:run.candidateCommit,expectedDomains:clone(run.expectedDomains),fence:s.fence,runId:run.runId});}catch{return result('awaiting-reconciliation','promotion_result_uncertain_no_retry',{deploymentId:run.deploymentId});}
    return result('awaiting-reconciliation','promotion_requested_verify_domains',{deploymentId:run.deploymentId});
   }catch{return result('hold','adapter_cas_or_live_state_failure');}

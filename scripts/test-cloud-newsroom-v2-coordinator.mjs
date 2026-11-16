@@ -13,7 +13,7 @@ function fixture(){
 }
 test('executes durable claim/create/READY/QA/promotion/reconciliation sequence',async()=>{
  const x=fixture();assert.equal((await x.advance()).status,'awaiting-preview');assert.equal(x.state().fence,1);assert.equal((await x.advance()).status,'preview-verified');assert.equal((await x.advance()).status,'awaiting-reconciliation');assert.equal((await x.advance()).status,'published-verified');assert.equal(x.state().completed.length,1);assert.equal(x.state().run,null);assert.equal((await x.advance()).status,'duplicate-no-op');assert.equal(x.calls.filter(x=>x==='promote').length,1);
- x.req.artifactSha256='d'.repeat(64);x.req.admission.artifactSha256=x.req.artifactSha256;assert.equal((await x.advance()).status,'hold');
+ x.req.artifactSha256='d'.repeat(64);x.req.admission.artifactSha256=x.req.artifactSha256;x.req.pdfSha256='d'.repeat(64);x.req.admission.pdfSha256=x.req.pdfSha256;assert.equal((await x.advance()).status,'hold');
 });
 test('disabled, stopped, mismatched pins, absent admission and CAS conflict never create',async()=>{
  for(const mutate of [x=>x.mutate(s=>s.enabled=false),x=>x.mutate(s=>s.previewEnabled=false),x=>x.mutate(s=>s.emergencyStop=true),x=>x.req.reviewedCodeCommit='d'.repeat(40),x=>delete x.req.admission,x=>x.adapters.state.cas=async()=>({ok:false})]){const x=fixture();mutate(x);assert.equal((await x.advance()).status,'hold');assert.ok(!x.calls.includes('create'));}
@@ -120,4 +120,23 @@ test('real evaluator and accepted receipt normalize explicit PDF identity, never
 });
 test('normalizer rejects mismatched evaluated receipt, source/tree and PDF mappings',()=>{
  for(const mutate of [x=>x.observed.receipt.artifacts[0].sha256='f'.repeat(64),x=>x.evaluatorInput.candidateCommit='a'.repeat(40),x=>x.observed.candidateCommit='a'.repeat(40),x=>x.evaluation={...x.evaluation,status:'blocked'},x=>x.evaluatorInput.candidateTree.find(e=>e.path.endsWith('edition.pdf')).sha256='f'.repeat(64),x=>x.evaluatorInput.candidateTree.find(e=>e.path.endsWith('reader.html')).bytes++,x=>x.observed.receiptSha256=null]){const x=normalizationInputs();mutate(x);assert.throws(()=>normalizeCloudNewsroomV2CoordinatorRequest(x));}
+});
+test('rolling completed pointer stays compact while Git CAS history can retain prior versions',async()=>{
+ const x=fixture(),history=[],cas=x.adapters.state.cas;
+ x.mutate(s=>s.completed=[{editionDate:'2026-11-15',pdfSha256:'a'.repeat(64),artifactSha256:'a'.repeat(64),candidateCommit:'a'.repeat(40),deploymentId:'prior',publicQa:{passed:true}}]);
+ x.adapters.state.cas=async(...args)=>{history.push(structuredClone(x.state()));return cas(...args);};
+ const verify=x.adapters.qa.verifyPublic;x.adapters.qa.verifyPublic=async args=>({...await verify(args),verboseRouteObservations:Array.from({length:1000},(_,i)=>({url:'https://ltcmagazine.org/long-route-'+i,details:'X'.repeat(100)}))});
+ await x.advance();await x.advance();await x.advance();assert.equal((await x.advance()).status,'published-verified');
+ assert.equal(x.state().completed.length,1);assert.equal(x.state().completed[0].editionDate,'2026-11-16');assert.ok(!Object.hasOwn(x.state().completed[0].publicQa,'domainObservations'));assert.ok(!Object.hasOwn(x.state().completed[0].publicQa,'verboseRouteObservations'));assert.ok(JSON.stringify(x.state()).length<4096);assert.ok(history.some(s=>s.completed[0]?.editionDate==='2026-11-15'));
+});
+test('monotonic latest date blocks old replay and latest conflict; same latest PDF is no-op',async()=>{
+ const x=fixture();await x.advance();await x.advance();await x.advance();await x.advance();const count=x.calls.length;
+ assert.equal((await x.advance()).status,'duplicate-no-op');
+ x.req.editionDate='2026-11-15';assert.equal((await x.advance()).status,'hold');
+ x.req.editionDate='2026-11-16';x.req.pdfSha256='a'.repeat(64);x.req.admission.pdfSha256=x.req.pdfSha256;assert.equal((await x.advance()).status,'hold');assert.equal(x.calls.length,count);
+});
+test('fixed24KiB UTF8 current-state bound fails before oversized CAS or provider effect',async()=>{
+ const x=fixture();x.req.runId='界'.repeat(10000);assert.equal((await x.advance()).status,'hold');assert.equal(x.calls.length,0);
+ const y=fixture();y.mutate(s=>s.unrecognizedLargeField='X'.repeat(25000));assert.equal((await y.advance()).status,'hold');assert.equal(y.calls.length,0);
+ const z=fixture();z.mutate(s=>s.completed=[{editionDate:'2026-11-14',pdfSha256:'a'.repeat(64)},{editionDate:'2026-11-15',pdfSha256:'a'.repeat(64)}]);assert.equal((await z.advance()).status,'hold');assert.equal(z.calls.length,0);
 });
