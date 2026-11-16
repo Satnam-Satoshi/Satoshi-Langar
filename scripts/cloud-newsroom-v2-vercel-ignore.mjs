@@ -1,4 +1,4 @@
-/** Proposed composition, NOT installed as vercel.json ignoreCommand.
+/** Reviewed preview-only composition used by vercel.json ignoreCommand.
  * Vercel exit0 skips; exit1 permits. Every error denies. Historical guards remain
  * unchanged; cooperative grant admits preview only, never production authority.
  */

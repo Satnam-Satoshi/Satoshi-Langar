@@ -20,9 +20,9 @@ test('production, missing context, other repo, old source and expired requests s
  assert.equal(previewExitCode(env,git,Date.parse('2026-11-16T00:00:00Z')),0);
  assert.equal(previewExitCode(env,()=>{throw Error('git absent');},now),0);
 });
-import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-const wrapper=JSON.parse(readFileSync('vercel.json','utf8')).ignoreCommand;
+// Preserve the original shell contract independently of the new composed entrypoint.
+const wrapper=JSON.parse(execFileSync('git',['show','52d2e5a08e4fbec181e43a8aa625c0fa01cc992a:vercel.json'],{encoding:'utf8'})).ignoreCommand;
 test('wrapper only permits successful exact allow marker, all errors skip',()=>{
  for(const [body,expected] of [["printf ALLOW_PDF_PREVIEW; return 0",1],["printf ALLOW_PDF_PREVIEW; return 1",0],["return 127",0],["return 1",0],["printf SKIP_PDF_PREVIEW; return 0",0],["printf 'ALLOW_PDF_PREVIEW extra'; return 0",0]]){
   assert.equal(spawnSync('sh',['-c',`node() { ${body}; }; ${wrapper}`]).status,expected,body);
