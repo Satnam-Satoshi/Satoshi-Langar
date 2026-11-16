@@ -1,1 +1,55 @@
-{"schemaVersion":1,"generation":"cloud-newsroom-v2","enabled":false,"previewEnabled":false,"publicationEnabled":false,"emergencyStop":false,"oldWritersDisabled":true,"approvedCodeCommit":"ed8d2f978ecd7c98e03d03aa4cc06b4b2b4d7585","repository":"Satnam-Satoshi/Satoshi-Langar","branch":"agent/cloud-newsroom-v2-20261116","projectId":"prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx","domains":["ltcmagazine.org","satnamsatoshi.com"],"expectedDomains":{"ltcmagazine.org":"dpl_A2SPHGtNuMtq3KbKMGSLUBbg24w8","satnamsatoshi.com":"dpl_A2SPHGtNuMtq3KbKMGSLUBbg24w8"},"fence":2,"completed":[],"run":null,"lease":null,"previewGrant":null,"bootstrap":{"kind":"infrastructure-preview-only","maxDeploymentCreates":1,"createStatus":"preview-created","reviewSha256":"4aa39933d0c4654a6ec66de07b0095026afd6418d68cac9f245856f9ffacb571","intentAt":"2026-11-16T21:38:49.493Z","deploymentId":"dpl_3SvTLVRqCxDrqeXMkv1Ud2QgPzRv","createCalls":1,"createdAt":"2026-11-16T21:39:24.193Z","buildStatus":"READY","readyAt":"2026-11-16T21:40:41.915Z","createToReadyMs":87687,"qaStatus":"awaiting-approved-private-access","grantClosedAt":"2026-11-16T21:41:49.812Z"}}
+{
+  "schemaVersion": 1,
+  "generation": "cloud-newsroom-v2",
+  "enabled": false,
+  "previewEnabled": false,
+  "publicationEnabled": false,
+  "emergencyStop": false,
+  "oldWritersDisabled": true,
+  "approvedCodeCommit": "ed8d2f978ecd7c98e03d03aa4cc06b4b2b4d7585",
+  "repository": "Satnam-Satoshi/Satoshi-Langar",
+  "branch": "agent/cloud-newsroom-v2-20261116",
+  "projectId": "prj_CtNT3hIs3Fn7QIoPWSHtASoBahrx",
+  "domains": [
+    "ltcmagazine.org",
+    "satnamsatoshi.com"
+  ],
+  "expectedDomains": {
+    "ltcmagazine.org": "dpl_A2SPHGtNuMtq3KbKMGSLUBbg24w8",
+    "satnamsatoshi.com": "dpl_A2SPHGtNuMtq3KbKMGSLUBbg24w8"
+  },
+  "fence": 2,
+  "completed": [],
+  "run": null,
+  "lease": null,
+  "previewGrant": null,
+  "bootstrap": {
+    "kind": "infrastructure-preview-only",
+    "maxDeploymentCreates": 1,
+    "createStatus": "preview-created",
+    "reviewSha256": "4aa39933d0c4654a6ec66de07b0095026afd6418d68cac9f245856f9ffacb571",
+    "intentAt": "2026-11-16T21:38:49.493Z",
+    "deploymentId": "dpl_3SvTLVRqCxDrqeXMkv1Ud2QgPzRv",
+    "createCalls": 1,
+    "createdAt": "2026-11-16T21:39:24.193Z",
+    "buildStatus": "READY",
+    "readyAt": "2026-11-16T21:40:41.915Z",
+    "createToReadyMs": 87687,
+    "qaStatus": "critical-http-qa-passed",
+    "grantClosedAt": "2026-11-16T21:41:49.812Z",
+    "qaKind": "legacy-content-infrastructure-bootstrap-not-daily-v2-publication",
+    "qaAt": "2026-11-16T21:50:23.283Z",
+    "qaReportDigests": [
+      "b6bfb5a83dcb0cc52cfc7eed4a74fe7d8d8a32436ebbfa4682bc3284d4b83887",
+      "a644b5e988370672dee2f23595fade0477d763c05f4e9df65f58994acc98a374"
+    ],
+    "qaSummary": {
+      "criticalHtmlRoutes": 6,
+      "jsonApiRoutes": 4,
+      "exactImmutableArtifacts": 3,
+      "productionAliasesUnchanged": true,
+      "nonexistentExploreProbe404": true
+    },
+    "fullSuiteStatus": "historical-fixture-correction-local-independent-rerun-pending"
+  }
+}
