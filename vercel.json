@@ -27,5 +27,5 @@
       ]
     }
   ],
-  "ignoreCommand": "for s in pdf-preview-ignore cloud-newsroom-v2-preview-admission; do r=$(node scripts/$s.mjs 2>/dev/null) && case \"$r\" in ALLOW_PDF_PREVIEW|ALLOW_V2_PINNED_PREVIEW) exit 1;; esac; done; exit 0"
+  "ignoreCommand": "node scripts/cloud-newsroom-v2-vercel-ignore.mjs"
 }

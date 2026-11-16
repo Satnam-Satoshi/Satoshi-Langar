@@ -15,7 +15,9 @@ test('time boundaries, wrong parent, modified tree and git failures denied',()=>
  assert.equal(admitV2Preview(env,()=>{throw Error();},now),false);
  assert.equal(admitV2Preview(env,r=>r==='tree'?tree+'100644 blob '+sha+'\tunexpected.txt\n':git(r),now),false);
 });
-test('wrapper needs exact allow marker and successful command',()=>{
- const wrapper=JSON.parse(readFileSync('vercel.json')).ignoreCommand;
+test('historical shell wrapper needs exact allow marker and successful command',()=>{
+ const wrapper=JSON.parse(execFileSync('git',['show','1e0ea7ae40fab2ccb13cc2d7f8f0b08de40cfcef:vercel.json'],{encoding:'utf8'})).ignoreCommand;
  for(const [body,status] of [['printf ALLOW_V2_PINNED_PREVIEW; return 0',1],['printf ALLOW_V2_PINNED_PREVIEW; return 1',0],['printf "ALLOW_V2_PINNED_PREVIEW extra"; return 0',0],['return 127',0]])assert.equal(spawnSync('sh',['-c',`node() { ${body}; }; ${wrapper}`]).status,status);
 });
+
+test('configured wrapper is the reviewed fail-closed composition',()=>assert.equal(JSON.parse(readFileSync('vercel.json')).ignoreCommand,'node scripts/cloud-newsroom-v2-vercel-ignore.mjs'));
