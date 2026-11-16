@@ -1,3 +1,4 @@
+import EcosystemSpecialPdf from '../components/EcosystemSpecialPdf';
 import LtcPdfIssue from '../components/LtcPdfIssue';
 import MoonHomeFeature from '../components/MoonHomeFeature';
 import EditorialReadingMap from '../components/EditorialReadingMap';
@@ -62,7 +63,7 @@ export default function ConversationsPage(){
    <a href="#archive">Past issues</a>
    <a href="/conversations/desks/">All desks ↗</a>
  </nav>
- <MoonHomeFeature/><div id="daily"><LtcPdfIssue/></div>
+ <MoonHomeFeature/><EcosystemSpecialPdf/><div id="daily"><LtcPdfIssue/></div>
  <section id="previous-daily" className={styles.issueLead} aria-labelledby="daily-title">
    <div className={styles.issueLeadCopy}>
      <p className={styles.eyebrow}>{issue ? <>Previous web briefing · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>

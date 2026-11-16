@@ -1,3 +1,4 @@
+import EcosystemSpecialPdf from './EcosystemSpecialPdf';
 import LtcPdfIssue from './LtcPdfIssue';
 import { editorialSpecials, specialResearchDate } from '../data/editorial-specials';
 import MoonHomeFeature from './MoonHomeFeature';
@@ -35,7 +36,7 @@ export default function HomeFront() {
       <figure className={styles.communityArt}><img src="/home/open-table-network.jpg" width="1536" height="1024" alt="Conceptual illustration of people sharing an open table, with Bitcoin and Litecoin motifs."/><figcaption>Rooted in seva. Open to everyone.<small>Community concept artwork, not an operating kitchen.</small></figcaption></figure>
     </div>
     <CommunityJourney/><RegisterInvitation/>
-      <div id="home-latest-issue"><LtcPdfIssue/></div><section className={styles.magazine} id="home-previous-issue" aria-labelledby="home-issue-title">
+      <EcosystemSpecialPdf/><div id="home-latest-issue"><LtcPdfIssue/></div><section className={styles.magazine} id="home-previous-issue" aria-labelledby="home-issue-title">
         <div className={styles.issueMasthead}>
           <a href="/conversations/">LTC <strong>Magazine</strong></a>
           <span>Independent editorial</span>

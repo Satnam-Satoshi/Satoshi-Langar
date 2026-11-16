@@ -1,5 +1,5 @@
 import buildersNovember from '../../content/specials/litecoin-builders-november-r1.json';
-import moon from '../../content/specials/litecoin-to-the-moon-r3.json';
+import moon from '../../content/specials/litecoin-to-the-moon-r4.json';
 import litvmFamily from '../../content/specials/litvm-family-r1.json';
 import jack from '../../content/specials/jack-mallers-r1.json';
 import birthdayInterview from '../../content/specials/charlie-84million-r1.json';
