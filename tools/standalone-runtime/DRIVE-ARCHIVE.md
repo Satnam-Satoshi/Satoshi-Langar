@@ -33,3 +33,9 @@ Official references verified November 17, 2026:
 - https://developers.google.com/workspace/drive/api/guides/limits
 
 API quotas and potential future overage pricing must be checked before activation; existing storage payment is not a promise of unlimited API or compute use.
+
+## Unattended authentication acceptance gate
+
+Before activation, independently record the actual OAuth application audience, publishing status and granted scopes, rather than inferring them from a successful API call. Verify that the narrow `drive.file` grant supports creation and later retrieval in the intended approved folder; if it does not, hold for an explicit scope/destination decision instead of silently requesting broader Drive access. Exercise revoked/expired-token failure handling, deduplicated alerts through an approved channel, and an owner-led recovery procedure. Recovery must preserve canonical journal identities and must not replay uncertain uploads. No token, refresh secret or client secret belongs in these receipts. A single successful upload/readback is not proof that unattended token refresh or long-term operation works.
+
+Official references: https://developers.google.com/identity/protocols/oauth2 and https://developers.google.com/workspace/drive/api/guides/api-specific-auth . These are acceptance requirements; current dormant adapters do not inspect the actual OAuth application's settings or prove refresh-token reliability.
