@@ -7,11 +7,11 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 const platforms=['X','Instagram'];
 // Exact public hosting boundary; no normalization of attacker-supplied spellings.
 function canonicalPublicUrl(value,kind){
- if(typeof value!=='string'||value.length>2048||/[\s\\%]/.test(value))return false;
+ if(typeof value!=='string'||value.length>2048||value.includes('?')||/[\s\\%]/.test(value))return false;
  try{const u=new URL(value);if(u.protocol!=='https:'||u.hostname!=='ltcmagazine.org'||u.username||u.password||u.port||u.search||u.href!==value||!value.startsWith('https://ltcmagazine.org/'))return false;
  if(!/^\/[A-Za-z0-9_./-]+$/.test(u.pathname)||u.pathname.includes('//')||u.pathname.split('/').some(p=>p==='.'||p==='..'))return false;
- if(kind==='media')return u.pathname.startsWith('/magazine/')&&u.pathname.endsWith('.png')&&!u.hash;
- return u.pathname.startsWith('/conversations/')&&u.pathname.endsWith('/')&&(!u.hash||/^#[A-Za-z0-9_-]+$/.test(u.hash));
+ if(kind==='media')return u.pathname.startsWith('/magazine/')&&u.pathname.endsWith('.png')&&!value.includes('#');
+ return u.pathname.startsWith('/conversations/')&&u.pathname.endsWith('/')&&(!value.includes('#')||/^#[A-Za-z0-9_-]+$/.test(u.hash));
  }catch{return false;}
 }
 const key=(s,p)=>`${s.issueId}|${s.storyId}|${s.contentSha256}|${p}`;
