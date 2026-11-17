@@ -1,6 +1,6 @@
 /** Dormant composition only: exact campaign -> platform draft validation -> one private reservation. */
 import {prepareMarketingCampaign} from './marketing-campaign.mjs';
-import {validateMarketingPlatformRequest} from './marketing-platform-policy.mjs';
+import {validateMarketingPlatformRequest,validateMarketingPlatformActionRequest} from './marketing-platform-policy.mjs';
 import {createFirestoreMarketingSchedule} from './firestore-marketing-schedule.mjs';
 const instant=s=>typeof s==='string'&&/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(s)&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString()===s?Date.parse(s):NaN;
 const token=s=>typeof s==='string'&&/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(s);
@@ -24,19 +24,25 @@ export function createMarketingPreparationRuntime({store,authorityLoaders,loadPl
    if(typeof loadPlatformEvidence!=='function')return hold('independent-platform-evidence-loader-required',common);
    callbackCount++;const evidence=snapshot(await loadPlatformEvidence({draft:snapshot(draft),dueAt:s.dueAt,channelId:fixedChannels[s.platform]}));
    const at=instant(clock());if(!Number.isFinite(at)||at<started||at>=instant(draft.expiresAt)||instant(s.dueAt)<=at||instant(s.dueAt)>=instant(draft.contentExpiresAt))return hold('preparation-evidence-expired-or-clock-invalid',common);
-   if(Object.keys(evidence??{}).sort().join('|')!=='accountLimits|expectedPolicySha256|policy|publishedEvidence')return hold('exact-platform-evidence-required',common);
+   const evidenceKeys=Object.keys(evidence??{}).sort().join('|'),actionPolicy=evidenceKeys==='accountLimits|expectedPolicySha256|expectedQuotaPolicySha256|policy|publishedEvidence|quotaPolicy';
+   if(!actionPolicy&&evidenceKeys!=='accountLimits|expectedPolicySha256|policy|publishedEvidence')return hold('exact-platform-evidence-required',common);
+   const validatePlatform=args=>actionPolicy?validateMarketingPlatformActionRequest({...args,action:'create-draft'}):validateMarketingPlatformRequest(args);
    if(evidence.publishedEvidence?.mediaSha256!==draft.media.sha256)return hold('selected-media-binding-mismatch',common);
    const hashtags=draft.text.split(/\s+/).filter(v=>/^#[A-Za-z][A-Za-z_]{0,30}$/.test(v));
    const post={platform:s.platform==='X'?'twitter':'instagram',channelId:fixedChannels[s.platform],caption:draft.text,storyUrl:draft.storyUrl,mediaUrl:draft.media.url,mediaAlt:draft.media.alt,growthUrl:draft.growthUrl,dueAt:s.dueAt,verifiedHashtags:hashtags,campaignKind:'routine',storyId:draft.storyId};
-   const request=validateMarketingPlatformRequest({...evidence,now:new Date(at).toISOString(),post});
+   const request=validatePlatform({...evidence,now:new Date(at).toISOString(),post});
    if(request.status!=='dormant-request-validated')return hold('platform-policy-or-account-evidence-held',common);
-   if(!reservationEnabled)return {status:'marketing-preparation-validated',...common,draft,request,reservationWriteAttempted:false,authorityReadCallbacksInvoked:callbackCount,providerCalls:null,executeAllowed:false,schedulingAuthorized:false,providerMutationAttempted:false};
+   const validUntil=new Date(Math.min(instant(draft.expiresAt),instant(draft.contentExpiresAt),instant(post.dueAt),instant(evidence.policy.expiresAt),instant(evidence.accountLimits.expiresAt),instant(evidence.publishedEvidence.expiresAt),...evidence.accountLimits.requestWindows.map(w=>instant(w.resetAt)),...(actionPolicy?[instant(evidence.quotaPolicy.expiresAt)]:[]))).toISOString();
+   if(!reservationEnabled)return {status:'marketing-preparation-validated',...common,draft,request,checkedAt:new Date(at).toISOString(),validUntil,reservationWriteAttempted:false,authorityReadCallbacksInvoked:callbackCount,providerCalls:null,executeAllowed:false,schedulingAuthorized:false,providerMutationAttempted:false};
    if(!store||typeof store.Firestore!=='function'||!authorityLoaders)return hold('independent-private-store-and-authorities-required',common);
    const reservationStore=createFirestoreMarketingSchedule({...store,authorityLoaders,clock,mutationEnabled:true});reservationWriteAttempted=true;
    const reservation=await reservationStore.reserve({draft,dueAt:s.dueAt,queueObservationSha256:s.queueObservationSha256});
    const final=instant(clock());if(!Number.isFinite(final)||final<at){uncertain=true;return hold('post-reservation-clock-invalid-no-retry',{...common,reservationMayExist:true});}
-   return {status:'marketing-preparation-observed',...common,draft,request,reservation,preparationCurrent:final<instant(draft.expiresAt)&&final<instant(draft.contentExpiresAt)&&validateMarketingPlatformRequest({...evidence,post,now:new Date(final).toISOString()}).status==='dormant-request-validated',reservationWriteAttempted:true,authorityReadCallbacksInvoked:callbackCount,providerCalls:null,executeAllowed:false,schedulingAuthorized:false,providerMutationAttempted:false};
+   return {status:'marketing-preparation-observed',...common,draft,request,reservation,checkedAt:new Date(final).toISOString(),validUntil,preparationCurrent:final<instant(draft.expiresAt)&&final<instant(draft.contentExpiresAt)&&validatePlatform({...evidence,post,now:new Date(final).toISOString()}).status==='dormant-request-validated',reservationWriteAttempted:true,authorityReadCallbacksInvoked:callbackCount,providerCalls:null,executeAllowed:false,schedulingAuthorized:false,providerMutationAttempted:false};
   }catch{if(reservationWriteAttempted)uncertain=true;return hold('marketing-preparation-failed-no-retry',{authorityReadCallbacksInvoked:callbackCount,providerCalls:callbackCount||reservationWriteAttempted?null:0,reservationWriteAttempted,reservationMayExist:reservationWriteAttempted});}
   finally{busy=false;}
  }});
 }
+
+/** Bounded copy shared by the concrete durable-backlog composition. */
+export const snapshotMarketingPreparationInput=snapshot;

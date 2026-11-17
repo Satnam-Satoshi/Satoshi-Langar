@@ -39,6 +39,10 @@ export const DEPLOYMENT_STORE_CONTRACT=freeze({
  promotionQaRecords:{path:'newsroomPrivatePromotionQaRecordsV2',generation:'standalone-promotion-qa-v2'},
  marketingScheduleInventory:{path:'newsroomPrivateMarketingScheduleV1/inventory',generation:'standalone-marketing-schedule-v1'},
  marketingReservations:{path:'newsroomPrivateMarketingReservationsV1',generation:'standalone-marketing-reservation-v1'},
+ marketingBacklogInventory:{path:'newsroomPrivateMarketingBacklogV1/inventory',generation:'standalone-marketing-backlog-inventory-v1'},
+ marketingBacklogCheckpoint:{path:'newsroomPrivateMarketingBacklogV1/canonical',generation:'standalone-marketing-backlog-checkpoint-v1'},
+ marketingPostingInventory:{path:'newsroomPrivateMarketingPostingV1/inventory',generation:'standalone-marketing-posting-inventory-v1'},
+ marketingPostingIntents:{path:'newsroomPrivateMarketingPostingIntentsV1',generation:'standalone-marketing-posting-intent-v1'},
 });
 const FLAG_NAMES='alerts|dispatch|mutations|network|producer|promotion|publication|render';
 const SECRET_NAMES='brevo|drive|github|vercel';

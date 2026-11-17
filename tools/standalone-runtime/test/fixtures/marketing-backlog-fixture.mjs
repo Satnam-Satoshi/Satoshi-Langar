@@ -1,0 +1,5 @@
+/** Synthetic existing canonical backlog; never real initialization. */
+import {createFirestoreMarketingBacklog,MARKETING_BACKLOG_PATHS} from '../../src/firestore-marketing-backlog.mjs';
+import {marketingScheduleCanonical as c,marketingScheduleSha as sha} from '../../src/firestore-marketing-schedule.mjs';
+import {createArtifactStoreFixture} from '../../smoke/drive-artifact-store-fixture.mjs';
+export function createMarketingBacklogFixture(){const f=createArtifactStoreFixture(),checkpoint={schemaVersion:1,generation:'standalone-marketing-backlog-checkpoint-v1',revision:1,backlog:{schemaVersion:1,entries:[]},batchAfterKey:null};f.rows.set(MARKETING_BACKLOG_PATHS.root,{schemaVersion:1,generation:'standalone-marketing-backlog-inventory-v1',initialized:true,revision:1,checkpointSha256:sha(c(checkpoint)),entries:{},paused:false,platformStops:{X:false,Instagram:false}});f.rows.set(MARKETING_BACKLOG_PATHS.checkpoint,checkpoint);return {...f,make:(extra={})=>createFirestoreMarketingBacklog({...f.config,mutationEnabled:true,...extra})};}

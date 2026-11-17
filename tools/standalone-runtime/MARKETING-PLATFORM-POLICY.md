@@ -25,3 +25,11 @@ Official references reviewed:
 - https://docs.x.com/fundamentals/counting-characters (weighted URL handling; general Unicode needs proper implementation)
 
 Meta's direct publishing limits have conflicting general100/carousel50 daily statements; do not infer an account's remaining quota. Direct Meta JPEG constraints are not identical to Buffer's documented PNG input support. Existing campaign policy remains stricter than technical maxima. No account writes or plan changes were performed or authorized by this module.
+
+## Separate action-specific quota proposal
+
+New `validateMarketingPlatformActionRequest({...existingArgs,action,quotaPolicy,expectedQuotaPolicySha256})` preserves the original validator's strict numeric-capacity behavior. The new entrypoint accepts only `create-draft` or `create-scheduled-post`. It requires independently pinned exact quotaPolicy `{action,quotaMode,reference,checkedAt,expiresAt,evidenceSha256}` valid for at most60seconds. `create-draft` requires private-draft-not-applicable; `create-scheduled-post` requires provider-enforced-scheduling. It accepts accountPublishingRemaining:null only, explicitly returning accountCapacityKnown:false. Neither mode manufactures an account quota observation.
+
+All original current request windows, account/channel observation, restrictive one-routine-per-platform/NYdate, canonical content/media evidence and policy gates remain. The prepared input sets saveToDraft:true only for create-draft; scheduled proposals set false. Every output remains executeAllowed:false/schedulingAuthorized:false. The concrete executor must independently bind exact action, quota-policy digest, final request bytes and action-time approval, retain provider typed-limit rejection as a known rejected result, and reconcile uncertain results without blind retry. Policy evidence is not itself an execution approval.
+
+This alternative is grounded in Buffer's CreatePostInput documentation that private drafts skip posting-limit checks, and its documented LimitReachedError/MutationError handling for provider enforcement. It is not a guarantee that an accepted scheduled post will publish. Missing limit telemetry does not imply capacity; no new Meta authentication or account upgrade is inferred.
