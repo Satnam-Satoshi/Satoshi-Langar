@@ -19,8 +19,13 @@ export function createVercelReadOnly({fetch:fetcher,resolveSecret,secretReferenc
   // Owner-only fields are required. Reduced public responses never establish scope.
   const repositoryMatches=g?.repoId!==undefined?String(g.repoId)==='1181242402':g?.org==='Satnam-Satoshi'&&g.repo==='Satoshi-Langar';
   if(d.id!==deploymentId||d.projectId!==projectId||d.ownerId!==teamId||d.project?.id!==undefined&&d.project.id!==projectId||!states.includes(d.readyState)||![null,'production','staging'].includes(d.target)||g?.type!=='github'||g.sha!==expectedCommit||g.ref!==expectedBranch||!repositoryMatches||g.org!==undefined&&g.org!=='Satnam-Satoshi'||g.repo!==undefined&&g.repo!=='Satoshi-Langar'){stopped=true;return hold('deployment-scope-or-source-mismatch');}
+  let deploymentHostname=null;
+  if(d.url!==undefined&&d.url!==null){
+   if(typeof d.url!=='string'||d.url.length>253||!d.url.endsWith('.vercel.app')||!d.url.split('.').every(label=>label.length>=1&&label.length<=63&&/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label))){stopped=true;return hold('deployment-hostname-invalid');}
+   deploymentHostname=d.url;
+  }
   // Deliberately omit env, creators, protectionBypass and all other raw provider fields.
-  return {status:'deployment-observed',deploymentId,projectId,teamId,commit:expectedCommit,branch:expectedBranch,readyState:d.readyState,target:d.target,responseSha256:r.responseSha256,publicationVerified:false,mutationPerformed:false};
+  return {status:'deployment-observed',deploymentId,projectId,teamId,commit:expectedCommit,branch:expectedBranch,readyState:d.readyState,target:d.target,deploymentHostname,responseSha256:r.responseSha256,publicationVerified:false,mutationPerformed:false};
  }
  async function getProductionAliasObservation(args){
   const d=await getDeployment(args);if(d.status!=='deployment-observed')return d;if(d.readyState!=='READY'||d.target!=='production')return hold('ready-production-deployment-required');
