@@ -1,0 +1,1 @@
+{"deploymentEnabled":false,"effectsEnabled":false,"schedulerEnabled":false,"generation":"standalone-v1","credentialReference":null,"phases":["collect","prepare","review","stage","verify-preview","publish","verify-public","marketing-review","outbox-reconcile"],"durableState":null,"evidenceStore":null,"outboxStore":null,"ownerApprovalReference":null}

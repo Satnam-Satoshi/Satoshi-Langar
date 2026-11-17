@@ -1,0 +1,29 @@
+# Standalone cloud runtime source foundation — NOT DEPLOYED
+
+Independent Node22 OCI source: no ChatGPT, MCP, Library, automations, Mac paths or hidden helper imports. No dependencies, installs, image build, cloud resources, accounts, credentials, scheduler, Buffer writes or production changes were performed. `npm start` always reports deployment-disabled. Examples carry no old enabled flags or canonical ledger.
+
+## What exists
+- `src/job-runner.mjs`: injected durable state/evidence/outbox/credential-reference/provider interfaces. Explicit deployment/effects flags default off. Existing independently initialized state required; no absent-state genesis. Exact job+approval+artifact/source identities, source hash/age ceilings, CAS lease/fence, intent and verified durable outbox before effects, action-time stop/fence/expiry recheck, unknown-outcome hold, same-day/target/phase idempotency. Provider acknowledgment is NOT verified publication. The publish phase is explicitly held in this foundation until real vendor and preview/public QA adapters are implemented and reviewed.
+- Tests exercise deterministic synthetic adapters only. They are not claims of working cloud APIs.
+- Dockerfile requires `NODE22_IMAGE` independently reviewed official Node22 image with immutable digest. No guessed digest/default tag. Python/rendering dependencies intentionally absent until a reviewed renderer image recipe is chosen. No image built.
+- Disabled config lists desired stages; this is not an implemented scheduler or finished multi-stage workflow.
+
+## Adapter contracts and remaining work
+`state.read()` returns existing authoritative schema1/standalone-v1 state; `state.cas({expectedRevision,next})` atomically commits or returnsfalse. No external effect may occur inside a retrying datastore transaction. Canonical history migration/bootstrap and review remain owner decisions; never create a new empty ledger to bypass existing history. This prototype retains jobs without a production retention policy or external reconciliation interface.
+
+`evidence.read({sha256})` returns actual bounded artifact bytes, or source bytes plus independent kind/maxAgeSeconds/retrievedAt/effectiveAt/expiresAt. Actual source authentication, extraction/semantic review, source registry and evidence immutability are NOT supplied by this module. Do not derive approvals/policy caps from generated content. Quote2h/Morpho15m/chain20m/primary24h ceilings bound supplied stricter policies.
+
+`outbox.persist({key,fence,owner,intent})` must durably store and independently read back exact content, returning persisted/key/fence/intentSha256. Caller-authored acknowledgment is not storage proof. `credentials.checkReference` checks an authorized reference, never returns secret material to state/logs. `provider.execute` needs a separately implemented fixed-target adapter; there is no vendor SDK or ambient token lookup. Real provider idempotency/fencing must be tested. The cooperative local checks cannot prevent a malicious or unfenced second writer. Unknown outcomes require independent provider readback and manual/durable reconciliation, not retry.
+
+## Candidate cloud topology, not provisioned IaC
+A reviewed deployment could use Cloud Run Jobs (bounded task timeout, e.g.30minutes), Scheduler triggers, transactional Firestore private state/outbox, content-addressed GCS objects with generation/version bindings, Secret Manager references through runtime service identity. Scheduler deliveries may repeat: datastore idempotency/CAS is mandatory. GCS versioning is not WORM. Resource region, project, identity, IAM/security and paid budget need owner approval; no Terraform apply or account setup is authorized by source preparation. Official image digest, pinned dependency recipe, network allowlist, quotas, metrics/alerts and rollback/cutover procedures remain unimplemented.
+
+Buffer direct API credential is account-wide, not magically scoped by fixed target code; exact organization/channel allowlist and quota-aware reconciliation are required. Avoid frequent full scans; read rate-limit headers and budget calls. Vercel credentials and exact project scope need explicit owner setup. No tokens are embedded or Terraform state written. Drive/MyDrive would require owner OAuth, not assumed service-account ownership.
+
+## Publishing and subscribers
+Public route/PDF/reader readback and reviewed release approval must precede publication completion and RSS events. Existing dormant Brevo hosted double-opt-in form/RSS campaign remains the email design; do not create a custom signup API or change UI. Existing Brevo account/domain setup may already be available; this source does not inspect it or claim it missing. Fresh form/DOI/unsubscribe/feed verification remains necessary while public configuration is disabled. An eventual email adapter requires owner-approved current Brevo/domain/auth and stable verified-release GUIDs; correction revisions need distinct approved identity. There is no dependency on a personal email automation in the final design.
+
+## Owner choices still required
+Cloud provider/account/project/region and spending cap; credential/security scopes; durable archive/retention assurance; canonical history migration and old writer retirement; actual adapter implementation/review; explicit initial deployment/cutover and publishing approvals. No operational completeness is claimed by these tests.
+
+Known workflow restriction: current idempotency key is editionDate+target+phase. A different artifact for the same key safely HOLDS even if it is a separately approved same-day correction. This is not a full revision lifecycle. Future reviewed integration needs canonical immutable issueId/revision and distinct per-channel scheduling keys, while preserving original editions and approval history. Do not loosen the existing conflict hold to force a correction through this prototype.

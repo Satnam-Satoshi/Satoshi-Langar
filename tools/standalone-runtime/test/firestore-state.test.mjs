@@ -1,0 +1,19 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+import {createFirestoreState,FIRESTORE_STATE_DOCUMENT} from '../src/firestore-state.mjs';
+const state = revision => ({schemaVersion:1,generation:'standalone-v1',initialized:true,revision,fence:0,emergencyStop:false,jobs:{}});
+const canonical = s => JSON.stringify(Object.fromEntries(Object.entries(s).sort(([a],[b])=>a.localeCompare(b))));
+const row = s => ({schemaVersion:1,generation:'standalone-v1',revision:s.revision,payloadJson:canonical(s)});
+function fixture() { let stored = row(state(1)), writes = 0, repeats = 1, uncertain = false;
+ const snap = () => ({exists:stored!==null,data:()=>structuredClone(stored)});
+ const ref = {path:FIRESTORE_STATE_DOCUMENT,get:async()=>snap()};
+ const sdk = {databaseId:'(default)',doc:path=>{assert.equal(path,ref.path);return ref;},runTransaction:async cb=>{let result,pending;for(let i=0;i<repeats;i++) result=await cb({get:async r=>{assert.equal(r,ref);return snap();},update:(r,value)=>{assert.equal(r,ref);pending=value;}});if(pending){stored=pending;writes++;}if(uncertain)throw Error('unknown-commit');return result;}};
+ return {sdk,get stored(){return stored;},set stored(v){stored=v;},get writes(){return writes;},set repeats(v){repeats=v;},set uncertain(v){uncertain=v;}};
+}
+const adapter=(f,enabled=true)=>createFirestoreState({Firestore:function(settings){assert.deepEqual(settings,{projectId:'synthetic-project',databaseId:'(default)',ignoreUndefinedProperties:false});return f.sdk;},expectedProjectId:'synthetic-project',expectedDatabaseId:'(default)',mutationEnabled:enabled});
+test('default mutations disabled, exact project/document required',async()=>{const f=fixture();await assert.rejects(adapter(f,false).cas({expectedRevision:1,next:state(2)}),/disabled/);assert.equal(f.writes,0);assert.throws(()=>createFirestoreState({Firestore:function(){return f.sdk;},expectedProjectId:'bad/project',expectedDatabaseId:'(default)'}),/bound-firestore/);f.sdk.databaseId='other-database';assert.throws(()=>adapter(f),/bound-firestore/);});
+test('read and CAS use existing canonical document, stale revisions return false',async()=>{const f=fixture(),a=adapter(f);assert.deepEqual(await a.read(),state(1));assert.equal(await a.cas({expectedRevision:1,next:state(2)}),true);assert.deepEqual(await a.read(),state(2));assert.equal(await a.cas({expectedRevision:1,next:state(2)}),false);assert.equal(f.writes,1);});
+test('missing state never creates implicit genesis',async()=>{const f=fixture();f.stored=null;await assert.rejects(adapter(f).read(),/existing-state/);await assert.rejects(adapter(f).cas({expectedRevision:1,next:state(2)}),/existing-state/);assert.equal(f.writes,0);});
+test('provider transaction replay does not repeat external effects',async()=>{const f=fixture();f.repeats=3;assert.equal(await adapter(f).cas({expectedRevision:1,next:state(2)}),true);assert.equal(f.writes,1);});
+test('uncertain commit throws, subsequent read reconciles committed revision',async()=>{const f=fixture(),a=adapter(f);f.uncertain=true;await assert.rejects(a.cas({expectedRevision:1,next:state(2)}),/unknown-commit/);assert.equal((await a.read()).revision,2);assert.equal(f.writes,1);});
+test('bad envelopes, noncanonical payloads, revision mismatch fail closed',async()=>{for(const alter of [r=>r.extra=true,r=>r.revision=9,r=>r.payloadJson='not-json',r=>r.payloadJson=' '+r.payloadJson]){const f=fixture();alter(f.stored);await assert.rejects(adapter(f).read());assert.equal(f.writes,0);}});
+test('non-JSON, oversized and unsafe counter updates rejected before transaction',async()=>{for(const next of [{...state(2),bad:undefined},{...state(2),bad:NaN},{...state(2),bad:'x'.repeat(524288)},state(Number.MAX_SAFE_INTEGER)]){const f=fixture();await assert.rejects(adapter(f).cas({expectedRevision:1,next}));assert.equal(f.writes,0);}});
