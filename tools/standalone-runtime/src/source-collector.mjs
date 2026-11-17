@@ -40,7 +40,7 @@ export function createSourceCollector({networkEnabled=false,transport,clock=()=>
    observations.push(observation);evidence.push({sourceId:source.id,locator,sha256,bytes:Buffer.from(r.bytes)});
    try{const result=source.id==='core'?extractCloudNewsroomV2CoreRelease({rawBytes:r.bytes,observation,now:finishedAt,previousRelease:previousCoreRelease}):/^text\/html/i.test(r.contentType)?await html(r.bytes,observation,source):{status:'gap',reason:'semantic_parser_not_implemented',publishable:false};
    extractions.push({sourceId:source.id,...result});}catch{extractions.push({sourceId:source.id,status:'gap',reason:'extraction_failed',claimVerified:false,publishable:false});}
-  }catch{observations.push({sourceId:source.id,url:source.url,checkedAt,status:'gap',reason:'retrieval_unavailable_or_unsupported'});extractions.push({sourceId:source.id,status:'gap',reason:'retrieval_unavailable_or_unsupported',publishable:false});}
+  }catch(error){const reason=['invalid_clock','transport_missing','retrieval_deadline','http_or_redirect_hold','byte_limit','unsupported_media','nonpublic_dns','unregistered_url','unsafe_url','timeout','aborted','encoded_response'].includes(error?.message)?error.message:'retrieval_unavailable_or_unsupported';observations.push({sourceId:source.id,url:source.url,checkedAt,status:'gap',reason});extractions.push({sourceId:source.id,status:'gap',reason,publishable:false});}
  }
  return {registrySha256:SOURCE_REGISTRY_SHA256,observations,extractions,evidence,networkRequestsEnabled:networkEnabled,claimVerified:false,publishable:false,ecosystemCoverageComplete:false,publicationExecuted:false};
  }};
