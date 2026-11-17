@@ -83,7 +83,7 @@ export function createCloudNewsroomV2ToolDispatcher({tools,clock,grantObserver,l
   return createCloudNewsroomV2HttpQa({transport:httpTransport,clock,trustedPlan:plan})[kind](request);
  };
  adapters=createCloudNewsroomV2ConnectorAdapters({tools:callbacks,clock,allowMutations:allowEffects===true,allowPromotion:false,grantObserver,qaVerifier:{verify:r=>verify('verify',r),verifyPublic:r=>verify('verifyPublic',r)},qaArchive:archive});
- const productionReady=allowEffects===true&&production?.enabled===true&&production.repository===S.repository&&production.projectId===S.projectId&&JSON.stringify([...(production.domains??[])].sort())===JSON.stringify([...S.domains].sort())&&production.archivePolicy?.kind==='owned-library-limited-assurance'&&production.archivePolicy.accepted===true&&production.archivePolicy.aclVerified===false&&production.archivePolicy.worm===false&&production.archivePolicy.retention==='subject-to-account-policy'&&typeof production.loadBoundRequest==='function'&&typeof production.archive?.persistQa==='function';
+ const productionReady=allowEffects===true&&production?.enabled===true&&production.repository===S.repository&&production.projectId===S.projectId&&JSON.stringify([...(production.domains??[])].sort())===JSON.stringify([...S.domains].sort())&&production.archivePolicy?.kind==='owned-library-limited-assurance'&&production.archivePolicy.accepted===true&&production.archivePolicy.accessAssurance==='owned-root-create-no-sharing-in-workflow'&&production.archivePolicy.aclVerified===false&&production.archivePolicy.worm===false&&production.archivePolicy.retention==='subject-to-account-policy'&&typeof production.loadBoundRequest==='function'&&typeof production.archive?.persistQa==='function';
  const productionAdvance=async({runId}={})=>{
   if(!productionReady)return {status:'hold',reason:'production_disabled_or_independent_archive_policy_missing',promotionAuthorized:false};
   if(typeof runId!=='string'||!/^[A-Za-z0-9_-]{1,80}$/.test(runId))return {status:'hold',reason:'run_id_required',promotionAuthorized:false};
@@ -151,7 +151,8 @@ export function createCloudNewsroomV2ToolRpc({send,allowEffects=false,allowPromo
  * callbacks can be rpc.libraryCallbacks from createCloudNewsroomV2ToolRpc.
  * They execute actual approved tools in the agent, then the official-helper local
  * recipe. Unknown upload outcomes stay in the durable effect journal. No retries.
- * Production archive is deliberately NOT derived from this test-only backend.
+ * Production archive requires explicit archiveMode production-limited-assurance
+ * and the exact independently accepted archivePolicy. Missing mode holds production.
  */
 export function createCloudNewsroomV2DispatcherWithLibraryCallbacks({library,...options}={}){
  if(!library||typeof library.workRoot!=='string'||typeof library.journal?.runOnce!=='function'||['createAndApply','listOwnedRoot','materializeAndObserve'].some(k=>typeof library.callbacks?.[k]!=='function'))throw Error('explicit_private_library_callback_configuration');
@@ -165,10 +166,15 @@ export function createCloudNewsroomV2DispatcherWithLibraryCallbacks({library,...
   return library.callbacks.materializeAndObserve({...args,created:structuredClone(created)});
  };
  const transport=()=>{if(options.allowEffects!==true)throw Error('library_effects_disabled');return initialized??=createCloudNewsroomV2LibraryTransport({workRoot:library.workRoot,journal:library.journal,...library.callbacks,materializeAndObserve});};
- return createCloudNewsroomV2ToolDispatcher({...options,libraryTransport:{
+ const archiveTransport={
   createOwnedRoot:async a=>{const created=await (await transport()).createOwnedRoot(a);createdRows.set(created.library_file_id+'|'+created.file_id,structuredClone(created));return created;},
   list:async a=>(await transport()).list(a),materialize:async a=>(await transport()).materialize(a)
- }});
+ };
+ // Dormant production archive is a separately named mode with exact policy. It
+ // shares durable official callbacks, never a secretly reused test-only factory.
+ let production=options.production?{...options.production,archive:undefined}:undefined;
+ if(production?.archiveMode==='production-limited-assurance')production.archive=createCloudNewsroomV2LibraryQaArchive({mode:'production-limited-assurance',acceptancePolicy:production.archivePolicy,transport:archiveTransport});
+ return createCloudNewsroomV2ToolDispatcher({...options,production,libraryTransport:archiveTransport});
 }
 
 /** Fixed read-only live wiring probe. Agent operation map:

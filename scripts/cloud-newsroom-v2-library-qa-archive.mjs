@@ -3,14 +3,17 @@ import {prepareCloudNewsroomV2QaArchivePayload} from './cloud-newsroom-v2-qa-arc
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const fail=message=>{throw Error(message);};
 const identifier=(value,prefix)=>typeof value==='string'&&new RegExp(`^${prefix}[A-Za-z0-9_-]{1,200}$`).test(value);
-/** TEST-ONLY alternative backend. No default I/O, activation, sharing, replacement,
+/** Limited-assurance alternative backend, test-only by default. Production mode
+ * requires exact separately accepted assurance policy, NOT implied ACL/WORM. No default I/O, activation, sharing, replacement,
  * move, ACL or WORM operations. Callbacks must use official Library operations.
  * Owned-root provenance comes from create-without-directory + owned-root list
  * request semantics, NOT absence of a sharing flag. ACLs/trash/expiry are not
  * exposed by observed Library metadata, so none are asserted here.
  */
-export function createCloudNewsroomV2LibraryQaArchive({mode,transport}){
- if(mode!=='test-only'||!['createOwnedRoot','list','materialize'].every(k=>typeof transport?.[k]==='function'))fail('test-only-explicit-library-adapter-required');
+export const OWNED_LIBRARY_ARCHIVE_ACCEPTANCE=Object.freeze({kind:'owned-library-limited-assurance',accepted:true,accessAssurance:'owned-root-create-no-sharing-in-workflow',aclVerified:false,worm:false,retention:'subject-to-account-policy'});
+export function createCloudNewsroomV2LibraryQaArchive({mode='test-only',transport,acceptancePolicy}={}){
+ const approvedProduction=mode==='production-limited-assurance'&&acceptancePolicy&&Object.keys(acceptancePolicy).sort().join(',')===Object.keys(OWNED_LIBRARY_ARCHIVE_ACCEPTANCE).sort().join(',')&&Object.entries(OWNED_LIBRARY_ARCHIVE_ACCEPTANCE).every(([key,value])=>acceptancePolicy[key]===value);
+ if((mode!=='test-only'&&!approvedProduction)||!['createOwnedRoot','list','materialize'].every(k=>typeof transport?.[k]==='function'))fail('test-only-or-explicit-production-policy-and-library-adapter-required');
  return Object.freeze({async persistQa(request){
   const {bytes,sha256,name,snapshot}=prepareCloudNewsroomV2QaArchivePayload(request);
   let created;try{created=await transport.createOwnedRoot({name,bytes:bytes.slice(),mimeType:'application/json',library_artifact_type:'other'});}catch{fail('library-create-unconfirmed-no-retry');}
