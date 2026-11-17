@@ -33,3 +33,7 @@ These should be requested with exact project, recipient, permissions, cost and c
 - Rollback/reconciliation is tested without overwriting a newer external deployment. Cooperative checks do not provide provider-enforced fencing across independent writers.
 
 Until these gates pass, report the particular tested layer and remaining gap. Do not describe the whole website, source ecosystem or marketing operation as refreshed/autonomous because one draft, container or fixture succeeded.
+
+## Optional model data boundary
+
+No model provider is activated by these modules. Before adding a research or editorial model endpoint, independently verify the actual account, billing tier, region, retention/training terms and approved input scope. A free allowance or existing account is not approval to transmit private editorial drafts, subscriber records or credentials. Keep credentials out of model inputs under all tiers; minimize other data and require the applicable sharing approval. A paid tier must not be assumed to mean zero logging or retention. Synthetic local tests do not establish a provider's privacy configuration.
