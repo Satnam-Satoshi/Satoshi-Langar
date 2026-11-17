@@ -47,6 +47,8 @@ jobs:
           node --test scripts/test-cloud-newsroom-v2-*.mjs
       - name: Verify desk display and immutable route inventory without publishing
         run: npm run test:desk-status
+      - name: Verify isolated marketing scheduler composition without execution
+        run: npm run test:marketing-scheduler
       - name: Read public primary sources into isolated new evidence
         run: node scripts/cloud-newsroom-v2-scan.mjs --output "$RUNNER_TEMP/newsroom-v2-evidence"
       - name: Check research cannot modify tracked source or publish

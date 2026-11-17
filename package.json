@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test:marketing-scheduler": "node --test tools/cloud-marketing/scheduler/test*.mjs",
     "test:desk-status": "node --test tools/desk-status/test-*.mjs tools/route-freshness/test-*.mjs tools/desk-coverage/test-*.mjs tools/desk-rendering/test-*.mjs",
     "dev": "next dev --webpack",
     "build": "node scripts/build-browser.mjs && next build --webpack && node scripts/portable-export.mjs",
