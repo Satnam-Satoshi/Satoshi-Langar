@@ -2,7 +2,8 @@ name: Cloud newsroom v2 isolated research proof
 # No schedule and no publishing job. This tests a NEW generation, not recovery.
 on:
   push:
-    branches: [agent/cloud-newsroom-v2-20261116]
+    branches: [agent/cloud-newsroom-v2-20261116, agent/desk-status-preparation-20261117]
+    # All paths intentionally trigger, including tools/desk-status/** and tools/route-freshness/**.
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,7 +12,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   research-proof:
-    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/agent/cloud-newsroom-v2-20261116'
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && (github.ref == 'refs/heads/agent/cloud-newsroom-v2-20261116' || github.ref == 'refs/heads/agent/desk-status-preparation-20261117')
     runs-on: ubuntu-24.04
     env:
       LTC_MARKETING_PYTHON: /usr/bin/python3
@@ -44,6 +45,8 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git merge-base --is-ancestor fd45e107ac37e537195b7311baeba8cd40b2f035 "$GITHUB_SHA"
           node --test scripts/test-cloud-newsroom-v2-*.mjs
+      - name: Verify desk display and immutable route inventory without publishing
+        run: npm run test:desk-status
       - name: Read public primary sources into isolated new evidence
         run: node scripts/cloud-newsroom-v2-scan.mjs --output "$RUNNER_TEMP/newsroom-v2-evidence"
       - name: Check research cannot modify tracked source or publish

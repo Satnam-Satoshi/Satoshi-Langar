@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test:desk-status": "node --test tools/desk-status/test-*.mjs tools/route-freshness/test-*.mjs",
     "dev": "next dev --webpack",
     "build": "node scripts/build-browser.mjs && next build --webpack && node scripts/portable-export.mjs",
     "start": "next start",
