@@ -33,10 +33,28 @@ export function qaProofCanonical(value) {
 }
 const held = reason => ({status:'held',reason,publicationVerified:false,promotionAllowed:false,retryAuthorized:false});
 const QA_KEYS=['status','phase','candidateDeploymentId','sourceCommit','projectId','expectedBaselineDeploymentId','manifestSha256','planSha256','evidenceSha256','checkedAt','expiresAt','fresh','domainObservations','baselineObservation','providerResponseSha256','publicationVerified','promotionAllowed','mutationPerformed','atomic','reconciliationOnly'];
+const PUBLIC_DOMAINS=['ltcmagazine.org','satnamsatoshi.com'];
+function publicObservations(p) {
+ if(p.baselineObservation!==null||p.domainObservations.length!==2)return false;
+ const observations=[...p.domainObservations].sort((a,b)=>String(a?.domain).localeCompare(String(b?.domain)));
+ for(let i=0;i<2;i++){
+  const o=observations[i];
+  if(!exact(o,['domain','artifacts','editionHtmlSha256','routesPassed','readerArtifactBytesVerified','readerMarkerObserved','renderedContentEquivalence','visualQaVerified'])||o.domain!==PUBLIC_DOMAINS[i]||o.routesPassed!==true||o.readerArtifactBytesVerified!==true||typeof o.readerMarkerObserved!=='boolean'||o.renderedContentEquivalence!==false||o.visualQaVerified!==false||!hex(o.editionHtmlSha256)||!Array.isArray(o.artifacts)||o.artifacts.length!==4)return false;
+  const roles=new Set();
+  for(const a of o.artifacts){const mime={pdf:'application/pdf',reader:'text/html',cover:'image/png',promo:'image/png'}[a?.role];if(!exact(a,['role','sha256','bytes','mimeType'])||!mime||roles.has(a.role)||a.mimeType!==mime||!hex(a.sha256)||!Number.isSafeInteger(a.bytes)||a.bytes<=0)return false;roles.add(a.role);}
+ }
+ const artifacts=o=>qaProofCanonical([...o.artifacts].sort((a,b)=>a.role.localeCompare(b.role)));
+ return artifacts(observations[0])===artifacts(observations[1]);
+}
 function proofBoundary(proofJson,binding) {
  if(typeof proofJson!=='string'||Buffer.byteLength(proofJson)>131072||!proofJson)throw Error('frozen-canonical-qa-required');
  const p=JSON.parse(proofJson);
- if(qaProofCanonical(p)!==proofJson||!exact(p,QA_KEYS)||p.status!=='preview-qa-verified'||p.phase!=='preview'||p.reconciliationOnly!==false||p.fresh!==true||p.publicationVerified!==false||p.promotionAllowed!==false||p.mutationPerformed!==false||p.atomic!==false||!id(p.expectedBaselineDeploymentId)||![p.evidenceSha256,p.providerResponseSha256].every(hex)||!Array.isArray(p.domainObservations)||p.domainObservations.length!==1||!p.baselineObservation||!Number.isFinite(stamp(p.checkedAt))||!(stamp(p.expiresAt)>stamp(p.checkedAt)))throw Error('exact-preview-qa-proof-required');
+ if(qaProofCanonical(p)!==proofJson||!exact(p,QA_KEYS)||p.publicationVerified!==false||p.promotionAllowed!==false||p.mutationPerformed!==false||p.atomic!==false||!id(p.expectedBaselineDeploymentId)||![p.evidenceSha256,p.providerResponseSha256].every(hex)||!Array.isArray(p.domainObservations)||!Number.isFinite(stamp(p.checkedAt))||!Number.isFinite(stamp(p.expiresAt)))throw Error('exact-qa-proof-required');
+ if(p.phase==='preview'){
+  if(p.status!=='preview-qa-verified'||p.reconciliationOnly!==false||p.fresh!==true||p.domainObservations.length!==1||!p.baselineObservation||!(stamp(p.expiresAt)>stamp(p.checkedAt)))throw Error('exact-preview-qa-proof-required');
+ }else if(p.phase==='public'){
+  if(p.status!=='production-readback-observed'||p.reconciliationOnly!==true||typeof p.fresh!=='boolean'||p.fresh&&stamp(p.expiresAt)<=stamp(p.checkedAt)||!publicObservations(p))throw Error('exact-public-readback-proof-required');
+ }else throw Error('exact-qa-phase-required');
  for(const key of Object.keys(binding))if(p[key]!==binding[key])throw Error('qa-proof-binding-mismatch');
  return p;
 }
@@ -46,7 +64,7 @@ export function createQaProofArchive({store,drive,binding:given,proofJson,clock,
  dataProperties(store);dataProperties(drive);
  if(!exact(store,['Firestore','expectedProjectId','expectedDatabaseId','claim'])||!exact(drive,['fetch','resolveSecret','secretReference','folderId','ownerPermissionId','loadApproval'])||[store.Firestore,drive.fetch,drive.resolveSecret,drive.loadApproval,clock].some(f=>typeof f!=='function')||typeof networkEnabled!=='boolean'||typeof mutationsEnabled!=='boolean')throw Error('fixed-qa-archive-boundary-required');
  const binding=JSON.parse(qaProofCanonical(given));
- if(!exact(binding,['phase','projectId','sourceCommit','candidateDeploymentId','planSha256','manifestSha256'])||binding.phase!=='preview'||!id(binding.projectId)||!id(binding.candidateDeploymentId)||typeof binding.sourceCommit!=='string'||!/^[a-f0-9]{40}$/.test(binding.sourceCommit)||![binding.planSha256,binding.manifestSha256].every(hex))throw Error('fixed-qa-proof-binding-required');
+ if(!exact(binding,['phase','projectId','sourceCommit','candidateDeploymentId','planSha256','manifestSha256'])||!['preview','public'].includes(binding.phase)||!id(binding.projectId)||!id(binding.candidateDeploymentId)||typeof binding.sourceCommit!=='string'||!/^[a-f0-9]{40}$/.test(binding.sourceCommit)||![binding.planSha256,binding.manifestSha256].every(hex))throw Error('fixed-qa-proof-binding-required');
  const proof=proofBoundary(proofJson,binding),bytes=Buffer.from(proofJson),digest=sha(bytes),mimeType='application/json';
  const privateStore={...store,claim:JSON.parse(qaProofCanonical(store.claim))},privateDrive={...drive};
  // Validate the fixed Drive boundary without obtaining a token or making a request.
@@ -66,7 +84,7 @@ export function createQaProofArchive({store,drive,binding:given,proofJson,clock,
   if(observed.status!=='existing-archive-readback-verified'||!(observed.verifiedBytes instanceof Uint8Array)||!Buffer.from(observed.verifiedBytes).equals(bytes)||observed.fileId!==r.fileId||observed.version!==r.fileVersion||observed.folderId!==identity.folderId||observed.sha256!==digest||observed.bytes!==bytes.length||observed.mimeType!==mimeType||observed.ownerOnlyObserved!==true||observed.atomic!==false||observed.worm!==false)throw Error('exact-qa-readback-required');
   const after=known(await j.read({key}));if(qaProofCanonical(after)!==qaProofCanonical(r))throw Error('qa-upload-state-changed');
   const checkedAt=clock(),at=stamp(checkedAt);if(!Number.isFinite(at)||at<startedAt||at<stamp(proof.checkedAt))throw Error('qa-archive-clock');
-  return {status:'qa-proof-archived',receipt:{fileId:r.fileId,version:r.fileVersion,sha256:digest,bytes:bytes.length},proofCheckedAt:proof.checkedAt,proofExpiresAt:proof.expiresAt,checkedAt,fresh:at<stamp(proof.expiresAt),ownerOnlyObserved:true,atomic:false,worm:false,retention:'subject-to-account-policy',qaAuthorityAuthenticated:false,publicationVerified:false,promotionAllowed:false,retryAuthorized:false};
+  return {status:'qa-proof-archived',receipt:{fileId:r.fileId,version:r.fileVersion,sha256:digest,bytes:bytes.length},proofCheckedAt:proof.checkedAt,proofExpiresAt:proof.expiresAt,checkedAt,fresh:proof.fresh===true&&at<stamp(proof.expiresAt),ownerOnlyObserved:true,atomic:false,worm:false,retention:'subject-to-account-policy',qaAuthorityAuthenticated:false,publicationVerified:false,promotionAllowed:false,retryAuthorized:false};
  }
  async function run(write) {
   if(!networkEnabled||write&&!mutationsEnabled)return held('qa-archive-disabled');if(busy)return held('qa-archive-busy');busy=true;

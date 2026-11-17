@@ -51,3 +51,26 @@ test('binding snapshot and frozen bytes are not replaced by later caller mutatio
  const f=fixture(),h=f.make();f.config.binding.sourceCommit='0'.repeat(40);f.config.proofJson='private replacement';assert.equal((await h.advance()).status,'qa-proof-archived');assert.equal(f.counters.posts,1);
  const g=fixture();g.base.now='2026-11-17T14:08:00.000Z';assert.equal((await g.make().advance()).status,'held');assert.equal(g.counters.posts,0);
 });
+function publicFixture(){
+ const f=fixture();f.binding.phase='public';Object.assign(f.proof,{phase:'public',status:'production-readback-observed',reconciliationOnly:true,baselineObservation:null});
+ f.proof.domainObservations=['ltcmagazine.org','satnamsatoshi.com'].map(domain=>({...structuredClone(f.proof.domainObservations[0]),domain}));
+ f.config.proofJson=qaProofCanonical(f.proof);return f;
+}
+test('successful both-domain public readback archives exact bytes and resumes GET-only',async()=>{
+ const f=publicFixture(),first=await f.make().advance();assert.equal(first.status,'qa-proof-archived');assert.equal(first.publicationVerified,false);assert.equal(first.fresh,true);assert.equal(f.counters.posts,1);
+ const again=await f.make({mutationsEnabled:false}).readback();assert.deepEqual(again.receipt,first.receipt);assert.equal(f.counters.posts,1);assert.equal([...f.files.values()][0].bytes.toString(),f.config.proofJson);
+});
+test('historical public proof may expire before observedAt and never gains freshness',async()=>{
+ for(const expiresAt of ['2026-11-17T14:08:00.000Z','2026-11-17T14:12:00.000Z']){
+  const f=publicFixture();Object.assign(f.proof,{fresh:false,expiresAt});f.config.proofJson=qaProofCanonical(f.proof);
+  const r=await f.make().advance();assert.equal(r.status,'qa-proof-archived');assert.equal(r.fresh,false);assert.equal(r.proofExpiresAt,expiresAt);assert.equal(r.promotionAllowed,false);assert.equal([...f.files.values()][0].bytes.toString(),f.config.proofJson);
+ }
+});
+test('public archive rejects failed, missing, duplicate or foreign domains and unequal artifact proof',()=>{
+ const faults=[p=>p.domainObservations.pop(),p=>p.domainObservations[1].domain='ltcmagazine.org',p=>p.domainObservations[1].domain='elsewhere.example',p=>p.domainObservations[0].routesPassed=false,p=>p.domainObservations[0].readerArtifactBytesVerified=false,p=>p.domainObservations[0].artifacts.pop(),p=>p.domainObservations[0].artifacts[1].role='pdf',p=>p.domainObservations[0].artifacts[0].sha256='0'.repeat(64),p=>p.domainObservations[0].artifacts[0].bytes=0,p=>p.baselineObservation={},p=>p.status='public-qa-verified',p=>p.reconciliationOnly=false,p=>p.expiresAt='2026-11-17T14:08:00.000Z',p=>p.expiresAt='invalid'];
+ for(const fault of faults){const f=publicFixture();fault(f.proof);assert.throws(()=>f.make({proofJson:qaProofCanonical(f.proof)}));assert.equal(f.counters.posts,0);}
+});
+test('phase/source/plan binding cannot substitute earlier preview for public frozen proof',()=>{
+ const f=publicFixture();assert.throws(()=>f.make({proofJson:fixture().config.proofJson}));
+ for(const key of ['sourceCommit','candidateDeploymentId','planSha256','manifestSha256']){const g=publicFixture();g.proof[key]=key==='candidateDeploymentId'?'dpl_wrong':'0'.repeat(key==='sourceCommit'?40:64);assert.throws(()=>g.make({proofJson:qaProofCanonical(g.proof)}));}
+});

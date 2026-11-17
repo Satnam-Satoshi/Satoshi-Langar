@@ -35,6 +35,8 @@ export const DEPLOYMENT_STORE_CONTRACT=freeze({
  vercelPromotionIntents:{path:'newsroomPrivateVercelPromotionIntentsV1',generation:'standalone-vercel-promotion-intent-v1'},
  releaseQaInventory:{path:'newsroomPrivateReleaseQaV1/inventory',generation:'standalone-release-qa-v1'},
  releaseQaProofs:{path:'newsroomPrivateReleaseQaProofsV1',generation:'standalone-release-qa-proof-v1'},
+ promotionQaInventory:{path:'newsroomPrivatePromotionQaV2/inventory',generation:'standalone-promotion-qa-v2'},
+ promotionQaRecords:{path:'newsroomPrivatePromotionQaRecordsV2',generation:'standalone-promotion-qa-v2'},
 });
 const FLAG_NAMES='alerts|dispatch|mutations|network|producer|promotion|publication|render';
 const SECRET_NAMES='brevo|drive|github|vercel';

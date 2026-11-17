@@ -35,3 +35,11 @@ The helper returns receipt metadata, never raw proof bytes, token values or prov
 Tests use the actual Drive/upload/journal modules over a transactional fake SDK and fake Drive. They exercise exact bytes, restart with restored state, zero duplicate uploads, unknown POST outcomes, lost/reset inventory, changed ACL/media, expired/final-readback clocks, immutable input binding and proof JSON larger than identity-string limits. They do not prove live IAM/OAuth, real provider retention/durability or production approval.
 
 `node --test test/qa-proof-archive.test.mjs`
+
+## Final-preview and public-readback stages
+
+The same factory also accepts binding `phase:'public'`. Its proof must be the actual `production-readback-observed` result with `reconciliationOnly:true`, null baseline, exactly the two canonical public domains, successful routes and reader-byte checks, and matching complete four-artifact hash/size/MIME observations. Missing, failed, duplicate or foreign domains cannot be archived as this success schema. These are structural checks, not independent reconstruction of provider truth.
+
+Final-preview still uses `phase:'preview'`. The concrete promotion-stage journal must independently freeze the **second/final preview QA** before the promotion intent, bind its exact JSON digest to that intent, and prevent replacing it with the earlier preview archive. Public readback has its own immutable stage. This helper does not create stage identities, choose a preview or infer that an archived preview is the final one.
+
+Public reconciliation can occur after evidence expires: historical `fresh:false` and an expiry before the public observation time are valid archival input. Original bytes and clocks remain unchanged, and output freshness requires both original `fresh:true` and an unexpired deadline after all readback checks. Archive success never means release completion, fresh source evidence, provider fencing or promotion permission; the concrete orchestrator must bind stage, actual QA and archive receipt before recording completion. Existing preview API and validation remain available.
