@@ -1,4 +1,9 @@
 import type { Metadata } from 'next';
-import LtcPdfIssue from '../../../components/LtcPdfIssue';
-export const metadata: Metadata={title:'November 17, 2026 · The Filing Clock · LTC Magazine',description:'The 29-page public web derivative of the November 17 LTC Magazine daily edition.',alternates:{canonical:'https://ltcmagazine.org/editions/2026-11-17/'}};
-export default function Page(){return <main><nav aria-label="Magazine navigation" style={{padding:'1.5rem'}}><a href="/conversations/">← LTC Magazine</a></nav><LtcPdfIssue full/></main>}
+import November17Issue from '../../../components/November17Issue';
+export const metadata: Metadata = {
+  title: 'The Filing Clock · November 17, 2026 · LTC Magazine',
+  description: 'A connected editorial edition: Bitcoin filings, fund flows, Litecoin holdings, Morpho markets, builders and the dates behind the numbers.',
+  alternates: { canonical: 'https://ltcmagazine.org/conversations/editions/2026-11-17/' },
+  openGraph: { title: 'The Filing Clock · LTC Magazine', description: 'Read the filing. Respect the date. The November 17, 2026 web edition.' },
+};
+export default function Page() { return <November17Issue/>; }
