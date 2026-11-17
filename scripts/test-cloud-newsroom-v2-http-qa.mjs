@@ -94,3 +94,31 @@ test('promo MIME determines immutable PNG/JPEG/WebP destination; unsupported cov
  }
  for(const role of ['cover','promo']){const x=fixture();x.trustedPlan.receipt.artifacts.find(a=>a.role===role).mimeType='image/svg+xml';assert.throws(()=>createCloudNewsroomV2HttpQa(x),/image-mime/);}
 });
+import {hasExactEditionPdfLink} from './cloud-newsroom-v2-http-qa.mjs';
+import {readFile,access} from 'node:fs/promises';
+test('exact exported relative PDF link and lowercase datetime pass, spoof variants fail',async()=>{
+ for(const href of ['../../../magazine/daily/2026-11-17/r1/edition.pdf','/magazine/daily/2026-11-17/r1/edition.pdf']){const x=fixture(),p=x.trustedPlan.receipt.publication.page;x.bodies.set(p,encode(new TextDecoder().decode(x.bodies.get(p)).replace('href="/magazine/daily/2026-11-17/r1/edition.pdf"','href="'+href+'"').replace('dateTime=','datetime=')));assert.equal((await createCloudNewsroomV2HttpQa(x).verify(x.request)).passed,true);}
+ for(const href of ['https://evil.test/magazine/daily/2026-11-17/r1/edition.pdf','//approved-build.vercel.app/magazine/daily/2026-11-17/r1/edition.pdf','../../../magazine/daily/2026-11-17/r1/edition.pdf?x=1','../../../magazine/daily/2026-11-17/r1/edition.pdf#x','../../../magazine/daily/2026-11-17/r1/%65dition.pdf','../../../magazine/daily/other.pdf'])assert.equal(hasExactEditionPdfLink('<a href="'+href+'">PDF</a>','https://approved-build.vercel.app/conversations/editions/2026-11-17/','/magazine/daily/2026-11-17/r1/edition.pdf'),false);
+});
+test('actual portable-export output PDF link resolves exactly (postbuild integration)',async t=>{
+ const file='dist/conversations/editions/2026-11-16/index.html';try{await access(file);}catch{t.skip('Run after pnpm build for actual portable-export output');return;}
+ const text=await readFile(file,'utf8');assert.ok(text.includes('href="../../../magazine/daily/LTC-2026-11-16-v1.0.pdf"'));
+ assert.equal(hasExactEditionPdfLink(text,'https://ltcmagazine.org/conversations/editions/2026-11-16/','/magazine/daily/LTC-2026-11-16-v1.0.pdf'),true);
+ assert.equal(hasExactEditionPdfLink(text,'https://ltcmagazine.org/conversations/editions/2026-11-16/','/magazine/daily/LTC-2026-11-15-v1.0.pdf'),false);
+ assert.match(text,/<time\b[^>]*\sdatetime="2026-11-16"/i);
+});
+import {hasExactEditionTime} from './cloud-newsroom-v2-http-qa.mjs';
+test('quote-aware PDF and time attributes reject nested attribute and raw-text spoofs',()=>{
+ const url='https://approved-build.vercel.app/conversations/editions/2026-11-17/',pdf='/magazine/daily/2026-11-17/r1/edition.pdf';
+ for(const text of [`<a title=' href="${pdf}"'>not a link</a>`,`<div title='<a href="${pdf}">'>text</div>`,`<a href="${pdf}" href="/wrong.pdf">duplicate</a>`,`<a HREF="${pdf}" href="${pdf}">duplicate</a>`,`<textarea><a href="${pdf}">text</a></textarea>`,`<script>"<a href='${pdf}'>"</script>`])assert.equal(hasExactEditionPdfLink(text,url,pdf),false,text);
+ for(const text of [`<time title=' datetime="2026-11-17"'>wrong</time>`,`<div title='<time datetime="2026-11-17">'>wrong</div>`,`<time datetime="2026-11-17" DATETIME="2026-11-17">dup</time>`,`<textarea><time datetime="2026-11-17">raw</time></textarea>`])assert.equal(hasExactEditionTime(text,'2026-11-17'),false,text);
+ assert.equal(hasExactEditionPdfLink(`<a title='quoted > value and href="/wrong.pdf"' href='${pdf}'>valid</a>`,url,pdf),true);
+ assert.equal(hasExactEditionTime(`<time title='datetime="wrong" >' datetime='2026-11-17'>valid</time>`,'2026-11-17'),true);
+});
+
+test('nested templates hold and boolean attributes retain lexical separation',()=>{
+ const u='https://approved-build.vercel.app/conversations/editions/2026-11-17/',p='/magazine/daily/2026-11-17/r1/edition.pdf';
+ assert.equal(hasExactEditionPdfLink(`<template><template></template><a href="${p}">inert</a></template>`,u,p),false);
+ assert.equal(hasExactEditionPdfLink(`<a download href="${p}">PDF</a>`,u,p),true);
+ assert.equal(hasExactEditionTime('<time hidden datetime="2026-11-17">date</time>','2026-11-17'),true);
+});

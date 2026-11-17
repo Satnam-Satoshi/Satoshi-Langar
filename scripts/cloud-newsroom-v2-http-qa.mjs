@@ -15,6 +15,62 @@ const stamp=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(v)?Date.parse(v):
  * HTTP content does not attest provider deployment/source ownership or source truth;
  * coordinator separately checks provider identity and domain readback.
  */
+/** Small fail-closed start-tag tokenizer, not a browser DOM parser/sanitizer.
+ * Attribute values are consumed as a unit, so quoted markup cannot become tags
+ * or attributes. Unknown/malformed/duplicate attributes cause a failed check.
+ */
+function editionStartTags(text){
+ if(typeof text!=='string'||text.length>2*1024*1024)return null;
+ const tags=[];let i=0;
+ const space=c=>c!==undefined&&/[\t\n\f\r ]/.test(c);
+ while(i<text.length){
+  i=text.indexOf('<',i);if(i<0)break;
+  if(text.startsWith('<!--',i)){const end=text.indexOf('-->',i+4);if(end<0)return null;i=end+3;continue;}
+  if(text.startsWith('</',i)||text.startsWith('<!',i)){const end=text.indexOf('>',i+2);if(end<0)return null;i=end+1;continue;}
+  const name=/^[A-Za-z][A-Za-z0-9:-]*/.exec(text.slice(i+1));if(!name)return null;
+  const tag=name[0].toLowerCase(),attrs=new Map();i+=1+name[0].length;
+  let done=false;
+  while(i<text.length){
+   let separated=false;while(space(text[i])){separated=true;i++;}
+   if(text[i]==='>'){i++;done=true;break;}
+   if(text[i]==='/'&&text[i+1]==='>'){i+=2;done=true;break;}
+   if(!separated)return null;
+   const attribute=/^[A-Za-z_:][A-Za-z0-9_:.-]*/.exec(text.slice(i));if(!attribute)return null;
+   const key=attribute[0].toLowerCase();if(attrs.has(key))return null;i+=attribute[0].length;
+   const afterName=i;while(space(text[i]))i++;
+   let value=null;
+   if(text[i]==='='){
+    i++;while(space(text[i]))i++;
+    if(text[i]==='"'||text[i]==="'"){const quote=text[i++],end=text.indexOf(quote,i);if(end<0)return null;value=text.slice(i,end);i=end+1;}
+    else {const unquoted=/^[^\t\n\f\r "'`=<>]+/.exec(text.slice(i));if(!unquoted)return null;value=unquoted[0];i+=value.length;}
+   }
+   if(value===null)i=afterName;
+   attrs.set(key,value);
+  }
+  if(!done)return null;
+  if(tag==='template')return null; // No partial nested-template DOM emulation.
+  tags.push({tag,attrs});
+  if(['script','style','textarea','title','xmp','iframe','noembed','noframes'].includes(tag)){
+   const close=new RegExp('</'+tag+'\\s*>','ig');close.lastIndex=i;const end=close.exec(text);if(!end)return null;i=close.lastIndex;
+  }else if(tag==='plaintext')break;
+ }
+ return tags;
+}
+/** Only root-relative or ordinary relative hrefs resolving to exact same-origin
+ * PDF; no scheme, query, fragment, entity, encoding or base reinterpretation. */
+export function hasExactEditionPdfLink(text,editionUrl,pdfPath){
+ const tags=editionStartTags(text);if(!tags||!safePath(pdfPath)||tags.some(t=>t.tag==='base'))return false;
+ let base;try{base=new URL(editionUrl);}catch{return false;}
+ for(const {tag,attrs}of tags){
+  if(tag!=='a')continue;const href=attrs.get('href');
+  if(typeof href!=='string'||!href||!/^[/A-Za-z0-9._-]+$/.test(href)||href.includes('//'))continue;
+  const resolved=new URL(href,base);if(resolved.origin===base.origin&&resolved.pathname===pdfPath&&!resolved.search&&!resolved.hash)return true;
+ }
+ return false;
+}
+export function hasExactEditionTime(text,date){
+ const tags=editionStartTags(text);return Boolean(tags&&tags.some(({tag,attrs})=>tag==='time'&&attrs.get('datetime')===date));
+}
 export function createCloudNewsroomV2HttpQa({transport,clock,trustedPlan}){
  if(typeof transport?.read!=='function'||typeof clock!=='function')fail('explicit-transport-and-clock-required');
  const plan=structuredClone(trustedPlan),r=plan?.receipt,m=r?.validation?.manifest,p=r?.publication;
@@ -50,7 +106,7 @@ export function createCloudNewsroomV2HttpQa({transport,clock,trustedPlan}){
   return result.body;
  };
  const decode=bytes=>{try{return new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch{fail('invalid-html-utf8');}};
- const html=async(url,markers)=>{const bytes=await fetchBytes(url,htmlLimit,'text/html'),text=decode(bytes).replace(/<!--[\s\S]*?-->/g,'').replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,'');if(!/^\s*<!doctype html>/i.test(text)||!/<\/html>\s*$/i.test(text)||markers.some(marker=>!text.includes(marker)))fail('html-markers-or-truncation');return {url,bytes:bytes.length,sha256:sha(bytes)};};
+ const html=async(url,markers,inspect)=>{const bytes=await fetchBytes(url,htmlLimit,'text/html'),text=decode(bytes).replace(/<!--[\s\S]*?-->/g,'').replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,'');if(!/^\s*<!doctype html>/i.test(text)||!/<\/html>\s*$/i.test(text)||markers.some(marker=>!text.includes(marker)))fail('html-markers-or-truncation');if(inspect&&!inspect(text))fail('edition-link-or-date-mismatch');return {url,bytes:bytes.length,sha256:sha(bytes)};};
  const checkHost=async(host)=>{
   const origin=`https://${host}`,observations=[];
   const pdfBytes=await fetchBytes(origin+pdfPath,pdf.bytes,'application/pdf');
@@ -65,7 +121,7 @@ export function createCloudNewsroomV2HttpQa({transport,clock,trustedPlan}){
    if(bytes.length!==image.bytes||sha(bytes)!==image.sha256||!signature)fail(`${image.role}-bytes-signature-or-hash`);
    observations.push({role:image.role,url:origin+image.publicPath,bytes:bytes.length,sha256:sha(bytes),mimeType:image.mimeType});
   }
-  observations.push(await html(origin+editionPath,[`<link rel="canonical" href="${p.canonicalUrl}"`, `<h1>${escape(p.title)}</h1>`,`dateTime="${m.editionDate}"`,`href="${pdfPath}"`,'data-trusted-daily-reader="ltc-inert-html-v1"',`id="reader-${id}"`]));
+  observations.push(await html(origin+editionPath,[`<link rel="canonical" href="${p.canonicalUrl}"`, `<h1>${escape(p.title)}</h1>`,'data-trusted-daily-reader="ltc-inert-html-v1"',`id="reader-${id}"`],text=>hasExactEditionPdfLink(text,origin+editionPath,pdfPath)&&hasExactEditionTime(text,m.editionDate)));
   for(const route of plan.criticalRoutes)observations.push(await html(origin+route.path,route.markers));
   return {domain:host,routesPassed:true,pdfBytesPassed:true,pdfSha256:pdf.sha256,readerBytesPassed:true,readerSha256:reader.sha256,coverBytesPassed:true,coverSha256:imageArtifacts[0].sha256,promoBytesPassed:true,promoSha256:imageArtifacts[1].sha256,observations};
  };
