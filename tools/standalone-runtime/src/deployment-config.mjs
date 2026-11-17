@@ -21,6 +21,9 @@ export const DEPLOYMENT_STORE_CONTRACT=freeze({
  brevoEffects:{path:'newsroomPrivateBrevoAlertsV1',generation:'standalone-brevo-alert-journal-v1'},
  consumerInbox:{path:'newsroomPrivateConsumerInboxV1',generation:'standalone-consumer-inbox-v1'},
  releaseOutbox:{path:'newsroomStandaloneOutboxV1',generation:'standalone-outbox-v1'},
+ uploadInventory:{path:'newsroomPrivateUploadInventoryV1/root',generation:'standalone-upload-inventory-v1'},
+ artifactBundleInventory:{path:'newsroomPrivateArtifactBundlesV1/inventory',generation:'standalone-artifact-bundles-v1'},
+ artifactBundles:{path:'newsroomPrivateArtifactBundleV1',generation:'standalone-artifact-bundle-v1'},
  uploadJournal:{path:'newsroomPrivateUploadJournalV1',generation:'standalone-upload-journal-v1'},
 });
 const FLAG_NAMES='alerts|dispatch|mutations|network|producer|promotion|publication|render';

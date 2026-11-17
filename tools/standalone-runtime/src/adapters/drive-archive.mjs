@@ -12,7 +12,7 @@ export function planDriveArchiveUpload({bytes,mimeType}={}){if(!(bytes instanceo
 export function createDriveArchive({fetch:transport,resolveSecret,secretReference,folderId,ownerPermissionId,existingFiles=[],networkEnabled=false,mutationsEnabled=false,timeoutMs=15000}={}){
  if(typeof transport!=='function'||typeof resolveSecret!=='function'||typeof secretReference!=='string'||!secretReference||secretReference.length>500||!id(folderId)||!id(ownerPermissionId)||typeof networkEnabled!=='boolean'||mutationsEnabled!==false||!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>30000||!Array.isArray(existingFiles)||existingFiles.length>100||existingFiles.some(x=>!expected(x))||new Set(existingFiles.map(x=>x.fileId)).size!==existingFiles.length)throw Error('invalid_independent_boundary');
  const files=new Map(existingFiles.map(x=>[x.fileId,Object.freeze({...x})]));let busy=false,stopped=false;
- async function run(fileId){
+ async function run(fileId,includeBytes=false){
   if(!networkEnabled)return held('network_disabled');if(stopped)return held('previous_read_requires_review');if(busy)return held('concurrent_read_denied');if(fileId!==undefined&&!files.has(fileId))return held('file_not_independently_allowlisted');busy=true;
   const controller=new AbortController();let timer;
   try{return await Promise.race([(async()=>{
@@ -27,9 +27,9 @@ export function createDriveArchive({fetch:transport,resolveSecret,secretReferenc
    const e=files.get(fileId),before=await privateMetadata(fileId);
    function bind(m){if(m.version!==e.version||m.name!==e.name||m.mimeType!==e.mimeType||m.size!==String(e.bytes)||m.sha256Checksum!==e.sha256||m.capabilities?.canDownload!==true||!Array.isArray(m.parents)||m.parents.length!==1||m.parents[0]!==folderId)throw Error('artifact_metadata_mismatch');}
    bind(before);const media=await get('files/'+fileId,{alt:'media'},true);if(media.bytes.length!==e.bytes||sha(media.bytes)!==e.sha256||media.mimeType!==e.mimeType)throw Error('artifact_byte_mismatch');const after=await privateMetadata(fileId);bind(after);const folderAfter=await privateMetadata(folderId,true);if(folderAfter.version!==folder.version)throw Error('folder_changed_during_read');
-   return {status:'existing-archive-readback-verified',fileId,folderId,version:e.version,sha256:e.sha256,bytes:e.bytes,mimeType:e.mimeType,ownerOnlyObserved:true,atomic:false,worm:false,retention:'subject-to-account-policy',uploadPerformed:false,publicationVerified:false};
+   return {status:'existing-archive-readback-verified',fileId,folderId,version:e.version,sha256:e.sha256,bytes:e.bytes,mimeType:e.mimeType,ownerOnlyObserved:true,atomic:false,worm:false,retention:'subject-to-account-policy',uploadPerformed:false,publicationVerified:false,...includeBytes?{verifiedBytes:new Uint8Array(media.bytes)}:{}};
   })(),new Promise((_,no)=>{timer=setTimeout(()=>{controller.abort();no(Error('timeout'));},timeoutMs);})]);
   }catch(e){stopped=true;controller.abort();return held(['credential_unavailable','timeout','http_or_redirect_hold','response_format','response_bounds','owner_identity_mismatch','owner_private_metadata_required','folder_not_ready','owner_only_permissions_required','artifact_metadata_mismatch','artifact_byte_mismatch','folder_changed_during_read'].includes(e?.message)?e.message:'read_failed_no_retry');}finally{clearTimeout(timer);busy=false;}
  }
- return Object.freeze({preflight:()=>run(),verifyExisting:fileId=>run(fileId),planUpload:planDriveArchiveUpload});
+ return Object.freeze({preflight:()=>run(),verifyExisting:fileId=>run(fileId),readVerifiedArtifact:fileId=>run(fileId,true),planUpload:planDriveArchiveUpload});
 }

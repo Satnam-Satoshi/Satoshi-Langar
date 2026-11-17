@@ -1,4 +1,5 @@
-# Recipe only, not a built or approved image. No digest/package defaults.
+# Source recipe, not a production-approved image. Test-only CI builds are separately verified.
+# No digest/package defaults.
 # Context: tools/standalone-runtime; supply independently reviewed Debian pins.
 ARG NODE22_DIGEST
 FROM node:22-bookworm-slim@sha256:${NODE22_DIGEST} AS runtime-deps
@@ -23,6 +24,7 @@ WORKDIR /app
 COPY --chown=node:node package.json ./
 COPY --chown=node:node src ./src
 COPY --chown=node:node renderer ./renderer
+COPY --chown=node:node smoke ./smoke
 ENV NODE_ENV=production PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 USER node
 CMD ["node", "src/main.mjs"]
@@ -42,8 +44,8 @@ USER node
 RUN --network=none node --test test/*.mjs \
  && /usr/bin/python3 -m unittest discover -s renderer -p 'test_*.py' -v
 
-# Default final image deliberately retains the disabled entrypoint, not tests,
-# a schedule, a publishing command or runtime secret configuration.
+# Default final image retains the disabled entrypoint and explicit synthetic smoke helpers,
+# not the test suite, a schedule, a publishing command or runtime secret configuration.
 FROM runtime-deps AS runtime
 USER node
 CMD ["node", "src/main.mjs"]

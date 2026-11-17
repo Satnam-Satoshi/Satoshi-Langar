@@ -6,17 +6,15 @@ Mission: protect one approved Drive artifact identity from accidental repeat upl
 
 Canonical identity is exactly `{folderId,ownerPermissionId,name,mimeType,bytes,sha256}` with sorted JSON keys. Name derives from hash and allowed MIME suffix; size is bounded to the uploader's 5,000,000 bytes. Treat this collection as private: it contains owner/folder and later file IDs. This module does not configure security rules or assert privacy merely from the namespace.
 
-## Required prior state (not created here)
+## Existing global inventory; atomic genuine-new-key allocation
 
-An independently approved initializer must already have created an exact initialized row:
+The independently initialized private root is fixed at `newsroomPrivateUploadInventoryV1/root`, generation `standalone-upload-inventory-v1`, schema `{schemaVersion:1,generation,initialized:true,revision,claims:{<identityKey>:<same identityKey>}}`. No initializer is provided. Approved migration must preserve every prior claimed upload identity; an empty replacement root cannot be used to forget uploads.
 
-```
-{schemaVersion:1, generation:'standalone-upload-journal-v1', initialized:true,
- key, identityJson:canonical(identity), version:0,
- payloadJson:canonical({version:0,record:null})}
-```
+Reads transactionally check root and exact content-identity row. Only unclaimed-plus-absent returns virtual `{version:0,record:null}` without writing. First CAS atomically adds a claim and creates version-1/attempting, under the existing live controller lease. No manual per-artifact initialization is needed. Missing root, orphan row, known missing row, or known version-0/null row all hold. Existing null rows cannot automatically be migrated as fresh.
 
-No bootstrap helper is exported. Missing row is an error, never synthesized null state. Initialization and a live claim must be independently authorized, not supplied by an untrusted producer. `claim` is captured in the factory because the uploader's read/CAS request has no owner/fence fields. Each CAS reads existing `newsroomControl/standalone-v1`, verifies initialized envelope/revision, emergency stop off, and matching unexpired owner/fence lease, in the same transaction as the journal update. Journal initialization binds the immutable artifact identity; the existing control lease does not itself approve that artifact or a Drive upload. The uploader still requires its separate exact approval and private-folder preflight.
+Inventory is capped at 1,000 lifetime claims and 256 KiB; exhaustion holds without rotation. The last safe revision remains readable; a further increment is rejected before writes. Actual effect row envelope remains `{schemaVersion:1,generation:'standalone-upload-journal-v1',initialized:true,key,identityJson:canonical(identity),version,payloadJson:canonical(state)}`.
+
+`claim` is captured in the factory because uploader requests have no owner/fence fields. Every CAS checks existing `newsroomControl/standalone-v1` initialized revision, emergency-stop off and matching live owner/fence lease in the same transaction. Control is never written. This gate does not itself approve a Drive upload; the uploader still requires exact approval and private-folder preflight.
 
 ## Transitions and uncertainty
 
@@ -26,7 +24,7 @@ Any transaction or readback exception latches mutation in that instance. Reads r
 
 ## Remaining integration seams
 
-- No journal initializer, lease acquisition, production wiring, credentials, IAM, scheduler or vendor recovery is added.
+- No global inventory initializer, lease acquisition, production wiring, credentials, IAM, scheduler or vendor recovery is added.
 - A lease can expire or stop can change after the CAS transaction. The unchanged uploader has no final control re-read immediately before HTTP. This adapter cannot promise revocation fencing or provider-enforced fencing across that gap; deployment remains dormant pending reviewed orchestration.
 - Read-only re-verification of an already verified artifact is permitted without a live mutation lease. Marking a pending artifact verified still requires a current independently supplied matching lease.
 - The SDK constructor and configured project identity are trusted injection boundaries, not authenticated by this module.

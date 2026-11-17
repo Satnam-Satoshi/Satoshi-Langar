@@ -1,1 +1,1 @@
-{"name":"ltc-standalone-runtime-foundation","private":true,"version":"0.0.0","type":"module","engines":{"node":">=22 <23"},"scripts":{"test":"node --test test/*.mjs","start":"node src/main.mjs"}}
+{"name":"ltc-standalone-runtime-foundation","private":true,"version":"0.0.0","type":"module","engines":{"node":">=22 <23"},"scripts":{"test":"node --test test/*.mjs","start":"node src/main.mjs","smoke:editorial":"node smoke/editorial.mjs --synthetic"}}
