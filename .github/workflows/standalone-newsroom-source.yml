@@ -9,7 +9,7 @@ jobs:
   source-tests:
     if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/agent/standalone-newsroom-20261117'
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -28,5 +28,7 @@ jobs:
         run: |
           node --test test/*.mjs
           test "$(node src/main.mjs)" = '{"status":"deployment-disabled","reason":"Reviewed adapters, owner configuration and independent state initialization required","effects":[]}'
+      - name: Build official-image container and test disabled startup without publishing
+        run: bash tools/standalone-runtime/container-ci.sh
       - name: Verify no tracked file was changed
         run: test -z "$(git status --porcelain)"

@@ -1,11 +1,11 @@
 # Standalone cloud runtime source foundation — NOT DEPLOYED
 
-Independent Node22 OCI source: no ChatGPT, MCP, Library, automations, Mac paths or hidden helper imports. No dependencies, installs, image build, cloud resources, accounts, credentials, scheduler, Buffer writes or production changes were performed. `npm start` always reports deployment-disabled. Examples carry no old enabled flags or canonical ledger.
+Independent Node22 OCI source: no ChatGPT, MCP, Library, automations, Mac paths or hidden helper imports. Local and source-only CI tests use explicitly documented rendering dependencies. No cloud resources, accounts, credentials, scheduler, Buffer writes or production changes were performed. `npm start` always reports deployment-disabled. Examples carry no old enabled flags or canonical ledger.
 
 ## What exists
 - `src/job-runner.mjs`: injected durable state/evidence/outbox/credential-reference/provider interfaces. Explicit deployment/effects flags default off. Existing independently initialized state required; no absent-state genesis. Exact job+approval+artifact/source identities, source hash/age ceilings, CAS lease/fence, intent and verified durable outbox before effects, action-time stop/fence/expiry recheck, unknown-outcome hold, same-day/target/phase idempotency. Provider acknowledgment is NOT verified publication. The publish phase is explicitly held in this foundation until real vendor and preview/public QA adapters are implemented and reviewed.
 - Tests exercise deterministic synthetic adapters only. They are not claims of working cloud APIs.
-- Dockerfile requires `NODE22_IMAGE` independently reviewed official Node22 image with immutable digest. No guessed digest/default tag. Python/rendering dependencies intentionally absent until a reviewed renderer image recipe is chosen. No image built.
+- Dockerfile requires an official Node22 immutable `NODE22_DIGEST` and exact Debian dependency versions. It includes Python, rendering code and fonts, with a nonroot disabled entrypoint. The isolated CI build resolves test-only observed pins; actual build results and production security review are separate. See CONTAINER.md.
 - Disabled config lists desired stages; this is not an implemented scheduler or finished multi-stage workflow.
 
 ## Adapter contracts and remaining work
