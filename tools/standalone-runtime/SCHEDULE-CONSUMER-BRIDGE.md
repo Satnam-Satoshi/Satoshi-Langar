@@ -6,7 +6,17 @@ Use its dispatchTargetSha256 and alertDestinationSha256 in the monitor configura
 
 Provider journal factory receives `{kind,identity}` and must return inventory-backed durable read/cas adapters. The reviewed Firestore effect wrappers atomically allocate a genuinely new key and its intent under an existing initialized root; known missing rows and unindexed legacy rows hold. Root initialization and legacy migration are separate prerequisites. Cloud Run identity uses dispatchId=event.runId. Brevo identity uses exact sender/recipient, fixed event, and exact content hash; runSha256 hashes the **whole original scheduler binding**, preserving original reason/event/key/payload/destination even if a later reviewed reason mapping is introduced. This binding is persisted by the actual provider adapter before HTTP. Scheduler approval and provider-specific approval are separate authenticated sources; a reference is not silently renamed into permission.
 
-Only exact current provider reason values are supported; the monitor's run-failed directly matches. Stalled/held/late, source-coverage-gaps/stale and other unmatched labels explicitly HOLD. No lossy semantic mapping is performed. A future truthful mapping/template must be separately reviewed, preserve the original binding digest and retain approval scope.
+Only these explicit monitor reason/health pairs map to existing fixed Brevo templates:
+
+| Original monitor reason | Required health status | Provider reason |
+| --- | --- | --- |
+| run-failed | failed | run-failed |
+| scheduled-run-absent | missed | missed-run |
+| verified-both-domain-receipt-required | unknown | publication-unverified |
+
+The ORIGINAL reason, health status and full payload remain in the scheduler key/payload digest and saved intent. Only the provider event/template uses the mapped reason. Its runSha256 still hashes the entire original binding, and the provider-specific approval must match that exact resulting identity/content. A mapping never renames or manufactures scheduler/provider approval. Delayed delivery reconciles under the original scheduler key with no resend.
+
+Stalled/held/late, source-coverage-gaps/stale, malformed history and all other unmatched labels explicitly HOLD, as do mismatched health statuses or direct injection of a provider-only reason. Source gaps are not mislabeled failed runs. No provider enum/template was widened. Additional health signals need separately reviewed truthful templates/mapping before alert coverage is complete.
 
 ## Acceptance versus provider acknowledgment
 
