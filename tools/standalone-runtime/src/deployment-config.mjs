@@ -25,6 +25,16 @@ export const DEPLOYMENT_STORE_CONTRACT=freeze({
  artifactBundleInventory:{path:'newsroomPrivateArtifactBundlesV1/inventory',generation:'standalone-artifact-bundles-v1'},
  artifactBundles:{path:'newsroomPrivateArtifactBundleV1',generation:'standalone-artifact-bundle-v1'},
  uploadJournal:{path:'newsroomPrivateUploadJournalV1',generation:'standalone-upload-journal-v1'},
+ candidateRefInventory:{path:'newsroomPrivateCandidateRefsV1/inventory',generation:'standalone-candidate-ref-inventory-v1'},
+ candidateRefIntents:{path:'newsroomPrivateCandidateRefIntentsV1',generation:'standalone-candidate-ref-intent-v1'},
+ gitObjectInventory:{path:'newsroomPrivateGitObjectsV1/inventory',generation:'standalone-git-object-inventory-v1'},
+ gitObjectPlans:{path:'newsroomPrivateGitObjectPlansV1',generation:'standalone-git-object-plan-v1'},
+ vercelPreviewInventory:{path:'newsroomPrivateVercelPreviewsV1/inventory',generation:'standalone-vercel-preview-inventory-v1'},
+ vercelPreviewIntents:{path:'newsroomPrivateVercelPreviewIntentsV1',generation:'standalone-vercel-preview-intent-v1'},
+ vercelPromotionInventory:{path:'newsroomPrivateVercelPromotionsV1/inventory',generation:'standalone-vercel-promotion-inventory-v1'},
+ vercelPromotionIntents:{path:'newsroomPrivateVercelPromotionIntentsV1',generation:'standalone-vercel-promotion-intent-v1'},
+ releaseQaInventory:{path:'newsroomPrivateReleaseQaV1/inventory',generation:'standalone-release-qa-v1'},
+ releaseQaProofs:{path:'newsroomPrivateReleaseQaProofsV1',generation:'standalone-release-qa-proof-v1'},
 });
 const FLAG_NAMES='alerts|dispatch|mutations|network|producer|promotion|publication|render';
 const SECRET_NAMES='brevo|drive|github|vercel';
