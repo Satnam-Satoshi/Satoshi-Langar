@@ -13,6 +13,8 @@ Optional independent observations:
 
 `sourceRecords` are inert data, not HTML; do not render strings with innerHTML. This adapter preserves existing source metadata without verifying claims. `reviewBacklog` is a suggestion list only, not a durable queue or authorization. No route planner reachability result establishes freshness or permits a daily writer to modify desks.
 
-Run from this clone: `node --test tools/desk-status/test-*.mjs tools/route-freshness/test-*.mjs` (51 tests, including actual pinned source smoke and immutable Git filesystem fixtures).
+Run from this clone: `npm run test:desk-status` (107 tests, including actual pinned source smoke and immutable Git filesystem fixtures).
 
 Remaining integration: editorial metadata for the Explore special; genuine page/domain publication observation adapter; actual metric source extraction and strict policy inventory; separately reviewed TSX presentation/data change and release. Existing daily four-artifact+issue-registry allowlist remains unchanged.
+
+The package command also runs tools/desk-coverage/test-*.mjs and the append-only desk revision tests. These are preparation/coverage contracts only; CI does not activate a writer. See REVISIONS.md and ../desk-coverage/README.md.
