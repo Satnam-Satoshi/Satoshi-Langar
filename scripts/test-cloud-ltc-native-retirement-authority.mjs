@@ -14,3 +14,12 @@ test('native capability binds final immutable candidate and ignores caller token
 for(const [name,change] of Object.entries({publish:b=>b.action='publish',wrongReview:b=>b.reviewSha256='0'.repeat(64),extraBoolean:b=>b.approved=true,missingDigest:b=>delete b.proposalStateSha256}))test('reject '+name+' before API',async()=>{const h=authority(),b=binding();change(b);await assert.rejects(h.authorize(true,b));assert.equal(h.calls(),0);});
 for(const time of [301000,NaN,999])test('capability rejects stale or invalid time '+time,async()=>{const h=authority(),b=binding(),cap=await h.authorize(null,b);h.setClock(time);assert.throws(()=>cap.assertValid(b));});
 test('config mutation after construction cannot change reviewed digest',async()=>{const h=authority();h.f.config.expectedReviewSha256='0'.repeat(64);assert.equal((await h.authorize(null,binding())).assertValid(binding()),true);});
+
+for(const status of ['missing','queued','pending','in_progress','failed','duplicate'])test('stop step readiness '+status,()=>{
+ const f=fixture(),j=f.jobs.jobs[1];j.started_at=new Date(0).toISOString();
+ const step={name:'Wait for post-approval fresh writer-stop evidence',status:status==='failed'?'completed':status,conclusion:status==='failed'?'failure':null,started_at:new Date(500).toISOString()};
+ j.steps=status==='missing'?[]:status==='duplicate'?[step,step]:[step];
+ const a=validateNativeRetirementApproval(f);assert.equal(a.stopStepPending,['missing','queued','pending'].includes(status));
+ if(status==='in_progress')assert.equal(a.stopStepStartedAt,500);else assert(Number.isNaN(a.stopStepStartedAt));
+ f.approvals[0].user.id=1;assert.throws(()=>validateNativeRetirementApproval(f),/retirement_native_owner_approval/);
+});

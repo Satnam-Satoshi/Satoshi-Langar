@@ -19,7 +19,10 @@ export function validateNativeRetirementApproval({config:c,run,jobs,approvals,no
  const a=relevant[0];
  check(a.state==='approved'&&a.user?.id===268053325&&a.user.type==='User'&&a.environments.length===1&&a.environments[0].name===gate&&a.environments[0].id===c.environmentId,'owner_approval');
  const stopSteps=(createJob.steps??[]).filter(s=>s.name==='Wait for post-approval fresh writer-stop evidence');const stopStep=stopSteps.length===1?stopSteps[0]:null;
- return Object.freeze({stopStepStartedAt:stopStep&&(stopStep.status==='in_progress'&&stopStep.conclusion===null||stopStep.status==='completed'&&stopStep.conclusion==='success')?Date.parse(stopStep.started_at):NaN,runId:c.runId,productionJobId:createJob.id,productionJobStartedAt:Date.parse(createJob.started_at),observedAt:now,expiresAt:now+300000});
+ // GitHub may publish the running job before its current step is visible.
+ // This signal permits polling only; it is not writer-stop evidence.
+ const stopStepPending=stopSteps.length===0||(stopSteps.length===1&&['queued','pending'].includes(stopStep.status)&&stopStep.conclusion===null);
+ return Object.freeze({stopStepPending,stopStepStartedAt:stopStep&&(stopStep.status==='in_progress'&&stopStep.conclusion===null||stopStep.status==='completed'&&stopStep.conclusion==='success')?Date.parse(stopStep.started_at):NaN,runId:c.runId,productionJobId:createJob.id,productionJobStartedAt:Date.parse(createJob.started_at),observedAt:now,expiresAt:now+300000});
 }
 // Trusted reviewed workflow verifies checkout/manifest before constructing this
 // reader. API evidence does not independently prove executed source or settings.

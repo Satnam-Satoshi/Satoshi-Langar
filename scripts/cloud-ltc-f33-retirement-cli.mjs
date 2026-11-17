@@ -61,4 +61,24 @@ export async function runF33RetirementCli({env=process.env,root=process.cwd(),re
  try{await write(path.join(env.RUNNER_TEMP,'ltc-f33-retirement-result.json'),JSON.stringify(result)+'\n',{flag:'wx',mode:0o600});}catch{return{status:'private-result-retention-uncertain',publicationPerformed:false,retryAllowed:false,barrierReleaseAllowed:false};}
  return {status:result.status,publicationPerformed:false,retryAllowed:false,barrierReleaseAllowed:false};
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{check(process.argv.length===2||(process.argv.length===3&&process.argv[2]==='--wait-stop'),'arguments');const r=await runF33RetirementCli({waitForStop:process.argv[2]==='--wait-stop'});console.log(JSON.stringify(r));if(!['verified-paused-retirement','fresh-stop-observed'].includes(r.status))process.exitCode=1;}catch{console.error('paused_retirement_blocked');process.exitCode=1;}}
+// Only reviewed literal predicate names are public. Never serialize messages,
+// paths, stack traces, provider payloads or arbitrary exception properties.
+const safeFailureCodes=new Set([
+ 'retirement_cli_arguments','retirement_cli_runtime','retirement_cli_source',
+ 'retirement_cli_manifest','retirement_cli_source_bytes','retirement_cli_private_config',
+ 'retirement_cli_private_stop','retirement_cli_embedded_stop_forbidden','retirement_cli_admission_expired','retirement_cli_review_changed',
+ 'retirement_native_config','retirement_native_path','retirement_native_clock','retirement_native_run',
+ 'retirement_native_jobs','retirement_native_job_names','retirement_native_job_binding','retirement_native_job_status',
+ 'retirement_native_reviews','retirement_native_review_conflict','retirement_native_owner_approval','retirement_native_stale',
+ 'retirement_github_read_unconfirmed','f33_stop_input','f33_stop_job','f33_stop_malformed','f33_stop_duplicate',
+ 'f33_stop_schema','f33_stop_principal','f33_stop_edited','f33_stop_created','f33_stop_binding','f33_stop_fresh',
+ 'f33_stop_stop','f33_stop_read_unconfirmed','f33_stop_read_window','f33_stop_pagination','f33_stop_wait_expired',
+ 'f33_stop_changed','f33_stop_revoked',
+]);
+export function safeRetirementFailure(error){
+ try{const message=error&&typeof error==='object'?Object.getOwnPropertyDescriptor(error,'message')?.value:null;
+  if(typeof message==='string'&&safeFailureCodes.has(message))return message;
+ }catch{}
+ return 'paused_retirement_blocked';
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){try{check(process.argv.length===2||(process.argv.length===3&&process.argv[2]==='--wait-stop'),'arguments');const r=await runF33RetirementCli({waitForStop:process.argv[2]==='--wait-stop'});console.log(JSON.stringify(r));if(!['verified-paused-retirement','fresh-stop-observed'].includes(r.status))process.exitCode=1;}catch(error){console.error(safeRetirementFailure(error));process.exitCode=1;}}

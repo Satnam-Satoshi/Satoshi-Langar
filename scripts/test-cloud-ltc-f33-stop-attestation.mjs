@@ -12,3 +12,18 @@ test('recheck failure after reserve revokes synchronous guards and blocks all la
 
 test('untrusted commenters cannot provide evidence or deny via marker',()=>{const f=fixture();f.comments[0].user.id=1;f.comments[0].body='ltc-f33-local-stop-v1 malformed';assert.equal(selectStopAttestation(f),null);});
 test('uncooperative transport cannot exceed deadline',async()=>{const f=fixture();const r=createStopAttestationReader({config:f.config,readAdmission:async()=>f.admission,token:'read',clock:()=>f.now,timeoutMs:10,fetchImpl:()=>new Promise(()=>{})});await assert.rejects(r.read());});
+
+test('only wait polls pending step then requires original fresh evidence; reads and revalidation stay strict',async()=>{
+ const f=fixture();let n=0,comments=0,sleeps=0;const pending={...f.admission,stopStepStartedAt:NaN,stopStepPending:true};
+ const r=createStopAttestationReader({config:f.config,readAdmission:async()=>++n<=2?pending:f.admission,token:'read',clock:()=>f.now,sleep:async()=>{sleeps++;},fetchImpl:async()=>{comments++;return new Response(JSON.stringify(f.comments),{headers:{'content-type':'application/json'}});}});
+ const p=await r.wait();assert.equal(p.commentId,789);assert.equal(sleeps,2);assert.equal(comments,1);
+ const strict=createStopAttestationReader({config:f.config,readAdmission:async()=>pending,token:'read',clock:()=>f.now,fetchImpl:async()=>new Response('[]',{headers:{'content-type':'application/json'}})});
+ await assert.rejects(strict.read(),/f33_stop_job/);await assert.rejects(strict.revalidate(p),/f33_stop_job/);
+});
+test('pending readiness has bounded deadline and cannot hide malformed job or authority failure',async()=>{
+ const f=fixture();let time=f.now,polls=0;const pending={...f.admission,stopStepStartedAt:NaN,stopStepPending:true};
+ const opts={config:f.config,readAdmission:async()=>{polls++;return pending;},token:'read',clock:()=>time,sleep:async ms=>{time+=ms;},fetchImpl:async()=>assert.fail('pending step must not fetch comments')};
+ await assert.rejects(createStopAttestationReader(opts).wait(),/f33_stop_wait_expired/);assert.equal(polls,40);
+ pending.runId='wrong';await assert.rejects(createStopAttestationReader(opts).wait(),/f33_stop_job/);
+ await assert.rejects(createStopAttestationReader({...opts,readAdmission:async()=>{throw Error('retirement_native_job_binding');}}).wait(),/retirement_native_job_binding/);
+});
