@@ -1,0 +1,27 @@
+# Dormant complete Git candidate observation
+
+`createGitHubCandidateAdmission({github,pins,clock,networkEnabled:false})` exposes `inspect()`. This phase implements actual read-only object observation and a structural data-only candidate comparison, **not publishing admission**. `createPreview()` and `promote()` unconditionally hold; there are no POST/PATCH/ref-update methods. Default inspect makes no provider requests. No credentials or real requests were used in tests.
+
+The fixed repository is inherited from the direct GitHub reader. Independently supplied pins bind baseline/candidate commit and tree IDs, exact edition date/revision/record SHA256, four artifact SHA256s and review expiry. Pins constrain observations but do not authenticate who reviewed the source, authorize a release, or prove facts. The GitHub connection, secret resolver and pin provenance remain separate trusted boundaries.
+
+## Executed checks
+
+* Read exact baseline/candidate commits and require their pinned tree IDs and the candidate's sole parent to be baseline. REST commit metadata is provider-observed; raw signed commit bytes are not fetched/authenticated.
+* Recursively walk **every** nonrecursive tree, not a filtered source list or a truncated recursive API response. The existing direct reader reconstructs Git tree bytes and verifies Git SHA1. Up to 2,048 unique trees, depth32, 20,000 files per inventory and 40,000 total traversed entries. Paths are bounded UTF8 without traversal/backslashes/control characters. Symlinks/submodules are rejected. Unchanged executable files may remain unchanged; new artifacts/registry must be regular100644.
+* Compare complete inventories. Deletion, any existing non-registry file change and any extra new file hold. Only `content/ltc-pdf/issues.json` plus FOUR previously absent files may differ: `public/magazine/daily/YYYY-MM-DD/rN/{edition.pdf,reader.html,cover.png,promo.png}`. Renderer provenance remains private and is not a fifth public file.
+* Fetch actual prior/candidate registry bytes and all four new artifact blobs, with verified Git blob SHA1 and actual SHA256/length. Registry parsing rejects duplicate keys and invalid UTF8. Preserve the exact ordered prior record prefix canonically, append one valid pinned revision and current pointer; no missing-registry bootstrap. Reject future edition/preparation dates and explicit DRAFT titles/deks.
+* Bind PDF/cover/reader record metadata and independent artifact digests to actual new bytes. PDF magic, PNG signatures/dimensions and promo1200×630 are checked. These are **basic format checks**, not full PDF/PNG parser validation, safe-document inspection or visual QA.
+* Reader bytes must pass the existing reviewed strict inert HTML recognizer. It rejects active/foreign/unrecognized syntax, CSS/resource fetching and unsafe links; it does not sanitize. It is not a general browser parser or a promise that arbitrary visual-rich draft HTML is accepted. Final application build/accessibility/visual checks remain separate.
+* The overall observation expires at the earlier of review expiry or60seconds from start; clock checks occur before additional tree/blob requests and at completion. A final branch read reports whether the candidate was on that observed branch, but never treats this non-atomic observation as a ref lock or deployment permission.
+
+Unchanged blobs are **not all downloaded**. Their path/mode/GitOID are authenticated by complete tree object hashing, while old blob sizes are provider metadata (used for bounds/comparison, not claimed as freshly rehashed bytes). Only registries/new artifacts have actual fetched byte observations. Candidate results keep `publicationAllowed:false`, `previewAllowed:false`, `semanticReviewVerified:false`, `visualQaVerified:false`, and `commitRawBytesVerified:false` even when structural checks pass. A DRAFT manifest is not a final publisher receipt, and absence of a visible DRAFT title does not prove finalized editorial approval.
+
+## Reused reviewed code
+
+`src/lib/pdf-registry.mjs` is an unchanged packaged copy of the existing pure `scripts/lib/ltc-pdf-registry.mjs` (SHA256 `8cc59f2472e046cce2d4922bb176ba7449175eb5e418c2ccee918416ecc7ebb4`). `src/lib/inert-reader-html.mjs` copies the reviewed v2 inert recognizer with its reviewed host literal packaged locally instead of importing outside the standalone package. No ChatGPT/MCP dependencies are introduced.
+
+Official API contract: [Git database guide](https://docs.github.com/en/rest/guides/using-the-rest-api-to-interact-with-your-git-database), [Git trees](https://docs.github.com/en/rest/git/trees), [Git blobs](https://docs.github.com/en/rest/git/blobs). Git ref mutation has not been implemented: a REST fast-forward flag is not an exact expected-old-SHA CAS. Candidate object writes, fenced ref publication, independently authenticated final source/data admission, preview/QA and production approval wiring remain separate work. An unfinished object mutation transport draft was retained privately outside this source tree and is not integrated.
+
+Nine synthetic tests construct real Git object byte hashes and exercise the actual direct reader with mocked GET responses: full nested trees and 1,304-file baseline; immutable history/code; extra/deleted files; wrong hashes/truncation/symlinks/executable new assets; active HTML; DRAFT/future dates; duplicate registry keys; independent pin mismatch and expired windows. They are not live GitHub compatibility or release proof.
+
+`node --test test/github-candidate-admission.test.mjs`
