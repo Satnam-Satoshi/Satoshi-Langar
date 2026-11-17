@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test:buffer-adapter": "node --test tools/cloud-marketing/buffer-adapter/test*.mjs",
     "test:marketing-scheduler": "node --test tools/cloud-marketing/scheduler/test*.mjs",
     "test:desk-status": "node --test tools/desk-status/test-*.mjs tools/route-freshness/test-*.mjs tools/desk-coverage/test-*.mjs tools/desk-rendering/test-*.mjs",
     "dev": "next dev --webpack",

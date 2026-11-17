@@ -1,0 +1,18 @@
+# Buffer read-only adapter, nonproduction
+14 synthetic tests pass. Structural connector normalization only; no operational data included.
+
+Functions parse the observed JSON-text MCP result shape, reject tool errors/ambiguous payloads, verify exact connected identities, enforce Relay pagination chain and channel-service correspondence, preserve undated drafts, expose binding/freshness errors, and retain existing IDs. Receipt normalization requires explicit uncertain attempt+returned postId and exact get_post content/channel/time/image/alt/AI flag. It never treats create acknowledgment as successful publication. Sent requires independently supplied fresh public URL/content readback. Extra tags change text and fail exact comparison. Request validation uses current supported create_post schema, strict ltcmagazine.org image origin, approved narrow metadata and no extra top-level fields.
+
+All functions are pure; no connector calls, authentication, secrets, executor or writes. No activation. No automatic retry. Real read-only tool calls were made externally by the assistant only to inspect responses.
+
+Trust gaps: captured query scope and timestamps are supplied by authenticated root, not cryptographically established by this module. Canonical ledger binding must be independently loaded; missing bindings/drafts block. Queue complete ALWAYS false until a separate root coverage/reconciliation gate accounts for query-date windows, all statuses, old drafts and canonical history. connectorStructureComplete is only structural. The module does not turn caller assertions into scheduling permission. Existing scheduler cannot directly consume this as complete. Current root-only writer, pause exception, all-story backlog, publication/hosting evidence, current limits and unchanged cadence remain mandatory.
+
+Public readback truth requires root verification, not a boolean in generated content. Receipt normalizer requires exact returned postId; unknown-ID outcome remains uncertain and must be reconciled manually against complete inventory. IG automatic type/post metadata confirmation is supported only when get_post exposes observed fields; absent fields fail closed. X weighted text/IG limits, permalink path+account ownership, lifecycle race reconciliation, distributed ledger and durable write sequencing remain outside scope. No production acceptance claimed.
+
+Strict final media boundary permits only canonical HTTPS ltcmagazine.org /magazine/ safe ASCII-path .png URLs, no userinfo/port/query/fragment/percent encoding/backslash/double slash or normalization. It rejects non-PNG and lookalike hosts rather than relying on upstream validation.
+
+Media URL max2048 characters; literal question/hash delimiters prohibited even empty. Safe dotted PNG filenames accepted to match scheduler.
+
+Isolated source integration adds `npm run test:buffer-adapter` to the existing nonpublishing research CI only. Node22.23.2 passes16 tests: the original14 plus two synthetic composition tests. The adapter source remains byte-identical to the reviewed bundle. The README introduction contains no operational inventory counts or query dates.
+
+Composition explicitly verifies that normalizeQueue.complete remains false even when connectorStructureComplete is true, and scheduler.compose remains blocked. A separate clearly synthetic complete-queue test fixture exercises compose → validateRequest → recordAttempt → normalizeReceipt → reconcileReceipt; it is NOT an implemented coverage gate and never mutates normalized queue completeness. Fake scheduled/sent/public observations are test inputs only. No connector calls, public verification, new canonical ledger, executor, schedule or production activation is implemented.

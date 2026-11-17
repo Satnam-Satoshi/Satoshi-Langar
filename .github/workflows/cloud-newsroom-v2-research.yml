@@ -49,6 +49,8 @@ jobs:
         run: npm run test:desk-status
       - name: Verify isolated marketing scheduler composition without execution
         run: npm run test:marketing-scheduler
+      - name: Verify Buffer structural adapter without connector calls
+        run: npm run test:buffer-adapter
       - name: Read public primary sources into isolated new evidence
         run: node scripts/cloud-newsroom-v2-scan.mjs --output "$RUNNER_TEMP/newsroom-v2-evidence"
       - name: Check research cannot modify tracked source or publish
