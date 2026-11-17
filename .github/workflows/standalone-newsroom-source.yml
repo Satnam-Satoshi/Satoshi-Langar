@@ -17,6 +17,12 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22.23.2
+      - name: Install official local draft-rendering dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends python3-reportlab python3-pil python3-pypdf fonts-dejavu-core poppler-utils
+      - name: Test real synthetic PDF and graphics rendering locally
+        run: PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 -B -m unittest discover -s tools/standalone-runtime/renderer -p 'test_*.py' -v
       - name: Test dormant core and direct adapter contracts without live APIs
         working-directory: tools/standalone-runtime
         run: |
