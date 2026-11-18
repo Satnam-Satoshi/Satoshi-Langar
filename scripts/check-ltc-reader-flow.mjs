@@ -17,9 +17,13 @@ assert(extra.registerRows.every(r=>r.primary&&r.finding),'Every institutional co
 assert.equal(extra.registerRows.find(r=>r.name==='Grayscale Litecoin Trust').effective,'2026-10-05','Preserve issuer effective date, separate from Register record');
 for(const page of ['index.html','conversations/index.html']) {
  const html=await read(`dist/${page}`);
- assert(html.includes('aria-label="Current daily issue"'),`${page}: prominent daily navigation`);
- assert(html.includes(`editions/${newest.date}/index.html`),`${page}: current date destination`);
- assert(html.includes(newest.title),`${page}: actual daily title`);
+ assert(html.includes('aria-label="Read the November 16, 2026 edition"'),`${page}: prominent PDF daily navigation`);
+ assert(html.includes('editions/2026-11-16/index.html'),`${page}: current PDF date destination`);
+ assert(html.includes('The Next Build'),`${page}: current PDF daily title`);
+ assert(html.includes('Latest published · November 16, 2026'),`${page}: current global publication notice`);
+ assert(html.includes('aria-label="Previous web briefing"'),`${page}: prior generated briefing identified separately`);
+ assert(html.includes(`editions/${newest.date}/index.html`),`${page}: previous web briefing destination preserved`);
+ assert(html.includes(newest.title),`${page}: previous web briefing title preserved`);
  for(const excluded of exclusions.editions)assert(!html.includes(`editions/${excluded.id}/`)&&(!editions.some(record=>record.date===excluded.date)?!html.includes(`editions/${excluded.date}/`):true),`${page}: never-public preparation is not a reading path`);
  assert(html.includes('id="special-editions"'),`${page}: special shelf`);
  for(const slug of ['proof-of-birthday','charlie-lee','iykyk']) assert(html.includes(slug),`${page}: ${slug} discoverability`);

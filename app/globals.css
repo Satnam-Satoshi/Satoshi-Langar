@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* These self-contained editorial files use inline CSS, not Tailwind utilities. */
+@source not "./components/LitecoinMetaFeature.tsx";
+@source not "../public/conversations/specials/litecoin-meta/index.html";
 
 /* Shared editorial system. Existing OFL font files; no external font service. */
 @font-face{font-family:"LTC Sans";src:url("/magazine/proof-of-birthday/fonts/LiberationSans-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}

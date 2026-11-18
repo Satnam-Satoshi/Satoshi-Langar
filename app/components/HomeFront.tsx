@@ -1,5 +1,8 @@
+import EcosystemSpecialPdf from './EcosystemSpecialPdf';
+import LtcPdfIssue from './LtcPdfIssue';
 import { editorialSpecials, specialResearchDate } from '../data/editorial-specials';
 import MoonHomeFeature from './MoonHomeFeature';
+import LitecoinMetaFeature from './LitecoinMetaFeature';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
@@ -20,6 +23,7 @@ export default function HomeFront() {
 
   return <div className={styles.front}>
     <MoonHomeFeature primaryHeading/>
+    <LitecoinMetaFeature/>
     <div className={styles.lead}>
       <section className={styles.community} aria-labelledby="home-title">
         <p className={styles.kicker}>Satnam Satoshi / Community</p>
@@ -34,17 +38,17 @@ export default function HomeFront() {
       <figure className={styles.communityArt}><img src="/home/open-table-network.jpg" width="1536" height="1024" alt="Conceptual illustration of people sharing an open table, with Bitcoin and Litecoin motifs."/><figcaption>Rooted in seva. Open to everyone.<small>Community concept artwork, not an operating kitchen.</small></figcaption></figure>
     </div>
     <CommunityJourney/><RegisterInvitation/>
-      <section className={styles.magazine} id="home-latest-issue" aria-labelledby="home-issue-title">
+      <EcosystemSpecialPdf/><div id="home-latest-issue"><LtcPdfIssue/></div><section className={styles.magazine} id="home-previous-issue" aria-labelledby="home-issue-title">
         <div className={styles.issueMasthead}>
           <a href="/conversations/">LTC <strong>Magazine</strong></a>
           <span>Independent editorial</span>
         </div>
         <div className={styles.issueLead}>
           <div className={styles.issueCopy}>
-            <p className={styles.kicker}>{issue ? <>Latest published issue · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
+            <p className={styles.kicker}>{issue ? <>Previous web briefing · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
             <h2 id="home-issue-title">{issue?.title ?? 'The daily archive'}</h2>
             {issue && <p>{issue.dek}</p>}
-            <nav aria-label={issue ? 'Current daily issue' : 'Daily archive'}>
+            <nav aria-label={issue ? 'Previous web briefing' : 'Daily archive'}>
               <a className={styles.read} href={issueHref}>{issue ? 'Read the issue' : 'Browse past issues'} <span aria-hidden="true">↗</span></a>
             </nav>
           </div>

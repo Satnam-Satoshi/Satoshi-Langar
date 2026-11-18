@@ -30,6 +30,7 @@ jobs:
           echo "PLAYWRIGHT_MODULE=$RUNNER_TEMP/site-browser/node_modules/playwright/index.mjs" >> "$GITHUB_ENV"
       - run: pnpm install --frozen-lockfile
       - run: pnpm build && pnpm release:prepare
+      - run: node scripts/test-pdf-first-nov16.mjs
       - name: Require repeated builds to produce identical deployment bytes
         run: |
           node --input-type=module <<'NODE'

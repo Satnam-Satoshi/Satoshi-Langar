@@ -1,4 +1,7 @@
+import EcosystemSpecialPdf from '../components/EcosystemSpecialPdf';
+import LtcPdfIssue from '../components/LtcPdfIssue';
 import MoonHomeFeature from '../components/MoonHomeFeature';
+import LitecoinMetaFeature from '../components/LitecoinMetaFeature';
 import EditorialReadingMap from '../components/EditorialReadingMap';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
@@ -54,20 +57,20 @@ export default function ConversationsPage(){
    <p>Independent reporting on Bitcoin, Litecoin and the people building with them.</p>
  </header>
  <nav className={styles.departments} aria-label="Magazine departments">
-   <a href="#featured-moon">Featured: Moon ↓</a><a href="#daily">Latest daily issue ↓</a><a href="https://litecoinregister.com/">Litecoin Register ↗</a><a href="https://www.mnav.com/">mNAV ↗</a><a href="https://bitbo.io/treasuries/latest-changes/">Bitbo · Latest changes ↗</a>
+   <a href="#featured-moon">Featured: Moon ↓</a><a href="#daily">Daily issue ↓</a><a href="https://litecoinregister.com/">Litecoin Register ↗</a><a href="https://www.mnav.com/">mNAV ↗</a><a href="https://bitbo.io/treasuries/latest-changes/">Bitbo · Latest changes ↗</a>
    <a href="#source-desk">Source desk</a>
    <a href="#new-specials">Special editions</a>
    <a href="/conversations/community/">Community Wire</a>
    <a href="#archive">Past issues</a>
    <a href="/conversations/desks/">All desks ↗</a>
  </nav>
- <MoonHomeFeature/>
- <section id="daily" className={styles.issueLead} aria-labelledby="daily-title">
+ <MoonHomeFeature/><LitecoinMetaFeature/><EcosystemSpecialPdf/><div id="daily"><LtcPdfIssue/></div>
+ <section id="previous-daily" className={styles.issueLead} aria-labelledby="daily-title">
    <div className={styles.issueLeadCopy}>
-     <p className={styles.eyebrow}>{issue ? <>Latest published issue · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
+     <p className={styles.eyebrow}>{issue ? <>Previous web briefing · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
      <h2 id="daily-title">{issue?.title ?? 'Browse the daily archive'}</h2>
      {issue && <p className={styles.issueDek}>{issue.dek}</p>}
-     <nav className={styles.actions} aria-label={issue ? 'Current daily issue' : 'Daily archive'}>
+     <nav className={styles.actions} aria-label={issue ? 'Previous web briefing' : 'Daily archive'}>
        <a className={styles.button} href={href}>{issue ? 'Read the issue' : 'Open the archive'} <span aria-hidden="true">↗</span></a>
        {issue && <a className={styles.textLink} href={`${href}#sourcebook`}>Issue sourcebook <span aria-hidden="true">↗</span></a>}
      </nav>
