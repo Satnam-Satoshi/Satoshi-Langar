@@ -1,4 +1,10 @@
 @import "tailwindcss";
+/* Events styles are explicitly scoped; do not alter shared utility output. */
+@source not "./conversations/events";
+@source not "./components/LitecoinEventsFeature.tsx";
+@source not "../content/litecoin-events.json";
+@source not "../scripts/lib/litecoin-events.mjs";
+@source not "../scripts/test-litecoin-events.mjs";
 
 /* Shared editorial system. Existing OFL font files; no external font service. */
 @font-face{font-family:"LTC Sans";src:url("/magazine/proof-of-birthday/fonts/LiberationSans-Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}

@@ -11,6 +11,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch immutable historical preview guard fixture
+        run: git fetch --no-tags --depth=1 origin 52d2e5a08e4fbec181e43a8aa625c0fa01cc992a
       - uses: pnpm/action-setup@v4
         with:
           version: 11.19.0

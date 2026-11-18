@@ -1,3 +1,4 @@
+import { pdfIssue } from '../data/pdf-issue';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
 import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
@@ -12,7 +13,7 @@ const routes = [
 ];
 
 export default function CommunityEditionFront({ community = false }: { community?: boolean }) {
-  const issue = latestLtcEdition;
+  const issue = pdfIssue;
   const titleId = community ? 'home-title' : 'frontpage-title';
   const Title = community ? 'h1' : 'h2';
   const checked = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'America/New_York' }).format(new Date(sourceDesk.checkedAt));
@@ -22,12 +23,12 @@ export default function CommunityEditionFront({ community = false }: { community
       <p className={s.kicker}>Bitcoin roots · The Litecoin family · An open table</p>
       <Title id={titleId}>Follow the work.<br/><em>Find your people.</em></Title>
       <p className={s.dek}>The networks, the builders and the world around open money. Read the evidence. Learn something useful. Help shape what comes next.</p>
-      <div className={s.actions}><a className={s.primary} href={issue ? editionDateHref(issue.date) : '/conversations/archive/'}>Read the latest issue ↗</a><a href="/conversations/#source-desk">Scan the source desk →</a></div>
-      {issue && <a className={s.issue} href={editionDateHref(issue.date)}><span>Latest published issue <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></span><strong>{issue.title}</strong><span>Open the magazine &amp; sourcebook ↗</span></a>}
+      <div className={s.actions}><a className={s.primary} href={issue ? issue.page : '/conversations/archive/'}>Read the latest issue ↗</a><a href="/conversations/#source-desk">Scan the source desk →</a></div>
+      {issue && <a className={s.issue} href={issue.page}><span>Latest published issue <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></span><strong>{issue.title}</strong><span>Open the magazine &amp; sourcebook ↗</span></a>}
       <p className={s.note}>Free to read. No wallet required. AI-assisted reporting with human ownership, original source dates and visible corrections.</p>
     </div>
     <aside className={s.feature} aria-label="Special edition and source headlines">
-      <a className={s.special} href="/conversations/specials/litecoin-to-the-moon/"><img src="/magazine/litecoin-to-the-moon/cover-r2.png" width="1086" height="1448" alt="Original orbital artwork for Litecoin to the Moon; an editorial illustration, not a price chart."/><div><p className={s.kicker}>The special edition / November 12</p><h3>Litecoin to<br/><em>the Moon.</em></h3><p>Canton, cLTC, LitVM and the builders after Rome. Different rails. Better questions.</p><span>Read the special ↗</span></div></a>
+      <a className={s.special} href="/conversations/specials/litecoin-to-the-moon/"><img src="/magazine/litecoin-to-the-moon/cover-r2.png" width="1086" height="1448" alt="Original orbital artwork for Litecoin to the Moon; an editorial illustration, not a price chart."/><div><p className={s.kicker}>Original special / November 12 · Updated November 16</p><h3>Litecoin to<br/><em>the Moon.</em></h3><p>Canton, cLTC, LitVM and the builders after Rome. Different rails. Better questions.</p><span>Read the special ↗</span></div></a>
       <div className={s.desk}><p className={s.kicker}>From the source desk · Checked {checked}</p>{sourceDesk.stories.slice(0, 2).map(story => <article key={story.id}><p>{story.desk}</p><h3><a href={sourceDeskReadMore(story, publicationExclusionConfig).href} aria-label={sourceDeskReadMore(story, publicationExclusionConfig).label ? `${sourceDeskReadMore(story, publicationExclusionConfig).label}: ${story.title}` : undefined}>{story.title} ↗</a></h3><span>{story.classification} · {'dateKind' in story && story.dateKind === 'observed' ? 'Observed' : 'Published'} <time dateTime={story.publishedAt}>{story.publishedAt}</time></span></article>)}</div>
     </aside>
     <nav className={s.routes} aria-label="Choose your way into the community">{routes.map(route => <a href={route.href} key={route.number}><span className={s.routeNumber}>{route.number} / A WAY IN</span><strong>{route.title}</strong><p>{route.text}</p><span className={s.routeLink}>{route.label} ↗</span></a>)}</nav>

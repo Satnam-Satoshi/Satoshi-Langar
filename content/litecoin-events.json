@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "checkedOn": "2026-11-18",
+  "scope": "A verified events directory with a global outlook. This is a selected, source-checked list, not a complete calendar of every Litecoin gathering.",
+  "events": [
+    {
+      "id": "nym-community-call-2631",
+      "title": "Nym Community call #2631",
+      "format": "Online",
+      "startDate": "2026-11-19",
+      "endDate": null,
+      "startTime": "14:00",
+      "timeZone": "UTC",
+      "timeZoneLabel": "UTC",
+      "alternateTime": "09:00 EST · America/New_York",
+      "location": "Online · See Nym’s announcement for joining details",
+      "summary": "David Schwartz from the Litecoin Foundation joins Nym for a conversation about Litecoin, MWEB and optional privacy.",
+      "participation": "Guest: David Schwartz, Litecoin Foundation.",
+      "planningNote": "The announcement gives a start time. An end time and direct stream link were not provided in the source checked here.",
+      "organizer": "Nym",
+      "organizerUrl": "https://forum.nym.com/t/privacy-on-one-of-crypto-s-oldest-chains-community-call-2631-with-david-schwartz-from-litecoin/2804",
+      "checkedOn": "2026-11-18",
+      "sources": [
+        {
+          "label": "Nym · Event announcement",
+          "url": "https://forum.nym.com/t/privacy-on-one-of-crypto-s-oldest-chains-community-call-2631-with-david-schwartz-from-litecoin/2804",
+          "publisher": "Nym Community",
+          "publishedOn": "2026-11-16",
+          "supports": "November 19 at 14:00 UTC; David Schwartz’s participation; MWEB and privacy topics. The year is established by the dated November 2026 announcement."
+        }
+      ]
+    },
+    {
+      "id": "cryptocon-sydney-2026",
+      "title": "CryptoCon Sydney",
+      "format": "In person",
+      "startDate": "2026-11-28",
+      "endDate": "2026-11-29",
+      "startTime": null,
+      "timeZone": "Australia/Sydney",
+      "timeZoneLabel": "AEDT · UTC+11",
+      "alternateTime": null,
+      "location": "ICC Sydney · Exhibition Centre",
+      "address": "14 Darling Dr, Sydney NSW 2000, Australia",
+      "summary": "Two days of crypto talks, exhibits and community connections at Darling Harbour. The Litecoin Foundation calendar lists Litecoin as a Silver Partner.",
+      "participation": "Litecoin: Silver Partner, as listed by the Litecoin Foundation.",
+      "planningNote": "Check the organizer’s FAQ for the current daily opening hours, tickets and accessibility arrangements before travelling.",
+      "organizer": "CryptoCon Sydney",
+      "organizerUrl": "https://auscryptocon.com/faqs",
+      "checkedOn": "2026-11-18",
+      "sources": [
+        {
+          "label": "CryptoCon · Organizer FAQ",
+          "url": "https://auscryptocon.com/faqs",
+          "publisher": "CryptoCon Sydney",
+          "supports": "November 28–29, 2026; ICC Sydney; street address; visitor information."
+        },
+        {
+          "label": "ICC Sydney · Venue listing",
+          "url": "https://iccsydney.com.au/events/auscryptocon/",
+          "publisher": "ICC Sydney",
+          "supports": "November 28–29, 2026; Exhibition Centre at ICC Sydney. The venue uses the name AusCryptoCon."
+        },
+        {
+          "label": "Litecoin Foundation · Events calendar",
+          "url": "https://litecoin.com/events",
+          "publisher": "Litecoin Foundation",
+          "supports": "CryptoCon Sydney dates and Litecoin’s Silver Partner role."
+        }
+      ]
+    }
+  ]
+}
