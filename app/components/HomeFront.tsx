@@ -22,8 +22,8 @@ export default function HomeFront() {
   const issueHref = issue ? editionDateHref(issue.date) : '/conversations/archive/';
 
   return <div className={styles.front}>
-    <LitecoinEventsFeature/>
     <MoonHomeFeature primaryHeading/>
+    <LitecoinEventsFeature/>
     <div className={styles.lead}>
       <section className={styles.community} aria-labelledby="home-title">
         <p className={styles.kicker}>Satnam Satoshi / Community</p>

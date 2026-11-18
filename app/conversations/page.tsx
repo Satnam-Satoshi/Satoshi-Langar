@@ -64,8 +64,7 @@ export default function ConversationsPage(){
    <a href="#archive">Past issues</a>
    <a href="/conversations/desks/">All desks ↗</a>
  </nav>
- <LitecoinEventsFeature/>
- <MoonHomeFeature/><EcosystemSpecialPdf/><div id="daily"><LtcPdfIssue/></div>
+ <MoonHomeFeature/><LitecoinEventsFeature/><EcosystemSpecialPdf/><div id="daily"><LtcPdfIssue/></div>
  <section id="previous-daily" className={styles.issueLead} aria-labelledby="daily-title">
    <div className={styles.issueLeadCopy}>
      <p className={styles.eyebrow}>{issue ? <>Previous web briefing · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>

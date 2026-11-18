@@ -39,13 +39,13 @@ function EventArt({ online }: { online: boolean }) {
 function EventCard({ event, number }: { event: Event; number: number }) {
   const online = event.format === 'Online';
   return <article className={`event-record ${online ? 'event-online' : 'event-place'}`} id={event.id} aria-labelledby={`${event.id}-title`}>
-    <div className="event-poster"><span className="event-number">{String(number).padStart(2, '0')} / {event.format}</span><EventArt online={online}/><p className="event-poster-word">{online ? <>Across<br/>the network.</> : <>Meet in<br/>Sydney.</>}</p><p className="event-art-note">Conceptual editorial illustration</p></div>
+    <div className="event-poster"><span className="event-number">{String(number).padStart(2, '0')} / {event.format}</span><EventArt online={online}/><p className="event-poster-word">{online ? <>Across<br/>the network.</> : <>Meet<br/>in person.</>}</p><p className="event-art-note">Conceptual editorial illustration</p></div>
     <div className="event-copy"><p className="event-kicker">{eventStatus(event, directory.checkedOn)} as of {directory.checkedOn} · {event.format}</p>
       <h3 id={`${event.id}-title`}>{event.title}</h3><p className="event-date"><time dateTime={event.startDate}>{eventDateLabel(event)}</time></p>
       <p className="event-summary">{event.summary}</p>
       <dl className="event-facts"><div><dt>{online ? 'Start time' : 'Local timezone'}</dt><dd>{event.startTime ? <><time dateTime={`${event.startDate}T${event.startTime}:00Z`}>{event.startTime} UTC</time><small>{event.alternateTime}</small></> : <>{event.timeZoneLabel}<small>{event.timeZone}</small></>}</dd></div><div><dt>{online ? 'Where to join' : 'Venue'}</dt><dd>{event.location}{event.address && <small>{event.address}</small>}</dd></div></dl>
       <p className="event-planning">{event.planningNote}</p>
-      <a className="event-button" href={event.organizerUrl}>{online ? 'Read Nym’s event details' : 'Plan with the organizer'} <span aria-hidden="true">↗</span></a>
+      <a className="event-button" href={event.organizerUrl}>{online ? 'Read the event details' : 'Plan with the organizer'} <span aria-hidden="true">↗</span></a>
       <details className="event-sources"><summary>Sources &amp; verification <span>{event.sources.length} {event.sources.length === 1 ? 'source' : 'sources'}</span></summary><p>Last checked <time dateTime={event.checkedOn}>{eventDateLabel({startDate:event.checkedOn})}</time>. {event.participation}</p><ul>{event.sources.map(source=><li key={source.url}><a href={source.url}>{source.label} ↗</a><p>{source.supports}</p></li>)}</ul></details>
     </div>
   </article>;
