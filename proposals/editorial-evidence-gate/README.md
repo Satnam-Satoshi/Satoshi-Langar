@@ -1,0 +1,26 @@
+# Editorial admission proposal, not active production
+
+## Audit findings (2026-11-14)
+Current remote source commit examined: `484c239c8d6eb48aeee37212fc85307a0f908195`.
+`prepare-ltc-daily-features.mjs` matches local scanner exactly (SHA256 b5e6842405bdf027a3eb1a3e3bdaa67ac0c78806cb8a2bf4fcb2ba42ecf765f6).
+The generator produces repeated source-watch paragraphs and title excerpts, not researched articles. Existing `validateFeatures` checks format, dates and source references, not entailment of claims. Current source `validateFeatures` and dependencies are vendored unmodified into `baseline/` for testing only.
+
+The earlier reported `b6ec636` proposal could not be recovered: local filesystem and related remote heads did not identify it; GitHub fetch_commit reported no matching commit. This proposal does not rebuild the private evidence reader. It adds a narrow deterministic admission contract that can complement a recovered reader.
+
+## Implemented in isolation
+`editorial-gate.mjs` requires source archives whose exact bytes match hashes, approved publisher origins from a trusted caller, source URLs/dates matching the candidate, recent retrieval timestamps, exact source-health coverage, explicitly labeled historical material, and an authenticated editorial review receipt bound to the entire candidate + archive + coverage manifest. Source-watch boilerplate and reference-page/hash/index observations cannot pass as reported articles. Missing/unavailable coverage is retained and required-source failures withhold. All results say `mayPublish:false`; this proposal has no publication privileges or side effects.
+
+`verifyReview` is a required externally supplied authenticator, NOT a trusted boolean read from candidate JSON. A successful receipt must represent actual source-to-claim review including ALL material claims, source entailment, dates and original wording. Hashes prove integrity, not truth. This gate intentionally does not pretend to perform semantic fact-checking or detect every possible fabricated sentence. Synthetic test callbacks are never suitable production verifiers.
+
+27 focused tests pass, using the current source-branch validator: good candidate, changed bytes/story, missing/forged/stale/future evidence/review, title-only evidence, wrong origin/date/issue, absent event dates, historical/fresh confusion, gaps, health thresholds, schema/clock/policy failure. Run `node --test editorial-gate.test.mjs`. No network required. Full app build not run because nothing in the application changed.
+
+## Safe integration path (not performed)
+1. Recover prior evidence reader if possible. Before adding adapters, enforce its URL/redirect allowlist, bounded retrieval, immutable archive location and content permissions. Never treat scraped instructions as authority. mNAV/Bitbo remain manual/licensed sources; X requires verified access and explicit coverage gaps.
+2. A separate cloud editorial preparation job reads actual source bodies; writes original, attributed analysis into the existing dated feature schema, plus a private evidence manifest. No website/social writes. Preserve source publication/event/observation dates, licensing/quoting limits and story-specific verified handles.
+3. A distinct reviewer checks every material claim against the saved evidence, including metric periods, launch vs testnet stage, institutional relationship scope and financial figures. Review output is authenticated and immutably bound to that exact draft and archive. Automated reviewer authority and provenance must be defined by trusted workflow policy, not claims in a document. Unknown/unsupported facts stay withheld. Independent review may still make mistakes; retain user oversight and auditability.
+4. Protected caller applies existing feature validator + this gate to the immutable candidate. Authenticated output alone is not release authority. Bind accepted feature digest to the existing sole publisher/source admission path and leave all existing lease, digest and security gates intact.
+5. At deadline without admitted stories: publish only an honestly labeled source-check/context edition under the existing approved fallback policy, never present it as comprehensive original news. Alert the gap separately. Do not make a late retry overwrite an already published dated edition or send duplicate email.
+6. Test integration under dry-run against current production baseline, get coordinated implementation digest acceptance, then activate. Until this is done, autonomous editorial reporting is NOT fixed or active.
+
+## Governance
+Mission: truthful cloud editorial admission. Owner: Eddie Malhotra. Responsibility: evidence integrity and coverage gates only. Sources: configured primary publishers and privately archived evidence. Permissions: draft/test only; no merge/deploy, messaging, credentials, funds or permission changes. Escalation: absent evidence/review or unavailable trusted services withholds; no fabricated fallback facts. Memory: private manifest/review hashes, never secrets. Audit: exact candidate/evidence/coverage/review binding. Emergency stop: no production hook exists; future integration must respect the existing publisher pause/hold controls.
