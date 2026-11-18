@@ -1,4 +1,5 @@
 import EcosystemSpecialPdf from '../components/EcosystemSpecialPdf';
+import LitecoinEventsFeature from '../components/LitecoinEventsFeature';
 import LtcPdfIssue from '../components/LtcPdfIssue';
 import MoonHomeFeature from '../components/MoonHomeFeature';
 import EditorialReadingMap from '../components/EditorialReadingMap';
@@ -63,6 +64,7 @@ export default function ConversationsPage(){
    <a href="#archive">Past issues</a>
    <a href="/conversations/desks/">All desks ↗</a>
  </nav>
+ <LitecoinEventsFeature/>
  <MoonHomeFeature/><EcosystemSpecialPdf/><div id="daily"><LtcPdfIssue/></div>
  <section id="previous-daily" className={styles.issueLead} aria-labelledby="daily-title">
    <div className={styles.issueLeadCopy}>
