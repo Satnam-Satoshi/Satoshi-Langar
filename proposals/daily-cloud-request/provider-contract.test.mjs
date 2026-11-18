@@ -1,0 +1,22 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {createGoogleStateClient} from './contract-fixtures/cloud-ltc-google-client.mjs';
+import {GoogleDocsStateAdapter} from './contract-fixtures/cloud-ltc-docs-state.mjs';
+import {encodeStateEnvelope} from './contract-fixtures/cloud-ltc-state-envelope.mjs';
+import {requestEnvelopeAdapter} from './request-envelope.mjs';import {claimStore} from './claim-store.mjs';
+const config={schemaVersion:1,provider:'google-docs',publicationEnabled:false,folderId:'private-folder',documentId:'private-request-document'};
+function fixture(){let raw=encodeStateEnvelope('website',{schemaVersion:1,requests:{}}),rev=1,posts=0;
+ const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'content-type':'application/json'}});
+ const metadata=id=>({id,mimeType:id===config.folderId?'application/vnd.google-apps.folder':'application/vnd.google-apps.document',trashed:false,ownedByMe:true,shared:false,parents:id===config.documentId?[config.folderId]:['parent-folder'],capabilities:{canEdit:true},permissions:[{id:'owner',type:'user',role:'owner'}]});
+ const document=()=>({documentId:config.documentId,revisionId:'rev-'+rev,tabs:[{tabProperties:{tabId:'tab-1'},documentTab:{body:{content:[{sectionBreak:{},endIndex:1},{startIndex:1,endIndex:raw.length+2,paragraph:{elements:[{startIndex:1,endIndex:raw.length+2,textRun:{content:raw+'\n'}}]}}]}}}]});
+ const client=createGoogleStateClient({config,env:{LTC_GOOGLE_ACCESS_TOKEN:'fixture-token-only-not-a-real-secret'},allowWrites:true,fetchImpl:async(url,options)=>{
+  if(url.includes('/drive/v3/files/'))return json(metadata(new URL(url).pathname.split('/').at(-1)));
+  if(options.method==='POST'){posts++;const body=JSON.parse(options.body);if(body.writeControl.requiredRevisionId!=='rev-'+rev)return json({},400);raw=body.requests.find(r=>r.insertText).insertText.text;rev++;return json({documentId:config.documentId,writeControl:{requiredRevisionId:'rev-'+rev}});}
+  return json(document());
+ }});
+ return{client,adapter:new GoogleDocsStateAdapter({...config,client}),get posts(){return posts;}};
+}
+test('actual pinned Google client rejects original mismatched envelope before POST',async()=>{const f=fixture();await f.client.verifySelectedResources();await assert.rejects(f.client.batchUpdateDocument(config.documentId,{requests:[{insertText:{location:{index:1,tabId:'tab-1'},text:encodeStateEnvelope('daily-dispatch-requests',{schemaVersion:1,requests:{}})}}],writeControl:{requiredRevisionId:'rev-1'}}),/invalid_google_state_batch/);assert.equal(f.posts,0);});
+test('actual pinned Google transport + Docs adapter + request binding + CAS claim/receipt',async()=>{const f=fixture();await f.client.verifySelectedResources();const store=requestEnvelopeAdapter(f.adapter,config.documentId);const claims=claimStore({store,storageIdentity:config.documentId,publicationIdentity:'other-publication-doc',revalidate:async()=>true});const a={key:'repo:daily:2026-11-14',date:'2026-11-14',issue:1,source:'a'.repeat(40),observedFence:32,expiresAt:123};assert.equal(await claims.claim(a),true);await claims.record(a,'accepted');assert.equal((await store.read('daily-dispatch-requests')).value.requests[a.date].status,'accepted');assert.equal(await claims.claim({...a}),false);assert.equal(f.posts,2);});
+test('request binding rejects actual publication state shape and wrong logical key',async()=>{const adapter={documentId:config.documentId,read:async()=>({value:{schemaVersion:1,paused:false,intents:{}},version:'v'}),conditionalWrite:async()=>{throw Error('no write');}};const bound=requestEnvelopeAdapter(adapter,config.documentId);await assert.rejects(bound.read('daily-dispatch-requests'),/request_document/);await assert.rejects(bound.read('website'),/request_key/);});
+import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto';
+test('contract fixtures exactly match pinned reviewed source digests',()=>{for(const [name,hash] of Object.entries({'cloud-ltc-docs-state.mjs':'670b6214f86358272bad9efb1f010a7e0856d3356846122d36711e3e60a0db5d','cloud-ltc-google-client.mjs':'fb05c04f1be5a2919a683a76de82c712a61891f4c507ee8146ed21131a4b81d3','cloud-ltc-state-envelope.mjs':'528eb377c6491095222b86ba5c0713fc8b32e318a9bdb6f8944595a7386ca121'}))assert.equal(createHash('sha256').update(readFileSync(new URL('./contract-fixtures/'+name,import.meta.url))).digest('hex'),hash);});
