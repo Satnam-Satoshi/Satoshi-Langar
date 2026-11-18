@@ -68,11 +68,14 @@ export function seoModel(html, file, { editions = [] } = {}) {
   assert(description.length <= 2000, `Excessive description: ${file}`);
   const candidate = imageCandidate(metaValue(head, 'og:image'), policy.site) ??
     [...mainHtml(html).matchAll(/<img\b[^>]*>/gi)].map(([tag]) => imageCandidate(attrsOf(tag).src, policy.site)).find(Boolean);
-  const image = candidate ?? `${policy.site.origin}${policy.site.fallbackImage}`;
+  // The illustrated Meta article has no separately approved share-image asset.
+  // Its route keeps text-only social metadata; other routes retain their policy.
+  const textOnlySocial = policy.route === '/conversations/specials/litecoin-meta/';
+  const image = textOnlySocial ? null : candidate ?? `${policy.site.origin}${policy.site.fallbackImage}`;
   const existingRobots = metaValue(head, 'robots') ?? '';
   const noindex = policy.excluded || /(?:^|[,\s])noindex(?:$|[,\s])/i.test(existingRobots);
   const robots = noindex ? `noindex, ${policy.privateEntry || /nofollow/i.test(existingRobots) ? 'nofollow' : 'follow'}` : 'index, follow, max-image-preview:large';
-  const model = { ...policy, title, description, image, noindex, robots };
+  const model = { ...policy, title, description, image, noindex, robots, ...(textOnlySocial ? {textOnlySocial:true} : {}) };
   return model;
 }
 
@@ -85,7 +88,7 @@ export function safeSeoJson(value) {
 export function structuredSeo(model) {
   const { site, canonical, title, description, image, route, edition, editionDates } = model;
   const website = `${site.origin}/#website`;
-  const page = { '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical, name: title, ...(description ? { description } : {}), inLanguage: 'en', isPartOf: { '@id': website }, primaryImageOfPage: { '@type': 'ImageObject', url: image } };
+  const page = { '@type': 'WebPage', '@id': `${canonical}#webpage`, url: canonical, name: title, ...(description ? { description } : {}), inLanguage: 'en', isPartOf: { '@id': website }, ...(image ? {primaryImageOfPage: { '@type': 'ImageObject', url: image }} : {}) };
   const graph = [page];
   if (route === '/' || route === '/conversations/') {
     graph.push({ '@type': 'WebSite', '@id': website, url: `${site.origin}/`, name: site.name, ...(model.brand === 'magazine' ? { alternateName: ['LTC Media', 'Lunch Time Conversations'] } : {}) });
@@ -102,8 +105,8 @@ export function applySiteSeo(html, file, options = {}) {
   const model = seoModel(html, file, options);
   const tag = (name, content, property = false) => `<meta ${property ? 'property' : 'name'}="${name}" content="${escapeSeoText(content)}"/>`;
   const metadata = `<link rel="canonical" href="${model.canonical}"/>` + tag('robots', model.robots) +
-    tag('og:type', model.edition ? 'article' : 'website', true) + tag('og:site_name', model.site.name, true) + tag('og:title', model.title, true) + tag('og:description', model.description, true) + tag('og:url', model.canonical, true) + tag('og:image', model.image, true) + tag('og:image:alt', model.title, true) +
-    tag('twitter:card', 'summary_large_image') + tag('twitter:title', model.title) + tag('twitter:description', model.description) + tag('twitter:image', model.image) + tag('twitter:image:alt', model.title) +
+    tag('og:type', model.edition || model.textOnlySocial ? 'article' : 'website', true) + tag('og:site_name', model.site.name, true) + tag('og:title', model.title, true) + tag('og:description', model.description, true) + tag('og:url', model.canonical, true) + (model.image ? tag('og:image', model.image, true) + tag('og:image:alt', model.title, true) : '') +
+    tag('twitter:card', model.textOnlySocial ? 'summary' : 'summary_large_image') + tag('twitter:title', model.title) + tag('twitter:description', model.description) + (model.image ? tag('twitter:image', model.image) + tag('twitter:image:alt', model.title) : '') +
     (model.noindex ? '' : `<script type="application/ld+json" data-site-seo="v1">${safeSeoJson(structuredSeo(model))}</script>`);
   const output = html.replace(/<head\b[^>]*>([\s\S]*?)<\/head>/i, (whole, head) => {
     const cleaned = head.replace(/<link\b[^>]*>/gi, tag => attrsOf(tag).rel?.toLowerCase() === 'canonical' ? '' : tag)
@@ -142,12 +145,13 @@ export function validatePageSeo(html, file, { editions = [], assetPaths } = {}) 
   const links = [...head.matchAll(/<link\b[^>]*>/gi)].map(([tag]) => attrsOf(tag)).filter(attrs => attrs.rel?.toLowerCase() === 'canonical');
   if (links.length !== 1 || links[0].href !== model.canonical) failures.push('canonical differs from route/domain policy');
   const tags = metaTags(head);
-  const expected = { robots: model.robots, 'og:type': model.edition ? 'article' : 'website', 'og:site_name': model.site.name, 'og:title': model.title, 'og:description': model.description, 'og:url': model.canonical, 'og:image': model.image, 'twitter:card': 'summary_large_image', 'twitter:title': model.title, 'twitter:description': model.description, 'twitter:image': model.image };
+  const expected = { robots: model.robots, 'og:type': model.edition || model.textOnlySocial ? 'article' : 'website', 'og:site_name': model.site.name, 'og:title': model.title, 'og:description': model.description, 'og:url': model.canonical, 'twitter:card': model.textOnlySocial ? 'summary' : 'summary_large_image', 'twitter:title': model.title, 'twitter:description': model.description, ...(model.image ? {'og:image':model.image,'twitter:image':model.image} : {}) };
   for (const [name, value] of Object.entries(expected)) {
     const matches = tags.filter(attrs => (attrs.name ?? attrs.property)?.toLowerCase() === name);
     if (matches.length !== 1 || matches[0].content !== value) failures.push(`invalid or duplicate ${name}`);
   }
-  if (assetPaths && !assetPaths.has(new URL(model.image).pathname.slice(1))) failures.push(`share image is absent: ${model.image}`);
+  if (model.textOnlySocial && tags.some(attrs => ['og:image','og:image:alt','twitter:image','twitter:image:alt'].includes((attrs.name ?? attrs.property)?.toLowerCase()))) failures.push('text-only route contains unapproved social image metadata');
+  if (model.image && assetPaths && !assetPaths.has(new URL(model.image).pathname.slice(1))) failures.push(`share image is absent: ${model.image}`);
   const blocks = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)].filter(([, attrs]) => attrsOf(attrs).type?.toLowerCase() === 'application/ld+json');
   if (model.noindex ? blocks.length !== 0 : blocks.length !== 1) failures.push('unexpected structured-data block count');
   if (!model.noindex && blocks.length === 1) {

@@ -2,6 +2,7 @@ import EcosystemSpecialPdf from './EcosystemSpecialPdf';
 import LtcPdfIssue from './LtcPdfIssue';
 import { editorialSpecials, specialResearchDate } from '../data/editorial-specials';
 import MoonHomeFeature from './MoonHomeFeature';
+import LitecoinMetaFeature from './LitecoinMetaFeature';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
@@ -22,6 +23,7 @@ export default function HomeFront() {
 
   return <div className={styles.front}>
     <MoonHomeFeature primaryHeading/>
+    <LitecoinMetaFeature/>
     <div className={styles.lead}>
       <section className={styles.community} aria-labelledby="home-title">
         <p className={styles.kicker}>Satnam Satoshi / Community</p>

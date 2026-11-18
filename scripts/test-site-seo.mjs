@@ -13,6 +13,22 @@ const render = (file, input = doc()) => applySiteSeo(input, file, { editions });
 const validate = (html, file, assetPaths = assets) => validatePageSeo(html, file, { editions, assetPaths }).failures;
 const structured = html => JSON.parse(html.match(/<script type="application\/ld\+json" data-site-seo="v1">([\s\S]*?)<\/script>/)[1]);
 
+test('Meta keeps text-only social metadata, unchanged content and no invented publication date', () => {
+  const file = 'conversations/specials/litecoin-meta/index.html';
+  const input = doc({title:'Litecoin Meta',head:'<meta property="og:image" content="https://ltcmagazine.org/brand/ltc-launch-share.png"/>'});
+  const {html,model} = render(file,input);
+  assert.equal(model.image,null);
+  assert.deepEqual(validate(html,file,new Set()),[]);
+  assert.equal(html.split('</head>')[1],input.split('</head>')[1]);
+  assert.match(html,/property="og:type" content="article"/);
+  assert.match(html,/name="twitter:card" content="summary"/);
+  assert.doesNotMatch(html,/og:image|twitter:image|datePublished|dateModified|primaryImageOfPage/);
+  assert.deepEqual(structured(html)['@graph'].map(item=>item['@type']),['WebPage']);
+  assert.match(buildSeoSitemaps([model])['sitemap-magazine.xml'],/<loc>https:\/\/ltcmagazine.org\/conversations\/specials\/litecoin-meta\/<\/loc>/);
+  const tampered=html.replace('</head>','<meta property="og:image" content="https://ltcmagazine.org/brand/ltc-launch-share.png"/></head>');
+  assert.match(validate(tampered,file).join(' '),/unapproved social image/);
+});
+
 test('route policy assigns every brand correctly and refuses traversal/URL-like exported paths', () => {
   assert.equal(routeSeoPolicy('index.html').canonical, 'https://satnamsatoshi.com/');
   assert.equal(routeSeoPolicy('langar/index.html').canonical, 'https://satnamsatoshi.com/langar/');

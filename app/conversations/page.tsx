@@ -1,6 +1,7 @@
 import EcosystemSpecialPdf from '../components/EcosystemSpecialPdf';
 import LtcPdfIssue from '../components/LtcPdfIssue';
 import MoonHomeFeature from '../components/MoonHomeFeature';
+import LitecoinMetaFeature from '../components/LitecoinMetaFeature';
 import EditorialReadingMap from '../components/EditorialReadingMap';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
@@ -63,7 +64,7 @@ export default function ConversationsPage(){
    <a href="#archive">Past issues</a>
    <a href="/conversations/desks/">All desks ↗</a>
  </nav>
- <MoonHomeFeature/><EcosystemSpecialPdf/><div id="daily"><LtcPdfIssue/></div>
+ <MoonHomeFeature/><LitecoinMetaFeature/><EcosystemSpecialPdf/><div id="daily"><LtcPdfIssue/></div>
  <section id="previous-daily" className={styles.issueLead} aria-labelledby="daily-title">
    <div className={styles.issueLeadCopy}>
      <p className={styles.eyebrow}>{issue ? <>Previous web briefing · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
