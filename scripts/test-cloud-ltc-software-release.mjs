@@ -184,3 +184,5 @@ test('visual acceptance also requires repeated full deployment manifests to agre
  assert.match(visual,/assert\.deepEqual\(await builtOutputManifest\('\.vercel\/output'\)/);
  const config=readFileSync(new URL('../next.config.ts',import.meta.url),'utf8');assert.match(config,/cssChunking: false/);
 });
+
+test('legacy software remains forbidden after F33 even with an accepted fresh admission',()=>{for(const field of ['f33Retirement','f33FreshAdmission'])for(const value of [null,{}, {status:'retired-paused',unknownAccepted:false}]){const f=fixture();f.document[field]=value;assert.throws(()=>assertSoftwareBaseline(f.document,now),/software_f33_fresh_publisher_required/);assert.throws(()=>validateSoftwareReview(f.review,f.options),/software_f33_fresh_publisher_required/);}});

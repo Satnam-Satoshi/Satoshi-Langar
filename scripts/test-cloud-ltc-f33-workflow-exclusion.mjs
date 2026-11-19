@@ -1,9 +1,9 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {LEGACY_CREDENTIAL_WORKFLOWS,READ_ONLY_WORKFLOWS,validateWorkflowExclusion,createWorkflowExclusion} from './cloud-ltc-f33-workflow-exclusion.mjs';
+import {EXCLUDED_RESEARCH_WORKFLOWS,LEGACY_CREDENTIAL_WORKFLOWS,READ_ONLY_WORKFLOWS,validateWorkflowExclusion,createWorkflowExclusion} from './cloud-ltc-f33-workflow-exclusion.mjs';
 import {f33Digest} from './cloud-ltc-f33-fresh-admission.mjs';
 function fixture(){
  const config={runId:'123',workflowId:9001,workflowPath:'.github/workflows/ltc-f33-fresh-activation.yml',workflowSha:'a'.repeat(40),sourceSha:'b'.repeat(40),sourceBranch:'agent/wall-street-20261011',group:'ltc-production-publication',cancelInProgress:false,newWorkflows:[{id:9001,path:'.github/workflows/ltc-f33-fresh-activation.yml'},{id:9002,path:'.github/workflows/ltc-fresh-daily-publication.yml'},{id:9003,path:'.github/workflows/ltc-social-maintenance-v2.yml'}]};
- const workflows={total_count:18,workflows:[...Object.entries(LEGACY_CREDENTIAL_WORKFLOWS).map(([id,path])=>({id:Number(id),path,state:'disabled_manually'})),...Object.entries(READ_ONLY_WORKFLOWS).map(([id,path])=>({id:Number(id),path,state:'active'})),...config.newWorkflows.map(w=>({...w,state:'active'}))]};
+ const workflows={total_count:20,workflows:[...Object.entries({...LEGACY_CREDENTIAL_WORKFLOWS,...EXCLUDED_RESEARCH_WORKFLOWS}).map(([id,path])=>({id:Number(id),path,state:'disabled_manually'})),...Object.entries(READ_ONLY_WORKFLOWS).map(([id,path])=>({id:Number(id),path,state:'active'})),...config.newWorkflows.map(w=>({...w,state:'active'}))]};
  const inventory=['queued','in_progress','waiting','pending','requested'].map(status=>({status,total_count:status==='in_progress'?1:0,workflow_runs:status==='in_progress'?[{id:123,workflow_id:9001,run_attempt:1,head_branch:'main',head_sha:config.workflowSha,path:config.workflowPath,status,event:'workflow_dispatch'}]:[]}));
  return {config,workflows,inventory,main:{object:{sha:config.workflowSha}},source:{object:{sha:config.sourceSha}},now:1000};
 }
@@ -44,3 +44,7 @@ test('separate social maintenance preserves all finite modes and no publisher cr
  assert.doesNotMatch(s,/schedule:|LTC_VERCEL|LTC_GITHUB|SMTP|SENDGRID|RESEND|upload-artifact/);
  for(const gate of ['LTC_CLOUD_PUBLISH','LTC_CLOUD_SOCIAL_PUBLISH','LTC_SOCIAL_CLOUD_PUBLISH','LTC_SOCIAL_PUBLISH'])assert.equal((s.match(new RegExp(gate+": 'false'",'g'))||[]).length,2);
 });
+
+for(const id of [420517244,420870150])test('new research identity '+id+' remains excluded until separately reviewed',()=>{const f=fixture();f.workflows.workflows.find(w=>w.id===id).state='active';assert.throws(()=>validateWorkflowExclusion(f),/legacy_enabled/);});
+test('new research identity cannot impersonate replacement',()=>{const f=fixture();f.config.newWorkflows[0].id=420517244;assert.throws(()=>validateWorkflowExclusion(f),/new_identity/);});
+test('old 18 identity inventory is incomplete',()=>{const f=fixture();f.workflows.workflows=f.workflows.workflows.filter(w=>!Object.hasOwn(EXCLUDED_RESEARCH_WORKFLOWS,w.id));f.workflows.total_count=18;assert.throws(()=>validateWorkflowExclusion(f),/complete_inventory/);});

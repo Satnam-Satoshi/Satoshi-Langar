@@ -13,6 +13,8 @@ const same = (a, b) => softwareHash(a) === softwareHash(b);
 // No new daily edition is admitted here. Validate the existing compacted daily
 // proof without interpreting DailyPublicationComplete as permission to publish.
 export function assertSoftwareBaseline(document, now = Date.now()) {
+  // Legacy software identity has no post-F33 writer-exclusion authority.
+  check(!Object.hasOwn(document ?? {}, 'f33Retirement') && !Object.hasOwn(document ?? {}, 'f33FreshAdmission'), 'software_f33_fresh_publisher_required');
   check(document?.paused === false && document.restoreHold === false && document.latestRelease, 'software_baseline_required');
   if (document.nextFreshGeneration) check(document.nextFreshGeneration.status === 'routine-enabled', 'software_recovery_gate_active');
   // A completed follow-up deliberately preserves its predecessor as

@@ -13,6 +13,12 @@ export const LEGACY_CREDENTIAL_WORKFLOWS=Object.freeze({
   416227939:'.github/workflows/ltc-stage-metadata-diagnostic.yml',
   416251046:'.github/workflows/ltc-stage-protected-diagnostic.yml',
 });
+// Registered after the original cutover review. No executable revision has
+// been accepted as a cooperative writer here; require disabled identities.
+export const EXCLUDED_RESEARCH_WORKFLOWS=Object.freeze({
+  420517244:'.github/workflows/cloud-newsroom-v2-research.yml',
+  420870150:'.github/workflows/standalone-newsroom-source.yml',
+});
 export const READ_ONLY_WORKFLOWS=Object.freeze({
   296665138:'.github/workflows/ci.yml',402325333:'.github/workflows/ltc-cloud-review.yml',
   418872624:'.github/workflows/ltc-f33-readonly-smoke.yml',377055323:'.github/workflows/ltc-migration-validation.yml',
@@ -25,18 +31,18 @@ export function validateWorkflowExclusion({config:c,workflows,inventory,main,sou
     freshPaths.includes(c.workflowPath) && /^[a-f0-9]{40}$/.test(c.workflowSha) && /^[a-f0-9]{40}$/.test(c.sourceSha) &&
     c.sourceBranch==='agent/wall-street-20261011' && c.group==='ltc-production-publication' && c.cancelInProgress===false,'config');
   check(Array.isArray(c.newWorkflows) && c.newWorkflows.length===3 && new Set(c.newWorkflows.map(w=>w.id)).size===3 &&
-    c.newWorkflows.every(w=>Number.isSafeInteger(w.id)&&w.id>0&&!Object.hasOwn(LEGACY_CREDENTIAL_WORKFLOWS,w.id)&&!Object.hasOwn(READ_ONLY_WORKFLOWS,w.id)) &&
+    c.newWorkflows.every(w=>Number.isSafeInteger(w.id)&&w.id>0&&!Object.hasOwn(LEGACY_CREDENTIAL_WORKFLOWS,w.id)&&!Object.hasOwn(READ_ONLY_WORKFLOWS,w.id)&&!Object.hasOwn(EXCLUDED_RESEARCH_WORKFLOWS,w.id)) &&
     replacementPaths.every(p=>c.newWorkflows.filter(w=>w.path===p).length===1) &&
     c.newWorkflows.some(w=>w.id===c.workflowId&&w.path===c.workflowPath),'new_identity');
   check(main?.object?.sha===c.workflowSha && (c.workflowPath===freshPaths[0] ? source?.object?.sha===c.sourceSha : /^[a-f0-9]{40}$/.test(source?.object?.sha??'')),'source_changed');
   // Daily writer source movement is checked by its existing controller before
   // Git/Vercel effects; its own accepted Git commit can advance the source branch.
-  check(workflows?.total_count===18 && Array.isArray(workflows.workflows) && workflows.workflows.length===18 &&
-    new Set(workflows.workflows.map(w=>w.id)).size===18,'complete_inventory');
-  const allowed={...LEGACY_CREDENTIAL_WORKFLOWS,...READ_ONLY_WORKFLOWS,...Object.fromEntries(c.newWorkflows.map(w=>[w.id,w.path]))};
+  check(workflows?.total_count===20 && Array.isArray(workflows.workflows) && workflows.workflows.length===20 &&
+    new Set(workflows.workflows.map(w=>w.id)).size===20,'complete_inventory');
+  const allowed={...LEGACY_CREDENTIAL_WORKFLOWS,...EXCLUDED_RESEARCH_WORKFLOWS,...READ_ONLY_WORKFLOWS,...Object.fromEntries(c.newWorkflows.map(w=>[w.id,w.path]))};
   for(const w of workflows.workflows){
     check(allowed[w.id]===w.path,'unknown_workflow');
-    if(Object.hasOwn(LEGACY_CREDENTIAL_WORKFLOWS,w.id))check(w.state==='disabled_manually','legacy_enabled');
+    if(Object.hasOwn(LEGACY_CREDENTIAL_WORKFLOWS,w.id)||Object.hasOwn(EXCLUDED_RESEARCH_WORKFLOWS,w.id))check(w.state==='disabled_manually','legacy_enabled');
     else check(w.state==='active','replacement_not_ready');
   }
   check(Array.isArray(inventory)&&inventory.length===5,'run_inventory');let self=0;
