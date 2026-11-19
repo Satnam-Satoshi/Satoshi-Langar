@@ -1,0 +1,146 @@
+{
+  "campaign": "LTC Magazine November 19 story campaign",
+  "artwork": "Original conceptual editorial illustrations; no endorsement implied",
+  "assets": [
+    {
+      "id": "moon",
+      "width": 1200,
+      "height": 630,
+      "sha256": "1c4f78f588422112d4bf92a5c1bd5fcbd81703a5e4fbe9688d619a641f7b63e0",
+      "altText": "Original October30 Litecoin to the Moon editorial cover with an abstract orbit; no price forecast."
+    },
+    {
+      "id": "explore",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "f7fe8d71988fcb5a7f515b3d16312b8e001cb223767e892adf3858cc736b3be8",
+      "altText": "Silver compass on branching orange and blue paths: Pick Your Route, Explore Litecoin."
+    },
+    {
+      "id": "ledger",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "e5db469279da3f6a7a18f2f39a2efe3fe6f2f406beec3285c584ca83daaeef24",
+      "altText": "Linked transparent silver cubes hold identical open books: A Shared Record, Blockchain Basics."
+    },
+    {
+      "id": "iykyk",
+      "width": 1086,
+      "height": 1448,
+      "sha256": "ba74aff751af918d485aa2ab2186469729ebc8d830440d40a54edbe253c5f070",
+      "altText": "Existing IYKYK open-archive illustration of an open silver vault with blue illuminated detail; preserve scheduled post."
+    },
+    {
+      "id": "wallet",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "5c4ecc517ae45270ffe81baac53ebefa94a483e38a4124423cbe5af3bba34416",
+      "altText": "A silver key casts a signature-shaped shadow: Keys Authorize, Wallet Basics."
+    },
+    {
+      "id": "recovery",
+      "width": 1200,
+      "height": 675,
+      "sha256": "d2c712ca74fe94b6409203012c76888476f20a10920f3a1942f32fb0aaf47cf4",
+      "altText": "A blue padlock protects a blank recovery sheet; keep recovery offline, private and protected."
+    },
+    {
+      "id": "timechain",
+      "width": 1200,
+      "height": 675,
+      "sha256": "5a3b27d11b083c78a853ac8d25ff419cd2943ba27e8c8728336b0a40fd07218d",
+      "altText": "Abstract lettered blocks illustrate a clock made of blocks and shared mining work with separate network rules."
+    },
+    {
+      "id": "mweb",
+      "width": 1200,
+      "height": 675,
+      "sha256": "6f0f088d5db89e5b4bf8435153e06ce90175029958b04a7ad58fc57bd18951d2",
+      "altText": "Blue and silver shield illustrates MWEB privacy design and its tradeoffs."
+    },
+    {
+      "id": "institutions",
+      "width": 1200,
+      "height": 675,
+      "sha256": "6f4a1757d9dcd796a52e17ed8b92ac71b865118f5269cf9c9365dce4fb216982",
+      "altText": "Conceptual categories distinguish holdings, net asset value and fund flows; no numeric balances."
+    },
+    {
+      "id": "distribution",
+      "width": 1200,
+      "height": 675,
+      "sha256": "e8707bbdd16dfc6097223b29299be76bbae295a471be71a2c765221078fdae3a",
+      "altText": "Overlapping custody, fund and treasury circles illustrate why records do not equal unique coins."
+    },
+    {
+      "id": "litvm",
+      "width": 1200,
+      "height": 675,
+      "sha256": "fa85f24da71c62a684a739f3d2c1ebb96ddfc54d2f0b95eb2a8c0787348536db",
+      "altText": "Conceptual layer cards highlight architecture, network stage and release evidence for LitVM."
+    },
+    {
+      "id": "lithium",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "691c3fb4df504e5cfc02efb52c7edb92262b420b3b70c6825f0ea050738d7fa9",
+      "altText": "Original Lithium lending-lab cover explicitly labeled Testnet and Unaudited."
+    },
+    {
+      "id": "native-tools",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "c26cc9ff8606486781bfd1e90545cd26a6e81a86a251ac31af9eac6a5f65acb1",
+      "altText": "Litecoin Core release-reading cover with a blue folder and magnifying glass, emphasizing version, source and verification."
+    },
+    {
+      "id": "luxxpool",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "16523494a5043ffaa21850ee8adf3974e541fa6efde0d4a042baf4106d710294",
+      "altText": "Original November12 Luxxfolio company-update cover illustrates mining, pool and wallet concepts."
+    },
+    {
+      "id": "fidelity",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "897cba70d4de8b8bf39f6d3cebb73d84655de852223e4fcd2117a8ae3deced10",
+      "altText": "A magnifying glass examines abstract research pages: Read the Counterargument, Institutional Research."
+    },
+    {
+      "id": "charlie",
+      "width": 1200,
+      "height": 675,
+      "sha256": "e1ad90727baa4c5aceb3761f8b1501dacc675ef2ff0732526f57ab464d1cabd6",
+      "altText": "Conceptual interview watch map invites questions on origins, privacy and builders; no fabricated portrait or quote."
+    },
+    {
+      "id": "jack",
+      "width": 1200,
+      "height": 675,
+      "sha256": "0b938added11f217603c3d9f3ff20f152c9477290644993ae57d1f1c25b61d31",
+      "altText": "An abstract bridge connects sources, people and context: Build Bridges, Check History."
+    },
+    {
+      "id": "builders",
+      "width": 1200,
+      "height": 675,
+      "sha256": "58971a2575f8329ab2504f38a21c0c1b7ee993afd7fc0a02209051b13240f0f3",
+      "altText": "Document, demonstrate and verify icons: Show the Work."
+    },
+    {
+      "id": "community",
+      "width": 1200,
+      "height": 675,
+      "sha256": "3c6503434a90a31cb1f5cec580a435a9fc55429b0c2ea5a17bbbed9b8ff1bae6",
+      "altText": "An open roundtable welcomes learning, building and useful contributions."
+    },
+    {
+      "id": "support",
+      "width": 1200,
+      "height": 675,
+      "sha256": "79532fadb1e2cf80421183ff39f012255a57673019426cb80c9a0bca8f6c3503",
+      "altText": "An open book symbolizes voluntary support for the next reader."
+    }
+  ]
+}
