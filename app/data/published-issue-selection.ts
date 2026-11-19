@@ -5,3 +5,11 @@ export function selectPublishedIssue(pdf:PublishedIssue,web:PublishedIssue|null)
   return web && web.date>pdf.date?web:pdf;
 }
 export function previousPublicationDays<T extends {date:string}>(days:T[],current:PublishedIssue,limit=4):T[]{return days.filter(day=>day.date<current.date).slice(0,limit);}
+
+// Saved artDirection assets are relative to public/magazine, matching the
+// edition cover renderer and feed enclosure rules. Consumers need a root URL.
+export function publishedIssueCoverPath(asset:string|undefined):string|undefined {
+  if(!asset)return undefined;
+  if(!/^[a-z0-9][a-z0-9/_-]*\.(?:jpe?g|png|webp)$/i.test(asset)||asset.includes('//'))throw Error('invalid_published_issue_cover');
+  return `/magazine/${asset}`;
+}
