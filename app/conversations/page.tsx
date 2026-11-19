@@ -1,3 +1,4 @@
+import LunarHomeFeature from '../components/LunarHomeFeature';
 import {latestWebIssueLabel,latestPublishedIssue} from '../data/latest-published-issue';
 import EcosystemSpecialPdf from '../components/EcosystemSpecialPdf';
 import LitecoinEventsFeature from '../components/LitecoinEventsFeature';
@@ -65,7 +66,7 @@ export default function ConversationsPage(){
    <a href="#archive">Past issues</a>
    <a href="/conversations/desks/">All desks ↗</a>
  </nav>
- <MoonHomeFeature/><LitecoinEventsFeature/><EcosystemSpecialPdf/><div id={latestPublishedIssue.format==='pdf'?'daily':'latest-pdf'}><LtcPdfIssue/></div>
+ <MoonHomeFeature/><LunarHomeFeature/><LitecoinEventsFeature/><EcosystemSpecialPdf/><div id={latestPublishedIssue.format==='pdf'?'daily':'latest-pdf'}><LtcPdfIssue/></div>
  <section id={latestPublishedIssue.format==='web'?'daily':'latest-web'} className={styles.issueLead} aria-labelledby="daily-title">
    <div className={styles.issueLeadCopy}>
      <p className={styles.eyebrow}>{issue ? <>{latestWebIssueLabel} · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>

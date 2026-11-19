@@ -1,3 +1,4 @@
+import LunarHomeFeature from './LunarHomeFeature';
 import {latestWebIssueLabel,latestPublishedIssue} from '../data/latest-published-issue';
 import EcosystemSpecialPdf from './EcosystemSpecialPdf';
 import LitecoinEventsFeature from './LitecoinEventsFeature';
@@ -23,7 +24,7 @@ export default function HomeFront() {
   const issueHref = issue ? editionDateHref(issue.date) : '/conversations/archive/';
 
   return <div className={styles.front}>
-    <MoonHomeFeature primaryHeading/>
+    <MoonHomeFeature primaryHeading/><LunarHomeFeature/>
     <LitecoinEventsFeature/>
     <div className={styles.lead}>
       <section className={styles.community} aria-labelledby="home-title">
