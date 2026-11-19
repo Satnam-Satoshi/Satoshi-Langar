@@ -1,3 +1,4 @@
+import {latestWebIssueLabel,latestPublishedIssue} from '../data/latest-published-issue';
 import EcosystemSpecialPdf from './EcosystemSpecialPdf';
 import LitecoinEventsFeature from './LitecoinEventsFeature';
 import LtcPdfIssue from './LtcPdfIssue';
@@ -38,17 +39,17 @@ export default function HomeFront() {
       <figure className={styles.communityArt}><img src="/home/open-table-network.jpg" width="1536" height="1024" alt="Conceptual illustration of people sharing an open table, with Bitcoin and Litecoin motifs."/><figcaption>Rooted in seva. Open to everyone.<small>Community concept artwork, not an operating kitchen.</small></figcaption></figure>
     </div>
     <CommunityJourney/><RegisterInvitation/>
-      <EcosystemSpecialPdf/><div id="home-latest-issue"><LtcPdfIssue/></div><section className={styles.magazine} id="home-previous-issue" aria-labelledby="home-issue-title">
+      <EcosystemSpecialPdf/><div id={latestPublishedIssue.format==='pdf'?'home-latest-issue':'home-latest-pdf'}><LtcPdfIssue/></div><section className={styles.magazine} id={latestPublishedIssue.format==='web'?'home-latest-issue':'home-latest-web'} aria-labelledby="home-issue-title">
         <div className={styles.issueMasthead}>
           <a href="/conversations/">LTC <strong>Magazine</strong></a>
           <span>Independent editorial</span>
         </div>
         <div className={styles.issueLead}>
           <div className={styles.issueCopy}>
-            <p className={styles.kicker}>{issue ? <>Previous web briefing · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
+            <p className={styles.kicker}>{issue ? <>{latestWebIssueLabel} · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
             <h2 id="home-issue-title">{issue?.title ?? 'The daily archive'}</h2>
             {issue && <p>{issue.dek}</p>}
-            <nav aria-label={issue ? 'Previous web briefing' : 'Daily archive'}>
+            <nav aria-label={issue ? latestWebIssueLabel : 'Daily archive'}>
               <a className={styles.read} href={issueHref}>{issue ? 'Read the issue' : 'Browse past issues'} <span aria-hidden="true">↗</span></a>
             </nav>
           </div>

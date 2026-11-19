@@ -1,3 +1,4 @@
+import {latestWebIssueLabel,latestPublishedIssue} from '../data/latest-published-issue';
 import EcosystemSpecialPdf from '../components/EcosystemSpecialPdf';
 import LitecoinEventsFeature from '../components/LitecoinEventsFeature';
 import LtcPdfIssue from '../components/LtcPdfIssue';
@@ -64,13 +65,13 @@ export default function ConversationsPage(){
    <a href="#archive">Past issues</a>
    <a href="/conversations/desks/">All desks ↗</a>
  </nav>
- <MoonHomeFeature/><LitecoinEventsFeature/><EcosystemSpecialPdf/><div id="daily"><LtcPdfIssue/></div>
- <section id="previous-daily" className={styles.issueLead} aria-labelledby="daily-title">
+ <MoonHomeFeature/><LitecoinEventsFeature/><EcosystemSpecialPdf/><div id={latestPublishedIssue.format==='pdf'?'daily':'latest-pdf'}><LtcPdfIssue/></div>
+ <section id={latestPublishedIssue.format==='web'?'daily':'latest-web'} className={styles.issueLead} aria-labelledby="daily-title">
    <div className={styles.issueLeadCopy}>
-     <p className={styles.eyebrow}>{issue ? <>Previous web briefing · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
+     <p className={styles.eyebrow}>{issue ? <>{latestWebIssueLabel} · <time dateTime={issue.date}>{formatEditionDate(issue.date)}</time></> : 'Publication archive'}</p>
      <h2 id="daily-title">{issue?.title ?? 'Browse the daily archive'}</h2>
      {issue && <p className={styles.issueDek}>{issue.dek}</p>}
-     <nav className={styles.actions} aria-label={issue ? 'Previous web briefing' : 'Daily archive'}>
+     <nav className={styles.actions} aria-label={issue ? latestWebIssueLabel : 'Daily archive'}>
        <a className={styles.button} href={href}>{issue ? 'Read the issue' : 'Open the archive'} <span aria-hidden="true">↗</span></a>
        {issue && <a className={styles.textLink} href={`${href}#sourcebook`}>Issue sourcebook <span aria-hidden="true">↗</span></a>}
      </nav>

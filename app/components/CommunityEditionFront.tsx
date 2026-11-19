@@ -1,4 +1,4 @@
-import { pdfIssue } from '../data/pdf-issue';
+import { latestPublishedIssue } from '../data/latest-published-issue';
 import publicationExclusionConfig from '../../config/ltc-publication-exclusions.json';
 import { sourceDeskReadMore } from '../../scripts/lib/ltc-source-desk-links.mjs';
 import sourceDesk from '../../content/ltc-newsroom-selections/latest.json';
@@ -13,7 +13,7 @@ const routes = [
 ];
 
 export default function CommunityEditionFront({ community = false }: { community?: boolean }) {
-  const issue = pdfIssue;
+  const issue = latestPublishedIssue;
   const titleId = community ? 'home-title' : 'frontpage-title';
   const Title = community ? 'h1' : 'h2';
   const checked = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'America/New_York' }).format(new Date(sourceDesk.checkedAt));

@@ -1,4 +1,4 @@
-import { pdfIssue } from '../data/pdf-issue';
+import { latestPublishedIssue } from '../data/latest-published-issue';
 import { SocialLinks } from '../components/SocialLinks';
 import styles from './community.module.css';
 import { communityAnswers, communityDestinations, communityPaths } from '../data/community-hub';
@@ -10,7 +10,7 @@ export const metadata = {
   description:'A home for the Litecoin and Bitcoin curious: learn, build, create and serve. Find community links, free AI Satoshi Ma guidance and a useful first contribution.',
   openGraph:{ title:'Many minds. One open table.', description:'The Satnam Satoshi community: humans, AI and useful work.', images:[{url:'https://satnamsatoshi.com/images/community/open-table.jpg',width:1672,height:941,alt:'An imagined community sharing knowledge, art and food.'}] },
 };
-const issue = pdfIssue;
+const issue = latestPublishedIssue;
 const pitch = propose('Community question or contribution','Page or project:\n\nMy question or proposed contribution:\n\nSources / evidence:\n\nOne useful next step:');
 const correction = propose('LTC source check / story pitch','Page / issue date:\n\nClaim to check or story idea:\n\nOriginal source and its date:\n\nSuggested correction or next step:');
 const introPrompt = 'Help me choose a first contribution to Satnam Satoshi. Start by asking about my interests and available time. Use https://satnamsatoshi.com/ecosystem/ and cite the project pages you use. Distinguish current features from proposals. If you cannot read a page, say so. Do not ask for wallet secrets or private information.';
