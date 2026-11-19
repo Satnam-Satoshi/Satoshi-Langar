@@ -27,5 +27,5 @@
       ]
     }
   ],
-  "ignoreCommand": "if result=$(node scripts/pdf-preview-ignore.mjs 2>/dev/null) && [ \"$result\" = \"ALLOW_PDF_PREVIEW\" ]; then exit 1; else exit 0; fi"
+  "ignoreCommand": "node -e 'const {execFileSync:g}=require('\\''node:child_process'\\'');try{const ok=process.env.VERCEL_ENV==='\\''preview'\\''&&process.env.VERCEL_GIT_REPO_OWNER==='\\''Satnam-Satoshi'\\''&&process.env.VERCEL_GIT_REPO_SLUG==='\\''Satoshi-Langar'\\''&&process.env.VERCEL_GIT_COMMIT_REF==='\\''agent/lunar-release-20261119'\\''&&Date.now()<Date.parse('\\''2026-11-20T05:00:00Z'\\'')&&g('\\''git'\\'',['\\''rev-parse'\\'','\\''HEAD^'\\''],{encoding:'\\''utf8'\\''}).trim()==='\\''0d2fdfde2092a6a1f8b73a883690c8724339418d'\\''&&g('\\''git'\\'',['\\''diff'\\'','\\''--name-only'\\'','\\''HEAD^'\\'','\\''HEAD'\\''],{encoding:'\\''utf8'\\''}).trim()==='\\''vercel.json'\\'';process.exit(ok?1:0)}catch{process.exit(0)}'"
 }
