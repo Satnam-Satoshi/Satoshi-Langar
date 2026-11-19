@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "width": 1200,
+  "height": 630,
+  "editionId": "2026-11-18-r1",
+  "date": "2026-11-18",
+  "featureDate": "2026-11-18",
+  "headline": "Build the Rails. Check the Recovery.",
+  "stories": [
+    {
+      "id": "mining-growth-with-dates",
+      "title": "A bigger mining fleet. Three dates to keep.",
+      "desk": "Litecoin / Mining and infrastructure",
+      "classification": "Analysis of November 12 issuer announcement",
+      "sourceDates": [
+        "2026-11-12"
+      ],
+      "sourceURLs": [
+        "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development/"
+      ]
+    },
+    {
+      "id": "lightning-recovery-is-product-work",
+      "title": "Lightning’s quiet work: keep recovery paths intact.",
+      "desk": "Bitcoin / Lightning operations",
+      "classification": "Carry-forward analysis of November 11 release",
+      "sourceDates": [
+        "2026-11-11T20:41:18Z",
+        "Publication date not supplied"
+      ],
+      "sourceURLs": [
+        "https://github.com/lightningnetwork/lnd/releases/tag/v0.21.8-beta",
+        "https://raw.githubusercontent.com/lightningnetwork/lnd/v0.21.8-beta/docs/release-notes/release-notes-0.21.8.md"
+      ]
+    },
+    {
+      "id": "bitcoin-disclosures-affected-versions",
+      "title": "A disclosed bug is not a newly discovered attack.",
+      "desk": "Security / Bitcoin software",
+      "classification": "Carry-forward analysis of November 10 advisories",
+      "sourceDates": [
+        "2026-11-10",
+        "2026-10-28T14:23:53Z",
+        "2026-09-12T12:06:49Z"
+      ],
+      "sourceURLs": [
+        "https://bitcoincore.org/en/2026/11/10/disclose-cve-2025-62859/",
+        "https://bitcoincore.org/en/2026/11/10/disclose-cve-2025-62860/",
+        "https://bitcoincore.org/en/2026/11/10/disclose-cve-2025-62861/",
+        "https://github.com/bitcoin/bitcoin/releases/tag/v32.1",
+        "https://github.com/litecoin-project/litecoin/releases/tag/v0.21.5.8"
+      ]
+    }
+  ],
+  "sourceDates": [
+    "2026-11-12",
+    "2026-11-11T20:41:18Z",
+    "Publication date not supplied",
+    "2026-11-10",
+    "2026-10-28T14:23:53Z",
+    "2026-09-12T12:06:49Z"
+  ],
+  "publishedAt": "2026-11-19T01:07:07.381Z",
+  "attribution": "AI-prepared · LTC Media · Read the dated sourcebook",
+  "readURL": "https://ltcmagazine.org/conversations/editions/2026-11-18-r1/",
+  "design": "content-led-news-map-v1",
+  "pngSha256": "b0ec51d73ad9fdc96729daa214a2410ec52a9ec568b69f4defeb02f507c629b0",
+  "svgSha256": "a73d0fe795ecfe590a96f433959f799e9ac904a4134326796af1f6e197aaa9d5",
+  "pngBytes": 98297,
+  "renderer": "Next ImageResponse · original SVG · explicit Liberation Sans glyphs"
+}

@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "issueDate": "2026-11-18",
+  "timezone": "America/New_York",
+  "preparedAt": "2026-11-19T01:06:22.234Z",
+  "checkedAt": "2026-11-18",
+  "title": "Build the Rails. Check the Recovery.",
+  "theme": "Mining infrastructure / Lightning resilience / Software security",
+  "dek": "A mining company’s dated progress, Lightning recovery fixes and the difference between a security disclosure and a new attack.",
+  "editorialStatus": "AI-prepared and source-checked",
+  "authorship": "AI Satoshi Ma / LTC Media · Primary-source review; no independent human fact-check claimed.",
+  "freshnessPolicy": "Sources checked November 18 in New York. Publication dates and measurement dates remain separate. No new November 18 announcement is manufactured from older records.",
+  "independence": "Independent educational reporting. Issuer figures are attributed; no investment recommendation, audit or product endorsement implied.",
+  "editionCover": {
+    "kicker": "LTC / THE INFRASTRUCTURE DESK",
+    "title": "Build the Rails. Check the Recovery.",
+    "subtitle": "Mining. Lightning. The work behind reliability."
+  },
+  "stories": [
+    {
+      "id": "mining-growth-with-dates",
+      "title": "A bigger mining fleet. Three dates to keep.",
+      "desk": "Litecoin / Mining and infrastructure",
+      "classification": "Analysis of November 12 issuer announcement",
+      "dek": "Luxxfolio’s update separates installed equipment, pool participation and an estimated treasury.",
+      "status": "Published November 12 · Treasury November 9 · Pool November 11",
+      "eventDates": [
+        {
+          "date": "2026-11-12",
+          "label": "Issuer corporate update"
+        },
+        {
+          "date": "2026-11-09",
+          "label": "Estimated treasury observation"
+        },
+        {
+          "date": "2026-11-11",
+          "label": "Pool operating snapshot"
+        }
+      ],
+      "paragraphs": [
+        "Luxxfolio reported that 50 additional L9 miners were commissioned, bringing its fleet to 338 machines and about 5.58 TH/s of nameplate capacity. Rated capacity is an equipment specification, not a guarantee of future production or revenue.",
+        "Its November 11 LuxxPool snapshot reported about 7.7 TH/s and 520 workers, including 2.1 TH/s from external miners. The estimated 26,838.23 LTC treasury and cumulative 3,599.13 LTC mined are dated November 9. Pool hashrate, fleet hashrate and treasury balances describe different things.",
+        "The company says 5% of LuxxPool’s own fees is allocated to the Litecoin Foundation; that is not 5% of miner rewards. Its wallet work involving MWEB and LitVM remains in development. The infrastructure story is useful precisely when delivered features and plans stay in separate columns."
+      ],
+      "takeaway": "Read the equipment specification, operating snapshot and financial estimate on their own dates.",
+      "discussionPrompt": "Which operating measurement would you want beside pool hashrate?",
+      "sourceIds": [
+        "luxx-update"
+      ]
+    },
+    {
+      "id": "lightning-recovery-is-product-work",
+      "title": "Lightning’s quiet work: keep recovery paths intact.",
+      "desk": "Bitcoin / Lightning operations",
+      "classification": "Carry-forward analysis of November 11 release",
+      "dek": "LND’s pinned release notes focus on how nodes respond when transaction publication or reconnects fail.",
+      "status": "LND 0.21.8-beta published November 11 · Checked November 18",
+      "eventDates": [
+        {
+          "date": "2026-11-11",
+          "label": "LND release publication"
+        }
+      ],
+      "paragraphs": [
+        "The latest LND release observed in the official repository is 0.21.8-beta, published November 11. Its release notes describe correctness and recovery fixes rather than a new payment network or a promise of greater adoption.",
+        "The notes say transient or unknown sweep-acceptance failures retain inputs for retry. Funding-batch state is preserved after a publication error because the transaction may already have reached the network. The notes also describe channel reconnect and acknowledgement fixes.",
+        "A permanently unpublishable retained funding batch can still require manual cleanup after checking that its transaction cannot confirm. Reliable operation includes these limits. Operators should read the signed-release verification, backup and recovery instructions before changing software."
+      ],
+      "takeaway": "Recovery behavior matters alongside headline payment features.",
+      "discussionPrompt": "How do operators test that a failed publication can be recovered safely?",
+      "sourceIds": [
+        "lnd-release",
+        "lnd-notes"
+      ]
+    },
+    {
+      "id": "bitcoin-disclosures-affected-versions",
+      "title": "A disclosed bug is not a newly discovered attack.",
+      "desk": "Security / Bitcoin software",
+      "classification": "Carry-forward analysis of November 10 advisories",
+      "dek": "Three advisories explain historical risks and fixes; the affected version and configuration determine the story.",
+      "status": "Disclosed November 10 · Checked November 18",
+      "eventDates": [
+        {
+          "date": "2026-11-10",
+          "label": "Public disclosure of historical vulnerabilities"
+        }
+      ],
+      "paragraphs": [
+        "Bitcoin Core’s November 10 advisories describe previously fixed issues involving compact-block processing, Tor whitelist permissions and block-template creation during a reorganization. They are dated disclosures, not evidence of a new attack on November 18.",
+        "The Tor advisory concerns a non-default whitelist configuration: nodes without that setting were not affected. The compact-block and Tor issues are rated medium severity; the TRUC block-template issue is rated high severity. The published affected-version ranges and fixes should control operational decisions.",
+        "The official latest-release record points to Bitcoin Core 32.1, published October 28. Litecoin Core’s separate latest public release remains 0.21.5.8, dated September 12. These are checked software baselines, not new launches today. Use each project’s own verification instructions and release notes."
+      ],
+      "takeaway": "Keep disclosure dates, affected configurations and fixed versions together.",
+      "discussionPrompt": "What information should a useful security notice show before its headline?",
+      "sourceIds": [
+        "btc-cve-witness",
+        "btc-cve-tor",
+        "btc-cve-truc",
+        "btc-release",
+        "ltc-release"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "luxx-update",
+      "title": "Corporate update: mining, pool and wallet development",
+      "publisher": "Luxxfolio",
+      "url": "https://luxxfolio.com/news/luxxfolio-provides-corporate-update-highlighting-luxxpool-growth-mining-expansion-and-litecoin-ecosystem-development/",
+      "publishedAt": "2026-11-12",
+      "checkedAt": "2026-11-18",
+      "note": "Issuer statement; multiple observation dates preserved. Not an independent audit."
+    },
+    {
+      "id": "lnd-release",
+      "title": "LND 0.21.8-beta",
+      "publisher": "Lightning Network LND",
+      "url": "https://github.com/lightningnetwork/lnd/releases/tag/v0.21.8-beta",
+      "publishedAt": "2026-11-11T20:41:18Z",
+      "checkedAt": "2026-11-18",
+      "note": "Latest observed release; no automatic upgrade performed."
+    },
+    {
+      "id": "lnd-notes",
+      "title": "Pinned LND 0.21.8 release notes",
+      "publisher": "Lightning Network LND",
+      "url": "https://raw.githubusercontent.com/lightningnetwork/lnd/v0.21.8-beta/docs/release-notes/release-notes-0.21.8.md",
+      "publishedAt": null,
+      "checkedAt": "2026-11-18",
+      "note": "Release-tag-pinned original notes; separate document publication time not established."
+    },
+    {
+      "id": "btc-cve-witness",
+      "title": "Block processing stall via witness malleation",
+      "publisher": "Bitcoin Core",
+      "url": "https://bitcoincore.org/en/2026/11/10/disclose-cve-2025-62859/",
+      "publishedAt": "2026-11-10",
+      "checkedAt": "2026-11-18",
+      "note": "Original advisory reviewed; historical issue and released fixes, not evidence of current exploitation."
+    },
+    {
+      "id": "btc-cve-tor",
+      "title": "Inbound Tor connections wrongly receive whitelist permissions",
+      "publisher": "Bitcoin Core",
+      "url": "https://bitcoincore.org/en/2026/11/10/disclose-cve-2025-62860/",
+      "publishedAt": "2026-11-10",
+      "checkedAt": "2026-11-18",
+      "note": "Original advisory reviewed; historical issue and released fixes, not evidence of current exploitation."
+    },
+    {
+      "id": "btc-cve-truc",
+      "title": "Block-template creation halted by TRUC sibling eviction during reorg",
+      "publisher": "Bitcoin Core",
+      "url": "https://bitcoincore.org/en/2026/11/10/disclose-cve-2025-62861/",
+      "publishedAt": "2026-11-10",
+      "checkedAt": "2026-11-18",
+      "note": "Original advisory reviewed; historical issue and released fixes, not evidence of current exploitation."
+    },
+    {
+      "id": "btc-release",
+      "title": "Bitcoin Core 32.1",
+      "publisher": "Bitcoin Core",
+      "url": "https://github.com/bitcoin/bitcoin/releases/tag/v32.1",
+      "publishedAt": "2026-10-28T14:23:53Z",
+      "checkedAt": "2026-11-18",
+      "note": "Official release body and project release notes reviewed; original date preserved."
+    },
+    {
+      "id": "ltc-release",
+      "title": "Litecoin Core 0.21.5.8",
+      "publisher": "Litecoin Core",
+      "url": "https://github.com/litecoin-project/litecoin/releases/tag/v0.21.5.8",
+      "publishedAt": "2026-09-12T12:06:49Z",
+      "checkedAt": "2026-11-18",
+      "note": "Official release notes reviewed; older software checkpoint, not a fresh November announcement."
+    }
+  ],
+  "gaps": [
+    "The featured Litecoin to the Moon special remains the connected long read; this daily briefing does not replace it.",
+    "CFTC’s November 17 roundtable agenda was discovered in its official feed, but its original page returned 403. No substantive agenda story is inferred.",
+    "Lightning Labs website sources and the Foundation index were unavailable in this scan; coverage is incomplete.",
+    "Prices, network figures and institutional holdings use separately timestamped release collectors; no current price or flow is inferred here."
+  ]
+}
