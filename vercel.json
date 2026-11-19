@@ -27,5 +27,5 @@
       ]
     }
   ],
-  "ignoreCommand": "if result=$(node scripts/pdf-preview-ignore.mjs 2>/dev/null) && [ \"$result\" = \"ALLOW_PDF_PREVIEW\" ]; then exit 1; else exit 0; fi"
+  "ignoreCommand": "if [ \"$(node scripts/lunar-preview.cjs 2>/dev/null)\" = ALLOW_LUNAR_PREVIEW ]; then exit 1; else exit 0; fi"
 }
