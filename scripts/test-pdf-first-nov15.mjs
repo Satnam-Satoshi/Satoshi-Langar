@@ -1,20 +1,25 @@
+import {assertCurrentNotice} from './lib/test-published-navigation.mjs';
 import { readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 const pdf='public/magazine/daily/LTC-2026-11-15-v1.0.pdf';
 assert.equal(createHash('sha256').update(readFileSync(pdf)).digest('hex'),'66ee76923773b2b718ff0b957bdd4df982e471f4c21b76630bcdfca12efdb3ac');
-for(const route of ['index.html','conversations/index.html','conversations/archive/index.html','conversations/daily/index.html','conversations/editions/2026-11-15/index.html']){
+for(const route of ['conversations/editions/2026-11-15/index.html']){
  const html=readFileSync(`dist/${route}`,'utf8');assert.ok(html.includes('The Evidence Issue'),route);assert.ok(html.includes('magazine/daily/LTC-2026-11-15-v1.0.pdf'),route);
  const links=[...html.matchAll(/(?:href|src)="([^"#?]+)(?:[?#][^"]*)?"/g)].map(m=>new URL(m[1],`https://example.test/${route}`).pathname).filter(p=>p.includes('LTC-2026-11-15')||p==='/conversations/editions/2026-11-15/');
  assert.ok(links.length>=2,`Expected actual PDF issue links on ${route}`);
  for(const path of links) assert.ok(existsSync(`dist${path}${path.endsWith('/')?'index.html':''}`),path);
- assert.ok(html.includes('Latest published · November 15, 2026'),route);
+ assertCurrentNotice(html,route);
 
 }
 assert.equal(createHash('sha256').update(readFileSync('dist/magazine/daily/LTC-2026-11-15-v1.0.pdf')).digest('hex'),'66ee76923773b2b718ff0b957bdd4df982e471f4c21b76630bcdfca12efdb3ac');
 assert.ok(readFileSync('app/components/LtcPdfIssue.module.css','utf8').includes('@media(max-width:640px)'));
-console.log('PASS: immutable PDF hash, five routes, asset/dated links, responsive breakpoint.');
+console.log('PASS: immutable PDF hash, published/archived routes, asset/dated links, responsive breakpoint.');
 const deploymentConfig=JSON.parse(readFileSync('vercel.json','utf8'));
 assert.equal(deploymentConfig.buildCommand,'pnpm build && pnpm release:prepare');
 for(const name of ['litecoin-chain','litecoin-register','market-prices','morpho-markets'])assert.ok(existsSync(`.vercel/output/functions/api/${name}.func/.vc-config.json`),`Missing API function ${name}`);
 console.log('PASS: Git deployment command prepares all four API functions.');
+
+// Older PDF remains discoverable through the dated archive, without posing as today's issue.
+const archive=readFileSync('dist/conversations/archive/index.html','utf8');assert.ok(/href="[^"]*editions\/2026-11-15\/(?:index.html)?"/.test(archive));assertCurrentNotice(archive,'conversations/archive/index.html');
+for(const route of ['index.html','conversations/index.html','conversations/daily/index.html']){const html=readFileSync('dist/'+route,'utf8');assertCurrentNotice(html,route);assert.ok([...html.matchAll(/href="([^"]+)"/g)].some(m=>new URL(m[1],`https://example.test/${route}`).pathname.replace(/index\.html$/,'')==='/conversations/archive/'),route+' must retain an archive path');}
