@@ -1,0 +1,29 @@
+# DRAFT: activate only after explicit review of this new Actions-write entrypoint.
+name: LTC cloud plan request
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+  issues: read
+  actions: write
+concurrency:
+  group: ltc-cloud-plan-request
+  cancel-in-progress: false
+jobs:
+  request:
+    if: github.repository == 'Satnam-Satoshi/Satoshi-Langar' && github.ref == 'refs/heads/main' && github.actor_id == '268053325' && github.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.2
+      - name: Validate authenticated request and dispatch plan only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ltc-cloud-plan-request.mjs
